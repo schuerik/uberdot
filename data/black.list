@@ -1,0 +1,6 @@
+/etc/mkinitcpio.conf
+/etc/passwd
+/etc/hosts
+/dev/*
+/proc/*
+/boot/*
