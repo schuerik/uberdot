@@ -38,7 +38,7 @@ MAKEDIRS = config.getboolean("Arguments", "makeDirs", fallback=False)
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.1.0_3"
+VERSION = "1.1.1_3"
 
 
 # Constants below must be loaded first before using them

@@ -61,10 +61,10 @@ class DotManager:
         # Check installed-file version
         if (int(self.installed["@version"].split("_")[1]) !=
                 int(constants.VERSION.split("_")[1])):
-            msg = "There was a change of the installed-file schema"
+            msg = "There was a change of the installed-file schema "
             msg += "with the last update. Please revert to version "
-            msg += self.installed["@version"] + " and uninstall"
-            msg += " all of your profiles before using this version."
+            msg += self.installed["@version"] + " and uninstall "
+            msg += "all of your profiles before using this version."
             raise PreconditionError(msg)
 
     def parse_arguments(self, arguments: List[str] = None) -> None:
