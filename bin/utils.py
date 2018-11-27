@@ -111,12 +111,18 @@ def expandvars(path: RelPath) -> RelPath:
         path += tail
     return path
 
+def expanduser(path: RelPath) -> RelPath:
+    """Behaves like the os.path.expanduser() but uses
+    get_user_env_var() to look up the substitution"""
+    if path[0] == "~":
+        path = get_user_env_var("HOME") + path[1:]
+    return path
 
 def normpath(path: RelPath) -> Path:
     """Normalizes path, replaces ~ and environment vars,
     and converts it in an absolute path"""
     path = expandvars(path)
-    path = os.path.expandvars(path)
+    path = expanduser(path)
     return os.path.abspath(path)
 
 
@@ -125,8 +131,7 @@ def normpath(path: RelPath) -> Path:
 
 def import_profile_class(class_name: str) -> None:
     """This function imports a profile class only by it's name"""
-    directory = os.path.expanduser(expandvars(constants.PROFILE_FILES))
-    for root, _, files in os.walk(directory):
+    for root, _, files in os.walk(constants.PROFILE_FILES):
         for file in files:
             file = os.path.join(root, file)
             if file[-3:] == "pyc":

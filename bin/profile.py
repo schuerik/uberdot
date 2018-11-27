@@ -21,6 +21,7 @@ from bin.types import Pattern
 from bin.types import ProfileResult
 from bin.types import RelPath
 from bin.utils import expandvars
+from bin.utils import expanduser
 from bin.utils import get_user_env_var
 from bin.utils import get_dir_owner
 from bin.utils import import_profile_class
@@ -162,7 +163,7 @@ class Profile:
     def extlink(self, path: RelPath, **kwargs: Options) -> None:
         """Link any file specified by its absolute path"""
         read_opt = self.__make_read_opt(kwargs)
-        path = os.path.expanduser(expandvars(path))
+        path = expanduser(expandvars(path))
         if not os.path.isabs(path):
             print_warning("'path' should be specified as an absolut path" +
                           " for extlink(). Relative paths are not forbidden" +
@@ -272,7 +273,7 @@ class Profile:
         # Concat directory and name. The users $HOME needs to be set for this
         # when executing as root, otherwise ~ will be expanded to the home
         # directory of the root user (/root)
-        name = os.path.expanduser(os.path.join(directory, name))
+        name = expanduser(os.path.join(directory, name))
 
         # Add prefix an suffix to name
         base, ext = os.path.splitext(os.path.basename(name))
