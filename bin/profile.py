@@ -9,11 +9,11 @@ from typing import Any
 from typing import Callable
 from typing import List
 from typing import NoReturn
-from typing import Optional
 from typing import Tuple
+from typing import Union
 from bin import constants
+from bin.dynamicfile import *
 from bin.errors import CustomError
-from bin.errors import FatalError
 from bin.errors import GenerationError
 from bin.types import Options
 from bin.types import Path
@@ -22,14 +22,15 @@ from bin.types import ProfileResult
 from bin.types import RelPath
 from bin.utils import expandvars
 from bin.utils import expanduser
-from bin.utils import get_user_env_var
+from bin.utils import find_target
 from bin.utils import get_dir_owner
 from bin.utils import import_profile_class
+from bin.utils import normpath
 from bin.utils import print_warning
 
 # The custom builtins that the profiles will implement
 CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink",
-                   "default", "subprof", "tags", "rmtags"]
+                   "default", "subprof", "tags", "rmtags", "decrypt"]
 
 
 class Profile:
@@ -106,54 +107,27 @@ class Profile:
         """Raise a GenerationError with the profilename"""
         raise GenerationError(self.name, msg)
 
-    def __find_target(self, target: str, tags: List[str]) -> Optional[Path]:
-        """Find the correct target version in the repository to link to"""
-        targets = []
-        # Collect all files that have the same filename as the target
-        for root, _, files in os.walk(constants.TARGET_FILES):
-            for name in files:
-                # We need to look if filename matches a tag
-                for tag in tags:
-                    if name == tag + "%" + target:
-                        targets.append(os.path.join(root, name))
-        if not targets:
-            # Seems like nothing was found, but we searched only files
-            # with tags so far. Trying without tags as fallback
-            return self.__find_exact_target(target)
-        # Return found target. Because we found files with tags, we use
-        # the file that matches the earliest defined tag
-        for tag in tags:
-            for tmp_target in targets:
-                if os.path.basename(tmp_target).startswith(tag):
-                    return tmp_target
-        raise FatalError("No target was found even though there seems to " +
-                         "exist one. That's strange...")
+    def decrypt(self, target: Union[str, DynamicFile]) -> EncryptedFile:
+        """Creates an EncryptedFile instance, loads and returns it"""
+        encrypt = EncryptedFile(target.name)
+        if isinstance(target, DynamicFile):
+            encrypt.sources = [target.getpath()]
+        encrypt.update()
+        return encrypt
 
-    def __find_exact_target(self, target: str) -> Optional[Path]:
-        """Find the exact target in the repository to link to"""
-        targets = []
-        # Collect all files that have the same filename as the target
-        for root, _, files in os.walk(constants.TARGET_FILES):
-            for name in files:
-                if name == target:
-                    targets.append(os.path.join(root, name))
-        # Whithout tags there shall be only one file that matches the target
-        if len(targets) > 1:
-            msg = "There are multiple targets that match: '" + target + "'"
-            for tmp_target in targets:
-                msg += "\n  " + tmp_target
-            self.__raise_generation_error(msg)
-        elif not targets:
-            # Ooh, nothing found
-            return None
-        # Return found target
-        return targets[0]
-
-    def link(self, *targets: List[str], **kwargs: Options) -> None:
+    def link(self, *targets: List[Union[DynamicFile, str]],
+             **kwargs: Options) -> None:
         """Link a specific target with current options"""
         read_opt = self.__make_read_opt(kwargs)
         for target in targets:
-            found_target = self.__find_target(target, read_opt("tags"))
+            if isinstance(target, DynamicFile):
+                found_target = target.getpath()
+            else:
+                try:
+                    found_target = find_target(target, read_opt("tags"))
+                    found_target = normpath(found_target)
+                except ValueError as err:
+                    self.__raise_generation_error(err)
             if found_target:
                 self.__create_link_descriptor(found_target, **kwargs)
             elif not read_opt("optional"):
@@ -169,7 +143,7 @@ class Profile:
                           " for extlink(). Relative paths are not forbidden" +
                           " but can cause undesired side-effects.")
         if not read_opt("optional") or os.path.exists(path):
-            self.__create_link_descriptor(path, **kwargs)
+            self.__create_link_descriptor(os.path.abspath(path), **kwargs)
 
     def links(self, target_pattern: Pattern, **kwargs: Options) -> None:
         """Calls link() for all targets matching a pattern. Also allows you
@@ -228,17 +202,13 @@ class Profile:
                 self.__create_link_descriptor(target, **kwargs)
 
 
-    def __create_link_descriptor(self, target: RelPath,
+    def __create_link_descriptor(self, target: Path,
                                  directory: RelPath = "",
                                  **kwargs: Options) -> None:
         """Creates a link entry for current options and a given target.
         Also lets you set the dir like cd or options
         temporarily only for a link"""
         read_opt = self.__make_read_opt(kwargs)
-
-        # Prepare target
-        target = expandvars(target)
-        target = os.path.abspath(target)
 
         # Now generate the correct name for the symlink
         replace = read_opt("replace")

@@ -7,12 +7,63 @@ import os
 import pwd
 import re
 import subprocess
+from typing import List
+from typing import Optional
 from typing import Tuple
 from bin import constants
 from bin.types import Path
 from bin.types import RelPath
+from bin.errors import FatalError
 from bin.errors import GenerationError
 from bin.errors import PreconditionError
+
+
+# Utils for finding targets
+###############################################################################
+
+def find_target(target: str, tags: List[str]) -> Optional[Path]:
+    """Find the correct target version in the repository to link to"""
+    targets = []
+    # Collect all files that have the same filename as the target
+    for root, _, files in os.walk(constants.TARGET_FILES):
+        for name in files:
+            # We need to look if filename matches a tag
+            for tag in tags:
+                if name == tag + "%" + target:
+                    targets.append(os.path.join(root, name))
+    if not targets:
+        # Seems like nothing was found, but we searched only files
+        # with tags so far. Trying without tags as fallback
+        return find_exact_target(target)
+    # Return found target. Because we found files with tags, we use
+    # the file that matches the earliest defined tag
+    for tag in tags:
+        for tmp_target in targets:
+            if os.path.basename(tmp_target).startswith(tag):
+                return tmp_target
+    raise FatalError("No target was found even though there seems to " +
+                     "exist one. That's strange...")
+
+
+def find_exact_target(target: str) -> Optional[Path]:
+    """Find the exact target in the repository to link to"""
+    targets = []
+    # Collect all files that have the same filename as the target
+    for root, _, files in os.walk(constants.TARGET_FILES):
+        for name in files:
+            if name == target:
+                targets.append(os.path.join(root, name))
+    # Whithout tags there shall be only one file that matches the target
+    if len(targets) > 1:
+        msg = "There are multiple targets that match: '" + target + "'"
+        for tmp_target in targets:
+            msg += "\n  " + tmp_target
+        raise ValueError(msg)
+    elif not targets:
+        # Ooh, nothing found
+        return None
+    # Return found target
+    return targets[0]
 
 
 # Utils for permissions and user
