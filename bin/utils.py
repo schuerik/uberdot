@@ -7,12 +7,63 @@ import os
 import pwd
 import re
 import subprocess
+from typing import List
+from typing import Optional
 from typing import Tuple
 from bin import constants
 from bin.types import Path
 from bin.types import RelPath
+from bin.errors import FatalError
 from bin.errors import GenerationError
 from bin.errors import PreconditionError
+
+
+# Utils for finding targets
+###############################################################################
+
+def find_target(target: str, tags: List[str]) -> Optional[Path]:
+    """Find the correct target version in the repository to link to"""
+    targets = []
+    # Collect all files that have the same filename as the target
+    for root, _, files in os.walk(constants.TARGET_FILES):
+        for name in files:
+            # We need to look if filename matches a tag
+            for tag in tags:
+                if name == tag + "%" + target:
+                    targets.append(os.path.join(root, name))
+    if not targets:
+        # Seems like nothing was found, but we searched only files
+        # with tags so far. Trying without tags as fallback
+        return find_exact_target(target)
+    # Return found target. Because we found files with tags, we use
+    # the file that matches the earliest defined tag
+    for tag in tags:
+        for tmp_target in targets:
+            if os.path.basename(tmp_target).startswith(tag):
+                return tmp_target
+    raise FatalError("No target was found even though there seems to " +
+                     "exist one. That's strange...")
+
+
+def find_exact_target(target: str) -> Optional[Path]:
+    """Find the exact target in the repository to link to"""
+    targets = []
+    # Collect all files that have the same filename as the target
+    for root, _, files in os.walk(constants.TARGET_FILES):
+        for name in files:
+            if name == target:
+                targets.append(os.path.join(root, name))
+    # Whithout tags there shall be only one file that matches the target
+    if len(targets) > 1:
+        msg = "There are multiple targets that match: '" + target + "'"
+        for tmp_target in targets:
+            msg += "\n  " + tmp_target
+        raise ValueError(msg)
+    elif not targets:
+        # Ooh, nothing found
+        return None
+    # Return found target
+    return targets[0]
 
 
 # Utils for permissions and user
@@ -23,8 +74,7 @@ def get_uid() -> None:
     sudo_uid = os.environ.get('SUDO_UID')
     if sudo_uid:
         return int(sudo_uid)
-    else:
-        return os.getuid()
+    return os.getuid()
 
 
 def get_gid() -> None:
@@ -32,8 +82,7 @@ def get_gid() -> None:
     sudo_gid = os.environ.get('SUDO_GID')
     if sudo_gid:
         return int(sudo_gid)
-    else:
-        return os.getgid()
+    return os.getgid()
 
 
 def get_dir_owner(filename: Path) -> Tuple[int, int]:
@@ -111,6 +160,7 @@ def expandvars(path: RelPath) -> RelPath:
         path += tail
     return path
 
+
 def expanduser(path: RelPath) -> RelPath:
     """Behaves like the os.path.expanduser() but uses
     get_user_env_var() to look up the substitution"""
@@ -118,12 +168,15 @@ def expanduser(path: RelPath) -> RelPath:
         path = get_user_env_var("HOME") + path[1:]
     return path
 
+
 def normpath(path: RelPath) -> Path:
     """Normalizes path, replaces ~ and environment vars,
     and converts it in an absolute path"""
-    path = expandvars(path)
-    path = expanduser(path)
-    return os.path.abspath(path)
+    if path is not None:
+        path = expandvars(path)
+        path = expanduser(path)
+        return os.path.abspath(path)
+    return None
 
 
 # Dynamic imports
@@ -168,3 +221,8 @@ def print_warning(message: str) -> None:
 def print_success(message: str) -> None:
     """Prints text in success color"""
     print(constants.OKGREEN + message + constants.ENDC)
+
+
+def is_dynamic_file(target: Path) -> bool:
+    """Returns if a given path is a dynamic file"""
+    return os.path.dirname(os.path.dirname(target)) == normpath("data")
