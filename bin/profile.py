@@ -109,10 +109,13 @@ class Profile:
 
     def decrypt(self, target: Union[str, DynamicFile]) -> EncryptedFile:
         """Creates an EncryptedFile instance, loads and returns it"""
-        encrypt = EncryptedFile(target.name)
         if isinstance(target, DynamicFile):
+            encrypt = EncryptedFile(target.name)
             encrypt.sources = [target.getpath()]
-        encrypt.update()
+            encrypt.update()
+        else:
+            encrypt = EncryptedFile(target)
+            encrypt.update(self.options["tags"])
         return encrypt
 
     def link(self, *targets: List[Union[DynamicFile, str]],
@@ -122,6 +125,8 @@ class Profile:
         for target in targets:
             if isinstance(target, DynamicFile):
                 found_target = target.getpath()
+                if "name" not in kwargs:
+                    kwargs["name"] = target.name
             else:
                 try:
                     found_target = find_target(target, read_opt("tags"))

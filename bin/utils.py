@@ -74,8 +74,7 @@ def get_uid() -> None:
     sudo_uid = os.environ.get('SUDO_UID')
     if sudo_uid:
         return int(sudo_uid)
-    else:
-        return os.getuid()
+    return os.getuid()
 
 
 def get_gid() -> None:
@@ -83,8 +82,7 @@ def get_gid() -> None:
     sudo_gid = os.environ.get('SUDO_GID')
     if sudo_gid:
         return int(sudo_gid)
-    else:
-        return os.getgid()
+    return os.getgid()
 
 
 def get_dir_owner(filename: Path) -> Tuple[int, int]:
@@ -162,6 +160,7 @@ def expandvars(path: RelPath) -> RelPath:
         path += tail
     return path
 
+
 def expanduser(path: RelPath) -> RelPath:
     """Behaves like the os.path.expanduser() but uses
     get_user_env_var() to look up the substitution"""
@@ -169,12 +168,15 @@ def expanduser(path: RelPath) -> RelPath:
         path = get_user_env_var("HOME") + path[1:]
     return path
 
+
 def normpath(path: RelPath) -> Path:
     """Normalizes path, replaces ~ and environment vars,
     and converts it in an absolute path"""
-    path = expandvars(path)
-    path = expanduser(path)
-    return os.path.abspath(path)
+    if path is not None:
+        path = expandvars(path)
+        path = expanduser(path)
+        return os.path.abspath(path)
+    return None
 
 
 # Dynamic imports
@@ -219,3 +221,8 @@ def print_warning(message: str) -> None:
 def print_success(message: str) -> None:
     """Prints text in success color"""
     print(constants.OKGREEN + message + constants.ENDC)
+
+
+def is_dynamic_file(target: Path) -> bool:
+    """Returns if a given path is a dynamic file"""
+    return os.path.dirname(os.path.dirname(target)) == normpath("data")

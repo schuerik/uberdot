@@ -13,6 +13,7 @@ import sys
 import traceback
 from typing import List
 from bin import constants
+from bin.interpreters import CheckDynamicFilesI
 from bin.interpreters import CheckLinkBlacklistI
 from bin.interpreters import CheckLinkDirsI
 from bin.interpreters import CheckLinkExistsI
@@ -196,7 +197,8 @@ class DotManager:
         tests = [
             CheckLinksI(self.installed),
             CheckLinkDirsI(self.args.makedirs),
-            CheckLinkExistsI(self.args.force)
+            CheckLinkExistsI(self.args.force),
+            CheckDynamicFilesI(False)
         ]
         difflog.run_interpreter(*tests)
         # Gain root if needed
@@ -261,7 +263,8 @@ class DotManager:
             CheckLinksI(self.installed),
             CheckLinkBlacklistI(self.args.superforce),
             CheckLinkDirsI(self.args.makedirs),
-            CheckLinkExistsI(self.args.force)
+            CheckLinkExistsI(self.args.force),
+            CheckDynamicFilesI(True)
         ]
         difflog.run_interpreter(*tests)
         difflog.run_interpreter(RootNeededI())

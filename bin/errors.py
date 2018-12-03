@@ -17,14 +17,15 @@ class CustomError(Exception):
 class FatalError(CustomError):
     """A custom exception for all errors that violate expected invariants"""
     def __init__(self, message):
-        if message:
+        if not message:
             msg = "Unkown Error"
         else:
             msg = message
         msg += "\n" + constants.WARNING + "That error should have "
-        msg += constants.BOLD + "NEVER EVER" + constants.NOBOLD
-        msg += " occur!! Please make sure to resolve this issue before"
-        msg += " using this tool at all!" + constants.ENDC
+        msg += constants.BOLD + "NEVER EVER" + constants.NOBOLD + " "
+        msg += "occur!! The developer fucked this up really hard! Please "
+        msg += "make sure to resolve this issue before using this "
+        msg += "tool at all!" + constants.ENDC
         super().__init__(msg, 69)
 
 
@@ -69,3 +70,9 @@ class UnkownError(CustomError):
         message += "\nThe unkown error was:\n  "
         message += type(originalError).__name__ + ": " + str(originalError)
         super().__init__(message, 105)
+
+
+class UserAbortion(CustomError):
+    """Used to abort the dotmanager at any given point safely by the user"""
+    def __init__(self):
+        super().__init__("Aborted by user", 106)

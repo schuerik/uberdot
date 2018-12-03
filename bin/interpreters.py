@@ -9,10 +9,14 @@ This could be:
 """
 
 import grp
+import hashlib
 import os
 import pwd
 import re
 import sys
+from shutil import copyfile
+from subprocess import PIPE
+from subprocess import Popen
 from typing import Optional
 from typing import Tuple
 from bin import constants
@@ -20,16 +24,18 @@ from bin.errors import IntegrityError
 from bin.errors import PreconditionError
 from bin.errors import UnkownError
 from bin.errors import UserError
+from bin.errors import UserAbortion
 from bin.errors import FatalError
 from bin.types import InstalledLog
 from bin.types import DiffLogData
 from bin.types import DiffOperation
 from bin.types import Path
-from bin.utils import print_warning
 from bin.utils import get_date_time_now
 from bin.utils import get_dir_owner
 from bin.utils import get_gid
 from bin.utils import get_uid
+from bin.utils import is_dynamic_file
+from bin.utils import print_warning
 
 
 class Interpreter():
@@ -162,6 +168,71 @@ class DUIStrategyI(Interpreter):
         self.data.clear()
         for item in merged_list:
             self.data.append(item)
+
+
+class CheckDynamicFilesI(Interpreter):
+    """Checks if there are changes to a dynamic file and
+    gives the user the oppoutunity to interact with them"""
+
+    def __init__(self, dryrun: bool) -> None:
+        self.dryrun = dryrun
+
+    def _op_update_l(self, dop: DiffOperation) -> None:
+        self.inspect_file(dop["symlink1"]["target"])
+
+    def _op_remove_l(self, dop: DiffOperation) -> None:
+        self.inspect_file(os.readlink(dop["symlink_name"]))
+
+    def inspect_file(self, target: Path) -> None:
+        """Checks if file is dynamic and has changed. """
+        # Calculate new hash and get old has of file
+        md5_calc = hashlib.md5(open(target, "rb").read()).hexdigest()
+        md5_old = os.path.basename(target)[-32:]
+        # Check for changes
+        if is_dynamic_file(target) and md5_calc != md5_old:
+            print_warning(f"You made changes to '{target}'. Those changes " +
+                          "will be lost, if you don't write them back to " +
+                          "the original file.")
+            self.user_interaction(target)
+
+    def user_interaction(self, target: Path) -> None:
+        """Gives the user the ability to interact with a changed file"""
+        target_bak = target + "." + constants.BACKUP_EXTENSION
+        done = False
+        while not done:
+            inp = input("[A]bort / [I]gnore / Show [D]iff " +
+                        "/ Create [P]atch / [U]ndo changes: ")
+            if inp == "A":
+                raise UserAbortion
+            elif inp == "I":
+                done = True
+            elif inp == "D":
+                process = Popen(["diff", "--color=auto", target_bak, target])
+                process.communicate()
+            elif inp == "P":
+                patch_file = os.path.join(constants.TARGET_FILES,
+                                          os.path.basename(target))
+                patch_file += ".patch"
+                patch_file = input("Enter filename for patch [" +
+                                   patch_file + "]: ") or patch_file
+                args = ["git", "diff", "--no-index", target_bak, target]
+                process = Popen(args, stdout=PIPE)
+                try:
+                    with open(patch_file, "wb") as file:
+                        file.write(process.stdout.read())
+                    print("Patch file written successfully")
+                except IOError:
+                    msg = f"Could not write patch file '{patch_file}'."
+                    raise PreconditionError(msg)
+            elif inp == "U":
+                if self.dryrun:
+                    print("This does nothing this time since " +
+                          "this is just a dry-run")
+                else:
+                    copyfile(target_bak, target)
+                done = True
+            else:
+                print_warning("Invalid option")
 
 
 class CheckLinksI(Interpreter):

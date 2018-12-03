@@ -35,20 +35,22 @@ FORCE = config.getboolean("Arguments", "force", fallback=False)
 VERBOSE = config.getboolean("Arguments", "verbose", fallback=False)
 MAKEDIRS = config.getboolean("Arguments", "makeDirs", fallback=False)
 
+# Default decryption password
+DECRYPT_PWD = config.get("Settings", "decryptPwd", fallback=None)
+
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.1.1_3"
+VERSION = "1.2.1_3"
 
 
 # Constants below must be loaded first before using them
 ###############################################################################
 
 # File paths
+BACKUP_EXTENSION = config.get("Settings", "backupExtension", fallback="bak")
 INSTALLED_FILE = "data/installed/%s.json"
-INSTALLED_FILE_BACKUP = INSTALLED_FILE + "."
-INSTALLED_FILE_BACKUP += config.get("Settings", "backupExtension",
-                                    fallback="bak")
+INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
 PROFILE_FILES = config.get("Settings", "profileFiles", fallback="profiles")
 TARGET_FILES = config.get("Settings", "targetFiles", fallback="files")
 
