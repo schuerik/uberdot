@@ -66,7 +66,7 @@ from bin.utils import normpath
 from bin.utils import print_warning
 
 # The custom builtins that the profiles will implement
-CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink",
+CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink", "has_tag",
                    "default", "subprof", "tags", "rmtags", "decrypt"]
 
 
@@ -354,7 +354,8 @@ class Profile:
     def rmtags(self, *tags: List[str]) -> None:
         """Remove a list of tags"""
         for tag in tags:
-            self.options["tags"].remove(tag)
+            if self.has_tag(tag):
+                self.options["tags"].remove(tag)
 
     def tags(self, *tags: List[str]) -> None:
         """Add a list of tags"""
