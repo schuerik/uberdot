@@ -105,48 +105,51 @@ class DotManager:
         if arguments is None:
             arguments = sys.argv[1:]
         # Setup parser
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(add_help=False)
         # Options
-        parser.add_argument("-v", "--verbose",
-                            help="print stacktrace in case of error",
-                            action="store_true",
-                            default=constants.VERBOSE)
+        parser.add_argument("--directory", help="set the default directory")
         parser.add_argument("-d", "--dryrun",
                             help="just simulate what would happen",
                             action="store_true")
-        parser.add_argument("-f", "--force",
-                            help="overwrite existing files with links",
-                            action="store_true",
-                            default=constants.FORCE)
-        parser.add_argument("--superforce",
-                            help="overwrite blacklisted/protected files",
-                            action="store_true")
-        parser.add_argument("-p", "--plain",
-                            help="print the internal actionlog as plain json",
-                            action="store_true")
-        parser.add_argument("--parent",
-                            help="set the parent of the profiles you install",
-                            default=None)
         parser.add_argument("--dui",
                             help="use the DUI strategy for updating links",
                             action="store_true",
                             default=constants.DUISTRATEGY)
+        parser.add_argument("-f", "--force",
+                            help="overwrite existing files with links",
+                            action="store_true",
+                            default=constants.FORCE)
         parser.add_argument("-m", "--makedirs",
                             help="create directories automatically if needed",
                             action="store_true",
                             default=constants.MAKEDIRS)
-        parser.add_argument("--save",
-                            help="specify another install-file to use",
-                            default="default")
-        parser.add_argument("--directory", help="set the default directory")
         parser.add_argument("--option",
                             help="set options for profiles",
                             dest="opt_dict",
                             action=StoreDictKeyPair,
                             nargs="+",
                             metavar="KEY=VAL")
+        parser.add_argument("--parent",
+                            help="set the parent of the profiles you install",
+                            default=None)
+        parser.add_argument("-p", "--plain",
+                            help="print the internal actionlog as plain json",
+                            action="store_true")
+        parser.add_argument("--save",
+                            help="specify another install-file to use",
+                            default="default")
+        parser.add_argument("--superforce",
+                            help="overwrite blacklisted/protected files",
+                            action="store_true")
+        parser.add_argument("-v", "--verbose",
+                            help="print stacktrace in case of error",
+                            action="store_true",
+                            default=constants.VERBOSE)
         # Modes
         modes = parser.add_mutually_exclusive_group(required=True)
+        modes.add_argument("-h", "--help",
+                           help="show this help message and exit",
+                           action="help")
         modes.add_argument("-i", "--install",
                            help="install and update (sub)profiles",
                            action="store_true")
