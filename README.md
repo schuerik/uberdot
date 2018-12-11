@@ -1,5 +1,7 @@
 # Dotmanager
 
+***This is currently under construction! Dotmanager is considered stable but not production ready at this point! Documentation is missing and there are no unit or regression tests written. Come back in a few days.***
+
 ## What is Dotmanager?
 Dotmanager is a tool to manage different versions of your dotfiles on different hosts. Dotmanager is intended to give you
 maximal flexibility while checking all operations you configured/programmed at the same time to prevent that you accidentally
