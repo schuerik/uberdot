@@ -132,8 +132,11 @@ class DotManager:
         parser.add_argument("--parent",
                             help="set the parent of the profiles you install",
                             default=None)
-        parser.add_argument("-p", "--plain",
-                            help="print the internal actionlog as plain json",
+        parser.add_argument("--plain",
+                            help="print the internal DiffLog as plain json",
+                            action="store_true")
+        parser.add_argument("-p", "--print",
+                            help="print what changes dotmanager will do",
                             action="store_true")
         parser.add_argument("--save",
                             help="specify another install-file to use",
@@ -204,6 +207,8 @@ class DotManager:
                 self.dryrun(dfl)
             elif self.args.plain:
                 dfl.run_interpreter(PlainPrintI())
+            elif self.args.print:
+                dfl.run_interpreter(PrintI())
             else:
                 self.run(dfl)
 

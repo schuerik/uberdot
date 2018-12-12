@@ -106,11 +106,14 @@ class DiffLog():
         # Initialize interpreters
         for interpreter in interpreters:
             interpreter.set_difflog_data(self.data)
+        # Send a "start" operation to indicate that operations will follow
+        # so interpreters can implement _op_start
+        for interpreter in interpreters:
+            interpreter.call_operation({"operation": "start"})
         # Run interpreters for every operation
         for operation in self.data:
             for interpreter in interpreters:
                 interpreter.call_operation(operation)
-        # And send a "fin" operation when we are finished,
-        # so interpreters can implement _op_fin
+        # And send a "fin" operation when we are finished
         for interpreter in interpreters:
             interpreter.call_operation({"operation": "fin"})

@@ -102,6 +102,12 @@ class PlainPrintI(Interpreter):
         self._op_add_p = self._op_remove_p = self._op_update_p = print
         self._op_add_l = self._op_remove_l = self._op_update_l = print
 
+    def _op_start(self, dop: DiffOperation) -> None:
+        print("[")
+
+    def _op_fin(self, dop: DiffOperation) -> None:
+        print("]")
+
 
 class PrintI(Interpreter):
     """Pretty-prints log messages and what a operations is going to do."""
@@ -109,6 +115,9 @@ class PrintI(Interpreter):
     def _log_interpreter(dop: DiffOperation, message: str) -> None:
         print(constants.BOLD + "[" + dop["profile"] + "]: " +
               constants.NOBOLD + message)
+
+    def _op_start(self, dop: DiffOperation) -> None:
+        print("Starting linking process now.")
 
     def _op_info(self, dop: DiffOperation) -> None:
         self._log_interpreter(dop, dop["message"])
