@@ -64,6 +64,7 @@ from bin.utils import get_dir_owner
 from bin.utils import import_profile_class
 from bin.utils import normpath
 from bin.utils import print_warning
+from bin.utils import walk_dotfiles
 
 # The custom builtins that the profiles will implement
 CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink", "has_tag",
@@ -200,15 +201,14 @@ class Profile:
 
         # Find all files that match target_pattern and index
         # them by there name without tag
-        for root, _, files in os.walk(constants.TARGET_FILES):
-            for file in files:
-                tag, base = (None, os.path.basename(file))
-                if "%" in base:
-                    tag, base = base.split("%", 1)
-                if re.fullmatch(target_pattern, base) is not None:
-                    if base not in target_dir:
-                        target_dir[base] = []
-                    target_dir[base].append((tag, os.path.join(root, file)))
+        for root, name in walk_dotfiles():
+            tag, base = (None, os.path.basename(name))
+            if "%" in base:
+                tag, base = base.split("%", 1)
+            if re.fullmatch(target_pattern, base) is not None:
+                if base not in target_dir:
+                    target_dir[base] = []
+                target_dir[base].append((tag, os.path.join(root, name)))
 
         def choose_file(base: str, tags: Tuple[str, Path]) -> None:
             # Go through set tags and take the first file that matches a tag

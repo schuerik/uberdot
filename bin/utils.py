@@ -62,12 +62,11 @@ def find_target(target: str, tags: List[str]) -> Optional[Path]:
     """Find the correct target version in the repository to link to"""
     targets = []
     # Collect all files that have the same filename as the target
-    for root, _, files in os.walk(constants.TARGET_FILES):
-        for name in files:
-            # We need to look if filename matches a tag
-            for tag in tags:
-                if name == tag + "%" + target:
-                    targets.append(os.path.join(root, name))
+    for root, name in walk_dotfiles():
+        # We need to look if filename matches a tag
+        for tag in tags:
+            if name == tag + "%" + target:
+                targets.append(os.path.join(root, name))
     if not targets:
         # Seems like nothing was found, but we searched only files
         # with tags so far. Trying without tags as fallback
@@ -86,10 +85,9 @@ def find_exact_target(target: str) -> Optional[Path]:
     """Find the exact target in the repository to link to"""
     targets = []
     # Collect all files that have the same filename as the target
-    for root, _, files in os.walk(constants.TARGET_FILES):
-        for name in files:
-            if name == target:
-                targets.append(os.path.join(root, name))
+    for root, name in walk_dotfiles():
+        if name == target:
+            targets.append(os.path.join(root, name))
     # Whithout tags there shall be only one file that matches the target
     if len(targets) > 1:
         msg = "There are multiple targets that match: '" + target + "'"
@@ -101,6 +99,31 @@ def find_exact_target(target: str) -> Optional[Path]:
         return None
     # Return found target
     return targets[0]
+
+
+def walk_dotfiles() -> List[Tuple[Path, str]]:
+    """Returns a list of all dotfiles as tuple of directory and filename"""
+    # load ignore list
+    ignorelist_path = os.path.join(constants.TARGET_FILES, ".dotignore")
+    if os.path.exists(ignorelist_path):
+        with open(ignorelist_path, "r") as file:
+            ignorelist = file.readlines()
+        ignorelist = [entry.strip() for entry in ignorelist]
+    else:
+        ignorelist = []
+    # walk through dotfile directory
+    result = []
+    for root, _, files in os.walk(constants.TARGET_FILES):
+        for name in files:
+            # check if file should be ignored
+            on_ignorelist = False
+            for entry in ignorelist:
+                if re.search(entry, os.path.join(root, name)):
+                    on_ignorelist = True
+            # if not add it to result
+            if not on_ignorelist:
+                result.append((root, name))
+    return result
 
 
 # Utils for permissions and user
