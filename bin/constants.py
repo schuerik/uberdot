@@ -95,6 +95,8 @@ TARGET_FILES = config.get("Settings", "targetFiles", fallback="files")
 DEFAULTS = {}
 DIR_DEFAULT = ""
 
+# Defaults from the config. If not set in config a fallback is provided.
+# This is then used as fallback for all further values loaded from the config.
 FALLBACK = {
     "directory": config.get("DEFAULTS", "directory", fallback="$HOME"),
     "name": config.get("DEFAULTS", "name", fallback=""),
@@ -115,6 +117,7 @@ def load_constants(installed_filename: str) -> None:
     global DEFAULTS, DIR_DEFAULT, INSTALLED_FILE, INSTALLED_FILE_BACKUP
     global TARGET_FILES, PROFILE_FILES
     name = "Installed." + installed_filename
+    # Load defaults from the corresponding section of the config
     DEFAULTS = {
         "name": config.get(name, "name", fallback=FALLBACK["name"]),
         "optional": config.getboolean(name, "optional",
@@ -133,6 +136,7 @@ def load_constants(installed_filename: str) -> None:
     DIR_DEFAULT = config.get(name, "directory", fallback=FALLBACK["directory"])
     DEFAULTS["tags"] = next(csv.reader([config.get(name, "tags",
                                                    fallback="")]))
+    # Insert installed-file into constants
     INSTALLED_FILE = INSTALLED_FILE % installed_filename
     INSTALLED_FILE_BACKUP = INSTALLED_FILE_BACKUP % installed_filename
     # Normalize paths

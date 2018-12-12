@@ -104,14 +104,19 @@ class DiffSolver():
         allpnames = []
 
         def add_profilenames(profile):
+            """Recursively add all subprofiles to allpnames"""
             allpnames.append(profile["name"])
             for prof in profile["profiles"]:
                 add_profilenames(prof)
+
         pargs = {}
+        # Merge options provided by commandline with loaded defaults
         if self.default_options:
             pargs["options"] = {**constants.DEFAULTS, **self.default_options}
+        # Same for directory
         if self.default_dir:
             pargs["directory"] = self.default_dir
+
         plist = []
         for profilename in self.profilenames:
             # Profiles are generated
@@ -127,7 +132,7 @@ class DiffSolver():
                                 all_profilenames: List[str],
                                 parent_name: str = None) -> None:
         """Resolves the differences between a single profile and the installed
-        ones and appends the difflog for those. if parent_name is None the
+        ones and appends the difflog for those. If parent_name is None the
         profile is treated as a root profile"""
         def symlinks_similar(symlink1, symlink2):
             return symlink1["name"] == symlink2["name"] or \
@@ -151,6 +156,7 @@ class DiffSolver():
             installed_links = copy.deepcopy(installed_profile["links"])
         else:
             installed_links = []
+            # The profile wasn't installed
             self.difflog.add_profile(profile_name, parent_name)
             profile_new = True
         # And from the new profile
@@ -158,8 +164,17 @@ class DiffSolver():
 
         # Now we can compare installed_dict and profile_dict and write
         # the difflog that resolves these differences
+        # To do this we actually compare installed_links with new_links
+        # and check which links:_
+        #   - didn't changed (must be the same in both)
+        #   - are removed (occure only in installed_links)
+        #   - are updated (two links that differ, but only in one property)
+        #   - are added (occure only in new_links)
+        # Whenever we find a link to be unchanged/removed/etc. we will remove
+        # it from new_links and installed_links, so in the end both lists
+        # need to be empty.
 
-        # Check unchanged and removed links
+        # Check unchanged
         count = 0
         for installed_link in installed_links[:]:
             for new_link in new_links[:]:
@@ -175,6 +190,7 @@ class DiffSolver():
             msg += " links will be left untouched, no changes here..."
             self.difflog.add_info(profile_name, msg)
 
+        # Check removed
         for installed_link in installed_links[:]:
             remove = True
             for new_link in new_links[:]:

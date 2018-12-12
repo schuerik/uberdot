@@ -46,7 +46,9 @@ class CustomError(Exception):
         self._message = constants.BOLD + "ERROR: " + constants.NOBOLD + message
         self.exitcode = exitcode
         super().__init__()
+
     def getmessage(self):
+        """Colors every error message in FAIL-color"""
         return constants.FAIL + self._message + constants.ENDC
     message = property(getmessage)
 

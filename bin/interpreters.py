@@ -99,6 +99,7 @@ class PlainPrintI(Interpreter):
     """Prints add/remove/update-operation without any formating"""
     def __init__(self):
         super().__init__()
+        # All DiffOperations should be just printed
         self._op_add_p = self._op_remove_p = self._op_update_p = print
         self._op_add_l = self._op_remove_l = self._op_update_l = print
 
@@ -152,6 +153,7 @@ class PrintI(Interpreter):
                               " was removed from the system.")
 
     def _op_update_l(self, dop: DiffOperation) -> None:
+        # Generate message according to what changed in the updated link
         if dop["symlink1"]["name"] != dop["symlink2"]["name"]:
             self._log_interpreter(dop, dop["symlink1"]["name"] +
                                   " was moved to " + dop["symlink2"]["name"])
@@ -253,9 +255,11 @@ class CheckDynamicFilesI(Interpreter):
             elif inp == "I":
                 done = True
             elif inp == "D":
+                # Create a colored diff between the file and its original
                 process = Popen(["diff", "--color=auto", target_bak, target])
                 process.communicate()
             elif inp == "P":
+                # Create a git patch with git diff
                 patch_file = os.path.join(constants.TARGET_FILES,
                                           os.path.basename(target))
                 patch_file += ".patch"
@@ -275,6 +279,7 @@ class CheckDynamicFilesI(Interpreter):
                     print("This does nothing this time since " +
                           "this is just a dry-run")
                 else:
+                    # Copy the original to the changed
                     copyfile(target_bak, target)
                 done = True
             else:
