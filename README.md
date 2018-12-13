@@ -42,7 +42,7 @@ all the different profiles that you write.
 ### Creating profiles
 Create a file in your `profiles` directory. You can use any name as long as it ends with `.py`.
 In this you can create simple profile eg for your bash configuration:
-```
+``` python
 from bin.profile import Profile
 class Bash(Profile):
     def generate(self):
@@ -122,7 +122,7 @@ Takes a list of tags and adds all of them. A tag is just a any string of charact
 used to find alternate versions of a dotfile. Such a alternate version of a dotfile needs to be prefixed with the same tag plus
 a percent sign as a separator. The easiest way to explain this concept is with an example:
 Suppose you created a profile for your bash configuration.
-```
+``` python
 from bin.profile import Profile
 class Bash(Profile):
     def generate(self):
@@ -135,14 +135,14 @@ To reuse this profile on different distributions you can now create alternate ve
 - arch%bashrc
 - arch%inputrc
 Now you could create a profile for every device or distribution as you like and set the suitable tag.
-```
+``` python
 from bin.profile import Profile
 class Device1(Profile):
     def generate(self):
         tags("debian")
         subprof("Bash")
 ```
-```
+``` python
 from bin.profile import Profile
 class Device2(Profile):
     def generate(self):
