@@ -248,9 +248,11 @@ def import_profile_class(class_name: str) -> None:
     for root, _, files in os.walk(constants.PROFILE_FILES):
         for file in files:
             file = os.path.join(root, file)
-            if file[-3:] == "pyc":
+            # Ignore everything that isn't a python module
+            if file[-2:] != "py":
                 break
             try:
+                # Import module
                 spec = importlib.util.spec_from_file_location("__name__", file)
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
@@ -259,6 +261,7 @@ def import_profile_class(class_name: str) -> None:
                                       "' contains an error and therefor " +
                                       "can't be imported. The error was:" +
                                       "\n   " + str(err))
+            # Return the class if it is in this module
             if class_name in module.__dict__:
                 return module.__dict__[class_name]
     raise PreconditionError("The profile '" + class_name +

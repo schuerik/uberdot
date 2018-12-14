@@ -64,7 +64,6 @@ from bin.errors import UserError
 from bin.differencesolver import DiffSolver
 from bin.differencelog import DiffLog
 from bin.types import InstalledProfile
-from bin.types import ProfileResult
 from bin.utils import has_root_priveleges
 from bin.utils import get_uid
 from bin.utils import get_gid

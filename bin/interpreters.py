@@ -324,6 +324,8 @@ class CheckLinksI(Interpreter):
             if item[0] == dop["symlink_name"]:
                 break
             count += 1
+        if count == len(self.linklist):
+            raise FatalError("Can't remove link that isn't installed")
         self.linklist.pop(count)
 
 
@@ -337,15 +339,15 @@ class CheckLinkBlacklistI(Interpreter):
             self.blacklist = file.readlines()
         self.blacklist = [entry.strip() for entry in self.blacklist]
 
-    def check_blacklist(self, symlink_name: Path) -> None:
+    def check_blacklist(self, symlink_name: Path, action: str) -> None:
         """Checks if the symlink matches on a pattern in the blacklist"""
         for entry in self.blacklist:
             if re.search(entry, symlink_name):
-                print_warning("You are trying to overwrite '" + symlink_name +
+                print_warning(f"You are trying to {action} '" + symlink_name +
                               "' which is blacklisted. It is considered " +
-                              "dangerous to overwrite those files!")
+                              "dangerous to {action} those files!")
                 if self.superforce:
-                    print_warning("Are you sure that you want to overwrite " +
+                    print_warning(f"Are you sure that you want to {action} " +
                                   "a blacklisted file?")
                     confirmation = input("Type \"YES\" to confirm or " +
                                          "anything else to cancel: ")
@@ -355,17 +357,20 @@ class CheckLinkBlacklistI(Interpreter):
                     print_warning("If you really want to modify this file" +
                                   " you can use the --superforce flag to" +
                                   " ignore the blacklist.")
-                    raise IntegrityError("Won't overwrite blacklisted file!")
+                    raise IntegrityError(f"Won't {action} blacklisted file!")
 
     def _op_update_l(self, dop: DiffOperation) -> None:
-        self.check_blacklist(dop["symlink1"]["name"])
-        self.check_blacklist(dop["symlink2"]["name"])
+        if dop["symlink1"]["name"] == dop["symlink2"]["name"]:
+            self.check_blacklist(dop["symlink1"]["name"], "update")
+        else:
+            self.check_blacklist(dop["symlink1"]["name"], "remove")
+            self.check_blacklist(dop["symlink2"]["name"], "overwrite")
 
     def _op_remove_l(self, dop: DiffOperation) -> None:
-        self.check_blacklist(dop["symlink_name"])
+        self.check_blacklist(dop["symlink_name"], "remove")
 
     def _op_add_l(self, dop: DiffOperation) -> None:
-        self.check_blacklist(dop["symlink"]["name"])
+        self.check_blacklist(dop["symlink"]["name"], "overwrite")
 
 
 class CheckLinkDirsI(Interpreter):
