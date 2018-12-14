@@ -244,6 +244,7 @@ def normpath(path: RelPath) -> Path:
 
 def import_profile_class(class_name: str) -> None:
     """This function imports a profile class only by it's name"""
+    # Go through all files in the profile directory
     for root, _, files in os.walk(constants.PROFILE_FILES):
         for file in files:
             file = os.path.join(root, file)

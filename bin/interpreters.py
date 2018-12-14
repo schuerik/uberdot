@@ -292,6 +292,7 @@ class CheckLinksI(Interpreter):
     def __init__(self, installed: InstalledLog):
         super().__init__()
         # Setup linklist to store/lookup which links are modified
+        # Stores for any link: (linkname, profile, is_installed)
         self.linklist = []
         for key, profile in installed.items():
             if key[0] != "@":
@@ -299,6 +300,8 @@ class CheckLinksI(Interpreter):
                     self.linklist.append((link["name"], profile["name"], True))
 
     def _op_add_l(self, dop: DiffOperation) -> None:
+        # Check if the link already occurs in linklist
+        # In other words it was or will be already installed
         name = dop["symlink"]["name"]
         for item in self.linklist:
             if item[0] == name:
@@ -313,6 +316,9 @@ class CheckLinksI(Interpreter):
         self.linklist.append((name, dop["profile"], False))
 
     def _op_remove_l(self, dop: DiffOperation) -> None:
+        # Remove link from linklist because links could be removed and
+        # added in one run. In that case it would look like the link is
+        # added even though it is already installed if we don't remove it here.
         count = 0
         for item in self.linklist:
             if item[0] == dop["symlink_name"]:
@@ -434,6 +440,7 @@ class CheckProfilesI(Interpreter):
         super().__init__()
         self.parent_arg = parent_arg
         self.profile_list = []
+        # profile_list conatains: (profile name, parent name, is installed)
         for key, profile in installed.items():
             if key[0] != "@":
                 self.profile_list.append(

@@ -189,6 +189,7 @@ class DotManager:
             raise UserError("-d/-f/-p/--dui needs to be used with -i or -u")
         if self.args.parent and not self.args.install:
             raise UserError("--parent needs to be used with -i")
+        # Load constants for this installed-file
         constants.load_constants(self.args.save)
 
     def execute_arguments(self) -> None:
@@ -354,6 +355,8 @@ if __name__ == "__main__":
             dotm.load_installed()
             dotm.execute_arguments()
     except CustomError as err:
+        # An error occured that we (more or less) expected.
+        # Print error, maybe a stacktrace and exit
         if dotm.args.verbose:
             traceback.print_exc()
         print(err.message)
