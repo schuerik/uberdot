@@ -373,6 +373,7 @@ if __name__ == "__main__":
         try:
             with open(constants.INSTALLED_FILE, "w") as file:
                 file.write(json.dumps(dotm.installed, indent=4))
+                file.flush()
             os.chown(constants.INSTALLED_FILE, get_uid(), get_gid())
         except Exception as err:
             raise UnkownError(err, "An unkown error occured when trying to " +
