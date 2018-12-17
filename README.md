@@ -1,7 +1,7 @@
 # Dotmanager
 
 ***This is currently under construction! Dotmanager is considered stable but not production ready at this point! Before I can
-recommended using this there are a few things I want to have done:***
+recommend using this there are a few things I want to have done:***
 * ***Documentation***
 * ***Unit and regression tests***
 * ***Alpha test***
@@ -12,7 +12,7 @@ recommended using this there are a few things I want to have done:***
 Dotmanager is a tool to manage different versions of your dotfiles on different hosts. Dotmanager is intended to give you
 maximal flexibility while checking all operations you configured/programmed at the same time to prevent that you accidentally
 break your systems. To achieve this you can write simple profiles which will define a set of dotfiles that you want to install.
-Unlike every other dotfile tool that lets you specify profiles, those aren't static configuration files but python classes to
+Unlike any other dotfile tool which lets you create profiles, those aren't static configuration files but python classes to
 really give you all flexibility and power you need. If you don't know python don't worry, you won't need to know it to use
 Dotmanger, but if you do you can really go nuts with this.
 
@@ -23,7 +23,7 @@ Features:
 - Alternate versions of dofiles
 - Advanced error handling (eg integration tests of your written profiles)
 - Create links anywhere in the filesystem as you like
-- Create links that point anywhere in the filesystem
+- Create links that point anywhere in the filesystem (not exclusivley to your repository)
 - Set owner and permission for links
 - Find and rename dotfiles with regular expressions
 - Use encrypted dotfiles
@@ -40,10 +40,10 @@ More features are comming:
 
 ### Installation
 Clone this repository and install `python3.7`. If you want to use encrypted dotfiles you also need `gnupg`.
-Switch into the cloned repository and copy the example config file to `data\dotmanger.ini`.
+Switch into the cloned repository and copy the example config file `data/config-example.ini` to `data/dotmanger.ini`.
 In this file you need to specify the properties `files` and `profiles` in the `Settings` section where `files` will be path of
 the directory of your dotfiles (most likely a subdirectory in your repository) and `profiles` the directory in which you store
-all the different profiles that you write.
+all the different profiles that you write (you should store them in a repository as well).
 
 ### Creating profiles
 Create a file in your `profiles` directory. You can use any name as long as it ends with `.py`.
