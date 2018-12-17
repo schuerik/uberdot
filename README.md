@@ -1,14 +1,20 @@
 # Dotmanager
 
-***This is currently under construction! Dotmanager is considered stable but not production ready at this point! Documentation is missing and there are no unit or regression tests written. Come back in a few days.***
+***This is currently under construction! Dotmanager is considered stable but not production ready at this point! Before I can
+recommended using this there are a few things I want to have done:
+* Documentation
+* Unit and regression tests
+* Alpha test
+
+Come back in a few days.***
 
 ## What is Dotmanager?
 Dotmanager is a tool to manage different versions of your dotfiles on different hosts. Dotmanager is intended to give you
 maximal flexibility while checking all operations you configured/programmed at the same time to prevent that you accidentally
 break your systems. To achieve this you can write simple profiles which will define a set of dotfiles that you want to install.
 Unlike every other dotfile tool that lets you specify profiles, those aren't static configuration files but python classes to
-really give you all flexibility you need. If you don't know python don't worry, you won't need to know it to use Dotmanger, but
-if you can really go nuts with this.
+really give you all flexibility and power you need. If you don't know python don't worry, you won't need to know it to use
+Dotmanger, but if you do you can really go nuts with this.
 
 Features:
 - Very flexible generic python profiles
@@ -49,7 +55,8 @@ class Bash(Profile):
         link(".bashrc")
         link(".inputrc")
 ```
-If you never used python before this might look confusing. Take a look at this short explanation that tells you everything you
+If you never used python before this might look confusing. Take a look at this
+[short explanation](https://github.com/RickestRickSanchez/dotmanager/wiki/Python-syntax) that tells you everything you
 need to understand whats going on here.
 For everyone else its only important to know that a profile is just any python class that inherits of `Profile`. The name of the
 subclass will be used as a universal identifier so make sure to name your profiles unique. The only thing you need to do is to
@@ -72,6 +79,8 @@ Uninstalling an installed profile called `Name`:
 ```
 You can always use the `-d` flag to just simulate what will happen. This is especially useful if you changed your profiles, so
 that you can be sure to don't mess up your system.
+Take a look at [this full documentation](https://github.com/RickestRickSanchez/dotmanager/wiki/Commandline-interface) of all
+commandline arguments.
 
 ## The commands
 ### cd(Path)
@@ -113,7 +122,7 @@ apply those options permanently for all functions that support setting options. 
 This command accepts a list of options and sets them back to default. If no options is provided it sets all options back to
 default.
 
-### extlink(path, **Options)
+### extlink(Path, **Options)
 Creates a link to any file or directory by specifying a path. You can use a relative path if you want, but an absolute path is
 considered safer in this case. Otherwise it behaves like the `link()` command.
 
@@ -167,10 +176,14 @@ practice to call this directly at the beginning of your profile but after the `t
 parents current working directory (which will most likely change) but want to start in your home directory.
 A subprofile is connected with it's parent in that sense that it will be updated/removed when the parent is updated/removed.
 
-### decrypt(filename)
+### decrypt(Dotfilename)
 This command takes a single filename and searches for it like `link()`. It will decrypt it and return the decrypted file as a
 dynamicfile which then can be used by `link()`. If `decryptPwd` is set in your configfile this will be used for every
 decryption. Otherwise Dotmanager (or more precisely gnupg) will ask you for the password. Because dynamicfiles have the
 property to be regenerated every time the file contents changes, this command has the downside that it actually needs to decrypt
 the file every time you install/update even though there maybe are no changes. This can be very frustrating if type in the
 password every time so I strongly recommend setting `decryptPwd`.
+
+
+## FAQ
+Please ask me whenever something is not obvious to you. I'm trying to make this as easy as possible.
