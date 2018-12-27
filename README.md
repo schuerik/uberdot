@@ -47,7 +47,7 @@ all the different profiles that you write (you should store them in a repository
 
 ### Creating profiles
 Create a file in your `profiles` directory. You can use any name as long as it ends with `.py`.
-In this you can create simple profile eg for your bash configuration:
+In this you can create a simple profile for example for your bash configuration:
 ``` python
 from bin.profile import Profile
 class Bash(Profile):
@@ -115,12 +115,16 @@ apply those options permanently for all functions that support setting options. 
     - eg `opt(replace="\1")` this will strip away any "vim" prefix of the symlinks name if used in combination with above example
 - name: Sets the name of the symlink. This can be a path as well.
     - eg `opt(name="config")` but usually used like this `link("polybarconfig", name=".config/polybar/config")`
-- optional: If no correct version of a file is found and this is set to True there will be no error raised
+- optional: If no correct version of a file is found and this is set to True no error will be raised
     - eg `opt(optional=True)`
 
 ### default(*Optionnames)
 This command accepts a list of options and sets them back to default. If no options is provided it sets all options back to
 default.
+
+### links(Pattern, **Options)
+This command works like `link()` but instead of a list of filenames it recieves a regular expression. All dotfiles will be linked that matches this pattern (tags will be stripped away before matching). This can be very handy because you don't even have to edit your profile every time you add dotfile to your repository.
+This command has also the advantage that you don't have to specify the `replace_pattern` property if you want to use `replace`. The search pattern will be reused if `replace_pattern` is not set.
 
 ### extlink(Path, **Options)
 Creates a link to any file or directory by specifying a path. You can use a relative path if you want, but an absolute path is
