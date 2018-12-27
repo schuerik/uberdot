@@ -643,9 +643,9 @@ class RootNeededI(Interpreter):
                              "for owner rights because it does not exist.")
 
     def _op_update_l(self, dop: DiffOperation) -> None:
+        name = dop["symlink2"]["name"]
         if dop["symlink1"]["uid"] != dop["symlink2"]["uid"] or \
                 dop["symlink1"]["gid"] != dop["symlink2"]["gid"]:
-            name = dop["symlink2"]["name"]
             if dop["symlink2"]["uid"] != get_uid() or \
                     dop["symlink2"]["gid"] != get_gid():
                 self._root_needed("change the owner of", name)
@@ -654,6 +654,9 @@ class RootNeededI(Interpreter):
                 self._root_needed("create links in", os.path.dirname(name))
             if not self._access(dop["symlink1"]["name"]):
                 self._root_needed("remove links from", os.path.dirname(name))
+        if dop["symlink1"]["target"] != dop["symlink2"]["target"]:
+            if not self._access(dop["symlink2"]["name"]):
+                self._root_needed("change target of", name)
 
     def _root_needed(self, operation: str, filename: Path) -> None:
         self.root_needed = True

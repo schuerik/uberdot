@@ -78,7 +78,7 @@ DECRYPT_PWD = config.get("Settings", "decryptPwd", fallback=None)
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.4.2_3"
+VERSION = "1.4.3_3"
 
 
 # Constants below must be loaded first before using them
