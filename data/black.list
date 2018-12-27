@@ -1,6 +1,7 @@
-/etc/mkinitcpio.conf
-/etc/passwd
+/boot/.*
+/dev/.*
 /etc/hosts
-/dev/*
-/proc/*
-/boot/*
+/etc/mkinitcpio\.conf
+/etc/passwd
+/etc/default/grub
+/proc/.*
