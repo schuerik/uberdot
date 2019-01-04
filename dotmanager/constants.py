@@ -42,38 +42,9 @@ import configparser
 import csv
 import os
 import sys
+from dotmanager.types import Path
 from dotmanager.utils import normpath
 
-# Init config file
-configfile = os.path.dirname(os.path.dirname(sys.modules[__name__].__file__))
-configfile = os.path.join(configfile, "data/dotmanager.ini")
-config = configparser.ConfigParser()
-config.read(configfile)
-
-
-# Constants below can be used immediatly after importing this module
-###############################################################################
-
-# Colors
-if config.getboolean("Settings", "color", fallback=True):
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    NOBOLD = '\033[22m'
-else:
-    OKGREEN = WARNING = FAIL = ENDC = BOLD = UNDERLINE = NOBOLD = ''
-
-# Defaults for options
-DUISTRATEGY = config.getboolean("Arguments", "duiStrategy", fallback=False)
-FORCE = config.getboolean("Arguments", "force", fallback=False)
-VERBOSE = config.getboolean("Arguments", "verbose", fallback=False)
-MAKEDIRS = config.getboolean("Arguments", "makeDirs", fallback=False)
-
-# Default decryption password
-DECRYPT_PWD = config.get("Settings", "decryptPwd", fallback=None)
 
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
@@ -81,43 +52,111 @@ DECRYPT_PWD = config.get("Settings", "decryptPwd", fallback=None)
 VERSION = "1.6.1_3"
 
 
-# Constants below must be loaded first before using them
+# Setting defaults/fallback values for all constants
 ###############################################################################
 
-# File paths
-BACKUP_EXTENSION = config.get("Settings", "backupExtension", fallback="bak")
+# Arguments
+DUISTRATEGY = False
+FORCE = False
+VERBOSE = False
+MAKEDIRS = False
+
+# Settings
+COLOR = True
+DECRYPT_PWD = None
+BACKUP_EXTENSION = "bak"
+PROFILE_FILES = "profiles"
+TARGET_FILES = "files"
+
+# Internal values
 INSTALLED_FILE = "data/installed/%s.json"
 INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
-PROFILE_FILES = config.get("Settings", "profileFiles", fallback="profiles")
-TARGET_FILES = config.get("Settings", "targetFiles", fallback="files")
-
-# Profile defaults
-DEFAULTS = {}
 DIR_DEFAULT = ""
-
-# Defaults from the config. If not set in config a fallback is provided.
-# This is then used as fallback for all further values loaded from the config.
 FALLBACK = {
-    "directory": config.get("DEFAULTS", "directory", fallback="$HOME"),
-    "name": config.get("DEFAULTS", "name", fallback=""),
-    "optional": config.getboolean("DEFAULTS", "optional", fallback=False),
-    "owner": config.get("DEFAULTS", "owner", fallback=""),
-    "permission": config.getint("DEFAULTS", "permission", fallback=644),
-    "prefix": config.get("DEFAULTS", "prefix", fallback=""),
-    "preserve_tags": config.getboolean("DEFAULTS", "preserve_tags",
-                                       fallback=False),
-    "replace": config.get("DEFAULTS", "replace", fallback=""),
-    "replace_pattern": config.get("DEFAULTS", "replace_pattern", fallback=""),
-    "suffix": config.get("DEFAULTS", "suffix", fallback="")
+    "directory": "$HOME",
+    "name": "",
+    "optional": False,
+    "owner": "",
+    "permission": 644,
+    "prefix": "",
+    "preserve_tags": False,
+    "replace": "",
+    "replace_pattern": "",
+    "suffix": ""
 }
+DEFAULTS = dict(FALLBACK)
+OKGREEN = '\033[92m'
+WARNING = '\033[93m'
+FAIL = '\033[91m'
+ENDC = '\033[0m'
+BOLD = '\033[1m'
+UNDERLINE = '\033[4m'
+NOBOLD = '\033[22m'
 
 
-def load_constants(installed_filename: str) -> None:
-    """Load constants/defaults according to the INSTALLED-FILE used"""
-    global DEFAULTS, DIR_DEFAULT, INSTALLED_FILE, INSTALLED_FILE_BACKUP
-    global TARGET_FILES, PROFILE_FILES
-    name = "Installed." + installed_filename
+# Loaders for config and installed-section
+###############################################################################
+
+def loadconfig(config_file: Path, installed_filename: str = "default") -> None:
+    """Loads a config file from a given path.
+    Falls back to default if no path was provided"""
+    global OKGREEN, WARNING, FAIL, ENDC, BOLD, UNDERLINE, NOBOLD
+    global DUISTRATEGY, FORCE, VERBOSE, MAKEDIRS, DECRYPT_PWD
+    global BACKUP_EXTENSION, PROFILE_FILES, TARGET_FILES, INSTALLED_FILE_BACKUP
+    global COLOR, INSTALLED_FILE, DEFAULTS, DIR_DEFAULT, FALLBACK
+
+    # Init config file
+    if not config_file:
+        config_file = os.path.dirname(sys.modules[__name__].__file__)
+        config_file = os.path.dirname(config_file)
+        config_file = os.path.join(config_file, "data/dotmanager.ini")
+    config = configparser.ConfigParser()
+    config.read(config_file)
+
+    # Arguments
+    DUISTRATEGY = config.getboolean("Arguments", "duiStrategy",
+                                    fallback=DUISTRATEGY)
+    FORCE = config.getboolean("Arguments", "force", fallback=FORCE)
+    VERBOSE = config.getboolean("Arguments", "verbose", fallback=VERBOSE)
+    MAKEDIRS = config.getboolean("Arguments", "makeDirs", fallback=MAKEDIRS)
+
+    # Settings
+    DECRYPT_PWD = config.get("Settings", "decryptPwd", fallback=DECRYPT_PWD)
+    BACKUP_EXTENSION = config.get("Settings", "backupExtension",
+                                  fallback=BACKUP_EXTENSION)
+    PROFILE_FILES = config.get("Settings", "profileFiles",
+                               fallback=PROFILE_FILES)
+    TARGET_FILES = config.get("Settings", "targetFiles", fallback=TARGET_FILES)
+    COLOR = config.getboolean("Settings", "color", fallback=COLOR)
+
+    # Internal values
+    INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
+    if not COLOR:
+        OKGREEN = WARNING = FAIL = ENDC = BOLD = UNDERLINE = NOBOLD = ''
+    FALLBACK = {
+        "directory": config.get("DEFAULTS", "directory",
+                                fallback=FALLBACK["directory"]),
+        "name": config.get("DEFAULTS", "name",
+                           fallback=FALLBACK["name"]),
+        "optional": config.getboolean("DEFAULTS", "optional",
+                                      fallback=FALLBACK["optional"]),
+        "owner": config.get("DEFAULTS", "owner",
+                            fallback=FALLBACK["owner"]),
+        "permission": config.getint("DEFAULTS", "permission",
+                                    fallback=FALLBACK["permission"]),
+        "prefix": config.get("DEFAULTS", "prefix",
+                             fallback=FALLBACK["prefix"]),
+        "preserve_tags": config.getboolean("DEFAULTS", "preserve_tags",
+                                           fallback=FALLBACK["preserve_tags"]),
+        "replace": config.get("DEFAULTS", "replace",
+                              fallback=FALLBACK["replace"]),
+        "replace_pattern": config.get("DEFAULTS", "replace_pattern",
+                                      fallback=FALLBACK["replace_pattern"]),
+        "suffix": config.get("DEFAULTS", "suffix", fallback=FALLBACK["suffix"])
+    }
+
     # Load defaults from the corresponding section of the config
+    name = "Installed." + installed_filename
     DEFAULTS = {
         "name": config.get(name, "name", fallback=FALLBACK["name"]),
         "optional": config.getboolean(name, "optional",
@@ -139,6 +178,7 @@ def load_constants(installed_filename: str) -> None:
     # Insert installed-file into constants
     INSTALLED_FILE = INSTALLED_FILE % installed_filename
     INSTALLED_FILE_BACKUP = INSTALLED_FILE_BACKUP % installed_filename
+
     # Normalize paths
     DIR_DEFAULT = normpath(DIR_DEFAULT)
     INSTALLED_FILE = normpath(INSTALLED_FILE)

@@ -106,22 +106,21 @@ class DotManager:
         # Setup parser
         parser = argparse.ArgumentParser(add_help=False)
         # Options
+        parser.add_argument("--config",
+                            help="specify another config-file to use")
         parser.add_argument("--directory", help="set the default directory")
         parser.add_argument("-d", "--dryrun",
                             help="just simulate what would happen",
                             action="store_true")
         parser.add_argument("--dui",
                             help="use the DUI strategy for updating links",
-                            action="store_true",
-                            default=constants.DUISTRATEGY)
+                            action="store_true")
         parser.add_argument("-f", "--force",
                             help="overwrite existing files with links",
-                            action="store_true",
-                            default=constants.FORCE)
+                            action="store_true")
         parser.add_argument("-m", "--makedirs",
                             help="create directories automatically if needed",
-                            action="store_true",
-                            default=constants.MAKEDIRS)
+                            action="store_true")
         parser.add_argument("--option",
                             help="set options for profiles",
                             dest="opt_dict",
@@ -129,8 +128,7 @@ class DotManager:
                             nargs="+",
                             metavar="KEY=VAL")
         parser.add_argument("--parent",
-                            help="set the parent of the profiles you install",
-                            default=None)
+                            help="set the parent of the profiles you install")
         parser.add_argument("--plain",
                             help="print the internal DiffLog as plain json",
                             action="store_true")
@@ -145,8 +143,7 @@ class DotManager:
                             action="store_true")
         parser.add_argument("-v", "--verbose",
                             help="print stacktrace in case of error",
-                            action="store_true",
-                            default=constants.VERBOSE)
+                            action="store_true")
         # Modes
         modes = parser.add_mutually_exclusive_group(required=True)
         modes.add_argument("-h", "--help",
@@ -168,6 +165,7 @@ class DotManager:
         parser.add_argument("profiles",
                             help="list of root profiles",
                             nargs="*")
+
         # Read arguments
         try:
             self.args = parser.parse_args(arguments)
@@ -178,6 +176,19 @@ class DotManager:
             self.args.opt_dict["tags"] = next(reader)
         if self.args.directory:
             self.args.directory = os.path.join(self.owd, self.args.directory)
+
+        # Load constants for this installed-file
+        constants.loadconfig(self.args.config, self.args.save)
+        # Set defaults for args from config
+        if not self.args.verbose:
+            self.args.verbose = constants.VERBOSE
+        if not self.args.dui:
+            self.args.dui = constants.DUISTRATEGY
+        if not self.args.force:
+            self.args.force = constants.FORCE
+        if not self.args.makedirs:
+            self.args.makedirs = constants.MAKEDIRS
+
         # Check if arguments are bad
         if (not (self.args.show or self.args.version)
                 and not self.args.profiles):
@@ -188,8 +199,6 @@ class DotManager:
             raise UserError("-d/-f/-p/--dui needs to be used with -i or -u")
         if self.args.parent and not self.args.install:
             raise UserError("--parent needs to be used with -i")
-        # Load constants for this installed-file
-        constants.load_constants(self.args.save)
 
     def execute_arguments(self) -> None:
         """Executes whatever was specified via commandline arguments"""
