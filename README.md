@@ -133,8 +133,8 @@ considered safer in this case. Otherwise it behaves like the `link()` command.
 ### tags(*tags)
 Takes a list of tags and adds all of them. A tag is just a any string of characters that you can set as you like. It will be
 used to find alternate versions of a dotfile. Such a alternate version of a dotfile needs to be prefixed with the same tag plus
-a percent sign as a separator. The easiest way to explain this concept is with an example:
-Suppose you created a profile for your bash configuration.
+a percent sign as a separator. The easiest way to explain this concept is with an example.
+Suppose you created a profile for your bash configuration:
 ``` python
 from bin.profile import Profile
 class Bash(Profile):
@@ -147,6 +147,7 @@ To reuse this profile on different distributions you can now create alternate ve
 - debian%inputrc
 - arch%bashrc
 - arch%inputrc
+
 Now you could create a profile for every device or distribution as you like and set the suitable tag.
 ``` python
 from bin.profile import Profile
@@ -187,7 +188,27 @@ decryption. Otherwise Dotmanager (or more precisely gnupg) will ask you for the 
 property to be regenerated every time the file contents changes, this command has the downside that it actually needs to decrypt
 the file every time you install/update even though there maybe are no changes. This can be very frustrating if type in the
 password every time so I strongly recommend setting `decryptPwd`.
+**Example:**
+This creates a DynamicFile called `gitconfig` at `data/decrypted`. The DynamicFile contains the decrypted content of the
+encrypted dotfile `gitconfig`. Furthermore this creates a symlink to this DynamicFile in your home directory called
+`.gitconfig`.
+``` python
+link(decrypt("gitconfig"), prefix=".")
+```
 
+### merge(name, *Dotfilenames)
+This command lets you merge some dotfiles to a single big dotfile. That is useful if you want to split a configuration file that
+doesn't support source-operations (eg i3). It even works with tags, so the dotfile can be generated using alternate versions of
+the splittet files.
+The first parameter is the name that you give the new merged dotfile. All following parameter are dotfiles that will be searched
+for and merged in the order you provide. The command returns the merged dotfile as DynamicFile.
+**Example:**
+This creates a DynamicFile called `vimrc` at `data/merged/`. `vimrc` contains the content of the dotfiles `defaults.vim`,
+`keybindings.vim` and `plugins.vim`. Furthermore this creates a symlink to this DynamicFile in your home directory called
+`.vimrc`.
+``` python
+link(merge("vimrc", ["defaults.vim", "keybindings.vim", "plugins.vim"]), prefix=".")
+```
 
 ## FAQ
 Please ask me whenever something is not obvious to you. I'm trying to make this as easy as possible.
