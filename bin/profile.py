@@ -67,7 +67,7 @@ from bin.utils import print_warning
 from bin.utils import walk_dotfiles
 
 # The custom builtins that the profiles will implement
-CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink", "has_tag",
+CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink", "has_tag", "merge",
                    "default", "subprof", "tags", "rmtags", "decrypt"]
 
 
@@ -146,15 +146,37 @@ class Profile:
         raise GenerationError(self.name, msg)
 
     def decrypt(self, target: Union[str, DynamicFile]) -> EncryptedFile:
-        """Creates an EncryptedFile instance, loads and returns it"""
+        """Creates an EncryptedFile instance, updates and returns it"""
         if isinstance(target, DynamicFile):
             encrypt = EncryptedFile(target.name)
             encrypt.sources = [target.getpath()]
             encrypt.update()
         else:
             encrypt = EncryptedFile(target)
-            encrypt.update(self.options["tags"])
+            try:
+                encrypt.add_source(find_target(target, self.options["tags"]))
+            except ValueError as err:
+                self.__raise_generation_error(err)
+            encrypt.update()
         return encrypt
+
+    def merge(self, name: str,
+              targets: List[Union[DynamicFile, str]]) -> SplittedFile:
+        """Creates a SplittedFile instance, updates and returns it"""
+        if len(targets) < 2:
+            msg = f"merge() for '{name}' needs at least two dotfiles to merge"
+            self.__raise_generation_error(msg)
+        split = SplittedFile(name)
+        for target in targets:
+            if isinstance(target, DynamicFile):
+                split.sources.append(target.getpath())
+            else:
+                try:
+                    split.add_source(find_target(target, self.options["tags"]))
+                except ValueError as err:
+                    self.__raise_generation_error(err)
+        split.update()
+        return split
 
     def link(self, *targets: List[Union[DynamicFile, str]],
              **kwargs: Options) -> None:
@@ -168,9 +190,9 @@ class Profile:
             else:
                 try:
                     found_target = find_target(target, read_opt("tags"))
-                    found_target = normpath(found_target)
                 except ValueError as err:
                     self.__raise_generation_error(err)
+                found_target = normpath(found_target)
             if found_target:
                 self.__create_link_descriptor(found_target, **kwargs)
             elif not read_opt("optional"):
