@@ -10,3 +10,5 @@ data/installed/*
 !data/installed/.gitkeep
 data/decrypted/*
 !data/decrypted/.gitkeep
+data/merged/*
+!data/merged/.gitkeep
