@@ -27,11 +27,12 @@ Features:
 - Set owner and permission for links
 - Find and rename dotfiles with regular expressions
 - Use encrypted dotfiles
+- Split a dotfile in multiple parts where each one can have alternate versions 
+- Provides an interface for system information (like hostname, distribution, etc)
 - You can simulate (dry run) everything to see if your self written profile behaves like you expect
 
 More features are comming:
 - Templates
-- Splits (split any dotfile into multiple dotfiles)
 - Copies (in some edge cases a link can't be used)
 - Keep a history of all changes to go back in time
 - Hooks
@@ -208,6 +209,36 @@ This creates a DynamicFile called `vimrc` at `data/merged/`. `vimrc` contains th
 `.vimrc`.
 ``` python
 link(merge("vimrc", ["defaults.vim", "keybindings.vim", "plugins.vim"]), prefix=".")
+```
+
+## The info module
+The info module provides a set of functions to get information about the system you are on.
+At the moment the following functions are implemented:
+
+| Function                    | Description                                                |
+| --------------------------- | ---------------------------------------------------------- |
+| `distribution()`            | Returns the distribution name (eg "Ubuntu", "Antergos")    |
+| `hostname()`                | Returns the hostname                                       |
+| `is_64bit()`                | Returns True if the OS is a 64 bit                         |
+| `kernel()`                  | Returns the release of the running kernel (eg "4.19.4")    |
+| `pkg_installed(pkg_name)`   | Returns True if the package called `pkg_name` is installed |
+| `username()`                | Returns the name of the logged in user                     |
+
+To use those functions you need to import the info module:
+``` python
+from bin import info
+```
+Then you can use it like this in a profile:
+``` python
+class Main(Profile):
+    def generate(self):
+        if info.pkg_installed("vim"):
+            subprof("Vim")
+            
+        if info.distribution() == "Arch Linux":
+            link("bash-pacman.sh", name=".bashrc")
+        else:
+            link("bash-apt-get.sh", name=".bashrc")
 ```
 
 ## FAQ
