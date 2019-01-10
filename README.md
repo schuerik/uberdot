@@ -70,13 +70,13 @@ you to create very flexible profiles with very easy but expressive syntax.
 ### Installing/Updating/Uninstalling profiles
 Installing a profile called `Name`:
 ```
-./dotmanager.py -i Name
+./dotmgr.py -i Name
 ```
 If the profile is already installed, Dotmanager will search for changes between the already installed links and the profile and
 will update those that changed.
 Uninstalling an installed profile called `Name`:
 ```
-./dotmanager.py -u Name
+./dotmgr.py -u Name
 ```
 You can always use the `-d` flag to just simulate what will happen. This is especially useful if you changed your profiles, so
 that you can be sure to don't mess up your system.
