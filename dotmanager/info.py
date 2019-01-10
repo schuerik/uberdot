@@ -42,7 +42,7 @@ import os
 import re
 import shutil
 import platform
-from bin.utils import get_current_username
+from dotmanager.utils import get_current_username
 
 
 def distribution() -> str:

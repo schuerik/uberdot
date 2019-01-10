@@ -47,12 +47,12 @@ import subprocess
 from typing import List
 from typing import Optional
 from typing import Tuple
-from bin import constants
-from bin.types import Path
-from bin.types import RelPath
-from bin.errors import FatalError
-from bin.errors import GenerationError
-from bin.errors import PreconditionError
+from dotmanager import constants
+from dotmanager.types import Path
+from dotmanager.types import RelPath
+from dotmanager.errors import FatalError
+from dotmanager.errors import GenerationError
+from dotmanager.errors import PreconditionError
 
 
 # Utils for finding targets

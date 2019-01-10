@@ -39,11 +39,11 @@
 
 from typing import Optional
 from typing import List
-from bin.interpreters import Interpreter
-from bin.types import LinkDescriptor
-from bin.types import DiffLogData
-from bin.types import Path
-from bin.utils import get_date_time_now
+from dotmanager.interpreters import Interpreter
+from dotmanager.types import LinkDescriptor
+from dotmanager.types import DiffLogData
+from dotmanager.types import Path
+from dotmanager.utils import get_date_time_now
 
 
 class DiffLog():

@@ -37,7 +37,7 @@
 ###############################################################################
 
 
-from bin import constants
+from dotmanager import constants
 
 
 class CustomError(Exception):

@@ -49,11 +49,11 @@ from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
 from typing import List
-from bin import constants
-from bin.errors import FatalError
-from bin.types import Path
-from bin.utils import normpath
-from bin.utils import find_target
+from dotmanager import constants
+from dotmanager.errors import FatalError
+from dotmanager.types import Path
+from dotmanager.utils import normpath
+from dotmanager.utils import find_target
 
 
 class DynamicFile:

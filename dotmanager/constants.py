@@ -42,7 +42,7 @@ import configparser
 import csv
 import os
 import sys
-from bin.utils import normpath
+from dotmanager.utils import normpath
 
 # Init config file
 configfile = os.path.dirname(os.path.dirname(sys.modules[__name__].__file__))
@@ -78,7 +78,7 @@ DECRYPT_PWD = config.get("Settings", "decryptPwd", fallback=None)
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.6.0_3"
+VERSION = "1.6.1_3"
 
 
 # Constants below must be loaded first before using them

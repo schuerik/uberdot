@@ -27,7 +27,7 @@ Features:
 - Set owner and permission for links
 - Find and rename dotfiles with regular expressions
 - Use encrypted dotfiles
-- Split a dotfile in multiple parts where each one can have alternate versions 
+- Split a dotfile in multiple parts where each one can have alternate versions
 - Provides an interface for system information (like hostname, distribution, etc)
 - You can simulate (dry run) everything to see if your self written profile behaves like you expect
 
@@ -50,7 +50,7 @@ all the different profiles that you write (you should store them in a repository
 Create a file in your `profiles` directory. You can use any name as long as it ends with `.py`.
 In this you can create a simple profile for example for your bash configuration:
 ``` python
-from bin.profile import Profile
+from dotmanager.profile import Profile
 class Bash(Profile):
     def generate(self):
         link(".bashrc")
@@ -137,7 +137,7 @@ used to find alternate versions of a dotfile. Such a alternate version of a dotf
 a percent sign as a separator. The easiest way to explain this concept is with an example.
 Suppose you created a profile for your bash configuration:
 ``` python
-from bin.profile import Profile
+from dotmanager.profile import Profile
 class Bash(Profile):
     def generate(self):
         link("bashrc", "inputrc", prefix=".")
@@ -151,14 +151,14 @@ To reuse this profile on different distributions you can now create alternate ve
 
 Now you could create a profile for every device or distribution as you like and set the suitable tag.
 ``` python
-from bin.profile import Profile
+from dotmanager.profile import Profile
 class Device1(Profile):
     def generate(self):
         tags("debian")
         subprof("Bash")
 ```
 ``` python
-from bin.profile import Profile
+from dotmanager.profile import Profile
 class Device2(Profile):
     def generate(self):
         tags("arch")
@@ -226,7 +226,7 @@ At the moment the following functions are implemented:
 
 To use those functions you need to import the info module:
 ``` python
-from bin import info
+from dotmanager import info
 ```
 Then you can use it like this in a profile:
 ``` python
@@ -234,7 +234,7 @@ class Main(Profile):
     def generate(self):
         if info.pkg_installed("vim"):
             subprof("Vim")
-            
+
         if info.distribution() == "Arch Linux":
             link("bash-pacman.sh", name=".bashrc")
         else:

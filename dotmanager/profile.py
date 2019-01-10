@@ -48,23 +48,23 @@ from typing import List
 from typing import NoReturn
 from typing import Tuple
 from typing import Union
-from bin import constants
-from bin.dynamicfile import *
-from bin.errors import CustomError
-from bin.errors import GenerationError
-from bin.types import Options
-from bin.types import Path
-from bin.types import Pattern
-from bin.types import ProfileResult
-from bin.types import RelPath
-from bin.utils import expandvars
-from bin.utils import expanduser
-from bin.utils import find_target
-from bin.utils import get_dir_owner
-from bin.utils import import_profile_class
-from bin.utils import normpath
-from bin.utils import print_warning
-from bin.utils import walk_dotfiles
+from dotmanager import constants
+from dotmanager.dynamicfile import *
+from dotmanager.errors import CustomError
+from dotmanager.errors import GenerationError
+from dotmanager.types import Options
+from dotmanager.types import Path
+from dotmanager.types import Pattern
+from dotmanager.types import ProfileResult
+from dotmanager.types import RelPath
+from dotmanager.utils import expandvars
+from dotmanager.utils import expanduser
+from dotmanager.utils import find_target
+from dotmanager.utils import get_dir_owner
+from dotmanager.utils import import_profile_class
+from dotmanager.utils import normpath
+from dotmanager.utils import print_warning
+from dotmanager.utils import walk_dotfiles
 
 # The custom builtins that the profiles will implement
 CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink", "has_tag", "merge",

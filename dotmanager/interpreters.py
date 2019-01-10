@@ -56,23 +56,23 @@ from subprocess import PIPE
 from subprocess import Popen
 from typing import Optional
 from typing import Tuple
-from bin import constants
-from bin.errors import IntegrityError
-from bin.errors import PreconditionError
-from bin.errors import UnkownError
-from bin.errors import UserError
-from bin.errors import UserAbortion
-from bin.errors import FatalError
-from bin.types import InstalledLog
-from bin.types import DiffLogData
-from bin.types import DiffOperation
-from bin.types import Path
-from bin.utils import get_date_time_now
-from bin.utils import get_dir_owner
-from bin.utils import get_gid
-from bin.utils import get_uid
-from bin.utils import is_dynamic_file
-from bin.utils import print_warning
+from dotmanager import constants
+from dotmanager.errors import IntegrityError
+from dotmanager.errors import PreconditionError
+from dotmanager.errors import UnkownError
+from dotmanager.errors import UserError
+from dotmanager.errors import UserAbortion
+from dotmanager.errors import FatalError
+from dotmanager.types import InstalledLog
+from dotmanager.types import DiffLogData
+from dotmanager.types import DiffOperation
+from dotmanager.types import Path
+from dotmanager.utils import get_date_time_now
+from dotmanager.utils import get_dir_owner
+from dotmanager.utils import get_gid
+from dotmanager.utils import get_uid
+from dotmanager.utils import is_dynamic_file
+from dotmanager.utils import print_warning
 
 
 class Interpreter():

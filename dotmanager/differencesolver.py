@@ -39,13 +39,13 @@
 
 import copy
 from typing import List
-from bin import constants
-from bin.differencelog import DiffLog
-from bin.errors import FatalError
-from bin.types import InstalledLog
-from bin.types import ProfileResult
-from bin.utils import import_profile_class
-from bin.utils import print_warning
+from dotmanager import constants
+from dotmanager.differencelog import DiffLog
+from dotmanager.errors import FatalError
+from dotmanager.types import InstalledLog
+from dotmanager.types import ProfileResult
+from dotmanager.utils import import_profile_class
+from dotmanager.utils import print_warning
 
 
 class DiffSolver():

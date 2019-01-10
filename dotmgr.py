@@ -44,31 +44,31 @@ import shutil
 import sys
 import traceback
 from typing import List
-from bin import constants
-from bin.interpreters import CheckDynamicFilesI
-from bin.interpreters import CheckLinkBlacklistI
-from bin.interpreters import CheckLinkDirsI
-from bin.interpreters import CheckLinkExistsI
-from bin.interpreters import CheckLinksI
-from bin.interpreters import CheckProfilesI
-from bin.interpreters import DUIStrategyI
-from bin.interpreters import ExecuteI
-from bin.interpreters import GainRootI
-from bin.interpreters import PlainPrintI
-from bin.interpreters import PrintI
-from bin.interpreters import RootNeededI
-from bin.errors import CustomError
-from bin.errors import PreconditionError
-from bin.errors import UnkownError
-from bin.errors import UserError
-from bin.differencesolver import DiffSolver
-from bin.differencelog import DiffLog
-from bin.types import InstalledProfile
-from bin.utils import has_root_priveleges
-from bin.utils import get_uid
-from bin.utils import get_gid
-from bin.utils import print_success
-from bin.utils import print_warning
+from dotmanager import constants
+from dotmanager.interpreters import CheckDynamicFilesI
+from dotmanager.interpreters import CheckLinkBlacklistI
+from dotmanager.interpreters import CheckLinkDirsI
+from dotmanager.interpreters import CheckLinkExistsI
+from dotmanager.interpreters import CheckLinksI
+from dotmanager.interpreters import CheckProfilesI
+from dotmanager.interpreters import DUIStrategyI
+from dotmanager.interpreters import ExecuteI
+from dotmanager.interpreters import GainRootI
+from dotmanager.interpreters import PlainPrintI
+from dotmanager.interpreters import PrintI
+from dotmanager.interpreters import RootNeededI
+from dotmanager.errors import CustomError
+from dotmanager.errors import PreconditionError
+from dotmanager.errors import UnkownError
+from dotmanager.errors import UserError
+from dotmanager.differencesolver import DiffSolver
+from dotmanager.differencelog import DiffLog
+from dotmanager.types import InstalledProfile
+from dotmanager.utils import has_root_priveleges
+from dotmanager.utils import get_uid
+from dotmanager.utils import get_gid
+from dotmanager.utils import print_success
+from dotmanager.utils import print_warning
 
 
 class DotManager:
