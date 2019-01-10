@@ -89,6 +89,17 @@ This command switches the directory like you are used to in UNIX. You can use re
 variables or '~' in the path. All links that will be created after you switched the directory will be linked relative to this
 directory.
 
+**Example:**
+``` python
+# Switch to home directory
+cd("~")
+cd("$HOME")
+# Switch to a subdirectory called "config"
+cd("config")
+# Using absolute paths
+cd("/home/user")
+```
+
 ### link(*Dotfilenames, **Options)
 This command takes a list of dotfile names and creates a symlink for every single one of them in the current directory. It uses
 the same name as the dotfile for the symlink as long you don't specify another one. This command lets you also set all options
@@ -96,6 +107,23 @@ defined in the section of the `opt()` command. But unlike the `opt()` command it
 lets you switch the directory like `cd()`. This is handy if you have to link a few symlinks in different subdirectories of the
 same parent directory.
 This command also accepts dynamicfiles instead of filenames.
+
+**Example:**
+``` python
+# Find tmux.conf and create a link in the current directory
+link("tmux.conf")
+# Find pacman.conf and create a link in /etc
+link("pacman.conf", directory="/etc")
+# Find zsh_profile and create a link called .zprofile in the current directory
+link("zsh_profile", name=".zprofile")
+# Find polybarconfig and polybarlaunch.sh and create two links named according to the replace regex:
+# polybarconfig -> config
+# polybarlaunch.sh -> launch.sh
+link("polybarconfig", "polybarlaunch.sh", replace_pattern="polybar(.+)", replace=r"\1")
+# Find hosts and mkinitcpio.conf and create links in /etc
+cd("/etc")
+link("hosts", "mkinitcpio.conf")
+```
 
 ### opt(**Options)
 There are several options that you can pass to functions like `link()` to control how links are set. The `opt()` command will
@@ -126,6 +154,15 @@ default.
 ### links(Pattern, **Options)
 This command works like `link()` but instead of a list of filenames it recieves a regular expression. All dotfiles will be linked that matches this pattern (tags will be stripped away before matching). This can be very handy because you don't even have to edit your profile every time you add dotfile to your repository.
 This command has also the advantage that you don't have to specify the `replace_pattern` property if you want to use `replace`. The search pattern will be reused if `replace_pattern` is not set.
+
+**Example:**
+``` python
+# Find the files gvimrc and vimrc and create the links called .gvimrc and .vimrc
+links("g?vimrc", prefix=".")
+# Find all files that match "rofi-*.rasi" and create links that strip away the "rofi-"
+links("rofi-(.+\.rasi)", replace_pattern="rofi-(.+\.rasi)", replace=r"\1")
+links("rofi-(.+\.rasi)", replace=r"\1")  # Does the same as above
+```
 
 ### extlink(Path, **Options)
 Creates a link to any file or directory by specifying a path. You can use a relative path if you want, but an absolute path is
@@ -182,6 +219,16 @@ practice to call this directly at the beginning of your profile but after the `t
 parents current working directory (which will most likely change) but want to start in your home directory.
 A subprofile is connected with it's parent in that sense that it will be updated/removed when the parent is updated/removed.
 
+**Example**:
+This will search for the profiles `Bash`, `Vim` and `I3` and install them as subprofile of `Main`. If no default directory was set `Main` starts in your home-directory. This means `Bash` and `Vim` would also start in your home-directory, whereas `I3` would start at `~/.config/`.
+``` python
+class Main(Profile):
+    def generate(self):
+        subprof("Bash", "Vim")
+        cd(".config")
+        subprof("I3")
+```
+
 ### decrypt(Dotfilename)
 This command takes a single filename and searches for it like `link()`. It will decrypt it and return the decrypted file as a
 dynamicfile which then can be used by `link()`. If `decryptPwd` is set in your configfile this will be used for every
@@ -189,12 +236,22 @@ decryption. Otherwise Dotmanager (or more precisely gnupg) will ask you for the 
 property to be regenerated every time the file contents changes, this command has the downside that it actually needs to decrypt
 the file every time you install/update even though there maybe are no changes. This can be very frustrating if type in the
 password every time so I strongly recommend setting `decryptPwd`.
+
 **Example:**
 This creates a DynamicFile called `gitconfig` at `data/decrypted`. The DynamicFile contains the decrypted content of the
 encrypted dotfile `gitconfig`. Furthermore this creates a symlink to this DynamicFile in your home directory called
 `.gitconfig`.
 ``` python
 link(decrypt("gitconfig"), prefix=".")
+```
+**Example:** 
+To decrypt multiple files at once you could use python's list comprehension. This will decrypt `key1`, `key2`, `key3` and `key4` and link them to `key1.pkk`, `key2.pkk`, `key3.pkk` and `key4.pkk`.
+``` python
+# using list comprehension
+keyfiles = [decrypt(file) for file in ["key1", "key2", "key3", "key4"]]
+link(keyfiles, suffix=".pkk")
+# instead of decrypting every file by itself 
+link(decrypt("key1"), decrypt("key2"), decrypt("key3"), decrypt("key4"), suffix=".pkk")
 ```
 
 ### merge(name, *Dotfilenames)
@@ -203,6 +260,7 @@ doesn't support source-operations (eg i3). It even works with tags, so the dotfi
 the splittet files.
 The first parameter is the name that you give the new merged dotfile. All following parameter are dotfiles that will be searched
 for and merged in the order you provide. The command returns the merged dotfile as DynamicFile.
+
 **Example:**
 This creates a DynamicFile called `vimrc` at `data/merged/`. `vimrc` contains the content of the dotfiles `defaults.vim`,
 `keybindings.vim` and `plugins.vim`. Furthermore this creates a symlink to this DynamicFile in your home directory called
@@ -232,9 +290,11 @@ Then you can use it like this in a profile:
 ``` python
 class Main(Profile):
     def generate(self):
+        # Install the profile "Vim" if the package vim is installed
         if info.pkg_installed("vim"):
             subprof("Vim")
 
+        # Link a .bashrc with aliases for pacman instead of apt-get if Arch Linux is installed
         if info.distribution() == "Arch Linux":
             link("bash-pacman.sh", name=".bashrc")
         else:
