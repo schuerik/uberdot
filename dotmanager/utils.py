@@ -290,3 +290,7 @@ def print_success(message: str) -> None:
 def is_dynamic_file(target: Path) -> bool:
     """Returns if a given path is a dynamic file"""
     return os.path.dirname(os.path.dirname(target)) == normpath("data")
+
+def find_files(filename: str, paths: List[str]):
+    """finds existing files matching filename in the paths"""
+    return [path for path in paths if os.path.isfile(os.path.join(path, filename))]
