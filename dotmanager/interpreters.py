@@ -73,6 +73,7 @@ from dotmanager.utils import get_gid
 from dotmanager.utils import get_uid
 from dotmanager.utils import is_dynamic_file
 from dotmanager.utils import print_warning
+from dotmanager.utils import find_files
 
 
 class Interpreter():
@@ -335,8 +336,14 @@ class CheckLinkBlacklistI(Interpreter):
         super().__init__()
         # Load blacklist
         self.superforce = superforce
-        with open("data/black.list", "r") as file:
-            self.blacklist = file.readlines()
+
+        self.blacklist = []
+
+        for bl in find_files("black.list", constants.CONFIG_SEARCH_PATHS):
+            with open(bl, "r") as file:
+                for line in file.readlines():
+                    self.blacklist.append(line)
+
         self.blacklist = [entry.strip() for entry in self.blacklist]
 
     def check_blacklist(self, symlink_name: Path, action: str) -> None:
