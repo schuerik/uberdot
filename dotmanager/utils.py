@@ -293,4 +293,4 @@ def is_dynamic_file(target: Path) -> bool:
 
 def find_files(filename: str, paths: List[str]):
     """finds existing files matching filename in the paths"""
-    return [path for path in paths if os.path.isfile(os.path.join(path, filename))]
+    return [os.path.join(path, filename) for path in paths if os.path.isfile(os.path.join(path, filename))]

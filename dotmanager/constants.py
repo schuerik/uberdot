@@ -47,7 +47,7 @@ from dotmanager.utils import normpath, find_files
 
 # Search paths for config files
 CONFIG_SEARCH_PATHS = [
-    os.path.join(os.path.dirname(os.path.dirname(sys.modules[__name__].__file__), "data")),
+    os.path.join(os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)), "data"),
     "/etc/dotmanager",
     os.path.join(os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), "dotmanager")
 ]
@@ -194,3 +194,4 @@ def loadconfig(config_file: Path, installed_filename: str = "default") -> None:
     INSTALLED_FILE_BACKUP = normpath(INSTALLED_FILE_BACKUP)
     TARGET_FILES = normpath(TARGET_FILES)
     PROFILE_FILES = normpath(PROFILE_FILES)
+
