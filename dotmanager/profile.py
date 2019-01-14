@@ -210,7 +210,8 @@ class Profile:
         if not read_opt("optional") or os.path.exists(path):
             self.__create_link_descriptor(os.path.abspath(path), **kwargs)
 
-    def links(self, target_pattern: Pattern, **kwargs: Options) -> None:
+    def links(self, target_pattern: Pattern,
+              encrypted: bool = False, **kwargs: Options) -> None:
         """Calls link() for all targets matching a pattern. Also allows you
         to ommit the 'replace_pattern' and use the target_pattern instead"""
         read_opt = self.__make_read_opt(kwargs)
@@ -263,6 +264,10 @@ class Profile:
             self.__raise_generation_error(msg)
         else:
             for target in target_list:
+                if encrypted:
+                    file_name = os.path.basename(target)
+                    target = self.decrypt(file_name).getpath()
+                    kwargs["name"] = file_name
                 self.__create_link_descriptor(target, **kwargs)
 
 

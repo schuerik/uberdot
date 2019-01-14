@@ -152,8 +152,13 @@ This command accepts a list of options and sets them back to default. If no opti
 default.
 
 ### links(Pattern, **Options)
-This command works like `link()` but instead of a list of filenames it recieves a regular expression. All dotfiles will be linked that matches this pattern (tags will be stripped away before matching). This can be very handy because you don't even have to edit your profile every time you add dotfile to your repository.
-This command has also the advantage that you don't have to specify the `replace_pattern` property if you want to use `replace`. The search pattern will be reused if `replace_pattern` is not set.
+This command works like `link()` but instead of a list of filenames it recieves a regular expression. All dotfiles will be linked
+that matches this pattern (tags will be stripped away before matching). This can be very handy because you don't even have to edit
+your profile every time you add dotfile to your repository.
+This command has also the advantage that you don't have to specify the `replace_pattern` property if you want to use `replace`.
+The search pattern will be reused if `replace_pattern` is not set.
+Another feature unique to this command is that it support the option `encrypted` which will decrypt every file that matches link,
+when set to True.
 
 **Example:**
 ``` python
@@ -162,6 +167,8 @@ links("g?vimrc", prefix=".")
 # Find all files that match "rofi-*.rasi" and create links that strip away the "rofi-"
 links("rofi-(.+\.rasi)", replace_pattern="rofi-(.+\.rasi)", replace=r"\1")
 links("rofi-(.+\.rasi)", replace=r"\1")  # Does the same as above
+# Decrypt files on the fly
+links("wifi-(.+).gpg", replace=r"\1", encrypted=True)
 ```
 
 ### extlink(Path, **Options)
@@ -244,14 +251,16 @@ encrypted dotfile `gitconfig`. Furthermore this creates a symlink to this Dynami
 ``` python
 link(decrypt("gitconfig"), prefix=".")
 ```
-**Example:** 
+**Example:**
 To decrypt multiple files at once you could use python's list comprehension. This will decrypt `key1`, `key2`, `key3` and `key4` and link them to `key1.pkk`, `key2.pkk`, `key3.pkk` and `key4.pkk`.
 ``` python
 # using list comprehension
 keyfiles = [decrypt(file) for file in ["key1", "key2", "key3", "key4"]]
 link(keyfiles, suffix=".pkk")
-# instead of decrypting every file by itself 
+# instead of decrypting every file by itself
 link(decrypt("key1"), decrypt("key2"), decrypt("key3"), decrypt("key4"), suffix=".pkk")
+# or use the links() command with encrypted option
+links("key[1-4]", suffix=".pkk", encrypted=True)
 ```
 
 ### merge(name, *Dotfilenames)
