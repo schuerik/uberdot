@@ -152,6 +152,9 @@ class DotManager:
         modes.add_argument("-i", "--install",
                            help="install and update (sub)profiles",
                            action="store_true")
+        modes.add_argument("--debuginfo",
+                           help="displays internal values",
+                           action="store_true")
         modes.add_argument("-u", "--uninstall",
                            help="uninstall (sub)profiles",
                            action="store_true")
@@ -190,7 +193,7 @@ class DotManager:
             self.args.makedirs = constants.MAKEDIRS
 
         # Check if arguments are bad
-        if (not (self.args.show or self.args.version)
+        if (not (self.args.show or self.args.version or self.args.debuginfo)
                 and not self.args.profiles):
             raise UserError("No Profile specified!!")
         if ((self.args.dryrun or self.args.force or self.args.plain or
@@ -207,6 +210,8 @@ class DotManager:
         elif self.args.version:
             print(constants.BOLD + "Version: " + constants.ENDC +
                   constants.VERSION)
+        elif self.args.debuginfo:
+            self.print_debuginfo()
         else:
             dfs = DiffSolver(self.installed, self.args)
             dfl = dfs.solve(self.args.install)
@@ -220,6 +225,37 @@ class DotManager:
                 dfl.run_interpreter(PrintI())
             else:
                 self.run(dfl)
+
+    def print_debuginfo(self) -> None:
+        """Print out all constants"""
+        print(constants.BOLD + "Arguments: " + constants.ENDC)
+        print("   DUISTRATEGY: " + str(constants.DUISTRATEGY))
+        print("   FORCE: " + str(constants.FORCE))
+        print("   VERBOSE: " + str(constants.VERBOSE))
+        print("   MAKEDIRS: " + str(constants.MAKEDIRS))
+        print(constants.BOLD + "Settings: " + constants.ENDC)
+        print("   COLOR: " + str(constants.COLOR))
+        print("   DECRYPT_PWD: " + str(constants.DECRYPT_PWD))
+        print("   BACKUP_EXTENSION: " + constants.BACKUP_EXTENSION)
+        print("   PROFILE_FILES: " + constants.PROFILE_FILES)
+        print("   TARGET_FILES: " + constants.TARGET_FILES)
+        print("   INSTALLED_FILE: " + constants.INSTALLED_FILE)
+        print("   INSTALLED_FILE_BACKUP: " + constants.INSTALLED_FILE_BACKUP)
+        print(constants.BOLD + "Defaults: " + constants.ENDC)
+        print("   DIR_DEFAULT: " + constants.DIR_DEFAULT)
+        print("   DEFAULTS['name']: " + str(constants.DEFAULTS["name"]))
+        print("   DEFAULTS['optional']: " +
+              str(constants.DEFAULTS["optional"]))
+        print("   DEFAULTS['owner']: " + str(constants.DEFAULTS["owner"]))
+        print("   DEFAULTS['permission']: " +
+              str(constants.DEFAULTS["permission"]))
+        print("   DEFAULTS['prefix']: " + str(constants.DEFAULTS["prefix"]))
+        print("   DEFAULTS['preserve_tags']: " +
+              str(constants.DEFAULTS["preserve_tags"]))
+        print("   DEFAULTS['replace']: " + str(constants.DEFAULTS["replace"]))
+        print("   DEFAULTS['replace_pattern']: " +
+              str(constants.DEFAULTS["replace_pattern"]))
+        print("   DEFAULTS['suffix']: " + str(constants.DEFAULTS["suffix"]))
 
     def print_installed_profiles(self) -> None:
         """Shows only the profiles specified.
@@ -279,8 +315,7 @@ class DotManager:
             raise UnkownError(err, msg) from err
         print_success("Finished succesfully.")
 
-    @staticmethod
-    def print_installed(profile: InstalledProfile) -> None:
+    def print_installed(self, profile: InstalledProfile) -> None:
         """Prints a currently InstalledProfile"""
         print(constants.BOLD + profile["name"] + ":" + constants.ENDC)
         print("  Installed: " + profile["installed"])
