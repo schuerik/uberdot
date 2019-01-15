@@ -40,6 +40,7 @@ Eg. Retrieving a environment variable or fixing file permisions"""
 
 import datetime
 import importlib.util
+import logging
 import os
 import pwd
 import re
@@ -271,20 +272,21 @@ def import_profile_class(class_name: str) -> None:
 # Misc
 ###############################################################################
 
+logger = logging.getLogger("root")
 
 def get_date_time_now() -> None:
     """Returns a datetime string for the current moment"""
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-def print_warning(message: str) -> None:
+def log_warning(message: str) -> None:
     """Prints text in warning color"""
-    print(constants.WARNING + message + constants.ENDC)
+    logger.warning(constants.WARNING + message + constants.ENDC)
 
 
-def print_success(message: str) -> None:
+def log_success(message: str) -> None:
     """Prints text in success color"""
-    print(constants.OKGREEN + message + constants.ENDC)
+    logger.debug(constants.OKGREEN + message + constants.ENDC)
 
 
 def is_dynamic_file(target: Path) -> bool:

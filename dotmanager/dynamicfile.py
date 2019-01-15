@@ -43,6 +43,7 @@ be linked instead and makes sure that user-made changes are preserved.
 
 
 import hashlib
+import logging
 import os
 from abc import abstractmethod
 from shutil import copyfile
@@ -54,6 +55,9 @@ from dotmanager.errors import FatalError
 from dotmanager.types import Path
 from dotmanager.utils import normpath
 from dotmanager.utils import find_target
+
+
+logger = logging.getLogger("root")
 
 
 class DynamicFile:
@@ -122,8 +126,8 @@ class EncryptedFile(DynamicFile):
         if constants.DECRYPT_PWD:
             process.communicate(bytearray(constants.DECRYPT_PWD, "utf-8"))
         else:
-            print("Tipp: You can set a password in the dotmanagers config" +
-                  " that will be used for all encrypted files")
+            logger.info("Tipp: You can set a password in the dotmanagers " +
+                        "config that will be used for all encrypted files")
             process.communicate()
         # Remove the decrypted file. It will be written by the update function
         # of the super class to its correct location.

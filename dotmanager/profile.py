@@ -62,8 +62,8 @@ from dotmanager.utils import expanduser
 from dotmanager.utils import find_target
 from dotmanager.utils import get_dir_owner
 from dotmanager.utils import import_profile_class
+from dotmanager.utils import log_warning
 from dotmanager.utils import normpath
-from dotmanager.utils import print_warning
 from dotmanager.utils import walk_dotfiles
 
 # The custom builtins that the profiles will implement
@@ -204,9 +204,9 @@ class Profile:
         read_opt = self.__make_read_opt(kwargs)
         path = expanduser(expandvars(path))
         if not os.path.isabs(path):
-            print_warning("'path' should be specified as an absolut path" +
-                          " for extlink(). Relative paths are not forbidden" +
-                          " but can cause undesired side-effects.")
+            log_warning("'path' should be specified as an absolut path" +
+                        " for extlink(). Relative paths are not forbidden" +
+                        " but can cause undesired side-effects.")
         if not read_opt("optional") or os.path.exists(path):
             self.__create_link_descriptor(os.path.abspath(path), **kwargs)
 
@@ -283,8 +283,7 @@ class Profile:
         replace = read_opt("replace")
         if replace:  # When using regex pattern, name property is ignored
             if read_opt("name") != "":
-                print_warning("'name'-property is useless if" +
-                              " 'replace' is used")
+                log_warning("'name'-property is useless if 'replace' is used")
             replace_pattern = read_opt("replace_pattern")
             if replace_pattern:
                 base = os.path.basename(target)

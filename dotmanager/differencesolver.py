@@ -45,7 +45,7 @@ from dotmanager.errors import FatalError
 from dotmanager.types import InstalledLog
 from dotmanager.types import ProfileResult
 from dotmanager.utils import import_profile_class
-from dotmanager.utils import print_warning
+from dotmanager.utils import log_warning
 
 
 class DiffSolver():
@@ -79,7 +79,7 @@ class DiffSolver():
             if profilename in self.installed:
                 self.__generate_profile_unlink(profilename)
             else:
-                print_warning("The profile " + profilename +
+                log_waring("The profile " + profilename +
                               " is not installed at the moment. Skipping...")
 
     def __generate_profile_unlink(self, profile_name: str) -> None:

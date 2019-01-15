@@ -47,6 +47,7 @@ This could be:
 
 import grp
 import hashlib
+import logging
 import os
 import pwd
 import re
@@ -67,13 +68,16 @@ from dotmanager.types import InstalledLog
 from dotmanager.types import DiffLogData
 from dotmanager.types import DiffOperation
 from dotmanager.types import Path
+from dotmanager.utils import find_files
 from dotmanager.utils import get_date_time_now
 from dotmanager.utils import get_dir_owner
 from dotmanager.utils import get_gid
 from dotmanager.utils import get_uid
 from dotmanager.utils import is_dynamic_file
-from dotmanager.utils import print_warning
-from dotmanager.utils import find_files
+from dotmanager.utils import log_warning
+
+
+logger = logging.getLogger("root")
 
 
 class Interpreter():
@@ -115,11 +119,11 @@ class PrintI(Interpreter):
     """Pretty-prints log messages and what a operations is going to do."""
     @staticmethod
     def _log_interpreter(dop: DiffOperation, message: str) -> None:
-        print(constants.BOLD + "[" + dop["profile"] + "]: " +
-              constants.NOBOLD + message)
+        logger.info(constants.BOLD + "[" + dop["profile"] + "]: " +
+                    constants.NOBOLD + message)
 
     def _op_start(self, dop: DiffOperation) -> None:
-        print("Starting linking process now.")
+        logger.debug("Starting linking process now.")
 
     def _op_info(self, dop: DiffOperation) -> None:
         self._log_interpreter(dop, dop["message"])
@@ -239,9 +243,9 @@ class CheckDynamicFilesI(Interpreter):
         md5_old = os.path.basename(target)[-32:]
         # Check for changes
         if is_dynamic_file(target) and md5_calc != md5_old:
-            print_warning(f"You made changes to '{target}'. Those changes " +
-                          "will be lost, if you don't write them back to " +
-                          "the original file.")
+            log_warning(f"You made changes to '{target}'. Those changes " +
+                        "will be lost, if you don't write them back to " +
+                        "the original file.")
             self.user_interaction(target)
 
     def user_interaction(self, target: Path) -> None:
@@ -284,7 +288,7 @@ class CheckDynamicFilesI(Interpreter):
                     copyfile(target_bak, target)
                 done = True
             else:
-                print_warning("Invalid option")
+                log_warning("Invalid option")
 
 
 class CheckLinksI(Interpreter):
@@ -350,20 +354,20 @@ class CheckLinkBlacklistI(Interpreter):
         """Checks if the symlink matches on a pattern in the blacklist"""
         for entry in self.blacklist:
             if re.search(entry, symlink_name):
-                print_warning(f"You are trying to {action} '" + symlink_name +
-                              "' which is blacklisted. It is considered " +
-                              "dangerous to {action} those files!")
+                log_warning(f"You are trying to {action} '" + symlink_name +
+                            "' which is blacklisted. It is considered " +
+                            "dangerous to {action} those files!")
                 if self.superforce:
-                    print_warning(f"Are you sure that you want to {action} " +
-                                  "a blacklisted file?")
+                    log_warning(f"Are you sure that you want to {action} " +
+                                "a blacklisted file?")
                     confirmation = input("Type \"YES\" to confirm or " +
                                          "anything else to cancel: ")
                     if confirmation != "YES":
                         raise UserError("Canceled by user")
                 else:
-                    print_warning("If you really want to modify this file" +
-                                  " you can use the --superforce flag to" +
-                                  " ignore the blacklist.")
+                    log_warning("If you really want to modify this file" +
+                                " you can use the --superforce flag to" +
+                                " ignore the blacklist.")
                     raise IntegrityError(f"Won't {action} blacklisted file!")
 
     def _op_update_l(self, dop: DiffOperation) -> None:
@@ -668,8 +672,8 @@ class RootNeededI(Interpreter):
     def _root_needed(self, operation: str, filename: Path) -> None:
         self.root_needed = True
         if (operation, filename) not in self.logged:
-            print_warning("You will need to give me root permission to " +
-                          operation + " '" + filename + "'.")
+            log_warning("You will need to give me root permission to " +
+                        operation + " '" + filename + "'.")
             self.logged.append((operation, filename))
 
 
@@ -678,7 +682,5 @@ class GainRootI(RootNeededI):
     this interpreter restarts the process with sudo"""
     def _op_fin(self, dop: DiffOperation) -> None:
         if self.root_needed:
-            print(constants.FAIL + constants.BOLD +
-                  "I HOPE YOU KNOW WHAT YOU DO!!" + constants.ENDC)
             args = [sys.executable] + sys.argv
             os.execvp('sudo', args)

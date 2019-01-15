@@ -38,6 +38,7 @@ import argparse
 import csv
 import grp
 import json
+import logging
 import os
 import pwd
 import shutil
@@ -58,6 +59,7 @@ from dotmanager.interpreters import PlainPrintI
 from dotmanager.interpreters import PrintI
 from dotmanager.interpreters import RootNeededI
 from dotmanager.errors import CustomError
+from dotmanager.errors import FatalError
 from dotmanager.errors import PreconditionError
 from dotmanager.errors import UnkownError
 from dotmanager.errors import UserError
@@ -67,8 +69,8 @@ from dotmanager.types import InstalledProfile
 from dotmanager.utils import has_root_priveleges
 from dotmanager.utils import get_uid
 from dotmanager.utils import get_gid
-from dotmanager.utils import print_success
-from dotmanager.utils import print_warning
+from dotmanager.utils import log_success
+from dotmanager.utils import log_warning
 
 
 class DotManager:
@@ -89,7 +91,7 @@ class DotManager:
         try:
             self.installed = json.load(open(constants.INSTALLED_FILE))
         except FileNotFoundError:
-            print("No installed profiles found.")
+            logger.debug("No installed profiles found.")
         # Check installed-file version
         if (int(self.installed["@version"].split("_")[1]) !=
                 int(constants.VERSION.split("_")[1])):
@@ -118,6 +120,8 @@ class DotManager:
         parser.add_argument("-f", "--force",
                             help="overwrite existing files with links",
                             action="store_true")
+        parser.add_argument("--log",
+                            help="specify a file to log to")
         parser.add_argument("-m", "--makedirs",
                             help="create directories automatically if needed",
                             action="store_true")
@@ -135,9 +139,15 @@ class DotManager:
         parser.add_argument("-p", "--print",
                             help="print what changes dotmanager will do",
                             action="store_true")
+        parser.add_argument("-q", "--quiet",
+                            help="print nothing but errors",
+                            action="store_true")
         parser.add_argument("--save",
                             help="specify another install-file to use",
                             default="default")
+        parser.add_argument("--silent",
+                            help="print absolute nothing",
+                            action="store_true")
         parser.add_argument("--superforce",
                             help="overwrite blacklisted/protected files",
                             action="store_true")
@@ -179,6 +189,20 @@ class DotManager:
             self.args.opt_dict["tags"] = next(reader)
         if self.args.directory:
             self.args.directory = os.path.join(self.owd, self.args.directory)
+
+        # Configure logger
+        if self.args.verbose:
+            logger.setLevel(logging.DEBUG)
+        if self.args.quiet:
+            logger.setLevel(logging.WARNING)
+        if self.args.silent:
+            logger.setLevel(logging.CRITICAL)
+        if self.args.log:
+            ch = logging.FileHandler(os.path.join(self.owd, self.args.log))
+            ch.setLevel(logging.DEBUG)
+            formatter = logging.Formatter('[%(asctime)s] %(message)s')
+            ch.setFormatter(formatter)
+            logger.addHandler(ch)
 
         # Load constants for this installed-file
         constants.loadconfig(self.args.config, self.args.save)
@@ -265,8 +289,8 @@ class DotManager:
                 if profilename in self.installed:
                     self.print_installed(self.installed[profilename])
                 else:
-                    print_warning("\nThe profile '" + profilename +
-                                  "' is not installed. Skipping...\n")
+                    log_warning("\nThe profile '" + profilename +
+                                "' is not installed. Skipping...\n")
         else:
             for key in self.installed.keys():
                 if key[0] != "@":
@@ -313,7 +337,7 @@ class DotManager:
             msg += "backup of your installed-file to resolve all possible "
             msg += "issues before you proceed to use this tool!"
             raise UnkownError(err, msg) from err
-        print_success("Finished succesfully.")
+        logger.debug("Finished succesfully.")
 
     def print_installed(self, profile: InstalledProfile) -> None:
         """Prints a currently InstalledProfile"""
@@ -338,8 +362,8 @@ class DotManager:
 
     def dryrun(self, difflog: DiffLog) -> None:
         """Runs Checks and pretty prints the DiffLog"""
-        print_warning("This is just a dry-run! Nothing of this " +
-                      "is actually happening.")
+        log_warning("This is just a dry-run! Nothing of this " +
+                    "is actually happening.")
         difflog.run_interpreter(
             CheckProfilesI(self.installed, self.args.parent)
         )
@@ -376,12 +400,21 @@ class StoreDictKeyPair(argparse.Action):
 
 
 if __name__ == "__main__":
+    # Setup the logger
+    logger = logging.getLogger("root")
+    logger.setLevel(logging.INFO)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
     # Create DotManager and parse arguments
     dotm = DotManager()
     try:
         dotm.parse_arguments()
     except CustomError as err:
-        print(err.message)
+        logger.error(err.message)
         sys.exit(err.exitcode)
     # Add the profiles to the python path
     sys.path.append(constants.PROFILE_FILES)
@@ -399,18 +432,19 @@ if __name__ == "__main__":
             dotm.execute_arguments()
     except CustomError as err:
         # An error occured that we (more or less) expected.
-        # Print error, maybe a stacktrace and exit
-        if dotm.args.verbose:
-            traceback.print_exc()
-        print(err.message)
+        # Print error, a stacktrace and exit
+        logger.debug(traceback.format_exc())
+        if isinstance(err, FatalError):
+            logger.critical(err.message)
+        else:
+            logger.error(err.message)
         sys.exit(err.exitcode)
     except Exception:
         # This works because all critical parts will catch also all
         # exceptions and convert them into a CustomError
-        traceback.print_exc()
-        print("")
-        print_warning("The error above was unexpected. But it's fine," +
-                      " I haven't done anything yet :)")
+        logger.info(traceback.format_exc())
+        log_warning("The error above was unexpected. But it's fine," +
+                    " I haven't done anything yet :)")
         sys.exit(100)
     finally:
         # Write installed back to json file
@@ -420,5 +454,6 @@ if __name__ == "__main__":
                 file.flush()
             os.chown(constants.INSTALLED_FILE, get_uid(), get_gid())
         except Exception as err:
-            raise UnkownError(err, "An unkown error occured when trying to " +
-                              "write all changes back to the installed-file")
+            unkw = UnkownError(err, "An unkown error occured when trying to " +
+                               "write all changes back to the installed-file")
+            logger.error(unkw.message)
