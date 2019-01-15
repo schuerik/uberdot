@@ -33,7 +33,7 @@ Features:
 
 More features are comming:
 - Templates
-- Copies (in some edge cases a link can't be used)
+- Hard links (in some edge cases a symbolic link can't be used)
 - Keep a history of all changes to go back in time
 - Hooks
 
@@ -165,7 +165,7 @@ when set to True.
 # Find the files gvimrc and vimrc and create the links called .gvimrc and .vimrc
 links("g?vimrc", prefix=".")
 # Find all files that match "rofi-*.rasi" and create links that strip away the "rofi-"
-links("rofi-(.+\.rasi)", replace_pattern="rofi-(.+\.rasi)", replace=r"\1")
+links("rofi-.+\.rasi", replace_pattern="rofi-(.+\.rasi)", replace=r"\1")
 links("rofi-(.+\.rasi)", replace=r"\1")  # Does the same as above
 # Decrypt files on the fly
 links("wifi-(.+).gpg", replace=r"\1", encrypted=True)
