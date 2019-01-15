@@ -165,7 +165,7 @@ def get_current_username() -> None:
     return pwd.getpwuid(get_uid()).pw_name
 
 
-def get_user_env_var(varname: str) -> str:
+def get_user_env_var(varname: str, fallback: str = None) -> str:
     """Lookup an environment variable. If executed as root, the
     envirionment variable of the real user is return"""
     if has_root_priveleges():
@@ -191,6 +191,8 @@ def get_user_env_var(varname: str) -> str:
     try:
         return os.environ[varname]
     except KeyError:
+        if fallback is not None:
+            return fallback
         raise PreconditionError("There is no environment varibable set " +
                                 "with the name: '" + varname + "'")
 

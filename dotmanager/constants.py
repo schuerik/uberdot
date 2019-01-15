@@ -42,20 +42,29 @@ import configparser
 import csv
 import os
 import sys
+from dotmanager.errors import PreconditionError
 from dotmanager.types import Path
-from dotmanager.utils import normpath, find_files
+from dotmanager.utils import find_files
+from dotmanager.utils import get_user_env_var
+from dotmanager.utils import normpath
 
 # Search paths for config files
 CONFIG_SEARCH_PATHS = [
-    os.path.join(os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)), "data"),
+    os.path.join(
+        os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
+        "data"
+    ),
     "/etc/dotmanager",
-    os.path.join(os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), "dotmanager")
+    os.path.join(
+        get_user_env_var('XDG_CONFIG_HOME', normpath('~/.config')),
+        "dotmanager"
+    )
 ]
 
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.6.4_3"
+VERSION = "1.6.5_3"
 
 
 # Setting defaults/fallback values for all constants
@@ -119,8 +128,11 @@ def loadconfig(config_file: Path, installed_filename: str = "default") -> None:
 
     config = configparser.ConfigParser()
 
-    for cfg in cfg_files:
-        config.read(cfg)
+    try:
+        for cfg in cfg_files:
+            config.read(cfg)
+    except configparser.Error as err:
+        raise PreconditionError(f"Can't parse config. {err.message}")
 
     # Arguments
     DUISTRATEGY = config.getboolean("Arguments", "duiStrategy",
