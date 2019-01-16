@@ -41,7 +41,7 @@ More features are comming:
 
 ### Installation
 Clone this repository and install `python3.7`. If you want to use encrypted dotfiles you also need `gnupg`.
-Switch into the cloned repository and copy the example config file `data/config-example.ini` to `data/dotmanger.ini`.
+Switch into the cloned repository and copy the example config file `docs/config-example.ini` to `data/dotmanger.ini`.
 In this file you need to specify the properties `files` and `profiles` in the `Settings` section where `files` will be path of
 the directory of your dotfiles (most likely a subdirectory in your repository) and `profiles` the directory in which you store
 all the different profiles that you write (you should store them in a repository as well).
@@ -57,8 +57,7 @@ class Bash(Profile):
         link(".inputrc")
 ```
 If you never used python before this might look confusing. Take a look at this
-[short explanation](https://github.com/RickestRickSanchez/dotmanager/wiki/Python-syntax) that tells you everything you
-need to understand whats going on here.
+[short explanation](docs/documentation/Python-syntax.md) that tells you everything you need to understand whats going on here.
 For everyone else its only important to know that a profile is just any python class that inherits of `Profile`. The name of the
 subclass will be used as a universal identifier so make sure to name your profiles unique. The only thing you need to do is to
 implement the `generate()` function.
@@ -80,8 +79,7 @@ Uninstalling an installed profile called `Name`:
 ```
 You can always use the `-d` flag to just simulate what will happen. This is especially useful if you changed your profiles, so
 that you can be sure to don't mess up your system.
-Take a look at [this full documentation](https://github.com/RickestRickSanchez/dotmanager/wiki/Commandline-interface) of all
-commandline arguments.
+Take a look at [this full documentation](docs/documentation/Commandline-interface.md) of all commandline arguments.
 
 ## The commands
 ### cd(Path)
