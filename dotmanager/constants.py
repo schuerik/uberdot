@@ -64,7 +64,7 @@ CONFIG_SEARCH_PATHS = [
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.6.5_3"
+VERSION = "1.6.7_3"
 
 
 # Setting defaults/fallback values for all constants
