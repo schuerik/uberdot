@@ -25,13 +25,16 @@ You can also choose a couple of optional arguments:
 | -d, --dry-run                  | Simulates the changes dotmanager would perform if executed without this flag       |
 | --dui                          | Use an alternative startegy to install profiles and links. The default strategy will do this by recursively go through the profiles and create/update all links one by one. This can cause conflicts if e.g. a link is moved from one to another profile. This strategy installs links by first doing all removals, then all updates and last all new installs. Most conflicts should be solved by this strategy but it has the downside that the output isn't that clear as the normal strategy. |
 | -f, --force                    | Overwrites files that already exists in your filesystem with your links            |
+| --log LOGFILE                  | Log everything in a logfile (this also adds timestamps to the log messages)        |
 | -m, --makedirs                 | Makes directories if they don't exist. Any directory created inherits the owner of its parent directory. |
 | --option KEY=VAL [KEY=VAL ...] | Let you temporarily overwrite the option section of your config file               |
 | --parent PARENT                | Forces the profiles that you install/update to be installed as subprofile of PARENT. This should be only needed to solve certain conflicts. |
 | --plain                        | Prints the `DiffLog` unformatted and exits. Only used for debugging purpose.       |
 | -p, --pretty-print             | Prints out the changes that dotmanager would perform if executed without this flag. This differs from `--dry-run` in that way that it won't do any checks on the profiles or filesystem, so `--dry-run` is almost always to prefer. The only use-case is if your profiles will raise an error and aborts but you want to now what would have happen to get a better understanding of the issue in your profile/workflow itself.|
+| -q, --quiet                    | Print no log messages but warnings and errors                                      |
 | --save SAVE                    | Use another `installed-file` for this execution. Can be used to install profiles multiple times on the same device. But be carefully not fuck up your other installations of those profiles! This is mostly useful if you want to test the linking process in another directory or if those profiles are installed in completely different locations of your device |
+| --silent                       | Print no log messages at all                                                       |
 | --superforce                   | Overwrites files and links that are blacklisted because it is considered dangerous to overwrite those files e.g. `/etc/hosts` or `/etc/passwd` |
-| -v, --verbose                  | Shows a stacktrace when an error occurs                                            |
+| -v, --verbose                  | Shows more information of the linking process and a stacktrace when error occur    |
 
 `profiles` is a space seperated list of profiles. Any profile will be identified by its class name, not by its filename. Don't forget that python class names are case-sensitive.
