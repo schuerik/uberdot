@@ -110,7 +110,7 @@ extlink("~/owncloud/data/Documents")
 extlink("~/owncloud/data/Camera", name="Pictures")
 ```
 
-### tags(*tags)
+# tags(*tags)
 Takes a list of tags and adds all of them. A tag is just any string of characters (except for '%') that you can set as you like.
 It will be used to find alternate versions of a dotfile. Such a alternate version of a dotfile needs to be prefixed with the
 same tag plus a percent sign as a separator. The easiest way to explain this concept is with an example.
@@ -148,13 +148,13 @@ that you create one "super" profile for every device and a profile for any progr
 tags that describe the device and adding the subprofiles for the programs that you want to configure you can basically setup any
 new device or variation of your configuration in a few minutes.
 
-### rmtags(*tags)
+# rmtags(*tags)
 Takes a list of tags. Removes all of them if they are set.
 
-### has_tag(tags)
+# has_tag(tags)
 Takes a tag and returns if it is set.
 
-### subprof(*profiles)
+# subprof(*profiles)
 This command accepts a list of profilenames that will be executed as subprofiles. A subprofile takes all properties
 (options, tags and the current working directory) of its parent at the time this command is called. It is considered good
 practice to call this directly at the beginning of your profile but after the `tags()` because usually you don't want to use the
@@ -171,7 +171,7 @@ class Main(Profile):
         subprof("I3")
 ```
 
-### decrypt(Dotfilename)
+# decrypt(Dotfilename)
 This command takes a single filename and searches for it like `link()`. It will decrypt it and return the decrypted file as a
 dynamicfile which then can be used by `link()`. If `decryptPwd` is set in your configfile this will be used for every
 decryption. Otherwise Dotmanager (or more precisely gnupg) will ask you for the password. Because dynamicfiles have the
@@ -199,7 +199,7 @@ link(decrypt("key1"), decrypt("key2"), decrypt("key3"), decrypt("key4"), suffix=
 links("key[1-4]", suffix=".pkk", encrypted=True)
 ```
 
-### merge(name, *Dotfilenames)
+# merge(name, *Dotfilenames)
 This command lets you merge some dotfiles to a single big dotfile. That is useful if you want to split a configuration file that
 doesn't support source-operations (eg i3). It even works with tags, so the dotfile can be generated using alternate versions of
 the splittet files.
