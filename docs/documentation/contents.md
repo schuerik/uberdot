@@ -6,7 +6,7 @@ In this wiki:
 * [Commands](commands.md)
 * [Configuration Files](configuration.md)
 * [Understanding the Installed File](installed-file.md)
-* [How do the Dynamic Files work?](dynamic-files.md)
+* [How do the Dynamic Files work?](dynamicfiles.md)
 * [Example configurations](example-configurations.md)
 * [Tips](tips.md)
 * [Troubleshooting](troubleshooting.md)
