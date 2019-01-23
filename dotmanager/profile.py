@@ -316,12 +316,11 @@ class Profile:
         # Add prefix an suffix to name
         base, ext = os.path.splitext(os.path.basename(name))
         if not base:
-            if read_opt("preserve_tags"):
-                base, ext = os.path.splitext(os.path.basename(target))
-            else:
-                base, ext = os.path.splitext(
-                    os.path.basename(target.split("%", 1)[-1])
-                )
+            # If base is empty it means that "name" was never set by the user,
+            # so we fallback to use the target name (but without the tag)
+            base, ext = os.path.splitext(
+                os.path.basename(target.split("%", 1)[-1])
+            )
         name = os.path.join(os.path.dirname(name), read_opt("prefix") +
                             base + read_opt("suffix") + ext)
         name = os.path.normpath(name)

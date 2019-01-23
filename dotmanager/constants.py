@@ -64,7 +64,7 @@ CONFIG_SEARCH_PATHS = [
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.6.7_3"
+VERSION = "1.6.8_3"
 
 
 # Setting defaults/fallback values for all constants
@@ -167,8 +167,6 @@ def loadconfig(config_file: Path, installed_filename: str = "default") -> None:
                                     fallback=FALLBACK["permission"]),
         "prefix": config.get("DEFAULTS", "prefix",
                              fallback=FALLBACK["prefix"]),
-        "preserve_tags": config.getboolean("DEFAULTS", "preserve_tags",
-                                           fallback=FALLBACK["preserve_tags"]),
         "replace": config.get("DEFAULTS", "replace",
                               fallback=FALLBACK["replace"]),
         "replace_pattern": config.get("DEFAULTS", "replace_pattern",
@@ -186,8 +184,6 @@ def loadconfig(config_file: Path, installed_filename: str = "default") -> None:
         "permission": config.getint(name, "permission",
                                     fallback=FALLBACK["permission"]),
         "prefix": config.get(name, "prefix", fallback=FALLBACK["prefix"]),
-        "preserve_tags": config.getboolean(name, "preserve_tags",
-                                           fallback=FALLBACK["preserve_tags"]),
         "replace": config.get(name, "replace", fallback=FALLBACK["replace"]),
         "replace_pattern": config.get(name, "replace_pattern",
                                       fallback=FALLBACK["replace_pattern"]),
