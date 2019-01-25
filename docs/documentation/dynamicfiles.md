@@ -16,6 +16,29 @@ those changes when you install a profile. To do so, Dotmanager appends the md5 h
 backup file next to it. That way changes won't be lost and Dotmanager can calculate a diff for you if you like.
 
 
+# Workflow explained on an example
+Suppose you have the following profile:
+``` python
+class Main(Profile):
+    def generate():
+        link(decrypt("test.txt"))
+```
+The first time that you install this profile `decrypt()` will search for the file "text.txt" in your repository, decrypt it and
+calculate it's hash (in this example bb6a0d9da197de74db91745fb9b433e1). It then writes the decrypted file to
+* data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1
+and
+* data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1.bak
+Dotmanager will later link to "data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1".
+Now every time this link is updated or removed, Dotmanager will check if the calculated hash differs from the current installed
+hash and if so warn you that you could lose changes. To help you write back the changes to the original file it gives you the
+following options:
+* Abort: abort the installation/removal process to fix changes manually
+* Diff: displays a diff of the changes and lets you decide again what to do
+* Ignore: ignore the warning. The link will be updated/removed but the changes to the old dynamicfile will stay.
+* Patch: write a git diff of the changes to a desired location. In some cases you can apply it to the original directly with git
+* Undo: discards all changes made to the file and proceed with updating/removing the link
+
+
 # Creating an instance of a dynamicfile manually
 ``` python
 from dotmanager.dynamicfile import EncryptedFile
