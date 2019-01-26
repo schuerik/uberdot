@@ -21,17 +21,17 @@ Features:
 - Easy to use but powerful commands + clean syntax
 - You can use your old repository without any changes. It doesn't matter how you organize your dotfiles.
 - Alternate versions of dofiles
-- Advanced error handling (eg integration tests of your written profiles)
+- Advanced error handling (eg. integration tests for your written profiles)
 - Create links anywhere in the filesystem as you like
-- Create links that point anywhere in the filesystem (not exclusivley to your repository)
+- Create links that point anywhere in the filesystem (not exclusively to your repository)
 - Set owner and permission for links
-- Find and rename dotfiles with regular expressions
+- Find and rename dotfiles using regular expressions
 - Use encrypted dotfiles
 - Split a dotfile in multiple parts where each one can have alternate versions
 - Provides an interface for system information (like hostname, distribution, etc)
 - You can simulate (dry run) everything to see if your self written profile behaves like you expect
 
-More features are comming:
+More features are coming:
 - Templates
 - Hard links (in some edge cases a symbolic link can't be used)
 - Keep a history of all changes to go back in time
@@ -61,7 +61,7 @@ If you never used python before this might look confusing. Take a look at this
 For everyone else its only important to know that a profile is just any python class that inherits of `Profile`. The name of the
 subclass will be used as a universal identifier so make sure to name your profiles unique. The only thing you need to do is to
 implement the `generate()` function.
-This function can be thinked of as a shell script that starts in your home-directory. `link(".bashrc")` will search your
+This function can be thunk of as a shell script that starts in your home-directory. `link(".bashrc")` will search your
 `files` directory for a file called `.bashrc` and creates a symlink in your home-directory that points to this file. There are
 just a fistful of other commands like `cd()`, `subprof()` or `tags()` and some options that you can pass to them that will allow
 you to create very flexible profiles with very easy but expressive syntax.
@@ -87,3 +87,4 @@ For more information about how to use Dotmanager please take a look at the [docu
 
 ## FAQ
 Please ask me whenever something is not obvious to you. I'm trying to make this as easy as possible.
+
