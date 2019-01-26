@@ -219,7 +219,7 @@ class Profile:
         target_dir = {}
 
         # Use target_pattern as replace_pattern
-        if read_opt("replace") != "" and read_opt("replace_pattern") == "":
+        if read_opt("replace") and not read_opt("replace_pattern"):
             kwargs["replace_pattern"] = target_pattern
 
         # Find all files that match target_pattern and index
@@ -282,11 +282,16 @@ class Profile:
         # Now generate the correct name for the symlink
         replace = read_opt("replace")
         if replace:  # When using regex pattern, name property is ignored
-            if read_opt("name") != "":
-                log_warning("'name'-property is useless if 'replace' is used")
             replace_pattern = read_opt("replace_pattern")
             if replace_pattern:
-                base = os.path.basename(target)
+                if read_opt("name"):
+                    # Usually it makes no sense to set a name when "replace" is
+                    # used, but commands might set this if they got an
+                    # dynamicfile, because otherwise you would have to match
+                    # against the hash too
+                    base = read_opt("name")
+                else:
+                    base = os.path.basename(target)
                 if "%" in base:
                     base = base.split("%", 1)[1]
                 name = re.sub(replace_pattern, replace, base)
