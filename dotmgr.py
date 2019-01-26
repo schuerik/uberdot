@@ -252,6 +252,12 @@ class DotManager:
 
     def print_debuginfo(self) -> None:
         """Print out all constants"""
+        print(constants.BOLD + "Config search paths: " + constants.ENDC)
+        for cfg in constants.CONFIG_SEARCH_PATHS:
+            print("   " + cfg)
+        print(constants.BOLD + "Loaded configs: " + constants.ENDC)
+        for cfg in constants.CFG_FILES:
+            print("   " + cfg)
         print(constants.BOLD + "Arguments: " + constants.ENDC)
         print("   DUISTRATEGY: " + str(constants.DUISTRATEGY))
         print("   FORCE: " + str(constants.FORCE))
@@ -274,8 +280,6 @@ class DotManager:
         print("   DEFAULTS['permission']: " +
               str(constants.DEFAULTS["permission"]))
         print("   DEFAULTS['prefix']: " + str(constants.DEFAULTS["prefix"]))
-        print("   DEFAULTS['preserve_tags']: " +
-              str(constants.DEFAULTS["preserve_tags"]))
         print("   DEFAULTS['replace']: " + str(constants.DEFAULTS["replace"]))
         print("   DEFAULTS['replace_pattern']: " +
               str(constants.DEFAULTS["replace_pattern"]))

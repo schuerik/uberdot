@@ -49,6 +49,7 @@ from dotmanager.utils import get_user_env_var
 from dotmanager.utils import normpath
 
 # Search paths for config files
+CFG_FILES = []
 CONFIG_SEARCH_PATHS = [
     os.path.join(
         os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
@@ -64,7 +65,7 @@ CONFIG_SEARCH_PATHS = [
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.6.8_3"
+VERSION = "1.6.9_3"
 
 
 # Setting defaults/fallback values for all constants
@@ -119,17 +120,18 @@ def loadconfig(config_file: Path, installed_filename: str = "default") -> None:
     global DUISTRATEGY, FORCE, VERBOSE, MAKEDIRS, DECRYPT_PWD
     global BACKUP_EXTENSION, PROFILE_FILES, TARGET_FILES, INSTALLED_FILE_BACKUP
     global COLOR, INSTALLED_FILE, DEFAULTS, DIR_DEFAULT, FALLBACK
+    global CFG_FILES
 
     # Init config file
-    cfg_files = find_files("dotmanager.ini", CONFIG_SEARCH_PATHS)
+    CFG_FILES = find_files("dotmanager.ini", CONFIG_SEARCH_PATHS)
 
     if config_file:
-        cfg_files.append(config_file)
+        CFG_FILES.append(config_file)
 
     config = configparser.ConfigParser()
 
     try:
-        for cfg in cfg_files:
+        for cfg in CFG_FILES:
             config.read(cfg)
     except configparser.Error as err:
         raise PreconditionError(f"Can't parse config. {err.message}")
