@@ -8,6 +8,8 @@ recommend using this there are a few things I want to have done:***
 
 ***Just come back in a few days, I'm constantly developing on this.***
 
+
+[![Build Status](https://travis-ci.com/RickestRickSanchez/dotmanager.svg?branch=master)](https://travis-ci.com/RickestRickSanchez/dotmanager)
 ## What is Dotmanager?
 Dotmanager is a tool to manage different versions of your dotfiles on different hosts. Dotmanager is intended to give you
 maximal flexibility while checking all operations you configured/programmed at the same time to prevent that you accidentally
@@ -20,7 +22,7 @@ Features:
 - Very flexible generic python profiles
 - Easy to use but powerful commands + clean syntax
 - You can use your old repository without any changes. It doesn't matter how you organize your dotfiles.
-- Alternate versions of dofiles
+- Alternate versions of dotfiles
 - Advanced error handling (eg. integration tests for your written profiles)
 - Create links anywhere in the filesystem as you like
 - Create links that point anywhere in the filesystem (not exclusively to your repository)
@@ -36,6 +38,7 @@ More features are coming:
 - Hard links (in some edge cases a symbolic link can't be used)
 - Keep a history of all changes to go back in time
 - Hooks
+
 
 ## Getting Started
 
@@ -57,7 +60,7 @@ class Bash(Profile):
         link(".inputrc")
 ```
 If you never used python before this might look confusing. Take a look at this
-[short explanation](docs/documentation/Python-syntax.md) that tells you everything you need to understand whats going on here.
+[short explanation](docs/documentation/python-syntax.md) that tells you everything you need to understand whats going on here.
 For everyone else its only important to know that a profile is just any python class that inherits of `Profile`. The name of the
 subclass will be used as a universal identifier so make sure to name your profiles unique. The only thing you need to do is to
 implement the `generate()` function.
@@ -79,12 +82,12 @@ Uninstalling an installed profile called `Name`:
 ```
 You can always use the `-d` flag to just simulate what will happen. This is especially useful if you changed your profiles, so
 that you can be sure to don't mess up your system.
-Take a look at [this full documentation](docs/documentation/Commandline-interface.md) of all commandline arguments.
+Take a look at [this full documentation](docs/documentation/commandline-interface.md) of all commandline arguments.
 
 
 ## Documentation / Wiki / Examples
-For more information about how to use Dotmanager please take a look at the [documentation](docs/documentation/Home.md).
+For more information about how to use Dotmanager please take a look at the [documentation](docs/documentation/contents.md).
+
 
 ## FAQ
 Please ask me whenever something is not obvious to you. I'm trying to make this as easy as possible.
-

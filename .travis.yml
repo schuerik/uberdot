@@ -1,0 +1,6 @@
+dist: xenial
+language: python
+python: 3.7
+# install:
+#     - pip install doxygen jinja pygit2
+script: ./test/regressiontest.py
