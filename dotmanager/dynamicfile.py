@@ -120,15 +120,14 @@ class EncryptedFile(DynamicFile):
         # We never provided sources, so the file will be found by find_target
         encryped_file = self.sources[0]
         tmp = os.path.join(self.getdir(), self.name)
-        args = ["gpg", "-q", "-d", "--yes", "-o", tmp, encryped_file]
+        args = ["gpg", "-q", "-d", "--yes", "--batch", "--passphrase",
+                constants.DECRYPT_PWD, "-o", tmp, encryped_file]
         process = Popen(args, stdin=PIPE)
         # Type in password
-        if constants.DECRYPT_PWD:
-            process.communicate(bytearray(constants.DECRYPT_PWD, "utf-8"))
-        else:
+        if not constants.DECRYPT_PWD:
             logger.info("Tipp: You can set a password in the dotmanagers " +
                         "config that will be used for all encrypted files")
-            process.communicate()
+        process.communicate()
         # Remove the decrypted file. It will be written by the update function
         # of the super class to its correct location.
         result = open(tmp, "rb").read()
