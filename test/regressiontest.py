@@ -846,7 +846,7 @@ DirRegressionTest("Option: directory",
 DirRegressionTest("Option: prefix suffix",
                   ["-i", "PrefixSuffixOption"],
                   before, after_prefixsuffixoptions, True).success()
-DirRegressionTest("Options: optional",
+DirRegressionTest("Option: optional",
                   ["-i", "OptionalOption"],
                   before, after_optional, True).success()
 DirRegressionTest("Command: links()",
@@ -886,7 +886,7 @@ sys.exit(not global_result)
 
 
 ###############################################################################
-# TODO: Write tests (only possible when regression tests uses pylint2)
+# TODO: Write tests (only possible when regression tests use pygit2)
 ## option owner
 ## option replace and replace_pattern
 ## option permission

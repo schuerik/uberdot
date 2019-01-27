@@ -3,7 +3,7 @@
 ***This is currently under construction! Dotmanager is considered stable but not production ready at this point! Before I can
 recommend using this there are a few things I want to have done:***
 * ***Documentation***
-* ***Unit and regression tests***
+* ***Unit tests***
 * ***Alpha test***
 
 ***Just come back in a few days, I'm constantly developing on this.***
@@ -43,7 +43,7 @@ More features are coming:
 ## Getting Started
 
 ### Installation
-Clone this repository and install `python3.7`. If you want to use encrypted dotfiles you also need `gnupg`.
+Clone this repository and install `python3.6` or higher. If you want to use encrypted dotfiles you also need `gnupg`.
 Switch into the cloned repository and copy the example config file `docs/config-example.ini` to `data/dotmanger.ini`.
 In this file you need to specify the properties `files` and `profiles` in the `Settings` section where `files` will be path of
 the directory of your dotfiles (most likely a subdirectory in your repository) and `profiles` the directory in which you store
