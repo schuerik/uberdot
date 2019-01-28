@@ -50,12 +50,11 @@ encrypt.add_source("~/dotfile_repo/test.txt")
 # Update the dynamicfile to process the source and write the resulting file
 encrypt.update()
 ```
-Instead of using the absolute path to the dotfile you could use for example `find_exact_target()` from dotmanager.utils
+Instead of using the absolute path to the dotfile you could use `self.find()` of the profile to find the file automatically
 ``` python
-from dotmanager.utils import find_exact_target
 from dotmanager.dynamicfile import EncryptedFile
 
 encrypt = EncryptedFile("test.txt")
-encrypt.add_source(find_exact_target("test.txt"))
+encrypt.add_source(self.find("test.txt"))
 encrypt.update()
 ```

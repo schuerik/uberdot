@@ -213,3 +213,14 @@ This creates a DynamicFile called `vimrc` at `data/merged/`. `vimrc` contains th
 ``` python
 link(merge("vimrc", ["defaults.vim", "keybindings.vim", "plugins.vim"]), prefix=".")
 ```
+
+# pipe(Dotfilename, shell_command)
+This command lets you execute any shell command on a dotfile before linking it by piping it into the specified shell command. It
+returns the result as a DynamicFile. This command also accepts a Dynamicfile instead of a filename.
+
+**Example:**
+Think of a file `text.txt` that only contains the numbers one to twenty with each number on in a separate line.
+``` python
+link(pipe("test.txt", "grep 2"))
+```
+This will create a link called `test.txt` which only contains the numbers 2, 12 and 20.

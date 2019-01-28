@@ -68,7 +68,7 @@ from dotmanager.utils import walk_dotfiles
 
 # The custom builtins that the profiles will implement
 CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink", "has_tag", "merge",
-                   "default", "subprof", "tags", "rmtags", "decrypt"]
+                   "default", "subprof", "tags", "rmtags", "decrypt", "pipe"]
 
 
 class Profile:
@@ -145,19 +145,22 @@ class Profile:
         """Raise a GenerationError with the profilename"""
         raise GenerationError(self.name, msg)
 
+    def find(self, target: str) -> Path:
+        """Find a dotfile in the repository. Depends on the current set tags"""
+        try:
+            return find_target(target, self.options["tags"])
+        except ValueError as err:
+            self.__raise_generation_error(err)
+
     def decrypt(self, target: Union[str, DynamicFile]) -> EncryptedFile:
         """Creates an EncryptedFile instance, updates and returns it"""
         if isinstance(target, DynamicFile):
             encrypt = EncryptedFile(target.name)
-            encrypt.sources = [target.getpath()]
-            encrypt.update()
+            encrypt.add_source(target.getpath())
         else:
             encrypt = EncryptedFile(target)
-            try:
-                encrypt.add_source(find_target(target, self.options["tags"]))
-            except ValueError as err:
-                self.__raise_generation_error(err)
-            encrypt.update()
+            encrypt.add_source(self.find(target))
+        encrypt.update()
         return encrypt
 
     def merge(self, name: str,
@@ -169,14 +172,23 @@ class Profile:
         split = SplittedFile(name)
         for target in targets:
             if isinstance(target, DynamicFile):
-                split.sources.append(target.getpath())
+                split.add_source(target.getpath())
             else:
-                try:
-                    split.add_source(find_target(target, self.options["tags"]))
-                except ValueError as err:
-                    self.__raise_generation_error(err)
+                split.add_source(self.find(target))
         split.update()
         return split
+
+    def pipe(self, target: Union[str, DynamicFile],
+             shell_command: str) -> FilteredFile:
+        """Creates a FilteredFile instance, updates and returns it"""
+        if isinstance(target, DynamicFile):
+            filtered = FilteredFile(target.name, shell_command)
+            filtered.add_source(target.getpath())
+        else:
+            filtered = FilteredFile(target, shell_command)
+            filtered.add_source(self.find(target))
+        filtered.update()
+        return filtered
 
     def link(self, *targets: List[Union[DynamicFile, str]],
              **kwargs: Options) -> None:
@@ -188,11 +200,7 @@ class Profile:
                 if "name" not in kwargs:
                     kwargs["name"] = target.name
             else:
-                try:
-                    found_target = find_target(target, read_opt("tags"))
-                except ValueError as err:
-                    self.__raise_generation_error(err)
-                found_target = normpath(found_target)
+                found_target = self.find(target)
             if found_target:
                 self.__create_link_descriptor(found_target, **kwargs)
             elif not read_opt("optional"):
@@ -235,7 +243,7 @@ class Profile:
 
         def choose_file(base: str, tags: Tuple[str, Path]) -> None:
             # Go through set tags and take the first file that matches a tag
-            for tmp_tag in read_opt("tags"):
+            for tmp_tag in self.options["tags"]:
                 for item in tags:
                     if item[0] == tmp_tag:
                         target_list.append(item[1])

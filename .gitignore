@@ -12,3 +12,5 @@ data/decrypted/*
 !data/decrypted/.gitkeep
 data/merged/*
 !data/merged/.gitkeep
+data/piped/*
+!data/piped/.gitkeep

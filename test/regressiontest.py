@@ -647,6 +647,23 @@ after_merge = {
     }
 }
 
+after_pipe = {
+    "environment": {
+        "files": [],
+        "links": [
+            {
+                "name": "file",
+                "target": "../data/piped/file#fdb6e0c029299e6aabca0963120f0fa0",
+                "rootuser": False,
+                "rootgroup": False,
+                "content": "fdb6e0c029299e6aabca0963120f0fa0"
+            }
+        ],
+        "rootuser": False,
+        "rootgroup": False
+    }
+}
+
 after_nesteddynamic = {
     "environment": {
         "files": [],
@@ -657,6 +674,13 @@ after_nesteddynamic = {
                 "rootuser": False,
                 "rootgroup": False,
                 "content": "526f328977744debf953a2c76c2c6169"
+            },
+            {
+                "name": "merge2",
+                "target": "../data/piped/merge2#0281651775d0a19e648acf333cabac2f",
+                "rootuser": False,
+                "rootgroup": False,
+                "content": "0281651775d0a19e648acf333cabac2f"
             }
         ],
         "rootuser": False,
@@ -858,6 +882,9 @@ DirRegressionTest("Command: decrypt()",
 DirRegressionTest("Command: merge()",
                   ["-i", "Merge"],
                   before, after_merge, True).success()
+DirRegressionTest("Command: pipe()",
+                  ["-i", "Pipe"],
+                  before, after_pipe, True).success()
 DirRegressionTest("Command: Nested dynamicfiles",
                   ["-i", "NestedDynamicFile"],
                   before, after_nesteddynamic, True).success()

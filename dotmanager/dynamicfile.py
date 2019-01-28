@@ -51,10 +51,9 @@ from subprocess import PIPE
 from subprocess import Popen
 from typing import List
 from dotmanager import constants
-from dotmanager.errors import FatalError
 from dotmanager.types import Path
+from dotmanager.types import RelPath
 from dotmanager.utils import normpath
-from dotmanager.utils import find_target
 
 
 logger = logging.getLogger("root")
@@ -80,8 +79,8 @@ class DynamicFile:
         dynamic file from sources by returning it as bytearray"""
         pass
 
-    def add_source(self, target) -> List[Path]:
-        """This method is used to automatically find the sources to use."""
+    def add_source(self, target: RelPath) -> List[Path]:
+        """Adds a source path and normalizes it"""
         self.sources.append(normpath(target))
 
     def update(self) -> None:
@@ -116,22 +115,40 @@ class EncryptedFile(DynamicFile):
     SUBDIR = "decrypted"
 
     def _generate_file(self) -> bytearray:
-        # Use OpenPGP to decrypt the file
-        # We never provided sources, so the file will be found by find_target
+        # Get sources and temp file
         encryped_file = self.sources[0]
         tmp = os.path.join(self.getdir(), self.name)
-        args = ["gpg", "-q", "-d", "--yes", "--batch", "--passphrase",
-                constants.DECRYPT_PWD, "-o", tmp, encryped_file]
-        process = Popen(args, stdin=PIPE)
-        # Type in password
-        if not constants.DECRYPT_PWD:
+        # Set arguments for OpenPGP
+        args = ["gpg", "-q", "-d", "--yes"]
+        if constants.DECRYPT_PWD:
+            args += ["--batch", "--passphrase", constants.DECRYPT_PWD]
+        else:
             logger.info("Tipp: You can set a password in the dotmanagers " +
                         "config that will be used for all encrypted files")
+        args += ["-o", tmp, encryped_file]
+        # Use OpenPGP to decrypt the file
+        process = Popen(args, stdin=PIPE)
         process.communicate()
         # Remove the decrypted file. It will be written by the update function
         # of the super class to its correct location.
         result = open(tmp, "rb").read()
         os.remove(tmp)
+        return result
+
+
+class FilteredFile(DynamicFile):
+    """This is an implementation of a dynamic files that allows
+    to run a shell command on a dotfile before linking"""
+    SUBDIR = "piped"
+
+    def __init__(self, name: str, shell_command: str) -> None:
+        super().__init__(name)
+        self.shell_command = shell_command
+
+    def _generate_file(self) -> bytearray:
+        command = f"cat {self.sources[0]} | {self.shell_command}"
+        process = Popen(command, stdout=PIPE, shell=True)
+        result, _ = process.communicate()
         return result
 
 

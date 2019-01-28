@@ -21,9 +21,14 @@ class Merge(Profile):
         link(merge("merge1", ["name1", "name2"]))
         link(merge("merge2", ["name3", "name4", "name5"]), name="merge3")
 
+class Pipe(Profile):
+    def generate(self):
+        link(pipe("file", "grep line"))
+
 class NestedDynamicFile(Profile):
     def generate(self):
         link(merge("merge1", [decrypt("name_encrypt8"), "name2"]))
+        link(pipe(merge("merge2", ["file", "name2"]), "grep 2"))
 
 class SuperProfile(Profile):
     def generate(self):
