@@ -48,6 +48,7 @@ import subprocess
 from typing import List
 from typing import Optional
 from typing import Tuple
+from typing import Type
 from dotmanager import constants
 from dotmanager.types import Path
 from dotmanager.types import RelPath
@@ -245,8 +246,11 @@ def normpath(path: RelPath) -> Path:
 # Dynamic imports
 ###############################################################################
 
-def import_profile_class(class_name: str) -> None:
+def import_profile_class(class_name: str) -> Type["Profile"]:
     """This function imports a profile class only by it's name"""
+    # Import profile (can't be done globally because profile needs to
+    # import this module first)
+    from dotmanager.profile import Profile
     # Go through all files in the profile directory
     for root, _, files in os.walk(constants.PROFILE_FILES):
         for file in files:
@@ -266,7 +270,12 @@ def import_profile_class(class_name: str) -> None:
                                       "\n   " + str(err))
             # Return the class if it is in this module
             if class_name in module.__dict__:
-                return module.__dict__[class_name]
+                tmp_class = module.__dict__[class_name]
+                if issubclass(tmp_class, Profile):
+                    return module.__dict__[class_name]
+                msg = f"The class '{class_name}' does not inherit from"
+                msg += "Profile and therefore can't be imported."
+                raise GenerationError(class_name, msg)
     raise PreconditionError("The profile '" + class_name +
                             "' could not be found in any module. Aborting.")
 
