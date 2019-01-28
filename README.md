@@ -9,7 +9,7 @@ recommend using this there are a few things I want to have done:***
 ***Just come back in a few days, I'm constantly developing on this.***
 
 
-[![Build Status](https://travis-ci.com/RickestRickSanchez/dotmanager.svg?branch=master)](https://travis-ci.com/RickestRickSanchez/dotmanager) [![Latest Release](https://img.shields.io/github/release/RickestRickSanchez/dotmanager.svg)](https://github.com/RickestRickSanchez/dotmanager/releases/latest) [![Python version](https://img.shields.io/badge/python-3.6%20%7C%203.7-blue.svg)]()
+[![Build Status](https://travis-ci.com/RickestRickSanchez/dotmanager.svg?branch=master)](https://travis-ci.com/RickestRickSanchez/dotmanager) [![Latest Release](https://img.shields.io/github/release/RickestRickSanchez/dotmanager.svg)](https://github.com/RickestRickSanchez/dotmanager/releases/latest) [![Python version](https://img.shields.io/badge/python-3.6%20%7C%203.7-blue.svg)]() [![CodeFactor](https://www.codefactor.io/repository/github/rickestricksanchez/dotmanager/badge)](https://www.codefactor.io/repository/github/rickestricksanchez/dotmanager)
 
 ## What is Dotmanager?
 Dotmanager is a tool to manage different versions of your dotfiles on different hosts. Dotmanager is intended to give you
