@@ -1,0 +1,318 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Examples &#8212; Dotmanager  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tips" href="tips.html" />
+    <link rel="prev" title="Installed files" href="installed-file.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<p>This is an example of a more complex configuration that tries to show of
+most features of dotmanager and what you could achieve with inheritance.
+It’s a variation of a setup I’m using for over a half year now. The tags
+that I defined have the following semantics:</p>
+<ul class="simple">
+<li><strong>arch:</strong> An Arch linux based distribution is installed</li>
+<li><strong>antergos:</strong> An Arch linux based distribution is installed</li>
+<li><strong>debian:</strong> An Debian based distribution is installed</li>
+<li><strong>master:</strong> The device is powerful and should be fullfeatured</li>
+<li><strong>minimal:</strong> The device is a low-end-device and most features should be
+disabled</li>
+<li><strong>private:</strong> This my own device with private data and access to my local
+network</li>
+<li><strong>office:</strong> A device used for work</li>
+<li><strong>laptop:</strong> This device is a laptop</li>
+<li><strong>asus:</strong> A concrete asus laptop of mine</li>
+<li><strong>asus:</strong> A concrete thinkpad laptop of mine</li>
+<li><strong>small:</strong> This device has a small monitor</li>
+</ul>
+<p>First I created some profiles that represent my current setup. Any
+device that I want to use this setup on inherits from it. These profiles
+define the programs that should be configured and link some platform
+specific configs.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This profile is the base for all devices that use my current setup</span>
+<span class="k">class</span> <span class="nc">Main</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;arch&quot;</span><span class="p">,</span> <span class="s2">&quot;master&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">info</span><span class="o">.</span><span class="n">distribution</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Antergos&quot;</span><span class="p">:</span>
+            <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;antergos&quot;</span><span class="p">)</span>
+        <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Git&quot;</span><span class="p">,</span> <span class="s2">&quot;I3&quot;</span><span class="p">,</span> <span class="s2">&quot;Bash&quot;</span><span class="p">,</span> <span class="s2">&quot;Zsh&quot;</span><span class="p">,</span> <span class="s2">&quot;Vim&quot;</span><span class="p">)</span>
+
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;pacman.conf&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;/etc&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># This profile contains configs that I only want on my private devices. It inherits from the Main profile.</span>
+<span class="k">class</span> <span class="nc">Private</span><span class="p">(</span><span class="n">Main</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;private&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+
+        <span class="c1"># File synchronisation</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;unison_data.prf&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;.unison/data.prf&quot;</span><span class="p">)</span>
+
+        <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;/etc&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;hosts&quot;</span><span class="p">,</span> <span class="s2">&quot;mkinitcpio.conf&quot;</span><span class="p">)</span>
+        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;\d</span><span class="si">{2}</span><span class="s2">-\w+\.rules&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;udev/rules.d&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then there are profiles for my different devices. <code class="docutils literal notranslate"><span class="pre">Pi</span></code> and <code class="docutils literal notranslate"><span class="pre">Server</span></code>
+doesn’t inherit from <code class="docutils literal notranslate"><span class="pre">Main</span></code> so they will define subprofiles as well.
+The other profiles are used to link configs that configure hardware.
+These profiles (except for <code class="docutils literal notranslate"><span class="pre">Laptop</span></code>) are the only profiles that I
+install as a root profile.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This profile contains configs that I use on all of my laptops</span>
+<span class="k">class</span> <span class="nc">Laptop</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;hdmi_plugin.sh&quot;</span><span class="p">)</span>
+        <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;/etc/NetworkManager&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;sshOnConnect.sh&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;dispatcher.d&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Wifi profiles</span>
+        <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;system-connections&quot;</span><span class="p">)</span>
+        <span class="n">opt</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;wifi-(.+).gpg&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\1&quot;</span><span class="p">,</span> <span class="n">encrypted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="c1"># This is an asus laptop of mine</span>
+<span class="k">class</span> <span class="nc">Asus</span><span class="p">(</span><span class="n">Private</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;asus&quot;</span><span class="p">,</span> <span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="s2">&quot;laptop&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+        <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Laptop&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># This is an thinkpad laptop of mine</span>
+<span class="k">class</span> <span class="nc">Thinkpad</span><span class="p">(</span><span class="n">Private</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;thinkpad&quot;</span><span class="p">,</span> <span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="s2">&quot;laptop&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+        <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Laptop&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;alsa-base.conf&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;/etc/modprobe.d/&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># This is my device at the office</span>
+<span class="k">class</span> <span class="nc">Office</span><span class="p">(</span><span class="n">Main</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;office&quot;</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+
+
+<span class="c1"># A raspberry pi I use as mini server</span>
+<span class="k">class</span> <span class="nc">Pi</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;pi&quot;</span><span class="p">,</span> <span class="s2">&quot;debian&quot;</span><span class="p">,</span> <span class="s2">&quot;minimal&quot;</span><span class="p">)</span>
+        <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Git&quot;</span><span class="p">,</span> <span class="s2">&quot;Bash&quot;</span><span class="p">,</span> <span class="s2">&quot;Vim&quot;</span><span class="p">,</span> <span class="s2">&quot;Radicale&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># A more powerful webserver</span>
+<span class="k">class</span> <span class="nc">Server</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;debian&quot;</span><span class="p">,</span> <span class="s2">&quot;master&quot;</span><span class="p">)</span>
+        <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Git&quot;</span><span class="p">,</span> <span class="s2">&quot;Bash&quot;</span><span class="p">,</span> <span class="s2">&quot;Vim&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>At last there are the profiles for the individual programs that I called
+as subprofiles above. Most of the links are defined here.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Bash</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">opt</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;bashrc&quot;</span><span class="p">,</span> <span class="s2">&quot;inputrc&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;bashrc&quot;</span><span class="p">,</span> <span class="s2">&quot;inputrc&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;/root&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;bash_profile&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;.bash_profile&quot;</span><span class="p">)</span>
+        <span class="n">opt</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.bash_&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;sensitiverc&quot;</span><span class="p">,</span> <span class="s2">&quot;basicrc&quot;</span><span class="p">,</span> <span class="s2">&quot;systemrc&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;sensitiverc&quot;</span><span class="p">,</span> <span class="s2">&quot;basicrc&quot;</span><span class="p">,</span> <span class="s2">&quot;systemrc&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;/root&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;customrc&quot;</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Zsh</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;zshrc&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;zsh_profile&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;.zprofile&quot;</span><span class="p">)</span>
+        <span class="n">opt</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.zsh_&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;sensitiverc&quot;</span><span class="p">,</span> <span class="s2">&quot;basicrc&quot;</span><span class="p">,</span> <span class="s2">&quot;systemrc&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;customrc&quot;</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Git</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;gitconfig&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;gitconfig_system&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;/etc/gitconfig&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">I3</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Rofi&quot;</span><span class="p">,</span> <span class="s2">&quot;Polybar&quot;</span><span class="p">)</span>
+
+        <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.config/i3&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;i3config&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;lock.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;lock.png&quot;</span><span class="p">)</span>
+
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;dunstrc&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;../dunst&quot;</span><span class="p">)</span>
+
+        <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;$HOME&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;wallpaper.sh&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;compton.conf&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Rofi</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.config/rofi&quot;</span><span class="p">)</span>
+        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;rofi-(.+\.rasi)&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\1&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Polybar</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.config/polybar&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;polybarconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;polybarlaunch.sh&quot;</span><span class="p">,</span> <span class="n">replace_pattern</span><span class="o">=</span><span class="s2">&quot;polybar(.+)&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\1&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;pkg.sh&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Vim</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Configs</span>
+        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;g?vimrc&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.vim&quot;</span><span class="p">)</span>
+        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;\w+\.vim&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Documentation</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;my.txt&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;doc&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Snippets</span>
+        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;.+\.snippets&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;UltiSnips&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Spellfiles</span>
+        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;.+\..+\.add(\.spl)?&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;spell&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Configs loaded after plugins</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;vim-gitgutter.vim&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;after/plugin&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;vim-illuminate.vim&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;after/plugin&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Radicale</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.config&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;radicale.conf&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;radicale/config&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;radicale_log.conf&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;radicale/log_config&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;radicale.service&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;systemd/user&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You could argue that some programs doesn’t need an extra profile like
+<code class="docutils literal notranslate"><span class="pre">Polybar</span></code> and <code class="docutils literal notranslate"><span class="pre">Rofi</span></code> because those would have fit in <code class="docutils literal notranslate"><span class="pre">I3</span></code> as well.
+It’s fine to do so, however by encapsulating their configs in their own
+profile you increase the re-usability of a configuration.</p>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commandline-interface.html">Commandline Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="info-module.html">Info module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encryption.html">Encryption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed files</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html">Tips</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Dotmanager Usage</a><ul>
+      <li>Previous: <a href="installed-file.html" title="previous chapter">Installed files</a></li>
+      <li>Next: <a href="tips.html" title="next chapter">Tips</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Erik Schulz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/usage/example-configuration.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

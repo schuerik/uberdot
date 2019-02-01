@@ -1,0 +1,197 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Errors &#8212; Dotmanager  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Info" href="info.html" />
+    <link rel="prev" title="Dynamicfile" href="dynamicfile.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-errors">
+<span id="errors"></span><h1>Errors<a class="headerlink" href="#module-errors" title="Permalink to this headline">¶</a></h1>
+<p>This module contains all custom errors/exceptions.</p>
+<dl class="exception">
+<dt id="errors.CustomError">
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">CustomError</code><span class="sig-paren">(</span><em>message</em>, <em>exitcode</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A base class for all custom exceptions</p>
+<dl class="method">
+<dt id="errors.CustomError.getmessage">
+<code class="descname">getmessage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError.getmessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Colors every error message in FAIL-color</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="errors.CustomError.message">
+<code class="descname">message</code><a class="headerlink" href="#errors.CustomError.message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Colors every error message in FAIL-color</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="errors.FatalError">
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">FatalError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception for all errors that violate expected invariants</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="errors.GenerationError">
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">GenerationError</code><span class="sig-paren">(</span><em>profileName</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception for all errors that occur during generation
+Example: The profile has syntax errors or is doing some nasty stuff</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="errors.IntegrityError">
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">IntegrityError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.IntegrityError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception for all errors that occur because there are logical/
+sematic errors in a profile written by the user.
+Example: A link is defined multiple times with different targets</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="errors.PreconditionError">
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">PreconditionError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.PreconditionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception for all errors that occur due to preconditions
+or expectations that are not fullfilled
+Example: A link that is defined in the installed-file doesn’t exist
+on the system</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="errors.UnkownError">
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UnkownError</code><span class="sig-paren">(</span><em>originalError</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception for all errors that are not expected/unkown
+Example: Used in a pokemon handler</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="errors.UserAbortion">
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UserAbortion</code><a class="headerlink" href="#errors.UserAbortion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to abort the dotmanager at any given point safely by the user</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="errors.UserError">
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UserError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception for all errors that occur because the user called
+this progam with wrong arguments.
+Example: -i and -u where used in the same call</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differencelog.html">Differencelog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicfile.html">Dynamicfile</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="info.html">Info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profile.html">Profile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html">Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Reference manual</a><ul>
+      <li>Previous: <a href="dynamicfile.html" title="previous chapter">Dynamicfile</a></li>
+      <li>Next: <a href="info.html" title="next chapter">Info</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Erik Schulz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/reference/errors.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,264 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Commandline Interface &#8212; Dotmanager  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Commands" href="commands.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="commandline-interface">
+<h1>Commandline Interface<a class="headerlink" href="#commandline-interface" title="Permalink to this headline">¶</a></h1>
+<p>This document explains all commandline options in detail.</p>
+<p>The general syntax is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dotmgr</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">--</span><span class="n">directory</span> <span class="n">DIRECTORY</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dui</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">option</span> <span class="n">KEY</span><span class="o">=</span><span class="n">VAL</span> <span class="p">[</span><span class="n">KEY</span><span class="o">=</span><span class="n">VAL</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">parent</span> <span class="n">PARENT</span><span class="p">]</span>
+          <span class="p">[</span><span class="o">-</span><span class="n">p</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">save</span> <span class="n">SAVE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">superforce</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">(</span><span class="o">-</span><span class="n">h</span> <span class="o">|</span> <span class="o">-</span><span class="n">i</span> <span class="o">|</span> <span class="o">-</span><span class="n">u</span> <span class="o">|</span> <span class="o">-</span><span class="n">s</span> <span class="o">|</span> <span class="o">--</span><span class="n">version</span><span class="p">)</span> <span class="p">[</span><span class="n">profiles</span> <span class="p">[</span><span class="n">profiles</span> <span class="o">...</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>There are 5 modes of which you have to specify exactly one:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Mode</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>-h, –help</td>
+<td>Shows a short help message with all options and modes
+and exits</td>
+</tr>
+<tr class="row-odd"><td>–version</td>
+<td>Shows the version of dotmanager and exits</td>
+</tr>
+<tr class="row-even"><td>-i,
+–install</td>
+<td>Installs every specified profile. If a profile is
+already installed it will be updated instead of
+installed.</td>
+</tr>
+<tr class="row-odd"><td>-u,
+–uninstall</td>
+<td>Uninstalls every specified profile. If a profile is not
+installed, dotmanager will skip this profile.</td>
+</tr>
+<tr class="row-even"><td>-s, –show</td>
+<td>Shows information about installed profiles and links.
+If you specify <code class="docutils literal notranslate"><span class="pre">profiles</span></code> this will show only
+information about those profiles. Otherwise information
+about all installed profiles will be shown.</td>
+</tr>
+</tbody>
+</table>
+<p>You can also choose a couple of optional arguments:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="26%" />
+<col width="74%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Option</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>–directory
+DIRECTORY</td>
+<td>Overwrites the default directory temporarily</td>
+</tr>
+<tr class="row-odd"><td>-d, –dry-run</td>
+<td>Simulates the changes dotmanager would perform if
+executed without this flag</td>
+</tr>
+<tr class="row-even"><td>–dui</td>
+<td>Use an alternative startegy to install profiles
+and links. The default strategy will do this by
+recursively go through the profiles and
+create/update all links one by one. This can
+cause conflicts if e.g.&nbsp;a link is moved from one
+to another profile. This strategy installs links
+by first doing all removals, then all updates and
+last all new installs. Most conflicts should be
+solved by this strategy but it has the downside
+that the output isn’t that clear as the normal
+strategy.</td>
+</tr>
+<tr class="row-odd"><td>-f, –force</td>
+<td>Overwrites files that already exists in your
+filesystem with your links</td>
+</tr>
+<tr class="row-even"><td>–log LOGFILE</td>
+<td>Log everything in a logfile (this also adds
+timestamps to the log messages)</td>
+</tr>
+<tr class="row-odd"><td>-m, –makedirs</td>
+<td>Makes directories if they don’t exist. Any
+directory created inherits the owner of its
+parent directory.</td>
+</tr>
+<tr class="row-even"><td>–option KEY=VAL
+[KEY=VAL …]</td>
+<td>Let you temporarily overwrite the option section
+of your config file</td>
+</tr>
+<tr class="row-odd"><td>–parent PARENT</td>
+<td>Forces the profiles that you install/update to be
+installed as subprofile of PARENT. This should be
+only needed to solve certain conflicts.</td>
+</tr>
+<tr class="row-even"><td>–plain</td>
+<td>Prints the <code class="docutils literal notranslate"><span class="pre">DiffLog</span></code> unformatted and exits.
+Only used for debugging purpose.</td>
+</tr>
+<tr class="row-odd"><td>-p,
+–pretty-print</td>
+<td>Prints out the changes that dotmanager would
+perform if executed without this flag. This
+differs from <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> in that way that it
+won’t do any checks on the profiles or
+filesystem, so <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> is almost always to
+prefer. The only use-case is if your profiles
+will raise an error and aborts but you want to
+now what would have happen to get a better
+understanding of the issue in your
+profile/workflow itself.</td>
+</tr>
+<tr class="row-even"><td>-q, –quiet</td>
+<td>Print no log messages but warnings and errors</td>
+</tr>
+<tr class="row-odd"><td>–save SAVE</td>
+<td>Use another <code class="docutils literal notranslate"><span class="pre">installed-file</span></code> for this
+execution. Can be used to install profiles
+multiple times on the same device. But be
+carefully not fuck up your other installations of
+those profiles! This is mostly useful if you want
+to test the linking process in another directory
+or if those profiles are installed in completely
+different locations of your device</td>
+</tr>
+<tr class="row-even"><td>–silent</td>
+<td>Print no log messages at all</td>
+</tr>
+<tr class="row-odd"><td>–superforce</td>
+<td>Overwrites files and links that are blacklisted
+because it is considered dangerous to overwrite
+those files e.g.&nbsp;<code class="docutils literal notranslate"><span class="pre">/etc/hosts</span></code> or
+<code class="docutils literal notranslate"><span class="pre">/etc/passwd</span></code></td>
+</tr>
+<tr class="row-even"><td>-v, –verbose</td>
+<td>Shows more information of the linking process and
+a stacktrace when error occur</td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">profiles</span></code> is a space seperated list of profiles. Any profile will be
+identified by its class name, not by its filename. Don’t forget that
+python class names are case-sensitive.</p>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Commands</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Commandline Interface</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Dotmanager Usage</a><ul>
+      <li>Previous: <a href="commands.html" title="previous chapter">Commands</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Erik Schulz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/usage/commandline-interface.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
