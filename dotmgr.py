@@ -46,6 +46,7 @@ import sys
 import traceback
 from typing import List
 from dotmanager import constants
+from dotmanager.customtypes import InstalledProfile
 from dotmanager.interpreters import CheckDynamicFilesI
 from dotmanager.interpreters import CheckLinkBlacklistI
 from dotmanager.interpreters import CheckLinkDirsI
@@ -65,7 +66,6 @@ from dotmanager.errors import UnkownError
 from dotmanager.errors import UserError
 from dotmanager.differencesolver import DiffSolver
 from dotmanager.differencelog import DiffLog
-from dotmanager.types import InstalledProfile
 from dotmanager.utils import has_root_priveleges
 from dotmanager.utils import get_uid
 from dotmanager.utils import get_gid

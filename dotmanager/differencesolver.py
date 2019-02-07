@@ -40,10 +40,10 @@
 import copy
 from typing import List
 from dotmanager import constants
+from dotmanager.customtypes import InstalledLog
+from dotmanager.customtypes import ProfileResult
 from dotmanager.differencelog import DiffLog
 from dotmanager.errors import FatalError
-from dotmanager.types import InstalledLog
-from dotmanager.types import ProfileResult
 from dotmanager.utils import import_profile_class
 from dotmanager.utils import log_warning
 

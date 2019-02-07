@@ -50,8 +50,8 @@ from typing import Optional
 from typing import Tuple
 from typing import Type
 from dotmanager import constants
-from dotmanager.types import Path
-from dotmanager.types import RelPath
+from dotmanager.customtypes import Path
+from dotmanager.customtypes import RelPath
 from dotmanager.errors import FatalError
 from dotmanager.errors import GenerationError
 from dotmanager.errors import PreconditionError
