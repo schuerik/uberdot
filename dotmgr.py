@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
+
 """Main module. Implements DotManager and a short startup script.
+
 Run this directly from the CLI or import DotManager for debugging"""
 
+###############################################################################
+#
 # Copyright 2018 Erik Schulz
 #
 # This file is part of Dotmanager.
@@ -61,11 +65,20 @@ from dotmanager.utils import log_warning
 
 
 class DotManager:
-    """Main class. Parses arguments, generates DiffLog and calls DiffOperations
-    on DiffLog according to the parsed arguments."""
+    """Bundles all functionality off Dotmanager.
+
+    This includes things like parsing arguments, loading installed-files,
+    printing information and executing profiles.
+
+    Attributes:
+        installed (InstalledLog): The installed-file that is worked with
+        args (List): The parsed arguments
+        owd (str): The directory Dotmanager was started from
+    """
 
     def __init__(self):
-        # Fields
+        """Init of DotManager."""
+        # Initialise fields
         self.installed = {"@version": constants.VERSION}
         self.args = None
         # Change current working directory to the directory of this module
@@ -89,7 +102,16 @@ class DotManager:
             raise PreconditionError(msg)
 
     def parse_arguments(self, arguments: List[str] = None) -> None:
-        """Creates an ArgumentParser and parses sys.args into self.args"""
+        """Parses the arguments.
+
+        Args:
+            arguments (List): A list of arguments that will be parsed instead
+                of sys.args
+
+        Raises:
+            UserError: One ore more arguments are invalid or used in an
+                invalid combination.
+        """
         if arguments is None:
             arguments = sys.argv[1:]
         # Setup parser
@@ -273,8 +295,10 @@ class DotManager:
         print("   DEFAULTS['suffix']: " + str(constants.DEFAULTS["suffix"]))
 
     def print_installed_profiles(self) -> None:
-        """Shows only the profiles specified.
-        If none are specified shows all."""
+        """Print out the installed-file in a readable format.
+
+        Prints only the profiles specified in the arguments. If none are
+        specified it prints all profiles of the installed-file."""
         if self.args.profiles:
             for profilename in self.args.profiles:
                 if profilename in self.installed:
@@ -287,9 +311,47 @@ class DotManager:
                 if key[0] != "@":
                     self.print_installed(self.installed[key])
 
+    def print_installed(self, profile: InstalledProfile) -> None:
+        """Prints a single installed profile.
+
+        Args:
+            profile (InstalledProfile): The profile that will be printed
+        """
+        print(constants.BOLD + profile["name"] + ":" + constants.ENDC)
+        print("  Installed: " + profile["installed"])
+        print("  Updated: " + profile["updated"])
+        if "parent" in profile:
+            print("  Subprofile of: " + profile["parent"])
+        if "profiles" in profile:
+            print("  Has Subprofiles: " + ", ".join(
+                [s["name"] for s in profile["profiles"]]
+            ))
+        if profile["links"]:
+            print("  Links:")
+        for symlink in profile["links"]:
+            print("    " + symlink["name"] + "  →  " + symlink["target"])
+            user = pwd.getpwuid(symlink["uid"])[0]
+            group = grp.getgrgid(symlink["gid"])[0]
+            print("       Owner: " + user + ":" + group +
+                  "   Permission: " + str(symlink["permission"]) +
+                  "   Updated: " + symlink["date"])
+
     def run(self, difflog: DiffLog) -> None:
-        """This runs Checks then executes DiffOperations while
-        pretty printing the DiffLog"""
+        """Performs checks on DiffLog and resolves it.
+
+        Furthermore this function handles backups, converts exceptions into
+        UnkownErrors and might replace the entire process when Dotmanager was
+        started with insufficient permissions.
+
+        Args:
+            difflog (DiffLog): The Difflog that will be resolved.
+
+        Raises:
+            UnkownError: All exceptions that are no CustomError and occured
+                in the critical section will be converted to this error.
+            CustomError: Executed interpreters can and will raise all kinds of
+                CustomError.
+        """
         # Run integration tests on difflog
         difflog.run_interpreter(
             CheckProfilesI(self.installed, self.args.parent)
@@ -330,29 +392,12 @@ class DotManager:
             raise UnkownError(err, msg) from err
         logger.debug("Finished succesfully.")
 
-    def print_installed(self, profile: InstalledProfile) -> None:
-        """Prints a currently InstalledProfile"""
-        print(constants.BOLD + profile["name"] + ":" + constants.ENDC)
-        print("  Installed: " + profile["installed"])
-        print("  Updated: " + profile["updated"])
-        if "parent" in profile:
-            print("  Subprofile of: " + profile["parent"])
-        if "profiles" in profile:
-            print("  Has Subprofiles: " + ", ".join(
-                [s["name"] for s in profile["profiles"]]
-            ))
-        if profile["links"]:
-            print("  Links:")
-        for symlink in profile["links"]:
-            print("    " + symlink["name"] + "  →  " + symlink["target"])
-            user = pwd.getpwuid(symlink["uid"])[0]
-            group = grp.getgrgid(symlink["gid"])[0]
-            print("       Owner: " + user + ":" + group +
-                  "   Permission: " + str(symlink["permission"]) +
-                  "   Updated: " + symlink["date"])
-
     def dryrun(self, difflog: DiffLog) -> None:
-        """Runs Checks and pretty prints the DiffLog"""
+        """Performs checks and prints out the DiffLog.
+
+        Args:
+            difflog (DiffLog): The Difflog that will be checked
+        """
         log_warning("This is just a dry-run! Nothing of this " +
                     "is actually happening.")
         difflog.run_interpreter(

@@ -24,11 +24,9 @@ project = 'Dotmanager'
 copyright = '2019, Erik Schulz'
 author = 'Erik Schulz'
 
-# The short X.Y version
+# Load version
 from dotmanager import constants
-version = constants.VERSION
-# The full version, including alpha/beta/rc tags
-release = ''
+release = version = constants.VERSION
 
 
 # -- General configuration ---------------------------------------------------
@@ -42,7 +40,12 @@ release = ''
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon'
 ]
+
+autodoc_default_options = {
+    'members': None
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
