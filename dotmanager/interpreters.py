@@ -2,10 +2,10 @@
 This module contains all the different Interpreters.
 Interpreters implement the behavior for all or a subset of DiffOperations.
 This could be:
-    - Checking if DiffOperations contradict each other
-    - Printing a DiffOperation
-    - Gaining root access if a DiffOperation needs them
-    - Actually create links according to the DiffOperation
+- Checking if DiffOperations contradict each other
+- Printing a DiffOperation
+- Gaining root access if a DiffOperation needs them
+- Actually create links according to the DiffOperation
 """
 
 ###############################################################################
@@ -26,21 +26,6 @@ This could be:
 #
 # You should have received a copy of the GNU General Public License
 # along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Diese Datei ist Teil von Dotmanger.
-#
-# Dotmanger ist Freie Software: Sie können es unter den Bedingungen
-# der GNU General Public License, wie von der Free Software Foundation,
-# Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
-# veröffentlichten Version, weiter verteilen und/oder modifizieren.
-#
-# Dotmanger wird in der Hoffnung, dass es nützlich sein wird, aber
-# OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
-# Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
-# Siehe die GNU General Public License für weitere Details.
-#
-# Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
-# Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
 #
 ###############################################################################
 
