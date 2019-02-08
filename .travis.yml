@@ -11,4 +11,4 @@ addons:
 install:
     - pip install autodoc  # jinja pygit2
 script: ./test/regressiontest.py
-after_success: make -f docs/sphinx/Makefile html
+after_success: pushd docs/sphinx && make html && popd
