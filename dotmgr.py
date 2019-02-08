@@ -101,7 +101,7 @@ class DotManager:
             msg += "all of your profiles before using this version."
             raise PreconditionError(msg)
 
-    def parse_arguments(self, arguments):
+    def parse_arguments(self, arguments=None):
         """Parses the arguments.
 
         Args:
