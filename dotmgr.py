@@ -85,7 +85,7 @@ class DotManager:
         self.owd = os.getcwd()
         os.chdir(os.path.dirname(sys.modules[__name__].__file__))
 
-    def load_installed(self) -> None:
+    def load_installed(self):
         """Reads Installed-File and parses it's InstallationLog
         into self.installed"""
         try:
@@ -101,7 +101,7 @@ class DotManager:
             msg += "all of your profiles before using this version."
             raise PreconditionError(msg)
 
-    def parse_arguments(self, arguments: List[str] = None) -> None:
+    def parse_arguments(self, arguments):
         """Parses the arguments.
 
         Args:
@@ -236,7 +236,7 @@ class DotManager:
         if self.args.parent and not self.args.install:
             raise UserError("--parent needs to be used with -i")
 
-    def execute_arguments(self) -> None:
+    def execute_arguments(self):
         """Executes whatever was specified via commandline arguments"""
         if self.args.show:
             self.print_installed_profiles()
@@ -259,7 +259,7 @@ class DotManager:
             else:
                 self.run(dfl)
 
-    def print_debuginfo(self) -> None:
+    def print_debuginfo(self):
         """Print out all constants"""
         print(constants.BOLD + "Config search paths: " + constants.ENDC)
         for cfg in constants.CONFIG_SEARCH_PATHS:
@@ -294,7 +294,7 @@ class DotManager:
               str(constants.DEFAULTS["replace_pattern"]))
         print("   DEFAULTS['suffix']: " + str(constants.DEFAULTS["suffix"]))
 
-    def print_installed_profiles(self) -> None:
+    def print_installed_profiles(self):
         """Print out the installed-file in a readable format.
 
         Prints only the profiles specified in the arguments. If none are
@@ -311,7 +311,7 @@ class DotManager:
                 if key[0] != "@":
                     self.print_installed(self.installed[key])
 
-    def print_installed(self, profile: InstalledProfile) -> None:
+    def print_installed(self, profile):
         """Prints a single installed profile.
 
         Args:
@@ -336,7 +336,7 @@ class DotManager:
                   "   Permission: " + str(symlink["permission"]) +
                   "   Updated: " + symlink["date"])
 
-    def run(self, difflog: DiffLog) -> None:
+    def run(self, difflog):
         """Performs checks on DiffLog and resolves it.
 
         Furthermore this function handles backups, converts exceptions into
@@ -392,11 +392,14 @@ class DotManager:
             raise UnkownError(err, msg) from err
         logger.debug("Finished succesfully.")
 
-    def dryrun(self, difflog: DiffLog) -> None:
+    def dryrun(self, difflog):
         """Performs checks and prints out the DiffLog.
 
         Args:
             difflog (DiffLog): The Difflog that will be checked
+
+        Returns:
+            str: Tells you if success
         """
         log_warning("This is just a dry-run! Nothing of this " +
                     "is actually happening.")
