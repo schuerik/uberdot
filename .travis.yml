@@ -9,6 +9,6 @@ addons:
     packages:
         - python3-sphinx
 install:
-    - pip install autdoc  # jinja pygit2
+    - pip install autodoc  # jinja pygit2
 script: ./test/regressiontest.py
 after_success: make -f docs/sphinx/Makefile html
