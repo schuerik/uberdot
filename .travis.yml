@@ -3,12 +3,7 @@ language: python
 python:
     - 3.6
     - 3.7
-addons:
-  apt:
-    update: true
-    packages:
-        - python3-sphinx
 install:
-    - pip install autodoc  # jinja pygit2
+    - pip3 install autodoc sphinx  # jinja pygit2
 script: ./test/regressiontest.py
 after_success: pushd docs/sphinx && make html && popd
