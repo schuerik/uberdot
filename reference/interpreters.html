@@ -94,14 +94,14 @@ gives the user the oppoutunity to interact with them</p>
 
 <dl class="class">
 <dt id="interpreters.CheckLinksI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinksI</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, bool, int]]]]]]]</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinksI</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, int]]]]]]]</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks for conflicts between all links
 (duplicates, multiple targets, overwrites, etc)</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="interpreters.CheckProfilesI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckProfilesI</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, bool, int]]]]]]], parent_arg: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckProfilesI</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, int]]]]]]], parent_arg: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if profiles can be installed together, protects against
 duplicates and overwrites</p>
 <dl class="method">
@@ -123,7 +123,7 @@ because without order they are not useful anymore</p>
 
 <dl class="class">
 <dt id="interpreters.ExecuteI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteI</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, bool, int]]]]]]], force: bool</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteI</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, int]]]]]]], force: bool</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI" title="Permalink to this definition">¶</a></dt>
 <dd><p>This interpreter actually executes the operations from the DiffLog.
 It can create/delete links in the filesystem and modify the InstalledLog</p>
 <dl class="method">
@@ -153,14 +153,14 @@ this interpreter restarts the process with sudo</p>
 <dd><p>Base-class for an interpreter</p>
 <dl class="method">
 <dt id="interpreters.Interpreter.call_operation">
-<code class="descname">call_operation</code><span class="sig-paren">(</span><em>dop: Dict[str, Union[str, Dict[str, Union[str, bool, int]]]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.Interpreter.call_operation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">call_operation</code><span class="sig-paren">(</span><em>dop: Dict[str, Union[str, Dict[str, Union[str, int]]]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.Interpreter.call_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the implemented behavior for this DiffOperation.
 This calls the function named like ‘operation’ with prefix ‘_op_’</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="interpreters.Interpreter.set_difflog_data">
-<code class="descname">set_difflog_data</code><span class="sig-paren">(</span><em>data: List[Dict[str, Union[str, Dict[str, Union[str, bool, int]]]]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.Interpreter.set_difflog_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_difflog_data</code><span class="sig-paren">(</span><em>data: List[Dict[str, Union[str, Dict[str, Union[str, int]]]]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.Interpreter.set_difflog_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the DiffLogData.
 Needed by Interpreters that alter the DiffLog</p>
 </dd></dl>
