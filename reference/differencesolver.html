@@ -1,0 +1,172 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Differencesolver &#8212; Dotmanager 1.8.1_3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="DotManager" href="dotmgr.html" />
+    <link rel="prev" title="Differencelog" href="differencelog.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-differencesolver">
+<span id="differencesolver"></span><h1>Differencesolver<a class="headerlink" href="#module-differencesolver" title="Permalink to this headline">¶</a></h1>
+<p>This module implements the Difference-Solver</p>
+<dl class="class">
+<dt id="differencesolver.DiffSolver">
+<em class="property">class </em><code class="descclassname">differencesolver.</code><code class="descname">DiffSolver</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, bool, int]]]]]]], args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a list of profilenames and the currend install-file.
+Generates a the ProfileResults from the profiles and compares it
+with the installed-file. It will then generate a DiffLog that
+solves the difference between those two</p>
+<dl class="method">
+<dt id="differencesolver.DiffSolver._DiffSolver__generate_links">
+<code class="descname">_DiffSolver__generate_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_links" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill the difflog with all operations needed to link all profiles</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffSolver._DiffSolver__generate_profile_link">
+<code class="descname">_DiffSolver__generate_profile_link</code><span class="sig-paren">(</span><em>profile_dict: Dict[str, Union[str, Profile, List[Dict[str, Union[str, bool, int]]], List[ProfileResult]]], all_profilenames: List[str], parent_name: str = None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_profile_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolves the differences between a single profile and the installed
+ones and appends the difflog for those. If parent_name is None the
+profile is treated as a root profile</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffSolver._DiffSolver__generate_profile_unlink">
+<code class="descname">_DiffSolver__generate_profile_unlink</code><span class="sig-paren">(</span><em>profile_name: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_profile_unlink" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append to difflog that we want to remove a profile,
+all it’s subprofiles and all their links</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffSolver._DiffSolver__generate_unlinks">
+<code class="descname">_DiffSolver__generate_unlinks</code><span class="sig-paren">(</span><em>profilelist: List[str]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_unlinks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fill the difflog with all operations needed to
+unlink multiple profiles</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffSolver.solve">
+<code class="descname">solve</code><span class="sig-paren">(</span><em>link: bool</em><span class="sig-paren">)</span> &#x2192; dotmanager.differencelog.DiffLog<a class="headerlink" href="#differencesolver.DiffSolver.solve" title="Permalink to this definition">¶</a></dt>
+<dd><p>This will create an DiffLog from the set profiles</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differencelog.html">Differencelog</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Differencesolver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicfile.html">Dynamicfile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="info.html">Info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profile.html">Profile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customtypes.html">Custom types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Reference manual</a><ul>
+      <li>Previous: <a href="differencelog.html" title="previous chapter">Differencelog</a></li>
+      <li>Next: <a href="dotmgr.html" title="next chapter">DotManager</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Erik Schulz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/reference/differencesolver.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,241 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Utils &#8212; Dotmanager 1.8.1_3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Custom types" href="customtypes.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-utils">
+<span id="utils"></span><h1>Utils<a class="headerlink" href="#module-utils" title="Permalink to this headline">¶</a></h1>
+<p>Provides functionality that is needed in multiple modules.
+Eg. Retrieving a environment variable or fixing file permisions</p>
+<dl class="function">
+<dt id="utils.expanduser">
+<code class="descclassname">utils.</code><code class="descname">expanduser</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Behaves like the os.path.expanduser() but uses
+get_user_env_var() to look up the substitution</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.expandvars">
+<code class="descclassname">utils.</code><code class="descname">expandvars</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#utils.expandvars" title="Permalink to this definition">¶</a></dt>
+<dd><p>Behaves like the os.path.expandvars() but uses
+get_user_env_var() to look up the substitution</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.find_exact_target">
+<code class="descclassname">utils.</code><code class="descname">find_exact_target</code><span class="sig-paren">(</span><em>target: str</em><span class="sig-paren">)</span> &#x2192; Optional[str]<a class="headerlink" href="#utils.find_exact_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the exact target in the repository to link to</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.find_files">
+<code class="descclassname">utils.</code><code class="descname">find_files</code><span class="sig-paren">(</span><em>filename: str, paths: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>finds existing files matching filename in the paths</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.find_target">
+<code class="descclassname">utils.</code><code class="descname">find_target</code><span class="sig-paren">(</span><em>target: str, tags: List[str]</em><span class="sig-paren">)</span> &#x2192; Optional[str]<a class="headerlink" href="#utils.find_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the correct target version in the repository to link to</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.get_current_username">
+<code class="descclassname">utils.</code><code class="descname">get_current_username</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.get_current_username" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get real users username</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.get_date_time_now">
+<code class="descclassname">utils.</code><code class="descname">get_date_time_now</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.get_date_time_now" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a datetime string for the current moment</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.get_dir_owner">
+<code class="descclassname">utils.</code><code class="descname">get_dir_owner</code><span class="sig-paren">(</span><em>filename: str</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int]<a class="headerlink" href="#utils.get_dir_owner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the owner of the directory of filename.
+Works even for directories that doesn’t exist</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.get_gid">
+<code class="descclassname">utils.</code><code class="descname">get_gid</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.get_gid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get real users group id</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.get_uid">
+<code class="descclassname">utils.</code><code class="descname">get_uid</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.get_uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get real users id</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.get_user_env_var">
+<code class="descclassname">utils.</code><code class="descname">get_user_env_var</code><span class="sig-paren">(</span><em>varname: str</em>, <em>fallback: str = None</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#utils.get_user_env_var" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lookup an environment variable. If executed as root, the
+envirionment variable of the real user is return</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.has_root_priveleges">
+<code class="descclassname">utils.</code><code class="descname">has_root_priveleges</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.has_root_priveleges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if this programm wasxecuted as root</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.import_profile_class">
+<code class="descclassname">utils.</code><code class="descname">import_profile_class</code><span class="sig-paren">(</span><em>class_name: str</em><span class="sig-paren">)</span> &#x2192; Type[Profile]<a class="headerlink" href="#utils.import_profile_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function imports a profile class only by it’s name</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.is_dynamic_file">
+<code class="descclassname">utils.</code><code class="descname">is_dynamic_file</code><span class="sig-paren">(</span><em>target: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#utils.is_dynamic_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns if a given path is a dynamic file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.log_success">
+<code class="descclassname">utils.</code><code class="descname">log_success</code><span class="sig-paren">(</span><em>message: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.log_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints text in success color</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.log_warning">
+<code class="descclassname">utils.</code><code class="descname">log_warning</code><span class="sig-paren">(</span><em>message: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.log_warning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints text in warning color</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.normpath">
+<code class="descclassname">utils.</code><code class="descname">normpath</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#utils.normpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes path, replaces ~ and environment vars,
+and converts it in an absolute path</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.walk_dotfiles">
+<code class="descclassname">utils.</code><code class="descname">walk_dotfiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[Tuple[str, str]]<a class="headerlink" href="#utils.walk_dotfiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all dotfiles as tuple of directory and filename</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differencelog.html">Differencelog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicfile.html">Dynamicfile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="info.html">Info</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="profile.html">Profile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="customtypes.html">Custom types</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Utils</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Reference manual</a><ul>
+      <li>Previous: <a href="customtypes.html" title="previous chapter">Custom types</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Erik Schulz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/reference/utils.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

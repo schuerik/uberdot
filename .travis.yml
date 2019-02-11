@@ -1,9 +1,0 @@
-dist: xenial
-language: python
-python:
-    - 3.6
-    - 3.7
-install:
-    - pip3 install autodoc sphinx  # jinja pygit2
-script:
-    - ./test/regressiontest.py && cd docs/sphinx && make html

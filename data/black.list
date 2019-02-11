@@ -1,7 +1,0 @@
-/boot/.*
-/dev/.*
-/etc/hosts
-/etc/mkinitcpio\.conf
-/etc/passwd
-/etc/default/grub
-/proc/.*
