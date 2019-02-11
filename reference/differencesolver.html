@@ -39,7 +39,7 @@
 <p>This module implements the Difference-Solver</p>
 <dl class="class">
 <dt id="differencesolver.DiffSolver">
-<em class="property">class </em><code class="descclassname">differencesolver.</code><code class="descname">DiffSolver</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, int]]]]]]], args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">differencesolver.</code><code class="descname">DiffSolver</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, bool, int]]]]]]], args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Takes a list of profilenames and the currend install-file.
 Generates a the ProfileResults from the profiles and compares it
 with the installed-file. It will then generate a DiffLog that
@@ -52,7 +52,7 @@ solves the difference between those two</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffSolver._DiffSolver__generate_profile_link">
-<code class="descname">_DiffSolver__generate_profile_link</code><span class="sig-paren">(</span><em>profile_dict: Dict[str, Union[str, Profile, List[Dict[str, Union[str, int]]], List[ProfileResult]]], all_profilenames: List[str], parent_name: str = None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_profile_link" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_DiffSolver__generate_profile_link</code><span class="sig-paren">(</span><em>profile_dict: Dict[str, Union[str, Profile, List[Dict[str, Union[str, bool, int]]], List[ProfileResult]]], all_profilenames: List[str], parent_name: str = None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_profile_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resolves the differences between a single profile and the installed
 ones and appends the difflog for those. If parent_name is None the
 profile is treated as a root profile</p>
