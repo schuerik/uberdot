@@ -52,7 +52,7 @@ temporarily only for a link</p>
 
 <dl class="method">
 <dt id="profile.Profile._Profile__make_read_opt">
-<code class="descname">_Profile__make_read_opt</code><span class="sig-paren">(</span><em>kwargs: Dict[str, Any]</em><span class="sig-paren">)</span> &#x2192; Callable[str, Any]<a class="headerlink" href="#profile.Profile._Profile__make_read_opt" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_Profile__make_read_opt</code><span class="sig-paren">(</span><em>kwargs: Dict[str, Any]</em><span class="sig-paren">)</span> &#x2192; Callable[[str], Any]<a class="headerlink" href="#profile.Profile._Profile__make_read_opt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create function that can lookup variables set in the profiles</p>
 </dd></dl>
 
@@ -114,7 +114,7 @@ Unix-like cd.</p>
 
 <dl class="method">
 <dt id="profile.Profile.get">
-<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Union[str, profile.Profile, List[Dict[str, Union[str, int]]], List[Dict[str, Union[str, Profile, List[Dict[str, Union[str, int]]], List[ProfileResult]]]]]]<a class="headerlink" href="#profile.Profile.get" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Union[str, Profile, List[Dict[str, Union[str, bool, int]]], List[ProfileResult]]]<a class="headerlink" href="#profile.Profile.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a list of all links for this profile and all
 subprofiles by calling generate()
 DON’T use this from within a profile, only from outside!!</p>

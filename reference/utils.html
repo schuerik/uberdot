@@ -53,8 +53,22 @@ get_user_env_var() to look up the substitution</p>
 
 <dl class="function">
 <dt id="utils.find_exact_target">
-<code class="descclassname">utils.</code><code class="descname">find_exact_target</code><span class="sig-paren">(</span><em>target: str</em><span class="sig-paren">)</span> &#x2192; Optional[str]<a class="headerlink" href="#utils.find_exact_target" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the exact target in the repository to link to</p>
+<code class="descclassname">utils.</code><code class="descname">find_exact_target</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_exact_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the exact target in the repository to link to.</p>
+<p>This will search <cite>TARGET_FILES</cite> for files that match <cite>target</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target</strong> (<em>str</em>) – The filename that will be searched for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – Multiple targets where found</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – Relative path of found file. Returns None if no target
+found.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -65,8 +79,34 @@ get_user_env_var() to look up the substitution</p>
 
 <dl class="function">
 <dt id="utils.find_target">
-<code class="descclassname">utils.</code><code class="descname">find_target</code><span class="sig-paren">(</span><em>target: str, tags: List[str]</em><span class="sig-paren">)</span> &#x2192; Optional[str]<a class="headerlink" href="#utils.find_target" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the correct target version in the repository to link to</p>
+<code class="descclassname">utils.</code><code class="descname">find_target</code><span class="sig-paren">(</span><em>target</em>, <em>tags</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_target" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the correct target version in the repository to link to.</p>
+<p>This will search <cite>TARGET_FILES</cite> for files that match the naming schema
+<cite>&lt;any string&gt;%&lt;target&gt;</cite> and returns the file whose &lt;any string&gt; occurs
+first in <cite>tags</cite>. If no file is found the return value of
+<code class="docutils literal notranslate"><span class="pre">find_exact_target()</span></code> is returned.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>target</strong> (<em>str</em>) – The filename that will be searched for</li>
+<li><strong>tags</strong> (<em>List</em>) – A list of tags that will be matched against the search
+result</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – Multiple targets where found</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">FatalError</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>str</em> – Relative path of found file. Returns None if no target found.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -83,21 +123,59 @@ get_user_env_var() to look up the substitution</p>
 
 <dl class="function">
 <dt id="utils.get_dir_owner">
-<code class="descclassname">utils.</code><code class="descname">get_dir_owner</code><span class="sig-paren">(</span><em>filename: str</em><span class="sig-paren">)</span> &#x2192; Tuple[int, int]<a class="headerlink" href="#utils.get_dir_owner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the owner of the directory of filename.
-Works even for directories that doesn’t exist</p>
+<code class="descclassname">utils.</code><code class="descname">get_dir_owner</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_dir_owner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the owner of the directory of a (non existing) file.</p>
+<p>If the the directory does not exist, this function will goes the directory
+tree up until it finds an existing directory and returns its owner instead.
+This is used to figure out which permission shall have if it is about to be
+created.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – (Non existing) absolute path to file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>tuple</em> –<dl class="docutils">
+<dt>A tuple containing:</dt>
+<dd>UID (int): UID of directory owner
+GID (int): GID of directory owner</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.get_gid">
-<code class="descclassname">utils.</code><code class="descname">get_gid</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.get_gid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get real users group id</p>
+<code class="descclassname">utils.</code><code class="descname">get_gid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_gid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the GID of the user that started dotmanager.</p>
+<p>This gets the current users GID. If SUDO_GID is set (this means the process
+was started with sudo) SUDO_GID will be returned instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>(int)</em> – GID of the user that started dotmanger</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.get_uid">
-<code class="descclassname">utils.</code><code class="descname">get_uid</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.get_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get real users id</p>
+<code class="descclassname">utils.</code><code class="descname">get_uid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_uid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the UID of the user that started dotmanager.</p>
+<p>This gets the current users UID. If SUDO_UID is set (this means the process
+was started with sudo) SUDO_UID will be returned instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>(int)</em> – UID of the user that started dotmanger</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -146,8 +224,21 @@ and converts it in an absolute path</p>
 
 <dl class="function">
 <dt id="utils.walk_dotfiles">
-<code class="descclassname">utils.</code><code class="descname">walk_dotfiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List[Tuple[str, str]]<a class="headerlink" href="#utils.walk_dotfiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of all dotfiles as tuple of directory and filename</p>
+<code class="descclassname">utils.</code><code class="descname">walk_dotfiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.walk_dotfiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Walks through the dotfile directory and returns all of them.</p>
+<p>This also takes the .dotignore-file into account.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>(List)</em> –<p>Contains tuples containing:</p>
+<blockquote>
+<div>directory (str): Path of the directory of the dotfile
+filename (str): Name of the dotfile</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>

@@ -39,7 +39,7 @@
 <p>This module implements the Difference-Log</p>
 <dl class="class">
 <dt id="differencelog.DiffLog">
-<em class="property">class </em><code class="descclassname">differencelog.</code><code class="descname">DiffLog</code><span class="sig-paren">(</span><em>data: Optional[List[Dict[str</em>, <em>Union[str</em>, <em>Dict[str</em>, <em>Union[str</em>, <em>int]]]]]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">differencelog.</code><code class="descname">DiffLog</code><span class="sig-paren">(</span><em>data: Optional[List[Dict[str</em>, <em>Union[str</em>, <em>Dict[str</em>, <em>Union[str</em>, <em>bool</em>, <em>int]]]]]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class holds the DiffLogData and provides helpers to
 create and insert DiffLogOperations. Furthermore it provides
 run_interpreter() that allows to run several interpreter
@@ -58,7 +58,7 @@ at the same time</p>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.add_link">
-<code class="descname">add_link</code><span class="sig-paren">(</span><em>symlink: Dict[str, Union[str, int]], profilename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.add_link" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_link</code><span class="sig-paren">(</span><em>symlink: Dict[str, Union[str, bool, int]], profilename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.add_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add this symlink to a given profile</p>
 </dd></dl>
 
@@ -88,7 +88,7 @@ at the same time</p>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.update_link">
-<code class="descname">update_link</code><span class="sig-paren">(</span><em>installed_symlink: Dict[str, Union[str, int]], new_symlink: Dict[str, Union[str, int]], profilename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.update_link" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_link</code><span class="sig-paren">(</span><em>installed_symlink: Dict[str, Union[str, bool, int]], new_symlink: Dict[str, Union[str, bool, int]], profilename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.update_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update installed symlink1 to symlink2</p>
 </dd></dl>
 
