@@ -184,6 +184,8 @@ def get_user_env_var(varname: str, fallback: str = None) -> str:
         try:
             return user_environ[varname]
         except KeyError:
+            if fallback is not None:
+                return fallback
             msg = "There is no environment varibable set for user '"
             msg += get_current_username() + "' with the name: '"
             msg += varname + "'"
