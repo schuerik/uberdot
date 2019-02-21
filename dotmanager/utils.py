@@ -45,13 +45,7 @@ import os
 import pwd
 import re
 import subprocess
-from typing import List
-from typing import Optional
-from typing import Tuple
-from typing import Type
 from dotmanager import constants
-from dotmanager.types import Path
-from dotmanager.types import RelPath
 from dotmanager.errors import FatalError
 from dotmanager.errors import GenerationError
 from dotmanager.errors import PreconditionError
@@ -60,7 +54,7 @@ from dotmanager.errors import PreconditionError
 # Utils for finding targets
 ###############################################################################
 
-def find_target(target: str, tags: List[str]) -> Optional[Path]:
+def find_target(target, tags):
     """Find the correct target version in the repository to link to"""
     targets = []
     # Collect all files that have the same filename as the target
@@ -83,7 +77,7 @@ def find_target(target: str, tags: List[str]) -> Optional[Path]:
                      "exist one. That's strange...")
 
 
-def find_exact_target(target: str) -> Optional[Path]:
+def find_exact_target(target):
     """Find the exact target in the repository to link to"""
     targets = []
     # Collect all files that have the same filename as the target
@@ -103,7 +97,7 @@ def find_exact_target(target: str) -> Optional[Path]:
     return targets[0]
 
 
-def walk_dotfiles() -> List[Tuple[Path, str]]:
+def walk_dotfiles():
     """Returns a list of all dotfiles as tuple of directory and filename"""
     # load ignore list
     ignorelist_path = os.path.join(constants.TARGET_FILES, ".dotignore")
@@ -131,7 +125,7 @@ def walk_dotfiles() -> List[Tuple[Path, str]]:
 # Utils for permissions and user
 ###############################################################################
 
-def get_uid() -> None:
+def get_uid():
     """Get real users id"""
     sudo_uid = os.environ.get('SUDO_UID')
     if sudo_uid:
@@ -139,7 +133,7 @@ def get_uid() -> None:
     return os.getuid()
 
 
-def get_gid() -> None:
+def get_gid():
     """Get real users group id"""
     sudo_gid = os.environ.get('SUDO_GID')
     if sudo_gid:
@@ -147,7 +141,7 @@ def get_gid() -> None:
     return os.getgid()
 
 
-def get_dir_owner(filename: Path) -> Tuple[int, int]:
+def get_dir_owner(filename):
     """Gets the owner of the directory of filename.
     Works even for directories that doesn't exist"""
     dirname = os.path.dirname(filename)
@@ -156,17 +150,17 @@ def get_dir_owner(filename: Path) -> Tuple[int, int]:
     return os.stat(dirname).st_uid, os.stat(dirname).st_gid
 
 
-def has_root_priveleges() -> None:
+def has_root_priveleges():
     """Check if this programm wasxecuted as root"""
     return os.geteuid() == 0
 
 
-def get_current_username() -> None:
+def get_current_username():
     """Get real users username"""
     return pwd.getpwuid(get_uid()).pw_name
 
 
-def get_user_env_var(varname: str, fallback: str = None) -> str:
+def get_user_env_var(varname, fallback=None):
     """Lookup an environment variable. If executed as root, the
     envirionment variable of the real user is return"""
     if has_root_priveleges():
@@ -200,7 +194,7 @@ def get_user_env_var(varname: str, fallback: str = None) -> str:
                                 "with the name: '" + varname + "'")
 
 
-def expandvars(path: RelPath) -> RelPath:
+def expandvars(path):
     """Behaves like the os.path.expandvars() but uses
     get_user_env_var() to look up the substitution"""
     if '$' not in path:
@@ -227,7 +221,7 @@ def expandvars(path: RelPath) -> RelPath:
     return path
 
 
-def expanduser(path: RelPath) -> RelPath:
+def expanduser(path):
     """Behaves like the os.path.expanduser() but uses
     get_user_env_var() to look up the substitution"""
     if path[0] == "~":
@@ -235,7 +229,7 @@ def expanduser(path: RelPath) -> RelPath:
     return path
 
 
-def normpath(path: RelPath) -> Path:
+def normpath(path):
     """Normalizes path, replaces ~ and environment vars,
     and converts it in an absolute path"""
     if path is not None:
@@ -248,7 +242,7 @@ def normpath(path: RelPath) -> Path:
 # Dynamic imports
 ###############################################################################
 
-def import_profile_class(class_name: str) -> Type["Profile"]:
+def import_profile_class(class_name):
     """This function imports a profile class only by it's name"""
     # Import profile (can't be done globally because profile needs to
     # import this module first)
@@ -275,7 +269,7 @@ def import_profile_class(class_name: str) -> Type["Profile"]:
                 tmp_class = module.__dict__[class_name]
                 if issubclass(tmp_class, Profile):
                     return module.__dict__[class_name]
-                msg = f"The class '{class_name}' does not inherit from"
+                msg = "The class '" + class_name + "' does not inherit from"
                 msg += "Profile and therefore can't be imported."
                 raise GenerationError(class_name, msg)
     raise PreconditionError("The profile '" + class_name +
@@ -287,25 +281,25 @@ def import_profile_class(class_name: str) -> Type["Profile"]:
 
 logger = logging.getLogger("root")
 
-def get_date_time_now() -> None:
+def get_date_time_now():
     """Returns a datetime string for the current moment"""
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-def log_warning(message: str) -> None:
+def log_warning(message):
     """Prints text in warning color"""
     logger.warning(constants.WARNING + message + constants.ENDC)
 
 
-def log_success(message: str) -> None:
+def log_success(message):
     """Prints text in success color"""
     logger.debug(constants.OKGREEN + message + constants.ENDC)
 
 
-def is_dynamic_file(target: Path) -> bool:
+def is_dynamic_file(target):
     """Returns if a given path is a dynamic file"""
     return os.path.dirname(os.path.dirname(target)) == normpath("data")
 
-def find_files(filename: str, paths: List[str]):
+def find_files(filename, paths):
     """finds existing files matching filename in the paths"""
     return [os.path.join(path, filename) for path in paths if os.path.isfile(os.path.join(path, filename))]

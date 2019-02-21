@@ -38,12 +38,9 @@
 
 
 import copy
-from typing import List
 from dotmanager import constants
 from dotmanager.differencelog import DiffLog
 from dotmanager.errors import FatalError
-from dotmanager.types import InstalledLog
-from dotmanager.types import ProfileResult
 from dotmanager.utils import import_profile_class
 from dotmanager.utils import log_warning
 
@@ -53,7 +50,7 @@ class DiffSolver():
     Generates a the ProfileResults from the profiles and compares it
     with the installed-file. It will then generate a DiffLog that
     solves the difference between those two"""
-    def __init__(self, installed: InstalledLog, args) -> None:
+    def __init__(self, installed, args):
         self.profilenames = args.profiles
         self.installed = installed
         self.difflog = None
@@ -62,7 +59,7 @@ class DiffSolver():
         self.default_dir = args.directory
         self.parent_arg = args.parent
 
-    def solve(self, link: bool) -> DiffLog:
+    def solve(self, link):
         """This will create an DiffLog from the set profiles"""
         self.defs = {}
         self.difflog = DiffLog()
@@ -72,7 +69,7 @@ class DiffSolver():
             self.__generate_unlinks(self.profilenames)
         return self.difflog
 
-    def __generate_unlinks(self, profilelist: List[str]) -> None:
+    def __generate_unlinks(self, profilelist):
         """Fill the difflog with all operations needed to
         unlink multiple profiles"""
         for profilename in profilelist:
@@ -82,7 +79,7 @@ class DiffSolver():
                 log_waring("The profile " + profilename +
                               " is not installed at the moment. Skipping...")
 
-    def __generate_profile_unlink(self, profile_name: str) -> None:
+    def __generate_profile_unlink(self, profile_name):
         """Append to difflog that we want to remove a profile,
         all it's subprofiles and all their links"""
         # Recursive call for all subprofiles
@@ -99,7 +96,7 @@ class DiffSolver():
             self.difflog.remove_link(installed_link["name"], profile_name)
         self.difflog.remove_profile(profile_name)
 
-    def __generate_links(self) -> None:
+    def __generate_links(self):
         """Fill the difflog with all operations needed to link all profiles"""
         allpnames = []
 
@@ -128,9 +125,8 @@ class DiffSolver():
             self.__generate_profile_link(profileresult, allpnames,
                                          self.parent_arg)
 
-    def __generate_profile_link(self, profile_dict: ProfileResult,
-                                all_profilenames: List[str],
-                                parent_name: str = None) -> None:
+    def __generate_profile_link(self, profile_dict, all_profilenames,
+                                parent_name):
         """Resolves the differences between a single profile and the installed
         ones and appends the difflog for those. If parent_name is None the
         profile is treated as a root profile"""

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """Main module. Implements DotManager and a short startup script.
 Run this directly from the CLI or import DotManager for debugging"""
 
@@ -44,7 +45,6 @@ import pwd
 import shutil
 import sys
 import traceback
-from typing import List
 from dotmanager import constants
 from dotmanager.interpreters import CheckDynamicFilesI
 from dotmanager.interpreters import CheckLinkBlacklistI
@@ -65,7 +65,6 @@ from dotmanager.errors import UnkownError
 from dotmanager.errors import UserError
 from dotmanager.differencesolver import DiffSolver
 from dotmanager.differencelog import DiffLog
-from dotmanager.types import InstalledProfile
 from dotmanager.utils import has_root_priveleges
 from dotmanager.utils import get_uid
 from dotmanager.utils import get_gid
@@ -83,9 +82,10 @@ class DotManager:
         self.args = None
         # Change current working directory to the directory of this module
         self.owd = os.getcwd()
-        os.chdir(os.path.dirname(sys.modules[__name__].__file__))
+        newdir = os.path.abspath(sys.modules[__name__].__file__)
+        os.chdir(os.path.dirname(newdir))
 
-    def load_installed(self) -> None:
+    def load_installed(self):
         """Reads Installed-File and parses it's InstallationLog
         into self.installed"""
         try:
@@ -101,7 +101,7 @@ class DotManager:
             msg += "all of your profiles before using this version."
             raise PreconditionError(msg)
 
-    def parse_arguments(self, arguments: List[str] = None) -> None:
+    def parse_arguments(self, arguments = None):
         """Creates an ArgumentParser and parses sys.args into self.args"""
         if arguments is None:
             arguments = sys.argv[1:]
@@ -227,7 +227,7 @@ class DotManager:
         if self.args.parent and not self.args.install:
             raise UserError("--parent needs to be used with -i")
 
-    def execute_arguments(self) -> None:
+    def execute_arguments(self):
         """Executes whatever was specified via commandline arguments"""
         if self.args.show:
             self.print_installed_profiles()
@@ -245,12 +245,12 @@ class DotManager:
                 self.dryrun(dfl)
             elif self.args.plain:
                 dfl.run_interpreter(PlainPrintI())
-            elif self.args.print:
-                dfl.run_interpreter(PrintI())
+            # elif self.args.print:
+            #     dfl.run_interpreter(PrintI())
             else:
                 self.run(dfl)
 
-    def print_debuginfo(self) -> None:
+    def print_debuginfo(self):
         """Print out all constants"""
         print(constants.BOLD + "Config search paths: " + constants.ENDC)
         for cfg in constants.CONFIG_SEARCH_PATHS:
@@ -285,7 +285,7 @@ class DotManager:
               str(constants.DEFAULTS["replace_pattern"]))
         print("   DEFAULTS['suffix']: " + str(constants.DEFAULTS["suffix"]))
 
-    def print_installed_profiles(self) -> None:
+    def print_installed_profiles(self):
         """Shows only the profiles specified.
         If none are specified shows all."""
         if self.args.profiles:
@@ -300,7 +300,7 @@ class DotManager:
                 if key[0] != "@":
                     self.print_installed(self.installed[key])
 
-    def run(self, difflog: DiffLog) -> None:
+    def run(self, difflog):
         """This runs Checks then executes DiffOperations while
         pretty printing the DiffLog"""
         # Run integration tests on difflog
@@ -340,10 +340,10 @@ class DotManager:
             msg += "links or your installed-file may be corrupted! Check the "
             msg += "backup of your installed-file to resolve all possible "
             msg += "issues before you proceed to use this tool!"
-            raise UnkownError(err, msg) from err
+            raise UnkownError(err, msg)
         logger.debug("Finished succesfully.")
 
-    def print_installed(self, profile: InstalledProfile) -> None:
+    def print_installed(self, profile):
         """Prints a currently InstalledProfile"""
         print(constants.BOLD + profile["name"] + ":" + constants.ENDC)
         print("  Installed: " + profile["installed"])
@@ -364,7 +364,7 @@ class DotManager:
                   "   Permission: " + str(symlink["permission"]) +
                   "   Updated: " + symlink["date"])
 
-    def dryrun(self, difflog: DiffLog) -> None:
+    def dryrun(self, difflog):
         """Runs Checks and pretty prints the DiffLog"""
         log_warning("This is just a dry-run! Nothing of this " +
                     "is actually happening.")

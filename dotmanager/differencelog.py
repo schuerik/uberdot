@@ -37,12 +37,7 @@
 ###############################################################################
 
 
-from typing import Optional
-from typing import List
 from dotmanager.interpreters import Interpreter
-from dotmanager.types import LinkDescriptor
-from dotmanager.types import DiffLogData
-from dotmanager.types import Path
 from dotmanager.utils import get_date_time_now
 
 
@@ -51,57 +46,55 @@ class DiffLog():
     create and insert DiffLogOperations. Furthermore it provides
     run_interpreter() that allows to run several interpreter
     at the same time"""
-    def __init__(self, data: Optional[DiffLogData] = None) -> None:
+    def __init__(self, data=None):
         if data is None:
             self.data = []
         else:
             self.data = data
 
-    def add_info(self, profilename: str, message: str) -> None:
+    def add_info(self, profilename, message):
         """Print an info for the user"""
         self.__append_data("info", profilename, message=message)
 
-    def add_profile(self, profilename: str, parentname: str = None) -> None:
+    def add_profile(self, profilename, parentname=None):
         """Create an empty profile in the installed file"""
         self.__append_data("add_p", profilename, parent=parentname)
 
-    def update_profile(self, profilename: str) -> None:
+    def update_profile(self, profilename):
         """Update the changed-date of a profile"""
         self.__append_data("update_p", profilename)
 
-    def update_parent(self, profilename: str, parentname: str) -> None:
+    def update_parent(self, profilename, parentname):
         """Update the changed-date and parent of a profile"""
         self.__append_data("update_p", profilename, parent=parentname)
 
-    def remove_profile(self, profilename: str) -> None:
+    def remove_profile(self, profilename):
         """Remove an empty profile from the installed file"""
         self.__append_data("remove_p", profilename)
 
-    def add_link(self, symlink: LinkDescriptor, profilename: str) -> None:
+    def add_link(self, symlink, profilename):
         """Add this symlink to a given profile"""
         symlink["date"] = get_date_time_now()
         self.__append_data("add_l", profilename, symlink=symlink)
 
-    def remove_link(self, symlink_name: Path,
-                    profilename: str) -> None:
+    def remove_link(self, symlink_name, profilename):
         """Remove this symlink to a given profile"""
         self.__append_data("remove_l", profilename, symlink_name=symlink_name)
 
-    def update_link(self, installed_symlink: LinkDescriptor,
-                    new_symlink: LinkDescriptor, profilename: str) -> None:
+    def update_link(self, installed_symlink, new_symlink, profilename):
         """Update installed symlink1 to symlink2"""
         new_symlink["date"] = get_date_time_now()
         self.__append_data("update_l", profilename,
                            symlink1=installed_symlink,
                            symlink2=new_symlink)
 
-    def __append_data(self, operation: str, profilename: str, **args) -> None:
+    def __append_data(self, operation, profilename, **args):
         """Put new item into data"""
         self.data.append(
             {"operation": operation, "profile": profilename, **args}
         )
 
-    def run_interpreter(self, *interpreters: List[Interpreter]) -> None:
+    def run_interpreter(self, *interpreters):
         """Run a list of interpreters for all DiffOperations in DiffLogData"""
         # Initialize interpreters
         for interpreter in interpreters:

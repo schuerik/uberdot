@@ -45,7 +45,7 @@ import platform
 from dotmanager.utils import get_current_username
 
 
-def distribution() -> str:
+def distribution():
     """Returns the current running distribution"""
     for entry in os.listdir("/etc"):
         # search for release file
@@ -55,26 +55,26 @@ def distribution() -> str:
     return None
 
 
-def hostname() -> str:
+def hostname():
     """Returns the host name of the device"""
     return platform.node()
 
 
-def is_64bit() -> bool:
+def is_64bit():
     """Returns if the device is running a 64bit os"""
-    return True if platform.architecture()[0] == "64bit" else False
+    return platform.architecture()[0] == "64bit"
 
 
-def kernel() -> str:
+def kernel():
     """Returns the current kernel release of the device"""
     return platform.release()
 
 
-def pkg_installed(pkg_name: str) -> bool:
+def pkg_installed(pkg_name):
     """Returns if the given package is installed on the device"""
     return bool(shutil.which(pkg_name))
 
 
-def username() -> str:
+def username():
     """Returns the username that executed dotmanager"""
     return get_current_username()

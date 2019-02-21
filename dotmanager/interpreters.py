@@ -55,8 +55,6 @@ import sys
 from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
-from typing import Optional
-from typing import Tuple
 from dotmanager import constants
 from dotmanager.errors import IntegrityError
 from dotmanager.errors import PreconditionError
@@ -64,10 +62,6 @@ from dotmanager.errors import UnkownError
 from dotmanager.errors import UserError
 from dotmanager.errors import UserAbortion
 from dotmanager.errors import FatalError
-from dotmanager.types import InstalledLog
-from dotmanager.types import DiffLogData
-from dotmanager.types import DiffOperation
-from dotmanager.types import Path
 from dotmanager.utils import find_files
 from dotmanager.utils import get_date_time_now
 from dotmanager.utils import get_dir_owner
@@ -87,12 +81,12 @@ class Interpreter():
         self.data = None
         self.use_interepreters = []
 
-    def set_difflog_data(self, data: DiffLogData) -> None:
+    def set_difflog_data(self, data):
         """Sets the DiffLogData.
         Needed by Interpreters that alter the DiffLog"""
         self.data = data
 
-    def call_operation(self, dop: DiffOperation) -> None:
+    def call_operation(self, dop):
         """Call the implemented behavior for this DiffOperation.
         This calls the function named like 'operation' with prefix '_op_'"""
         # Check if this interpreter has implemented the operation, then call
@@ -109,37 +103,37 @@ class PlainPrintI(Interpreter):
         self._op_add_p = self._op_remove_p = self._op_update_p = print
         self._op_add_l = self._op_remove_l = self._op_update_l = print
 
-    def _op_start(self, dop: DiffOperation) -> None:
+    def _op_start(self, dop):
         print("[")
 
-    def _op_fin(self, dop: DiffOperation) -> None:
+    def _op_fin(self, dop):
         print("]")
 
 
 class PrintI(Interpreter):
     """Pretty-prints log messages and what a operations is going to do."""
     @staticmethod
-    def _log_interpreter(dop: DiffOperation, message: str) -> None:
+    def _log_interpreter(dop, message):
         logger.info(constants.BOLD + "[" + dop["profile"] + "]: " +
                     constants.NOBOLD + message)
 
-    def _op_start(self, dop: DiffOperation) -> None:
+    def _op_start(self, dop):
         logger.debug("Starting linking process now.")
 
-    def _op_info(self, dop: DiffOperation) -> None:
+    def _op_info(self, dop):
         self._log_interpreter(dop, dop["message"])
 
-    def _op_add_p(self, dop: DiffOperation) -> None:
+    def _op_add_p(self, dop):
         if dop["parent"] is not None:
             self._log_interpreter(dop, "Installing new profile as" +
                                   " subprofile of " + dop["parent"])
         else:
             self._log_interpreter(dop, "Installing new profile")
 
-    def _op_remove_p(self, dop: DiffOperation) -> None:
+    def _op_remove_p(self, dop):
         self._log_interpreter(dop, "Uninstalled profile")
 
-    def _op_update_p(self, dop: DiffOperation) -> None:
+    def _op_update_p(self, dop):
         if "parent" in dop:
             if dop["parent"] is not None:
                 self._log_interpreter(dop, "Changed parent to '" +
@@ -149,16 +143,16 @@ class PrintI(Interpreter):
                                       " This is a root profile now.")
         self._log_interpreter(dop, "Profile updated")
 
-    def _op_add_l(self, dop: DiffOperation) -> None:
+    def _op_add_l(self, dop):
         self._log_interpreter(dop, dop["symlink"]["name"] +
                               " was created and links to " +
                               dop["symlink"]["target"])
 
-    def _op_remove_l(self, dop: DiffOperation) -> None:
+    def _op_remove_l(self, dop):
         self._log_interpreter(dop, dop["symlink_name"] +
                               " was removed from the system.")
 
-    def _op_update_l(self, dop: DiffOperation) -> None:
+    def _op_update_l(self, dop):
         # Generate message according to what changed in the updated link
         if dop["symlink1"]["name"] != dop["symlink2"]["name"]:
             self._log_interpreter(dop, dop["symlink1"]["name"] +
@@ -197,25 +191,25 @@ class DUIStrategyI(Interpreter):
         self.link_updates = []
         self.link_adds = []
 
-    def _op_add_p(self, dop: DiffOperation) -> None:
+    def _op_add_p(self, dop):
         self.profile_adds.append(dop)
 
-    def _op_remove_p(self, dop: DiffOperation) -> None:
+    def _op_remove_p(self, dop):
         self.profile_deletes.append(dop)
 
-    def _op_update_p(self, dop: DiffOperation) -> None:
+    def _op_update_p(self, dop):
         self.profile_updates.append(dop)
 
-    def _op_add_l(self, dop: DiffOperation) -> None:
+    def _op_add_l(self, dop):
         self.link_adds.append(dop)
 
-    def _op_remove_l(self, dop: DiffOperation) -> None:
+    def _op_remove_l(self, dop):
         self.link_deletes.append(dop)
 
-    def _op_update_l(self, dop: DiffOperation) -> None:
+    def _op_update_l(self, dop):
         self.link_updates.append(dop)
 
-    def _op_fin(self, dop: DiffOperation) -> None:
+    def _op_fin(self, dop):
         merged_list = self.profile_deletes + self.profile_updates
         merged_list += self.profile_adds + self.link_deletes
         merged_list += self.link_updates + self.link_adds
@@ -228,16 +222,16 @@ class CheckDynamicFilesI(Interpreter):
     """Checks if there are changes to a dynamic file and
     gives the user the oppoutunity to interact with them"""
 
-    def __init__(self, dryrun: bool) -> None:
+    def __init__(self, dryrun):
         self.dryrun = dryrun
 
-    def _op_update_l(self, dop: DiffOperation) -> None:
+    def _op_update_l(self, dop):
         self.inspect_file(dop["symlink1"]["target"])
 
-    def _op_remove_l(self, dop: DiffOperation) -> None:
+    def _op_remove_l(self, dop):
         self.inspect_file(os.readlink(dop["symlink_name"]))
 
-    def inspect_file(self, target: Path) -> None:
+    def inspect_file(self, target):
         """Checks if file is dynamic and has changed. """
         if not target.startswith(constants.DATA_DIR):
             # This is not a dynamic file
@@ -247,12 +241,12 @@ class CheckDynamicFilesI(Interpreter):
         md5_old = os.path.basename(target)[-32:]
         # Check for changes
         if is_dynamic_file(target) and md5_calc != md5_old:
-            log_warning(f"You made changes to '{target}'. Those changes " +
+            log_warning("You made changes to '" + target + "'. Those changes " +
                         "will be lost, if you don't write them back to " +
                         "the original file.")
             self.user_interaction(target)
 
-    def user_interaction(self, target: Path) -> None:
+    def user_interaction(self, target):
         """Gives the user the ability to interact with a changed file"""
         target_bak = target + "." + constants.BACKUP_EXTENSION
         done = False
@@ -281,7 +275,7 @@ class CheckDynamicFilesI(Interpreter):
                         file.write(process.stdout.read())
                     print("Patch file written successfully")
                 except IOError:
-                    msg = f"Could not write patch file '{patch_file}'."
+                    msg = "Could not write patch file '" + patch_file + "'."
                     raise PreconditionError(msg)
             elif inp == "U":
                 if self.dryrun:
@@ -298,7 +292,7 @@ class CheckDynamicFilesI(Interpreter):
 class CheckLinksI(Interpreter):
     """Checks for conflicts between all links
     (duplicates, multiple targets, overwrites, etc)"""
-    def __init__(self, installed: InstalledLog):
+    def __init__(self, installed):
         super().__init__()
         # Setup linklist to store/lookup which links are modified
         # Stores for any link: (linkname, profile, is_installed)
@@ -308,7 +302,7 @@ class CheckLinksI(Interpreter):
                 for link in profile["links"]:
                     self.linklist.append((link["name"], profile["name"], True))
 
-    def _op_add_l(self, dop: DiffOperation) -> None:
+    def _op_add_l(self, dop):
         # Check if the link already occurs in linklist
         # In other words it was or will be already installed
         name = dop["symlink"]["name"]
@@ -324,7 +318,7 @@ class CheckLinksI(Interpreter):
                 raise IntegrityError(msg)
         self.linklist.append((name, dop["profile"], False))
 
-    def _op_remove_l(self, dop: DiffOperation) -> None:
+    def _op_remove_l(self, dop):
         # Remove link from linklist because links could be removed and
         # added in one run. In that case it would look like the link is
         # added even though it is already installed if we don't remove it here.
@@ -340,7 +334,7 @@ class CheckLinksI(Interpreter):
 
 class CheckLinkBlacklistI(Interpreter):
     """Checks if links are on blacklist"""
-    def __init__(self, superforce: bool) -> None:
+    def __init__(self, superforce):
         super().__init__()
         # Load blacklist
         self.superforce = superforce
@@ -354,15 +348,15 @@ class CheckLinkBlacklistI(Interpreter):
 
         self.blacklist = [entry.strip() for entry in self.blacklist]
 
-    def check_blacklist(self, symlink_name: Path, action: str) -> None:
+    def check_blacklist(self, symlink_name, action):
         """Checks if the symlink matches on a pattern in the blacklist"""
         for entry in self.blacklist:
             if re.search(entry, symlink_name):
-                log_warning(f"You are trying to {action} '" + symlink_name +
+                log_warning("You are trying to " + action + " '" + symlink_name +
                             "' which is blacklisted. It is considered " +
-                            f"dangerous to {action} those files!")
+                            "dangerous to " + action + " those files!")
                 if self.superforce:
-                    log_warning(f"Are you sure that you want to {action} " +
+                    log_warning("Are you sure that you want to " + action + " " +
                                 "a blacklisted file?")
                     confirmation = input("Type \"YES\" to confirm or " +
                                          "anything else to cancel: ")
@@ -372,35 +366,35 @@ class CheckLinkBlacklistI(Interpreter):
                     log_warning("If you really want to modify this file" +
                                 " you can use the --superforce flag to" +
                                 " ignore the blacklist.")
-                    raise IntegrityError(f"Won't {action} blacklisted file!")
+                    raise IntegrityError("Won't " + action + " blacklisted file!")
 
-    def _op_update_l(self, dop: DiffOperation) -> None:
+    def _op_update_l(self, dop):
         if dop["symlink1"]["name"] == dop["symlink2"]["name"]:
             self.check_blacklist(dop["symlink1"]["name"], "update")
         else:
             self.check_blacklist(dop["symlink1"]["name"], "remove")
             self.check_blacklist(dop["symlink2"]["name"], "overwrite")
 
-    def _op_remove_l(self, dop: DiffOperation) -> None:
+    def _op_remove_l(self, dop):
         self.check_blacklist(dop["symlink_name"], "remove")
 
-    def _op_add_l(self, dop: DiffOperation) -> None:
+    def _op_add_l(self, dop):
         self.check_blacklist(dop["symlink"]["name"], "overwrite")
 
 
 class CheckLinkDirsI(Interpreter):
     """Checks if directories need to be created"""
-    def __init__(self, makedirs: bool) -> None:
+    def __init__(self, makedirs):
         super().__init__()
         self.makedirs = makedirs
 
-    def _op_add_l(self, dop: DiffOperation) -> None:
+    def _op_add_l(self, dop):
         self.check_dirname(os.path.dirname(dop["symlink"]["name"]))
 
-    def _op_update_l(self, dop: DiffOperation) -> None:
+    def _op_update_l(self, dop):
         self.check_dirname(os.path.dirname(dop["symlink2"]["name"]))
 
-    def check_dirname(self, dirname: str) -> None:
+    def check_dirname(self, dirname):
         """Checks if the if the directory is already created"""
         if not self.makedirs:
             if not os.path.isdir(dirname):
@@ -412,12 +406,12 @@ class CheckLinkDirsI(Interpreter):
 
 class CheckLinkExistsI(Interpreter):
     """Checks if links of installed-file exist in the filesystem"""
-    def __init__(self, force: bool) -> None:
+    def __init__(self, force):
         super().__init__()
         self.force = force
         self.removed_links = []
 
-    def _op_remove_l(self, dop: DiffOperation) -> None:
+    def _op_remove_l(self, dop):
         if not os.path.lexists(dop["symlink_name"]):
             msg = "'" + dop["symlink_name"] + "' can not be removed because"
             msg += " removed because it does not exist on your filesystem."
@@ -426,7 +420,7 @@ class CheckLinkExistsI(Interpreter):
         self.removed_links.append(dop["symlink_name"])
 
     @staticmethod
-    def _op_update_l(dop: DiffOperation) -> None:
+    def _op_update_l(dop):
         if not os.path.lexists(dop["symlink1"]["name"]):
             msg = "'" + dop["symlink1"]["name"] + "' can not be updated"
             msg += " because it does not exist on your filesystem."
@@ -439,7 +433,7 @@ class CheckLinkExistsI(Interpreter):
             msg += " your filesystem and would be overwritten."
             raise PreconditionError(msg)
 
-    def _op_add_l(self, dop: DiffOperation) -> None:
+    def _op_add_l(self, dop):
         if (not dop["symlink"]["name"] in self.removed_links and
                 not self.force and os.path.lexists(dop["symlink"]["name"])):
             msg = "'" + dop["symlink"]["name"] + "' already exists and"
@@ -456,7 +450,7 @@ class CheckLinkExistsI(Interpreter):
 class CheckProfilesI(Interpreter):
     """Checks if profiles can be installed together, protects against
     duplicates and overwrites"""
-    def __init__(self, installed: InstalledLog, parent_arg: str = None):
+    def __init__(self, installed, parent_arg=None):
         super().__init__()
         self.parent_arg = parent_arg
         self.profile_list = []
@@ -467,8 +461,7 @@ class CheckProfilesI(Interpreter):
                     (profile["name"],
                      profile["parent"] if "parent" in profile else None, True))
 
-    def get_known(self, name: str,
-                  is_installed: bool) -> Optional[Tuple[str, str, bool]]:
+    def get_known(self, name, is_installed):
         """Return if parent is already known as installed
         or a to-be-linked profile"""
         for p_name, p_parent, p_installed in self.profile_list:
@@ -476,7 +469,7 @@ class CheckProfilesI(Interpreter):
                 return (p_name, p_parent, p_installed)
         return None
 
-    def _op_add_p(self, dop: DiffOperation) -> None:
+    def _op_add_p(self, dop):
         known = self.get_known(dop["profile"], False)
         if known is not None:
             if known[1] is not None:
@@ -494,7 +487,7 @@ class CheckProfilesI(Interpreter):
             (dop["profile"], dop["parent"] if "parent" in dop else None, False)
         )
 
-    def _op_update_p(self, dop: DiffOperation) -> None:
+    def _op_update_p(self, dop):
         if self.get_known(dop["profile"], False) is not None:
             raise FatalError("The profile '" + dop["profile"] +
                              "' would be added AND updated!")
@@ -533,13 +526,13 @@ class CheckProfilesI(Interpreter):
 class ExecuteI(Interpreter):
     """This interpreter actually executes the operations from the DiffLog.
     It can create/delete links in the filesystem and modify the InstalledLog"""
-    def __init__(self, installed: InstalledLog, force: bool) -> None:
+    def __init__(self, installed, force):
         super().__init__()
         self.installed = installed
         self.installed["@version"] = constants.VERSION  # Update version number
         self.force = force
 
-    def _op_add_p(self, dop: DiffOperation) -> None:
+    def _op_add_p(self, dop):
         new_profile = {}
         new_profile["name"] = dop["profile"]
         new_profile["links"] = []
@@ -548,10 +541,10 @@ class ExecuteI(Interpreter):
             new_profile["parent"] = dop["parent"]
         self.installed[new_profile["name"]] = new_profile
 
-    def _op_remove_p(self, dop: DiffOperation) -> None:
+    def _op_remove_p(self, dop):
         del self.installed[dop["profile"]]
 
-    def _op_update_p(self, dop: DiffOperation) -> None:
+    def _op_update_p(self, dop):
         if "parent" in dop:
             if dop["parent"] is not None:
                 self.installed[dop["profile"]]["parent"] = dop["parent"]
@@ -559,7 +552,7 @@ class ExecuteI(Interpreter):
                 del self.installed[dop["profile"]]["parent"]
         self.installed[dop["profile"]]["updated"] = get_date_time_now()
 
-    def _op_add_l(self, dop: DiffOperation) -> None:
+    def _op_add_l(self, dop):
         self.__create_symlink(dop["symlink"]["name"],
                               dop["symlink"]["target"],
                               dop["symlink"]["uid"],
@@ -567,13 +560,13 @@ class ExecuteI(Interpreter):
                               dop["symlink"]["permission"])
         self.installed[dop["profile"]]["links"].append(dop["symlink"])
 
-    def _op_remove_l(self, dop: DiffOperation) -> None:
+    def _op_remove_l(self, dop):
         os.unlink(dop["symlink_name"])
         for link in self.installed[dop["profile"]]["links"]:
             if link["name"] == dop["symlink_name"]:
                 self.installed[dop["profile"]]["links"].remove(link)
 
-    def _op_update_l(self, dop: DiffOperation) -> None:
+    def _op_update_l(self, dop):
         os.unlink(dop["symlink1"]["name"])
         self.__create_symlink(dop["symlink2"]["name"],
                               dop["symlink2"]["target"],
@@ -583,8 +576,7 @@ class ExecuteI(Interpreter):
         self.installed[dop["profile"]]["links"].remove(dop["symlink1"])
         self.installed[dop["profile"]]["links"].append(dop["symlink2"])
 
-    def __create_symlink(self, name: Path, target: Path,
-                         uid: int, gid: int, permission: int) -> None:
+    def __create_symlink(self, name, target, uid, gid, permission):
         """Create a symlink in the filesystem"""
         if not os.path.isdir(os.path.dirname(name)):
             self._makedirs(name)
@@ -603,7 +595,7 @@ class ExecuteI(Interpreter):
                               " create the link '" + name + "'.")
 
     @staticmethod
-    def _makedirs(filename: Path) -> None:
+    def _makedirs(filename):
         """Custom makedirs that keeps fixes the owner of the directory"""
         # First find the deepest directory of the path that exists
         dirname = os.path.dirname(filename)
@@ -628,7 +620,7 @@ class RootNeededI(Interpreter):
         self.root_needed = False
         self.logged = []
 
-    def _access(self, path: Path) -> bool:
+    def _access(self, path):
         """Checks if we have write access for a given path.
         Because the path does not need to be existent at this point,
         this function goes the full directory tree upwards until it finds
@@ -640,7 +632,7 @@ class RootNeededI(Interpreter):
             return True
         return self._access(dirname)
 
-    def _op_add_l(self, dop: DiffOperation) -> None:
+    def _op_add_l(self, dop):
         name = dop["symlink"]["name"]
         uid, gid = get_dir_owner(name)
         if dop["symlink"]["uid"] != uid or dop["symlink"]["gid"] != gid:
@@ -648,7 +640,7 @@ class RootNeededI(Interpreter):
         elif not self._access(name):
             self._root_needed("create links in", os.path.dirname(name))
 
-    def _op_remove_l(self, dop: DiffOperation) -> None:
+    def _op_remove_l(self, dop):
         try:
             if not os.access(os.path.dirname(dop["symlink_name"]), os.W_OK):
                 self._root_needed("remove links from",
@@ -657,7 +649,7 @@ class RootNeededI(Interpreter):
             raise FatalError(dop["symlink_name"] + " can't be checked " +
                              "for owner rights because it does not exist.")
 
-    def _op_update_l(self, dop: DiffOperation) -> None:
+    def _op_update_l(self, dop):
         name = dop["symlink2"]["name"]
         if dop["symlink1"]["uid"] != dop["symlink2"]["uid"] or \
                 dop["symlink1"]["gid"] != dop["symlink2"]["gid"]:
@@ -673,7 +665,7 @@ class RootNeededI(Interpreter):
             if not self._access(dop["symlink2"]["name"]):
                 self._root_needed("change target of", name)
 
-    def _root_needed(self, operation: str, filename: Path) -> None:
+    def _root_needed(self, operation, filename):
         self.root_needed = True
         if (operation, filename) not in self.logged:
             log_warning("You will need to give me root permission to " +
@@ -684,7 +676,7 @@ class RootNeededI(Interpreter):
 class GainRootI(RootNeededI):
     """If root permission is needed to perform the operations,
     this interpreter restarts the process with sudo"""
-    def _op_fin(self, dop: DiffOperation) -> None:
+    def _op_fin(self, dop):
         if self.root_needed:
             args = [sys.executable] + sys.argv
             os.execvp('sudo', args)

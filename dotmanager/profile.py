@@ -42,21 +42,10 @@ import os
 import re
 import shutil
 from abc import abstractmethod
-from typing import Any
-from typing import Callable
-from typing import List
-from typing import NoReturn
-from typing import Tuple
-from typing import Union
 from dotmanager import constants
 from dotmanager.dynamicfile import *
 from dotmanager.errors import CustomError
 from dotmanager.errors import GenerationError
-from dotmanager.types import Options
-from dotmanager.types import Path
-from dotmanager.types import Pattern
-from dotmanager.types import ProfileResult
-from dotmanager.types import RelPath
 from dotmanager.utils import expandvars
 from dotmanager.utils import expanduser
 from dotmanager.utils import find_target
@@ -74,9 +63,7 @@ CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink", "has_tag", "merge",
 class Profile:
     """This class provides the "API" for creating links.
     It is also responsible for running a profile"""
-    def __init__(self, options: Options = None,
-                 directory: Path = None,
-                 parent: "Profile" = None):
+    def __init__(self, options=None, directory=None, parent=None):
         if options is None:
             options = dict(constants.DEFAULTS)
         if not directory:
@@ -94,15 +81,15 @@ class Profile:
             "profiles": []
         }
 
-    def __make_read_opt(self, kwargs: Options) -> Callable[[str], Any]:
+    def __make_read_opt(self, kwargs):
         """Create function that can lookup variables set in the profiles"""
-        def read_opt(opt_name: str) -> Any:
+        def read_opt(opt_name):
             if opt_name in kwargs:
                 return kwargs[opt_name]
             return self.options[opt_name]
         return read_opt
 
-    def get(self) -> ProfileResult:
+    def get(self):
         """Creates a list of all links for this profile and all
         subprofiles by calling generate()
         DON'T use this from within a profile, only from outside!!"""
@@ -123,7 +110,7 @@ class Profile:
         self.__reset_builtins()
         return self.result
 
-    def __set_builtins(self) -> None:
+    def __set_builtins(self):
         """Maps functions from self to builtins, so profiles don't
         need to use "self" everytime"""
         for item in CUSTOM_BUILTINS:
@@ -131,28 +118,28 @@ class Profile:
                 self.__old_builtins[item] = builtins.__dict__[item]
             builtins.__dict__[item] = self.__getattribute__(item)
 
-    def __reset_builtins(self) -> None:
+    def __reset_builtins(self):
         """Restores old Builtin mappings"""
         for key, val in self.__old_builtins.items():
             builtins.__dict__[key] = val
 
     @abstractmethod
-    def generate(self) -> None:
+    def generate(self):
         """Used by profiles for actual link configuration"""
         pass
 
-    def __raise_generation_error(self, msg: str) -> NoReturn:
+    def __raise_generation_error(self, msg):
         """Raise a GenerationError with the profilename"""
         raise GenerationError(self.name, msg)
 
-    def find(self, target: str) -> Path:
+    def find(self, target):
         """Find a dotfile in the repository. Depends on the current set tags"""
         try:
             return find_target(target, self.options["tags"])
         except ValueError as err:
             self.__raise_generation_error(err)
 
-    def decrypt(self, target: Union[str, DynamicFile]) -> EncryptedFile:
+    def decrypt(self, target):
         """Creates an EncryptedFile instance, updates and returns it"""
         if isinstance(target, DynamicFile):
             encrypt = EncryptedFile(target.name)
@@ -163,11 +150,10 @@ class Profile:
         encrypt.update()
         return encrypt
 
-    def merge(self, name: str,
-              targets: List[Union[DynamicFile, str]]) -> SplittedFile:
+    def merge(self, name, targets):
         """Creates a SplittedFile instance, updates and returns it"""
         if len(targets) < 2:
-            msg = f"merge() for '{name}' needs at least two dotfiles to merge"
+            msg = "merge() for '" + name + "' needs at least two dotfiles to merge"
             self.__raise_generation_error(msg)
         split = SplittedFile(name)
         for target in targets:
@@ -178,8 +164,7 @@ class Profile:
         split.update()
         return split
 
-    def pipe(self, target: Union[str, DynamicFile],
-             shell_command: str) -> FilteredFile:
+    def pipe(self, target, shell_command):
         """Creates a FilteredFile instance, updates and returns it"""
         if isinstance(target, DynamicFile):
             filtered = FilteredFile(target.name, shell_command)
@@ -190,8 +175,7 @@ class Profile:
         filtered.update()
         return filtered
 
-    def link(self, *targets: List[Union[DynamicFile, str]],
-             **kwargs: Options) -> None:
+    def link(self, *targets, **kwargs):
         """Link a specific target with current options"""
         read_opt = self.__make_read_opt(kwargs)
         for target in targets:
@@ -207,7 +191,7 @@ class Profile:
                 msg = "There is no target that matches: '" + target + "'"
                 self.__raise_generation_error(msg)
 
-    def extlink(self, path: RelPath, **kwargs: Options) -> None:
+    def extlink(self, path, **kwargs):
         """Link any file specified by its absolute path"""
         read_opt = self.__make_read_opt(kwargs)
         path = expanduser(expandvars(path))
@@ -218,8 +202,7 @@ class Profile:
         if not read_opt("optional") or os.path.exists(path):
             self.__create_link_descriptor(os.path.abspath(path), **kwargs)
 
-    def links(self, target_pattern: Pattern,
-              encrypted: bool = False, **kwargs: Options) -> None:
+    def links(self, target_pattern, encrypted=False, **kwargs):
         """Calls link() for all targets matching a pattern. Also allows you
         to ommit the 'replace_pattern' and use the target_pattern instead"""
         read_opt = self.__make_read_opt(kwargs)
@@ -241,7 +224,7 @@ class Profile:
                     target_dir[base] = []
                 target_dir[base].append((tag, os.path.join(root, name)))
 
-        def choose_file(base: str, tags: Tuple[str, Path]) -> None:
+        def choose_file(base, tags):
             # Go through set tags and take the first file that matches a tag
             for tmp_tag in self.options["tags"]:
                 for item in tags:
@@ -279,9 +262,7 @@ class Profile:
                 self.__create_link_descriptor(target, **kwargs)
 
 
-    def __create_link_descriptor(self, target: Path,
-                                 directory: RelPath = "",
-                                 **kwargs: Options) -> None:
+    def __create_link_descriptor(self, target, directory="", **kwargs):
         """Creates a link entry for current options and a given target.
         Also lets you set the dir like cd or options
         temporarily only for a link"""
@@ -373,14 +354,14 @@ class Profile:
         linkdescriptor["permission"] = read_opt("permission")
         self.result["links"].append(linkdescriptor)
 
-    def cd(self, directory: RelPath) -> None:
+    def cd(self, directory):
         """Switches the directory where links should be created.
         Unix-like cd."""
         self.directory = os.path.normpath(
             os.path.join(self.directory, expandvars(directory))
         )
 
-    def default(self, *options: List[str]) -> None:
+    def default(self, *options):
         """Resets options back to defaults"""
         self.cd(constants.DIR_DEFAULT)
         if not options:
@@ -389,23 +370,23 @@ class Profile:
             for item in options:
                 self.options[item] = constants.DEFAULTS[item]
 
-    def rmtags(self, *tags: List[str]) -> None:
+    def rmtags(self, *tags):
         """Remove a list of tags"""
         for tag in tags:
             if self.has_tag(tag):
                 self.options["tags"].remove(tag)
 
-    def tags(self, *tags: List[str]) -> None:
+    def tags(self, *tags):
         """Add a list of tags"""
         for tag in tags:
             if tag not in self.options["tags"]:
                 self.options["tags"].append(tag)
 
-    def has_tag(self, tag: str) -> bool:
+    def has_tag(self, tag):
         """Returns true if tag is set"""
         return tag in self.options["tags"]
 
-    def opt(self, **kwargs: Options) -> None:
+    def opt(self, **kwargs):
         """Sets options for every next link or subprofile"""
         for key in kwargs:
             if key in constants.DEFAULTS:
@@ -414,9 +395,9 @@ class Profile:
                 self.__raise_generation_error("There is no option called " +
                                               key)
 
-    def subprof(self, *profilenames: List[str], **kwargs: Options) -> None:
+    def subprof(self, *profilenames, **kwargs):
         """Executes another profile by name"""
-        def will_create_cycle(subp: str, profile: Profile = self) -> bool:
+        def will_create_cycle(subp, profile=self):
             return (profile.parent is not None and
                     (profile.parent.name == subp or
                      will_create_cycle(subp, profile.parent)))

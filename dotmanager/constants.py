@@ -43,7 +43,6 @@ import csv
 import os
 import sys
 from dotmanager.errors import PreconditionError
-from dotmanager.types import Path
 from dotmanager.utils import find_files
 from dotmanager.utils import get_user_env_var
 from dotmanager.utils import normpath
@@ -52,7 +51,7 @@ from dotmanager.utils import normpath
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.8.3_3"
+VERSION = "1.9.0_3"
 
 
 # Setting defaults/fallback values for all constants
@@ -115,7 +114,7 @@ CONFIG_SEARCH_PATHS = [
     )
 ]
 
-def loadconfig(config_file: Path, installed_filename: str = "default") -> None:
+def loadconfig(config_file, installed_filename="default"):
     """Loads a config file from a given path.
     Falls back to default if no path was provided"""
     global OKGREEN, WARNING, FAIL, ENDC, BOLD, UNDERLINE, NOBOLD
@@ -136,7 +135,7 @@ def loadconfig(config_file: Path, installed_filename: str = "default") -> None:
         for cfg in CFG_FILES:
             config.read(cfg)
     except configparser.Error as err:
-        raise PreconditionError(f"Can't parse config. {err.message}")
+        raise PreconditionError("Can't parse config. " + err.message)
 
     # Arguments
     DUISTRATEGY = config.getboolean("Arguments", "duiStrategy",

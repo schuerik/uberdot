@@ -49,10 +49,7 @@ from abc import abstractmethod
 from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
-from typing import List
 from dotmanager import constants
-from dotmanager.types import Path
-from dotmanager.types import RelPath
 from dotmanager.utils import normpath
 
 
@@ -62,7 +59,7 @@ logger = logging.getLogger("root")
 class DynamicFile:
     """This abstract class is the base for any dynamic generated
     file. It provides the write functionality and its path"""
-    def __init__(self, name: str) -> None:
+    def __init__(self, name):
         self.name = name
         self.md5sum = None
         self.sources = []
@@ -74,16 +71,16 @@ class DynamicFile:
         raise NotImplementedError
 
     @abstractmethod
-    def _generate_file(self) -> bytearray:
+    def _generate_file(self):
         """This method is used to generate the contents of the
         dynamic file from sources by returning it as bytearray"""
         pass
 
-    def add_source(self, target: RelPath) -> List[Path]:
+    def add_source(self, target):
         """Adds a source path and normalizes it"""
         self.sources.append(normpath(target))
 
-    def update(self) -> None:
+    def update(self):
         """Gets the newest version of the file and writes it
         if it is not in its subdir yet"""
         # Generate file and calc checksum
@@ -99,12 +96,12 @@ class DynamicFile:
             copyfile(self.getpath(),
                      self.getpath() + "." + constants.BACKUP_EXTENSION)
 
-    def getpath(self) -> Path:
+    def getpath(self):
         """Returns the path of the generated file"""
         # Dynamicfiles are stored with its md5sum in the name to detect chages
         return os.path.join(self.getdir(), self.name + "#" + self.md5sum)
 
-    def getdir(self) -> Path:
+    def getdir(self):
         """Returns the path of the directory that hold the generated file"""
         return normpath(os.path.join(constants.DATA_DIR, self.SUBDIR))
 
@@ -114,7 +111,7 @@ class EncryptedFile(DynamicFile):
     to decrypt encrypted files and link them on the fly"""
     SUBDIR = "decrypted"
 
-    def _generate_file(self) -> bytearray:
+    def _generate_file(self):
         # Get sources and temp file
         encryped_file = self.sources[0]
         tmp = os.path.join(self.getdir(), self.name)
@@ -141,12 +138,12 @@ class FilteredFile(DynamicFile):
     to run a shell command on a dotfile before linking"""
     SUBDIR = "piped"
 
-    def __init__(self, name: str, shell_command: str) -> None:
+    def __init__(self, name, shell_command):
         super().__init__(name)
         self.shell_command = shell_command
 
-    def _generate_file(self) -> bytearray:
-        command = f"cat {self.sources[0]} | {self.shell_command}"
+    def _generate_file(self):
+        command = "cat " + self.sources[0] + " | " + self.shell_command + ""
         process = Popen(command, stdout=PIPE, shell=True)
         result, _ = process.communicate()
         return result
@@ -157,7 +154,7 @@ class SplittedFile(DynamicFile):
     to join multiple dotfiles together to one dotfile"""
     SUBDIR = "merged"
 
-    def _generate_file(self) -> bytearray:
+    def _generate_file(self):
         result = bytearray()
         for file in self.sources:
             result.extend(open(file, "rb").read())
