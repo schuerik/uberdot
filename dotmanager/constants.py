@@ -52,7 +52,7 @@ from dotmanager.utils import normpath
 # Version numbers, seperated by underscore. First part is the version of
 # the manager. The second part (after the underscore) is the version of
 # the installed-file schema.
-VERSION = "1.8.2_3"
+VERSION = "1.8.3_3"
 
 
 # Setting defaults/fallback values for all constants
@@ -72,7 +72,11 @@ PROFILE_FILES = "profiles"
 TARGET_FILES = "files"
 
 # Internal values
-INSTALLED_FILE = "data/installed/%s.json"
+DATA_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
+    "data"
+)
+INSTALLED_FILE = os.path.join(DATA_DIR, "installed/%s.json")
 INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
 DIR_DEFAULT = ""
 FALLBACK = {
@@ -103,10 +107,7 @@ NOBOLD = '\033[22m'
 # Search paths for config files
 CFG_FILES = []
 CONFIG_SEARCH_PATHS = [
-    os.path.join(
-        os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
-        "data"
-    ),
+    DATA_DIR,
     "/etc/dotmanager",
     os.path.join(
         get_user_env_var('XDG_CONFIG_HOME', normpath('~/.config')),
@@ -201,7 +202,5 @@ def loadconfig(config_file: Path, installed_filename: str = "default") -> None:
 
     # Normalize paths
     DIR_DEFAULT = normpath(DIR_DEFAULT)
-    INSTALLED_FILE = normpath(INSTALLED_FILE)
-    INSTALLED_FILE_BACKUP = normpath(INSTALLED_FILE_BACKUP)
     TARGET_FILES = normpath(TARGET_FILES)
     PROFILE_FILES = normpath(PROFILE_FILES)

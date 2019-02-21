@@ -75,6 +75,7 @@ from dotmanager.utils import get_gid
 from dotmanager.utils import get_uid
 from dotmanager.utils import is_dynamic_file
 from dotmanager.utils import log_warning
+from dotmanager.utils import normpath
 
 
 logger = logging.getLogger("root")
@@ -238,6 +239,9 @@ class CheckDynamicFilesI(Interpreter):
 
     def inspect_file(self, target: Path) -> None:
         """Checks if file is dynamic and has changed. """
+        if not target.startswith(constants.DATA_DIR):
+            # This is not a dynamic file
+            return
         # Calculate new hash and get old has of file
         md5_calc = hashlib.md5(open(target, "rb").read()).hexdigest()
         md5_old = os.path.basename(target)[-32:]

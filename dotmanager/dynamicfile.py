@@ -106,7 +106,7 @@ class DynamicFile:
 
     def getdir(self) -> Path:
         """Returns the path of the directory that hold the generated file"""
-        return normpath(os.path.join("data", self.SUBDIR))
+        return normpath(os.path.join(constants.DATA_DIR, self.SUBDIR))
 
 
 class EncryptedFile(DynamicFile):
