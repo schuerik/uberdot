@@ -1,7 +1,6 @@
 All code contributions should follow the [Google styleguide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md) 
 and [PEP8](https://www.python.org/dev/peps/pep-0008/) the best way possible. I highly recommend using pylint (altough it's
-not perfect). Furthermore [Type Hints](https://www.python.org/dev/peps/pep-0484/) need to be added to every function or method
-that you create. 
+not perfect).  
 
 If you find old code that does not follow the guide lines (but for a good reason exceptions are allowed), please fix this code in 
  a separate commit.
