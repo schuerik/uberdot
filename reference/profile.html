@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Profile &#8212; Dotmanager 1.8.1_3 documentation</title>
+    <title>Profile &#8212; Dotmanager 1.9.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,12 +39,12 @@
 <p>This module implements the superclass for all profiles</p>
 <dl class="class">
 <dt id="profile.Profile">
-<em class="property">class </em><code class="descclassname">profile.</code><code class="descname">Profile</code><span class="sig-paren">(</span><em>options: Dict[str</em>, <em>Any] = None</em>, <em>directory: str = None</em>, <em>parent: Optional[profile.Profile] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">profile.</code><code class="descname">Profile</code><span class="sig-paren">(</span><em>options=None</em>, <em>directory=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class provides the “API” for creating links.
 It is also responsible for running a profile</p>
 <dl class="method">
 <dt id="profile.Profile._Profile__create_link_descriptor">
-<code class="descname">_Profile__create_link_descriptor</code><span class="sig-paren">(</span><em>target: str</em>, <em>directory: str = ''</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile._Profile__create_link_descriptor" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_Profile__create_link_descriptor</code><span class="sig-paren">(</span><em>target</em>, <em>directory=''</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile._Profile__create_link_descriptor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a link entry for current options and a given target.
 Also lets you set the dir like cd or options
 temporarily only for a link</p>
@@ -52,69 +52,69 @@ temporarily only for a link</p>
 
 <dl class="method">
 <dt id="profile.Profile._Profile__make_read_opt">
-<code class="descname">_Profile__make_read_opt</code><span class="sig-paren">(</span><em>kwargs: Dict[str, Any]</em><span class="sig-paren">)</span> &#x2192; Callable[str, Any]<a class="headerlink" href="#profile.Profile._Profile__make_read_opt" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_Profile__make_read_opt</code><span class="sig-paren">(</span><em>kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile._Profile__make_read_opt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create function that can lookup variables set in the profiles</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile._Profile__raise_generation_error">
-<code class="descname">_Profile__raise_generation_error</code><span class="sig-paren">(</span><em>msg: str</em><span class="sig-paren">)</span> &#x2192; NoReturn<a class="headerlink" href="#profile.Profile._Profile__raise_generation_error" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_Profile__raise_generation_error</code><span class="sig-paren">(</span><em>msg</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile._Profile__raise_generation_error" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raise a GenerationError with the profilename</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile._Profile__reset_builtins">
-<code class="descname">_Profile__reset_builtins</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile._Profile__reset_builtins" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_Profile__reset_builtins</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile._Profile__reset_builtins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restores old Builtin mappings</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile._Profile__set_builtins">
-<code class="descname">_Profile__set_builtins</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile._Profile__set_builtins" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_Profile__set_builtins</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile._Profile__set_builtins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maps functions from self to builtins, so profiles don’t
 need to use “self” everytime</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.cd">
-<code class="descname">cd</code><span class="sig-paren">(</span><em>directory: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.cd" title="Permalink to this definition">¶</a></dt>
+<code class="descname">cd</code><span class="sig-paren">(</span><em>directory</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.cd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Switches the directory where links should be created.
 Unix-like cd.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.decrypt">
-<code class="descname">decrypt</code><span class="sig-paren">(</span><em>target: Union[str, dotmanager.dynamicfile.DynamicFile]</em><span class="sig-paren">)</span> &#x2192; dotmanager.dynamicfile.EncryptedFile<a class="headerlink" href="#profile.Profile.decrypt" title="Permalink to this definition">¶</a></dt>
+<code class="descname">decrypt</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.decrypt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates an EncryptedFile instance, updates and returns it</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.default">
-<code class="descname">default</code><span class="sig-paren">(</span><em>*options</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.default" title="Permalink to this definition">¶</a></dt>
+<code class="descname">default</code><span class="sig-paren">(</span><em>*options</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.default" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resets options back to defaults</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.extlink">
-<code class="descname">extlink</code><span class="sig-paren">(</span><em>path: str</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.extlink" title="Permalink to this definition">¶</a></dt>
+<code class="descname">extlink</code><span class="sig-paren">(</span><em>path</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.extlink" title="Permalink to this definition">¶</a></dt>
 <dd><p>Link any file specified by its absolute path</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.find">
-<code class="descname">find</code><span class="sig-paren">(</span><em>target: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#profile.Profile.find" title="Permalink to this definition">¶</a></dt>
+<code class="descname">find</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.find" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find a dotfile in the repository. Depends on the current set tags</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.generate">
-<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.generate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.generate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used by profiles for actual link configuration</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.get">
-<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Dict[str, Union[str, profile.Profile, List[Dict[str, Union[str, int]]], List[Dict[str, Union[str, Profile, List[Dict[str, Union[str, int]]], List[ProfileResult]]]]]]<a class="headerlink" href="#profile.Profile.get" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a list of all links for this profile and all
 subprofiles by calling generate()
 DON’T use this from within a profile, only from outside!!</p>
@@ -122,56 +122,56 @@ DON’T use this from within a profile, only from outside!!</p>
 
 <dl class="method">
 <dt id="profile.Profile.has_tag">
-<code class="descname">has_tag</code><span class="sig-paren">(</span><em>tag: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#profile.Profile.has_tag" title="Permalink to this definition">¶</a></dt>
+<code class="descname">has_tag</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.has_tag" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns true if tag is set</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.link">
-<code class="descname">link</code><span class="sig-paren">(</span><em>*targets</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.link" title="Permalink to this definition">¶</a></dt>
+<code class="descname">link</code><span class="sig-paren">(</span><em>*targets</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Link a specific target with current options</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.links">
-<code class="descname">links</code><span class="sig-paren">(</span><em>target_pattern: str</em>, <em>encrypted: bool = False</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.links" title="Permalink to this definition">¶</a></dt>
+<code class="descname">links</code><span class="sig-paren">(</span><em>target_pattern</em>, <em>encrypted=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calls link() for all targets matching a pattern. Also allows you
 to ommit the ‘replace_pattern’ and use the target_pattern instead</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.merge">
-<code class="descname">merge</code><span class="sig-paren">(</span><em>name: str, targets: List[Union[dotmanager.dynamicfile.DynamicFile, str]]</em><span class="sig-paren">)</span> &#x2192; dotmanager.dynamicfile.SplittedFile<a class="headerlink" href="#profile.Profile.merge" title="Permalink to this definition">¶</a></dt>
+<code class="descname">merge</code><span class="sig-paren">(</span><em>name</em>, <em>targets</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a SplittedFile instance, updates and returns it</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.opt">
-<code class="descname">opt</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.opt" title="Permalink to this definition">¶</a></dt>
+<code class="descname">opt</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.opt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets options for every next link or subprofile</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.pipe">
-<code class="descname">pipe</code><span class="sig-paren">(</span><em>target: Union[str, dotmanager.dynamicfile.DynamicFile], shell_command: str</em><span class="sig-paren">)</span> &#x2192; dotmanager.dynamicfile.FilteredFile<a class="headerlink" href="#profile.Profile.pipe" title="Permalink to this definition">¶</a></dt>
+<code class="descname">pipe</code><span class="sig-paren">(</span><em>target</em>, <em>shell_command</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.pipe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a FilteredFile instance, updates and returns it</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.rmtags">
-<code class="descname">rmtags</code><span class="sig-paren">(</span><em>*tags</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.rmtags" title="Permalink to this definition">¶</a></dt>
+<code class="descname">rmtags</code><span class="sig-paren">(</span><em>*tags</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.rmtags" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove a list of tags</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.subprof">
-<code class="descname">subprof</code><span class="sig-paren">(</span><em>*profilenames</em>, <em>**kwargs</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.subprof" title="Permalink to this definition">¶</a></dt>
+<code class="descname">subprof</code><span class="sig-paren">(</span><em>*profilenames</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.subprof" title="Permalink to this definition">¶</a></dt>
 <dd><p>Executes another profile by name</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.tags">
-<code class="descname">tags</code><span class="sig-paren">(</span><em>*tags</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#profile.Profile.tags" title="Permalink to this definition">¶</a></dt>
+<code class="descname">tags</code><span class="sig-paren">(</span><em>*tags</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.tags" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a list of tags</p>
 </dd></dl>
 

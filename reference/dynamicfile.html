@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Dynamicfile &#8212; Dotmanager 1.8.1_3 documentation</title>
+    <title>Dynamicfile &#8212; Dotmanager 1.9.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -42,7 +42,7 @@ actually linking them. The DynamicFile will generate a new dotfile that will
 be linked instead and makes sure that user-made changes are preserved.</p>
 <dl class="class">
 <dt id="dynamicfile.DynamicFile">
-<em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">DynamicFile</code><span class="sig-paren">(</span><em>name: str</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">DynamicFile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This abstract class is the base for any dynamic generated
 file. It provides the write functionality and its path</p>
 <dl class="attribute">
@@ -53,32 +53,32 @@ file. It provides the write functionality and its path</p>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile._generate_file">
-<code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bytearray<a class="headerlink" href="#dynamicfile.DynamicFile._generate_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile._generate_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used to generate the contents of the
 dynamic file from sources by returning it as bytearray</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile.add_source">
-<code class="descname">add_source</code><span class="sig-paren">(</span><em>target: str</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#dynamicfile.DynamicFile.add_source" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_source</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.add_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a source path and normalizes it</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile.getdir">
-<code class="descname">getdir</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#dynamicfile.DynamicFile.getdir" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getdir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.getdir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the path of the directory that hold the generated file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile.getpath">
-<code class="descname">getpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#dynamicfile.DynamicFile.getpath" title="Permalink to this definition">¶</a></dt>
+<code class="descname">getpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.getpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the path of the generated file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile.update">
-<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#dynamicfile.DynamicFile.update" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the newest version of the file and writes it
 if it is not in its subdir yet</p>
 </dd></dl>
@@ -87,12 +87,12 @@ if it is not in its subdir yet</p>
 
 <dl class="class">
 <dt id="dynamicfile.EncryptedFile">
-<em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">EncryptedFile</code><span class="sig-paren">(</span><em>name: str</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.EncryptedFile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">EncryptedFile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.EncryptedFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is an implementation of a dynamic files that allows
 to decrypt encrypted files and link them on the fly</p>
 <dl class="method">
 <dt id="dynamicfile.EncryptedFile._generate_file">
-<code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bytearray<a class="headerlink" href="#dynamicfile.EncryptedFile._generate_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.EncryptedFile._generate_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used to generate the contents of the
 dynamic file from sources by returning it as bytearray</p>
 </dd></dl>
@@ -101,12 +101,12 @@ dynamic file from sources by returning it as bytearray</p>
 
 <dl class="class">
 <dt id="dynamicfile.FilteredFile">
-<em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">FilteredFile</code><span class="sig-paren">(</span><em>name: str</em>, <em>shell_command: str</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">FilteredFile</code><span class="sig-paren">(</span><em>name</em>, <em>shell_command</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is an implementation of a dynamic files that allows
 to run a shell command on a dotfile before linking</p>
 <dl class="method">
 <dt id="dynamicfile.FilteredFile._generate_file">
-<code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bytearray<a class="headerlink" href="#dynamicfile.FilteredFile._generate_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile._generate_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used to generate the contents of the
 dynamic file from sources by returning it as bytearray</p>
 </dd></dl>
@@ -115,12 +115,12 @@ dynamic file from sources by returning it as bytearray</p>
 
 <dl class="class">
 <dt id="dynamicfile.SplittedFile">
-<em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">SplittedFile</code><span class="sig-paren">(</span><em>name: str</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.SplittedFile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">SplittedFile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.SplittedFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is an implementation of a dynamic files that allows
 to join multiple dotfiles together to one dotfile</p>
 <dl class="method">
 <dt id="dynamicfile.SplittedFile._generate_file">
-<code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; bytearray<a class="headerlink" href="#dynamicfile.SplittedFile._generate_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.SplittedFile._generate_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used to generate the contents of the
 dynamic file from sources by returning it as bytearray</p>
 </dd></dl>

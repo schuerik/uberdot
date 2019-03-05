@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Utils &#8212; Dotmanager 1.8.1_3 documentation</title>
+    <title>Utils &#8212; Dotmanager 1.9.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,14 +39,14 @@
 Eg. Retrieving a environment variable or fixing file permisions</p>
 <dl class="function">
 <dt id="utils.expanduser">
-<code class="descclassname">utils.</code><code class="descname">expanduser</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">expanduser</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the os.path.expanduser() but uses
 get_user_env_var() to look up the substitution</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.expandvars">
-<code class="descclassname">utils.</code><code class="descname">expandvars</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#utils.expandvars" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">expandvars</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandvars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the os.path.expandvars() but uses
 get_user_env_var() to look up the substitution</p>
 </dd></dl>
@@ -73,7 +73,7 @@ found.</td>
 
 <dl class="function">
 <dt id="utils.find_files">
-<code class="descclassname">utils.</code><code class="descname">find_files</code><span class="sig-paren">(</span><em>filename: str, paths: List[str]</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_files" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">find_files</code><span class="sig-paren">(</span><em>filename</em>, <em>paths</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>finds existing files matching filename in the paths</p>
 </dd></dl>
 
@@ -111,13 +111,13 @@ result</li>
 
 <dl class="function">
 <dt id="utils.get_current_username">
-<code class="descclassname">utils.</code><code class="descname">get_current_username</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.get_current_username" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">get_current_username</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_current_username" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get real users username</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.get_date_time_now">
-<code class="descclassname">utils.</code><code class="descname">get_date_time_now</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.get_date_time_now" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">get_date_time_now</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_date_time_now" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a datetime string for the current moment</p>
 </dd></dl>
 
@@ -180,44 +180,44 @@ was started with sudo) SUDO_UID will be returned instead.</p>
 
 <dl class="function">
 <dt id="utils.get_user_env_var">
-<code class="descclassname">utils.</code><code class="descname">get_user_env_var</code><span class="sig-paren">(</span><em>varname: str</em>, <em>fallback: str = None</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#utils.get_user_env_var" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">get_user_env_var</code><span class="sig-paren">(</span><em>varname</em>, <em>fallback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_user_env_var" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lookup an environment variable. If executed as root, the
 envirionment variable of the real user is return</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.has_root_priveleges">
-<code class="descclassname">utils.</code><code class="descname">has_root_priveleges</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.has_root_priveleges" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">has_root_priveleges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.has_root_priveleges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if this programm wasxecuted as root</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.import_profile_class">
-<code class="descclassname">utils.</code><code class="descname">import_profile_class</code><span class="sig-paren">(</span><em>class_name: str</em><span class="sig-paren">)</span> &#x2192; Type[Profile]<a class="headerlink" href="#utils.import_profile_class" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">import_profile_class</code><span class="sig-paren">(</span><em>class_name</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.import_profile_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>This function imports a profile class only by it’s name</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.is_dynamic_file">
-<code class="descclassname">utils.</code><code class="descname">is_dynamic_file</code><span class="sig-paren">(</span><em>target: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#utils.is_dynamic_file" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">is_dynamic_file</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.is_dynamic_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns if a given path is a dynamic file</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.log_success">
-<code class="descclassname">utils.</code><code class="descname">log_success</code><span class="sig-paren">(</span><em>message: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.log_success" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">log_success</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_success" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints text in success color</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.log_warning">
-<code class="descclassname">utils.</code><code class="descname">log_warning</code><span class="sig-paren">(</span><em>message: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#utils.log_warning" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">log_warning</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_warning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints text in warning color</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.normpath">
-<code class="descclassname">utils.</code><code class="descname">normpath</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#utils.normpath" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">normpath</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.normpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalizes path, replaces ~ and environment vars,
 and converts it in an absolute path</p>
 </dd></dl>

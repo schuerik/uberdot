@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Interpreters &#8212; Dotmanager 1.8.1_3 documentation</title>
+    <title>Interpreters &#8212; Dotmanager 1.9.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -45,18 +45,18 @@ This could be:
 - Actually create links according to the DiffOperation</p>
 <dl class="class">
 <dt id="interpreters.CheckDynamicFilesI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckDynamicFilesI</code><span class="sig-paren">(</span><em>dryrun: bool</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckDynamicFilesI</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if there are changes to a dynamic file and
 gives the user the oppoutunity to interact with them</p>
 <dl class="method">
 <dt id="interpreters.CheckDynamicFilesI.inspect_file">
-<code class="descname">inspect_file</code><span class="sig-paren">(</span><em>target: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.CheckDynamicFilesI.inspect_file" title="Permalink to this definition">¶</a></dt>
+<code class="descname">inspect_file</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesI.inspect_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if file is dynamic and has changed.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="interpreters.CheckDynamicFilesI.user_interaction">
-<code class="descname">user_interaction</code><span class="sig-paren">(</span><em>target: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.CheckDynamicFilesI.user_interaction" title="Permalink to this definition">¶</a></dt>
+<code class="descname">user_interaction</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesI.user_interaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the user the ability to interact with a changed file</p>
 </dd></dl>
 
@@ -64,11 +64,11 @@ gives the user the oppoutunity to interact with them</p>
 
 <dl class="class">
 <dt id="interpreters.CheckLinkBlacklistI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkBlacklistI</code><span class="sig-paren">(</span><em>superforce: bool</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkBlacklistI</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if links are on blacklist</p>
 <dl class="method">
 <dt id="interpreters.CheckLinkBlacklistI.check_blacklist">
-<code class="descname">check_blacklist</code><span class="sig-paren">(</span><em>symlink_name: str</em>, <em>action: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.CheckLinkBlacklistI.check_blacklist" title="Permalink to this definition">¶</a></dt>
+<code class="descname">check_blacklist</code><span class="sig-paren">(</span><em>symlink_name</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistI.check_blacklist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the symlink matches on a pattern in the blacklist</p>
 </dd></dl>
 
@@ -76,11 +76,11 @@ gives the user the oppoutunity to interact with them</p>
 
 <dl class="class">
 <dt id="interpreters.CheckLinkDirsI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkDirsI</code><span class="sig-paren">(</span><em>makedirs: bool</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkDirsI</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if directories need to be created</p>
 <dl class="method">
 <dt id="interpreters.CheckLinkDirsI.check_dirname">
-<code class="descname">check_dirname</code><span class="sig-paren">(</span><em>dirname: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.CheckLinkDirsI.check_dirname" title="Permalink to this definition">¶</a></dt>
+<code class="descname">check_dirname</code><span class="sig-paren">(</span><em>dirname</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsI.check_dirname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the if the directory is already created</p>
 </dd></dl>
 
@@ -88,25 +88,25 @@ gives the user the oppoutunity to interact with them</p>
 
 <dl class="class">
 <dt id="interpreters.CheckLinkExistsI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkExistsI</code><span class="sig-paren">(</span><em>force: bool</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkExistsI</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if links of installed-file exist in the filesystem</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="interpreters.CheckLinksI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinksI</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, int]]]]]]]</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinksI</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks for conflicts between all links
 (duplicates, multiple targets, overwrites, etc)</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="interpreters.CheckProfilesI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckProfilesI</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, int]]]]]]], parent_arg: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckProfilesI</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if profiles can be installed together, protects against
 duplicates and overwrites</p>
 <dl class="method">
 <dt id="interpreters.CheckProfilesI.get_known">
-<code class="descname">get_known</code><span class="sig-paren">(</span><em>name: str</em>, <em>is_installed: bool</em><span class="sig-paren">)</span> &#x2192; Optional[Tuple[str, str, bool]]<a class="headerlink" href="#interpreters.CheckProfilesI.get_known" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_known</code><span class="sig-paren">(</span><em>name</em>, <em>is_installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesI.get_known" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return if parent is already known as installed
 or a to-be-linked profile</p>
 </dd></dl>
@@ -123,18 +123,18 @@ because without order they are not useful anymore</p>
 
 <dl class="class">
 <dt id="interpreters.ExecuteI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteI</code><span class="sig-paren">(</span><em>installed: Dict[str, Union[str, Dict[str, Union[str, List[Dict[str, Union[str, int]]]]]]], force: bool</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteI</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI" title="Permalink to this definition">¶</a></dt>
 <dd><p>This interpreter actually executes the operations from the DiffLog.
 It can create/delete links in the filesystem and modify the InstalledLog</p>
 <dl class="method">
 <dt id="interpreters.ExecuteI._ExecuteI__create_symlink">
-<code class="descname">_ExecuteI__create_symlink</code><span class="sig-paren">(</span><em>name: str</em>, <em>target: str</em>, <em>uid: int</em>, <em>gid: int</em>, <em>permission: int</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.ExecuteI._ExecuteI__create_symlink" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_ExecuteI__create_symlink</code><span class="sig-paren">(</span><em>name</em>, <em>target</em>, <em>uid</em>, <em>gid</em>, <em>permission</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI._ExecuteI__create_symlink" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a symlink in the filesystem</p>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="interpreters.ExecuteI._makedirs">
-<em class="property">static </em><code class="descname">_makedirs</code><span class="sig-paren">(</span><em>filename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.ExecuteI._makedirs" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">_makedirs</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI._makedirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom makedirs that keeps fixes the owner of the directory</p>
 </dd></dl>
 
@@ -153,14 +153,14 @@ this interpreter restarts the process with sudo</p>
 <dd><p>Base-class for an interpreter</p>
 <dl class="method">
 <dt id="interpreters.Interpreter.call_operation">
-<code class="descname">call_operation</code><span class="sig-paren">(</span><em>dop: Dict[str, Union[str, Dict[str, Union[str, int]]]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.Interpreter.call_operation" title="Permalink to this definition">¶</a></dt>
+<code class="descname">call_operation</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.call_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the implemented behavior for this DiffOperation.
 This calls the function named like ‘operation’ with prefix ‘_op_’</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="interpreters.Interpreter.set_difflog_data">
-<code class="descname">set_difflog_data</code><span class="sig-paren">(</span><em>data: List[Dict[str, Union[str, Dict[str, Union[str, int]]]]]</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#interpreters.Interpreter.set_difflog_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set_difflog_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.set_difflog_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the DiffLogData.
 Needed by Interpreters that alter the DiffLog</p>
 </dd></dl>
@@ -185,7 +185,7 @@ Needed by Interpreters that alter the DiffLog</p>
 <dd><p>Checks if root permission is needed to perform the operations</p>
 <dl class="method">
 <dt id="interpreters.RootNeededI._access">
-<code class="descname">_access</code><span class="sig-paren">(</span><em>path: str</em><span class="sig-paren">)</span> &#x2192; bool<a class="headerlink" href="#interpreters.RootNeededI._access" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_access</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededI._access" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if we have write access for a given path.
 Because the path does not need to be existent at this point,
 this function goes the full directory tree upwards until it finds

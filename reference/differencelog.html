@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Differencelog &#8212; Dotmanager 1.8.1_3 documentation</title>
+    <title>Differencelog &#8212; Dotmanager 1.9.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -39,68 +39,68 @@
 <p>This module implements the Difference-Log</p>
 <dl class="class">
 <dt id="differencelog.DiffLog">
-<em class="property">class </em><code class="descclassname">differencelog.</code><code class="descname">DiffLog</code><span class="sig-paren">(</span><em>data: Optional[List[Dict[str</em>, <em>Union[str</em>, <em>Dict[str</em>, <em>Union[str</em>, <em>int]]]]]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">differencelog.</code><code class="descname">DiffLog</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class holds the DiffLogData and provides helpers to
 create and insert DiffLogOperations. Furthermore it provides
 run_interpreter() that allows to run several interpreter
 at the same time</p>
 <dl class="method">
 <dt id="differencelog.DiffLog._DiffLog__append_data">
-<code class="descname">_DiffLog__append_data</code><span class="sig-paren">(</span><em>operation: str</em>, <em>profilename: str</em>, <em>**args</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog._DiffLog__append_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_DiffLog__append_data</code><span class="sig-paren">(</span><em>operation</em>, <em>profilename</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog._DiffLog__append_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Put new item into data</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.add_info">
-<code class="descname">add_info</code><span class="sig-paren">(</span><em>profilename: str</em>, <em>message: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.add_info" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_info</code><span class="sig-paren">(</span><em>profilename</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog.add_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print an info for the user</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.add_link">
-<code class="descname">add_link</code><span class="sig-paren">(</span><em>symlink: Dict[str, Union[str, int]], profilename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.add_link" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_link</code><span class="sig-paren">(</span><em>symlink</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog.add_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add this symlink to a given profile</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.add_profile">
-<code class="descname">add_profile</code><span class="sig-paren">(</span><em>profilename: str</em>, <em>parentname: str = None</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.add_profile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">add_profile</code><span class="sig-paren">(</span><em>profilename</em>, <em>parentname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog.add_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an empty profile in the installed file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.remove_link">
-<code class="descname">remove_link</code><span class="sig-paren">(</span><em>symlink_name: str</em>, <em>profilename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.remove_link" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_link</code><span class="sig-paren">(</span><em>symlink_name</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog.remove_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove this symlink to a given profile</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.remove_profile">
-<code class="descname">remove_profile</code><span class="sig-paren">(</span><em>profilename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.remove_profile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">remove_profile</code><span class="sig-paren">(</span><em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog.remove_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove an empty profile from the installed file</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.run_interpreter">
-<code class="descname">run_interpreter</code><span class="sig-paren">(</span><em>*interpreters</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.run_interpreter" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run_interpreter</code><span class="sig-paren">(</span><em>*interpreters</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog.run_interpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run a list of interpreters for all DiffOperations in DiffLogData</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.update_link">
-<code class="descname">update_link</code><span class="sig-paren">(</span><em>installed_symlink: Dict[str, Union[str, int]], new_symlink: Dict[str, Union[str, int]], profilename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.update_link" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_link</code><span class="sig-paren">(</span><em>installed_symlink</em>, <em>new_symlink</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog.update_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update installed symlink1 to symlink2</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.update_parent">
-<code class="descname">update_parent</code><span class="sig-paren">(</span><em>profilename: str</em>, <em>parentname: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.update_parent" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_parent</code><span class="sig-paren">(</span><em>profilename</em>, <em>parentname</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog.update_parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the changed-date and parent of a profile</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencelog.DiffLog.update_profile">
-<code class="descname">update_profile</code><span class="sig-paren">(</span><em>profilename: str</em><span class="sig-paren">)</span> &#x2192; None<a class="headerlink" href="#differencelog.DiffLog.update_profile" title="Permalink to this definition">¶</a></dt>
+<code class="descname">update_profile</code><span class="sig-paren">(</span><em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencelog.DiffLog.update_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the changed-date of a profile</p>
 </dd></dl>
 
