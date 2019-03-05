@@ -16,5 +16,4 @@ The reference manual documents all modules, functions and fields of dotmanager.
    info.rst
    interpreters.rst
    profile.rst
-   customtypes.rst
    utils.rst

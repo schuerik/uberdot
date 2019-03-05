@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Errors &#8212; Dotmanager 1.9.0_3 documentation</title>
+    <title>Errors &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -42,6 +42,12 @@
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">CustomError</code><span class="sig-paren">(</span><em>message</em>, <em>exitcode</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError" title="Permalink to this definition">¶</a></dt>
 <dd><p>A base class for all custom exceptions</p>
 <dl class="method">
+<dt id="errors.CustomError.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em>, <em>exitcode</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="errors.CustomError.getmessage">
 <code class="descname">getmessage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError.getmessage" title="Permalink to this definition">¶</a></dt>
 <dd><p>Colors every error message in FAIL-color</p>
@@ -59,6 +65,12 @@
 <dt id="errors.FatalError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">FatalError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError" title="Permalink to this definition">¶</a></dt>
 <dd><p>A custom exception for all errors that violate expected invariants</p>
+<dl class="method">
+<dt id="errors.FatalError.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="exception">
@@ -66,6 +78,12 @@
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">GenerationError</code><span class="sig-paren">(</span><em>profileName</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError" title="Permalink to this definition">¶</a></dt>
 <dd><p>A custom exception for all errors that occur during generation
 Example: The profile has syntax errors or is doing some nasty stuff</p>
+<dl class="method">
+<dt id="errors.GenerationError.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>profileName</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="exception">
@@ -74,6 +92,12 @@ Example: The profile has syntax errors or is doing some nasty stuff</p>
 <dd><p>A custom exception for all errors that occur because there are logical/
 sematic errors in a profile written by the user.
 Example: A link is defined multiple times with different targets</p>
+<dl class="method">
+<dt id="errors.IntegrityError.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.IntegrityError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="exception">
@@ -83,6 +107,12 @@ Example: A link is defined multiple times with different targets</p>
 or expectations that are not fullfilled
 Example: A link that is defined in the installed-file doesn’t exist
 on the system</p>
+<dl class="method">
+<dt id="errors.PreconditionError.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.PreconditionError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="exception">
@@ -90,12 +120,24 @@ on the system</p>
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UnkownError</code><span class="sig-paren">(</span><em>originalError</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError" title="Permalink to this definition">¶</a></dt>
 <dd><p>A custom exception for all errors that are not expected/unkown
 Example: Used in a pokemon handler</p>
+<dl class="method">
+<dt id="errors.UnkownError.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>originalError</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="exception">
 <dt id="errors.UserAbortion">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UserAbortion</code><a class="headerlink" href="#errors.UserAbortion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to abort the dotmanager at any given point safely by the user</p>
+<dl class="method">
+<dt id="errors.UserAbortion.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserAbortion.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="exception">
@@ -104,6 +146,12 @@ Example: Used in a pokemon handler</p>
 <dd><p>A custom exception for all errors that occur because the user called
 this progam with wrong arguments.
 Example: -i and -u where used in the same call</p>
+<dl class="method">
+<dt id="errors.UserError.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -138,7 +186,6 @@ Example: -i and -u where used in the same call</p>
 <li class="toctree-l2"><a class="reference internal" href="info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="profile.html">Profile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="customtypes.html">Custom types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>

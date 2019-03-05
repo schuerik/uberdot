@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Dynamicfile &#8212; Dotmanager 1.9.0_3 documentation</title>
+    <title>Dynamicfile &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -49,6 +49,12 @@ file. It provides the write functionality and its path</p>
 <dt id="dynamicfile.DynamicFile.SUBDIR">
 <code class="descname">SUBDIR</code><a class="headerlink" href="#dynamicfile.DynamicFile.SUBDIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>This constant needs to be implemented by subclasses</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dynamicfile.DynamicFile.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
@@ -105,6 +111,12 @@ dynamic file from sources by returning it as bytearray</p>
 <dd><p>This is an implementation of a dynamic files that allows
 to run a shell command on a dotfile before linking</p>
 <dl class="method">
+<dt id="dynamicfile.FilteredFile.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>shell_command</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="dynamicfile.FilteredFile._generate_file">
 <code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile._generate_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used to generate the contents of the
@@ -159,7 +171,6 @@ dynamic file from sources by returning it as bytearray</p>
 <li class="toctree-l2"><a class="reference internal" href="info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="profile.html">Profile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="customtypes.html">Custom types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>

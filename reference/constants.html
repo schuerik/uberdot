@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Constants &#8212; Dotmanager 1.9.0_3 documentation</title>
+    <title>Constants &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,11 +38,138 @@
 <span id="constants"></span><h1>Constants<a class="headerlink" href="#module-constants" title="Permalink to this headline">¶</a></h1>
 <p>Provides constants, defaults and the ability to load configs or
 overwrite defaults for a specific configuration</p>
+<dl class="data">
+<dt id="constants.BACKUP_EXTENSION">
+<code class="descclassname">constants.</code><code class="descname">BACKUP_EXTENSION</code><em class="property"> = 'bak'</em><a class="headerlink" href="#constants.BACKUP_EXTENSION" title="Permalink to this definition">¶</a></dt>
+<dd><p>The extension that will be used for backup files</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.CFG_FILES">
+<code class="descclassname">constants.</code><code class="descname">CFG_FILES</code><em class="property"> = []</em><a class="headerlink" href="#constants.CFG_FILES" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list with all configuration files that will be used to set constants</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.COLOR">
+<code class="descclassname">constants.</code><code class="descname">COLOR</code><em class="property"> = True</em><a class="headerlink" href="#constants.COLOR" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if output should be colored</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.CONFIG_SEARCH_PATHS">
+<code class="descclassname">constants.</code><code class="descname">CONFIG_SEARCH_PATHS</code><em class="property"> = ['/home/travis/build/RickestRickSanchez/dotmanager/data', '/etc/dotmanager', '/home/travis/.config/dotmanager']</em><a class="headerlink" href="#constants.CONFIG_SEARCH_PATHS" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list with paths that will be used to search for configuration files</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.DATA_DIR">
+<code class="descclassname">constants.</code><code class="descname">DATA_DIR</code><em class="property"> = '/home/travis/build/RickestRickSanchez/dotmanager/data'</em><a class="headerlink" href="#constants.DATA_DIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the data directory</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.DECRYPT_PWD">
+<code class="descclassname">constants.</code><code class="descname">DECRYPT_PWD</code><em class="property"> = None</em><a class="headerlink" href="#constants.DECRYPT_PWD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contains the decryption password in plain text</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.DEFAULTS">
+<code class="descclassname">constants.</code><code class="descname">DEFAULTS</code><em class="property"> = {'directory': '$HOME', 'name': '', 'optional': False, 'owner': '', 'permission': 644, 'prefix': '', 'replace': '', 'replace_pattern': '', 'suffix': ''}</em><a class="headerlink" href="#constants.DEFAULTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default values for options</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.DIR_DEFAULT">
+<code class="descclassname">constants.</code><code class="descname">DIR_DEFAULT</code><em class="property"> = ''</em><a class="headerlink" href="#constants.DIR_DEFAULT" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default path that profiles start in</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.DUISTRATEGY">
+<code class="descclassname">constants.</code><code class="descname">DUISTRATEGY</code><em class="property"> = False</em><a class="headerlink" href="#constants.DUISTRATEGY" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if –dui should be set as default</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.FALLBACK">
+<code class="descclassname">constants.</code><code class="descname">FALLBACK</code><em class="property"> = {'directory': '$HOME', 'name': '', 'optional': False, 'owner': '', 'permission': 644, 'prefix': '', 'replace': '', 'replace_pattern': '', 'suffix': ''}</em><a class="headerlink" href="#constants.FALLBACK" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fallback values for options</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.FORCE">
+<code class="descclassname">constants.</code><code class="descname">FORCE</code><em class="property"> = False</em><a class="headerlink" href="#constants.FORCE" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if –force should be set as default</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.INSTALLED_FILE">
+<code class="descclassname">constants.</code><code class="descname">INSTALLED_FILE</code><em class="property"> = '/home/travis/build/RickestRickSanchez/dotmanager/data/installed/%s.json'</em><a class="headerlink" href="#constants.INSTALLED_FILE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the installed-file that will be used for comparison</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.INSTALLED_FILE_BACKUP">
+<code class="descclassname">constants.</code><code class="descname">INSTALLED_FILE_BACKUP</code><em class="property"> = '/home/travis/build/RickestRickSanchez/dotmanager/data/installed/%s.json.bak'</em><a class="headerlink" href="#constants.INSTALLED_FILE_BACKUP" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path to the file that will be used as backup of the installed-file</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.MAKEDIRS">
+<code class="descclassname">constants.</code><code class="descname">MAKEDIRS</code><em class="property"> = False</em><a class="headerlink" href="#constants.MAKEDIRS" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if –makedirs should be set as default</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.PROFILE_FILES">
+<code class="descclassname">constants.</code><code class="descname">PROFILE_FILES</code><em class="property"> = 'profiles'</em><a class="headerlink" href="#constants.PROFILE_FILES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The directory the profile will be loaded from</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.TARGET_FILES">
+<code class="descclassname">constants.</code><code class="descname">TARGET_FILES</code><em class="property"> = 'files'</em><a class="headerlink" href="#constants.TARGET_FILES" title="Permalink to this definition">¶</a></dt>
+<dd><p>The directory the target files are located</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.VERBOSE">
+<code class="descclassname">constants.</code><code class="descname">VERBOSE</code><em class="property"> = False</em><a class="headerlink" href="#constants.VERBOSE" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if –verbose should be set as default</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.VERSION">
+<code class="descclassname">constants.</code><code class="descname">VERSION</code><em class="property"> = '1.9.2_3'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Version numbers, seperated by underscore.</p>
+<p>First part is the version of Dotmanager. The second part (after the underscore)
+is the version of the installed-file schema. The latter will be used to
+determine compability of the Dotmanager with the installed-file.</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="constants.loadconfig">
 <code class="descclassname">constants.</code><code class="descname">loadconfig</code><span class="sig-paren">(</span><em>config_file</em>, <em>installed_filename='default'</em><span class="sig-paren">)</span><a class="headerlink" href="#constants.loadconfig" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads a config file from a given path.
-Falls back to default if no path was provided</p>
+<dd><p>Loads constants from the config files.</p>
+<p>This will load all configs from <cite>CFG_FILES</cite> plus <cite>config_file</cite> if provided.
+The name of the installed-file will be used to load installed-file specific
+values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>config_file</strong> (<em>str</em>) – Path to the additional config file. If None, only
+the config from <cite>CFG_FILES</cite> will be loaded.</li>
+<li><strong>installed_filename</strong> (<em>str</em>) – Name of the installed-file for that values
+will be loaded</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -77,7 +204,6 @@ Falls back to default if no path was provided</p>
 <li class="toctree-l2"><a class="reference internal" href="info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="profile.html">Profile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="customtypes.html">Custom types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>

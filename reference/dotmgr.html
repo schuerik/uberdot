@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>DotManager &#8212; Dotmanager 1.9.0_3 documentation</title>
+    <title>DotManager &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -36,8 +36,13 @@
             
   <div class="section" id="module-dotmgr">
 <span id="dotmanager"></span><h1>DotManager<a class="headerlink" href="#module-dotmgr" title="Permalink to this headline">¶</a></h1>
-<p>Main module. Implements DotManager and a short startup script.</p>
-<p>Run this directly from the CLI or import DotManager for debugging</p>
+<p>This is the main module. It implements the DotManager class and a short
+startup script.</p>
+<p>You can run this directly from the CLI with</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">./</span><span class="n">dotmgr</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">arguments</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>or you can import DotManager for debugging and testing purposes.</p>
 <dl class="class">
 <dt id="dotmgr.DotManager">
 <em class="property">class </em><code class="descclassname">dotmgr.</code><code class="descname">DotManager</code><a class="headerlink" href="#dotmgr.DotManager" title="Permalink to this definition">¶</a></dt>
@@ -47,12 +52,12 @@ printing information and executing profiles.</p>
 <dl class="attribute">
 <dt id="dotmgr.DotManager.installed">
 <code class="descname">installed</code><a class="headerlink" href="#dotmgr.DotManager.installed" title="Permalink to this definition">¶</a></dt>
-<dd><p>The installed-file that is worked with</p>
+<dd><p>The installed-file that is used as a reference</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">InstalledLog</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Dict</td>
 </tr>
 </tbody>
 </table>
@@ -75,7 +80,7 @@ printing information and executing profiles.</p>
 <dl class="attribute">
 <dt id="dotmgr.DotManager.owd">
 <code class="descname">owd</code><a class="headerlink" href="#dotmgr.DotManager.owd" title="Permalink to this definition">¶</a></dt>
-<dd><p>The directory Dotmanager was started from</p>
+<dd><p>The old working directory Dotmanager was started from</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -87,16 +92,24 @@ printing information and executing profiles.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="dotmgr.DotManager.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Init of DotManager</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="dotmgr.DotManager.dryrun">
 <code class="descname">dryrun</code><span class="sig-paren">(</span><em>difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.dryrun" title="Permalink to this definition">¶</a></dt>
-<dd><p>Performs checks and prints out the DiffLog.</p>
+<dd><p>Performs checks on DiffLog but instead of resolving it, it will be
+just printed out.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>difflog</strong> (<a class="reference internal" href="differencelog.html#differencelog.DiffLog" title="differencelog.DiffLog"><em>DiffLog</em></a>) – The Difflog that will be checked</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – Tells you if success</td>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">CustomError</span></code> – Executed interpreters can and will raise all kinds of
+CustomError.</td>
 </tr>
 </tbody>
 </table>
@@ -111,14 +124,24 @@ printing information and executing profiles.</p>
 <dl class="method">
 <dt id="dotmgr.DotManager.load_installed">
 <code class="descname">load_installed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.load_installed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads Installed-File and parses it’s InstallationLog
-into self.installed</p>
+<dd><p>Reads the installed-file and parses it’s content into
+<cite>self.installed</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PreconditionError</span></code> – Dotmanager and installed-file aren’t
+version compatible.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.parse_arguments">
 <code class="descname">parse_arguments</code><span class="sig-paren">(</span><em>arguments=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.parse_arguments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Parses the arguments.</p>
+<dd><p>Parses the commandline arguments. This function can parse a custom
+list of arguments, instead of <cite>sys.args</cite>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -136,7 +159,9 @@ invalid combination.</td>
 <dl class="method">
 <dt id="dotmgr.DotManager.print_debuginfo">
 <code class="descname">print_debuginfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_debuginfo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print out all constants</p>
+<dd><p>Print out internal values.</p>
+<p>This includes search paths of configs, loaded configs,
+parsed commandline arguments and settings.</p>
 </dd></dl>
 
 <dl class="method">
@@ -147,7 +172,7 @@ invalid combination.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profile</strong> (<em>InstalledProfile</em>) – The profile that will be printed</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profile</strong> (<em>Dict</em>) – The profile that will be printed</td>
 </tr>
 </tbody>
 </table>
@@ -157,8 +182,8 @@ invalid combination.</td>
 <dt id="dotmgr.DotManager.print_installed_profiles">
 <code class="descname">print_installed_profiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_installed_profiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print out the installed-file in a readable format.</p>
-<p>Prints only the profiles specified in the arguments. If none are
-specified it prints all profiles of the installed-file.</p>
+<p>Prints only the profiles specified in the commandline arguments. If
+none are specified it prints all profiles of the installed-file.</p>
 </dd></dl>
 
 <dl class="method">
@@ -191,8 +216,15 @@ CustomError.</li>
 
 <dl class="class">
 <dt id="dotmgr.StoreDictKeyPair">
-<em class="property">class </em><code class="descclassname">dotmgr.</code><code class="descname">StoreDictKeyPair</code><span class="sig-paren">(</span><em>option_strings</em>, <em>dest</em>, <em>nargs=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to parse an option dict from commandline</p>
+<em class="property">class </em><code class="descclassname">dotmgr.</code><code class="descname">StoreDictKeyPair</code><span class="sig-paren">(</span><em>option_strings</em>, <em>dest</em>, <em>nargs=None</em>, <em>const=None</em>, <em>default=None</em>, <em>type=None</em>, <em>choices=None</em>, <em>required=False</em>, <em>help=None</em>, <em>metavar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom argparse.Action to parse an option dictionary from commandline</p>
+<dl class="method">
+<dt id="dotmgr.StoreDictKeyPair.__call__">
+<code class="descname">__call__</code><span class="sig-paren">(</span><em>parser</em>, <em>namespace</em>, <em>values</em>, <em>option_string=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits a commandline argument at “=” and writes the splitted
+values into a dictionary.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -227,7 +259,6 @@ CustomError.</li>
 <li class="toctree-l2"><a class="reference internal" href="info.html">Info</a></li>
 <li class="toctree-l2"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
 <li class="toctree-l2"><a class="reference internal" href="profile.html">Profile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="customtypes.html">Custom types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
