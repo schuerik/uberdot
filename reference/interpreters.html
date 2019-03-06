@@ -44,105 +44,105 @@ This could be:
 - Gaining root access if a DiffOperation needs them
 - Actually create links according to the DiffOperation</p>
 <dl class="class">
-<dt id="interpreters.CheckDynamicFilesI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckDynamicFilesI</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckDynamicFilesInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckDynamicFilesInterpreter</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if there are changes to a dynamic file and
 gives the user the oppoutunity to interact with them</p>
 <dl class="method">
-<dt id="interpreters.CheckDynamicFilesI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckDynamicFilesInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="interpreters.CheckDynamicFilesI.inspect_file">
-<code class="descname">inspect_file</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesI.inspect_file" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckDynamicFilesInterpreter.inspect_file">
+<code class="descname">inspect_file</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.inspect_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if file is dynamic and has changed.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="interpreters.CheckDynamicFilesI.user_interaction">
-<code class="descname">user_interaction</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesI.user_interaction" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckDynamicFilesInterpreter.user_interaction">
+<code class="descname">user_interaction</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.user_interaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gives the user the ability to interact with a changed file</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.CheckLinkBlacklistI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkBlacklistI</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinkBlacklistInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkBlacklistInterpreter</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if links are on blacklist</p>
 <dl class="method">
-<dt id="interpreters.CheckLinkBlacklistI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinkBlacklistInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="interpreters.CheckLinkBlacklistI.check_blacklist">
-<code class="descname">check_blacklist</code><span class="sig-paren">(</span><em>symlink_name</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistI.check_blacklist" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinkBlacklistInterpreter.check_blacklist">
+<code class="descname">check_blacklist</code><span class="sig-paren">(</span><em>symlink_name</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.check_blacklist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the symlink matches on a pattern in the blacklist</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.CheckLinkDirsI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkDirsI</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinkDirsInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkDirsInterpreter</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if directories need to be created</p>
 <dl class="method">
-<dt id="interpreters.CheckLinkDirsI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinkDirsInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="interpreters.CheckLinkDirsI.check_dirname">
-<code class="descname">check_dirname</code><span class="sig-paren">(</span><em>dirname</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsI.check_dirname" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinkDirsInterpreter.check_dirname">
+<code class="descname">check_dirname</code><span class="sig-paren">(</span><em>dirname</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.check_dirname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the if the directory is already created</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.CheckLinkExistsI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkExistsI</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinkExistsInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkExistsInterpreter</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if links of installed-file exist in the filesystem</p>
 <dl class="method">
-<dt id="interpreters.CheckLinkExistsI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinkExistsInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.CheckLinksI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinksI</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinksInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinksInterpreter</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks for conflicts between all links
 (duplicates, multiple targets, overwrites, etc)</p>
 <dl class="method">
-<dt id="interpreters.CheckLinksI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckLinksInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.CheckProfilesI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckProfilesI</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckProfilesInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckProfilesInterpreter</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if profiles can be installed together, protects against
 duplicates and overwrites</p>
 <dl class="method">
-<dt id="interpreters.CheckProfilesI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckProfilesInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="interpreters.CheckProfilesI.get_known">
-<code class="descname">get_known</code><span class="sig-paren">(</span><em>name</em>, <em>is_installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesI.get_known" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckProfilesInterpreter.get_known">
+<code class="descname">get_known</code><span class="sig-paren">(</span><em>name</em>, <em>is_installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.get_known" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return if parent is already known as installed
 or a to-be-linked profile</p>
 </dd></dl>
@@ -150,47 +150,47 @@ or a to-be-linked profile</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.DUIStrategyI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">DUIStrategyI</code><a class="headerlink" href="#interpreters.DUIStrategyI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.DUIStrategyInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">DUIStrategyInterpreter</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reorders DiffLog so linking won’t be profile-wise but will do a
 Delete-Update-Insert for all links. Also removes log messages
 because without order they are not useful anymore</p>
 <dl class="method">
-<dt id="interpreters.DUIStrategyI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.DUIStrategyInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.ExecuteI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteI</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.ExecuteInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteInterpreter</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>This interpreter actually executes the operations from the DiffLog.
 It can create/delete links in the filesystem and modify the InstalledLog</p>
 <dl class="method">
-<dt id="interpreters.ExecuteI._ExecuteI__create_symlink">
-<code class="descname">_ExecuteI__create_symlink</code><span class="sig-paren">(</span><em>name</em>, <em>target</em>, <em>uid</em>, <em>gid</em>, <em>permission</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI._ExecuteI__create_symlink" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink">
+<code class="descname">_ExecuteInterpreter__create_symlink</code><span class="sig-paren">(</span><em>name</em>, <em>target</em>, <em>uid</em>, <em>gid</em>, <em>permission</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a symlink in the filesystem</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="interpreters.ExecuteI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.ExecuteInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="interpreters.ExecuteI._makedirs">
-<em class="property">static </em><code class="descname">_makedirs</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteI._makedirs" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.ExecuteInterpreter._makedirs">
+<em class="property">static </em><code class="descname">_makedirs</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._makedirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom makedirs that keeps fixes the owner of the directory</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.GainRootI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">GainRootI</code><a class="headerlink" href="#interpreters.GainRootI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.GainRootInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">GainRootInterpreter</code><a class="headerlink" href="#interpreters.GainRootInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>If root permission is needed to perform the operations,
 this interpreter restarts the process with sudo</p>
 </dd></dl>
@@ -222,36 +222,36 @@ Needed by Interpreters that alter the DiffLog</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.PlainPrintI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PlainPrintI</code><a class="headerlink" href="#interpreters.PlainPrintI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.PlainPrintInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PlainPrintInterpreter</code><a class="headerlink" href="#interpreters.PlainPrintInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints add/remove/update-operation without any formating</p>
 <dl class="method">
-<dt id="interpreters.PlainPrintI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.PlainPrintInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.PrintI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PrintI</code><a class="headerlink" href="#interpreters.PrintI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.PrintInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PrintInterpreter</code><a class="headerlink" href="#interpreters.PrintInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pretty-prints log messages and what a operations is going to do.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="interpreters.RootNeededI">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">RootNeededI</code><a class="headerlink" href="#interpreters.RootNeededI" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.RootNeededInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">RootNeededInterpreter</code><a class="headerlink" href="#interpreters.RootNeededInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if root permission is needed to perform the operations</p>
 <dl class="method">
-<dt id="interpreters.RootNeededI.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededI.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.RootNeededInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="interpreters.RootNeededI._access">
-<code class="descname">_access</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededI._access" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.RootNeededInterpreter._access">
+<code class="descname">_access</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._access" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if we have write access for a given path.
 Because the path does not need to be existent at this point,
 this function goes the full directory tree upwards until it finds
@@ -284,7 +284,6 @@ a directory that we have write accesss to</p>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="constants.html">Constants</a></li>
-<li class="toctree-l2"><a class="reference internal" href="differencelog.html">Differencelog</a></li>
 <li class="toctree-l2"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicfile.html">Dynamicfile</a></li>

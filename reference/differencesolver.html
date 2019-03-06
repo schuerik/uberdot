@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="DotManager" href="dotmgr.html" />
-    <link rel="prev" title="Differencelog" href="differencelog.html" />
+    <link rel="prev" title="Constants" href="constants.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -36,7 +36,247 @@
             
   <div class="section" id="module-differencesolver">
 <span id="differencesolver"></span><h1>Differencesolver<a class="headerlink" href="#module-differencesolver" title="Permalink to this headline">¶</a></h1>
-<p>This module implements the Difference-Solver</p>
+<p>This module implements the Difference-Solvers (at the moment there is only
+the standart DiffSolver) and their resulting data struct DiffLog.</p>
+<dl class="class">
+<dt id="differencesolver.DiffLog">
+<em class="property">class </em><code class="descclassname">differencesolver.</code><code class="descname">DiffLog</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class stores the operations that were determined by a Difference-
+Solver. Furthermore it provides helpers to create such operations and
+a funciton that allows multiple interpreter to interprete the operations
+at the same time.</p>
+<dl class="attribute">
+<dt id="differencesolver.DiffLog.data">
+<code class="descname">data</code><a class="headerlink" href="#differencesolver.DiffLog.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to store the operations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog._DiffLog__append_data">
+<code class="descname">_DiffLog__append_data</code><span class="sig-paren">(</span><em>operation</em>, <em>profilename</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog._DiffLog__append_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends a new operation to <cite>self.data</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>operation</strong> (<em>str</em>) – Name of the operation</li>
+<li><strong>profilename</strong> (<em>str</em>) – Name of the profile that is associated with the
+operation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.add_info">
+<code class="descname">add_info</code><span class="sig-paren">(</span><em>profilename</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an info operation.</p>
+<p>Info operations can be used to print out profile information to the
+user. At the moment this is only evaluated by the PrettyPrint-
+Interpreter to print out a string like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">profilename</span><span class="p">]:</span> <span class="n">message</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profilename</strong> (<em>str</em>) – The name of the profile that prints the
+information</li>
+<li><strong>message</strong> (<em>str</em>) – The message to be printed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.add_link">
+<code class="descname">add_link</code><span class="sig-paren">(</span><em>symlink</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an add-link operation.</p>
+<p>Add-link operations indicate that a new link needs to be created.
+This will be - for example - evaluated by the ExecuteInterpreter
+to create the link in the filesystem and create an entry in the
+installed file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profilename</strong> (<em>str</em>) – The name of profile that the link belongs to</li>
+<li><strong>symlink</strong> (<em>Dict</em>) – A dictionary that describes the symbolic link that
+needs to be created</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.add_profile">
+<code class="descname">add_profile</code><span class="sig-paren">(</span><em>profilename</em>, <em>parentname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an add-profile operation.</p>
+<p>Add-profile operations indicate that a new profile will be added/
+installed. This will be - for example - evalutated by the
+ExecuteInterpreter to create a new empty entry in the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profilename</strong> (<em>str</em>) – The name of the new profile</li>
+<li><strong>parentname</strong> (<em>str</em>) – The name of the parent of the new profile. If
+<cite>None</cite> it will be treated as a root profile</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.remove_link">
+<code class="descname">remove_link</code><span class="sig-paren">(</span><em>symlink_name</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.remove_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a remove-link operation.</p>
+<p>Remove-link operation indicate that a certain link needs to be removed.
+This will be - for example - evaluated by the ExecuteInterpreter
+to remove the link from the filesystem and the installed file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>symlink_name</strong> (<em>str</em>) – The absolute path to the symbolic link</li>
+<li><strong>profilename</strong> (<em>str</em>) – The profile that the link is removed from</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.remove_profile">
+<code class="descname">remove_profile</code><span class="sig-paren">(</span><em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.remove_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a remove-profile operation.</p>
+<p>Remove-profile operations indicate that a certain profile will be
+removed/uninstalled. This will be - for example - evaluated by the
+ExecuteInterpreter to remove the profile in the installed file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profilename</strong> (<em>str</em>) – The name of the to be removed profile</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.run_interpreter">
+<code class="descname">run_interpreter</code><span class="sig-paren">(</span><em>*interpreters</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.run_interpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run a list of interpreters for all operations.</p>
+<p>This function iterates over all operations and evaluates them by
+feeding them into the given interpreters. Furthermore it initializes
+the interpreters and feeds them additional “start” and “fin”
+operations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>interpreters</strong> (<a class="reference internal" href="interpreters.html#interpreters.Interpreter" title="interpreters.Interpreter"><em>Interpreter</em></a>) – A list of interpreters that will
+interpret the operations</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.update_link">
+<code class="descname">update_link</code><span class="sig-paren">(</span><em>installed_symlink</em>, <em>new_symlink</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.update_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a update-link operation.</p>
+<p>Update-link operation indicate that a certain link needs to be replaced
+by a new link. This will be - for example - evaluated by the
+ExecuteInterpreter to remove the old link from the filesystem, create
+the new link in the filesystem and update the entry of the old link in
+the installed file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>installed_symlink</strong> (<em>Dict</em>) – A dictionary that describes the symbolic
+link that needs to be replaced</li>
+<li><strong>new_symlink</strong> (<em>Dict</em>) – A dictionary that describes the symbolic
+link that will be the replacement for the old  link</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.update_parent">
+<code class="descname">update_parent</code><span class="sig-paren">(</span><em>profilename</em>, <em>parentname</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.update_parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an update-parent operation.</p>
+<p>Update-parent operations indicate that a certain profile will change
+its parent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profilename</strong> (<em>str</em>) – The name of the to be updated profile</li>
+<li><strong>parentname</strong> (<em>str</em>) – The name of the new parent of the profile. If
+<cite>None</cite> it will be a root profile from now on.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="differencesolver.DiffLog.update_profile">
+<code class="descname">update_profile</code><span class="sig-paren">(</span><em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.update_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an update-profile operation.</p>
+<p>Update-profile operations indicate that a certain profile will be
+updated. This will be - for example - evaluated by the
+ExecuteInterpreter to update the changed-date of a profile in the
+installed file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profilename</strong> (<em>str</em>) – The name of the to be updated profile</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="differencesolver.DiffSolver">
 <em class="property">class </em><code class="descclassname">differencesolver.</code><code class="descname">DiffSolver</code><span class="sig-paren">(</span><em>installed</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver" title="Permalink to this definition">¶</a></dt>
@@ -110,7 +350,6 @@ unlink multiple profiles</p>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="constants.html">Constants</a></li>
-<li class="toctree-l2"><a class="reference internal" href="differencelog.html">Differencelog</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Differencesolver</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicfile.html">Dynamicfile</a></li>
@@ -128,7 +367,7 @@ unlink multiple profiles</p>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">Reference manual</a><ul>
-      <li>Previous: <a href="differencelog.html" title="previous chapter">Differencelog</a></li>
+      <li>Previous: <a href="constants.html" title="previous chapter">Constants</a></li>
       <li>Next: <a href="dotmgr.html" title="next chapter">DotManager</a></li>
   </ul></li>
   </ul></li>

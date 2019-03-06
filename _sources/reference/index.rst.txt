@@ -8,7 +8,6 @@ The reference manual documents all modules, functions and fields of dotmanager.
    :maxdepth: 1
 
    constants.rst
-   differencelog.rst
    differencesolver.rst
    dotmgr.rst
    dynamicfile.rst

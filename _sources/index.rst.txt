@@ -6,6 +6,8 @@
 Welcome to Dotmanager's documentation!
 ======================================
 
+Built for version |version|
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

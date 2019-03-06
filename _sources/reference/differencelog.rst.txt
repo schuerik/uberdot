@@ -1,5 +1,0 @@
-*************
-Differencelog
-*************
-
-.. automodule:: differencelog
