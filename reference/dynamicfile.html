@@ -44,49 +44,137 @@ be linked instead and makes sure that user-made changes are preserved.</p>
 <dt id="dynamicfile.DynamicFile">
 <em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">DynamicFile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This abstract class is the base for any dynamic generated
-file. It provides the write functionality and its path</p>
+file. It provides the update functionality and some basic information.</p>
+<dl class="attribute">
+<dt id="dynamicfile.DynamicFile.name">
+<code class="descname">name</code><a class="headerlink" href="#dynamicfile.DynamicFile.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dynamicfile.DynamicFile.md5sum">
+<code class="descname">md5sum</code><a class="headerlink" href="#dynamicfile.DynamicFile.md5sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>A checksum of the contents of the file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dynamicfile.DynamicFile.sources">
+<code class="descname">sources</code><a class="headerlink" href="#dynamicfile.DynamicFile.sources" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of paths of files that are used as source to
+generate the dynmaic file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="dynamicfile.DynamicFile.SUBDIR">
 <code class="descname">SUBDIR</code><a class="headerlink" href="#dynamicfile.DynamicFile.SUBDIR" title="Permalink to this definition">¶</a></dt>
-<dd><p>This constant needs to be implemented by subclasses</p>
+<dd><p>This constant needs to be implemented by subclasses. It tells the
+dynamicfile where to store the generated content of the file. It should
+be different for every type of dynamicfile, so the user can find them
+easier and can view different “stages” of the generation if the dynmic-
+file was nested.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dd><p>Constructor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) – Name of the file</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile._generate_file">
 <code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile._generate_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>This method is used to generate the contents of the
-dynamic file from sources by returning it as bytearray</p>
+dynamic file from sources.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>bytearray</em> – The raw generated content</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile.add_source">
 <code class="descname">add_source</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.add_source" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a source path and normalizes it</p>
+<dd><p>Adds a source path and normalizes it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target</strong> (<em>str</em>) – A path to a file that will be used as source</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile.getdir">
 <code class="descname">getdir</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.getdir" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the path of the directory that hold the generated file</p>
+<dd><p>Gets the path of the directory that is used to store the generated
+file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – The path to the directory</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile.getpath">
 <code class="descname">getpath</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.getpath" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the path of the generated file</p>
+<dd><p>Gets the path of the generated file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – The full path to the generated file</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.DynamicFile.update">
 <code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets the newest version of the file and writes it
-if it is not in its subdir yet</p>
+<dd><p>Generates the newest version of the file and writes it
+if it is not in its subdir yet.</p>
 </dd></dl>
 
 </dd></dl>
@@ -95,12 +183,25 @@ if it is not in its subdir yet</p>
 <dt id="dynamicfile.EncryptedFile">
 <em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">EncryptedFile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.EncryptedFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is an implementation of a dynamic files that allows
-to decrypt encrypted files and link them on the fly</p>
+to decrypt encrypted files.</p>
+<dl class="attribute">
+<dt id="dynamicfile.EncryptedFile.SUBDIR">
+<code class="descname">SUBDIR</code><em class="property"> = 'decrypted'</em><a class="headerlink" href="#dynamicfile.EncryptedFile.SUBDIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subdirectory used by EncryptedFile</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="dynamicfile.EncryptedFile._generate_file">
 <code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.EncryptedFile._generate_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is used to generate the contents of the
-dynamic file from sources by returning it as bytearray</p>
+<dd><p>Decrypts the first file in <code class="docutils literal notranslate"><span class="pre">self.sources</span></code> using gpg.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>bytearray</em> – The content of the decrypted file</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -109,18 +210,45 @@ dynamic file from sources by returning it as bytearray</p>
 <dt id="dynamicfile.FilteredFile">
 <em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">FilteredFile</code><span class="sig-paren">(</span><em>name</em>, <em>shell_command</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is an implementation of a dynamic files that allows
-to run a shell command on a dotfile before linking</p>
+to run a shell command on a dotfile before linking.</p>
+<dl class="attribute">
+<dt id="dynamicfile.FilteredFile.SUBDIR">
+<code class="descname">SUBDIR</code><em class="property"> = 'piped'</em><a class="headerlink" href="#dynamicfile.FilteredFile.SUBDIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subdirectory used by FilteredFile</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="dynamicfile.FilteredFile.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>name</em>, <em>shell_command</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dd><p>Constructor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) – Name of the file</li>
+<li><strong>shell_command</strong> (<em>str</em>) – A shell command that the file will be piped
+into</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dynamicfile.FilteredFile._generate_file">
 <code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile._generate_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is used to generate the contents of the
-dynamic file from sources by returning it as bytearray</p>
+<dd><p>Pipes the content of the first file in <code class="docutils literal notranslate"><span class="pre">self.sources</span></code> into the
+specified shell comand.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>bytearray</em> – The output of the shell command</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -130,11 +258,24 @@ dynamic file from sources by returning it as bytearray</p>
 <em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">SplittedFile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.SplittedFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>This is an implementation of a dynamic files that allows
 to join multiple dotfiles together to one dotfile</p>
+<dl class="attribute">
+<dt id="dynamicfile.SplittedFile.SUBDIR">
+<code class="descname">SUBDIR</code><em class="property"> = 'merged'</em><a class="headerlink" href="#dynamicfile.SplittedFile.SUBDIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>Subdirectory used by SplittedFile</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="dynamicfile.SplittedFile._generate_file">
 <code class="descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.SplittedFile._generate_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is used to generate the contents of the
-dynamic file from sources by returning it as bytearray</p>
+<dd><p>Merges all files from <code class="docutils literal notranslate"><span class="pre">self.sources</span></code> in order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>bytearray</em> – The content of all files merged together</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

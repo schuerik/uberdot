@@ -4,7 +4,7 @@
     padding: 10px 0px;
 }
 
-.class {
+.class, .exception {
     margin: 40px 0px;
     border-top: 1px solid #CCC;
     padding: 20px 10px;

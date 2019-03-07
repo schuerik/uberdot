@@ -39,49 +39,114 @@
 <p>This module contains all custom errors/exceptions.</p>
 <dl class="exception">
 <dt id="errors.CustomError">
-<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">CustomError</code><span class="sig-paren">(</span><em>message</em>, <em>exitcode</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A base class for all custom exceptions</p>
-<dl class="method">
-<dt id="errors.CustomError.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em>, <em>exitcode</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="errors.CustomError.getmessage">
-<code class="descname">getmessage</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError.getmessage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Colors every error message in FAIL-color</p>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">CustomError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A base class for all custom exceptions.</p>
+<dl class="attribute">
+<dt id="errors.CustomError._message">
+<code class="descname">_message</code><a class="headerlink" href="#errors.CustomError._message" title="Permalink to this definition">¶</a></dt>
+<dd><p>The original unformated error message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="errors.CustomError.message">
 <code class="descname">message</code><a class="headerlink" href="#errors.CustomError.message" title="Permalink to this definition">¶</a></dt>
-<dd><p>Colors every error message in FAIL-color</p>
+<dd><p>The formatted colored error message</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="errors.CustomError.EXITCODE">
+<code class="descname">EXITCODE</code><a class="headerlink" href="#errors.CustomError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The exitcode that will be returned when this exception is raised.
+This needs to be implemented by subclasses.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="errors.CustomError.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) – The error message</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="errors.FatalError">
-<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">FatalError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that violate expected invariants</p>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">FatalError</code><span class="sig-paren">(</span><em>message='Unkown Error'</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception for all errors that violate expected invariants.</p>
+<dl class="attribute">
+<dt id="errors.FatalError.EXITCODE">
+<code class="descname">EXITCODE</code><em class="property"> = 69</em><a class="headerlink" href="#errors.FatalError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The exitcode for a FatalError</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="errors.FatalError.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message='Unkown Error'</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Adds a disclaimer that this error is indeed really bad.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) – The error message</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="errors.GenerationError">
-<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">GenerationError</code><span class="sig-paren">(</span><em>profileName</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that occur during generation
-Example: The profile has syntax errors or is doing some nasty stuff</p>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">GenerationError</code><span class="sig-paren">(</span><em>profile_name</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception for all errors that occur during generation.</p>
+<p>Example: The profile has syntax errors or fucks with the base class</p>
+<dl class="attribute">
+<dt id="errors.GenerationError.EXITCODE">
+<code class="descname">EXITCODE</code><em class="property"> = 104</em><a class="headerlink" href="#errors.GenerationError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The exitcode for a GenerationError</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="errors.GenerationError.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>profileName</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>profile_name</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Adds the name of the profile that triggered the error to the message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profile_name</strong> (<em>str</em>) – Name of the profile that triggered the error</li>
+<li><strong>message</strong> (<em>str</em>) – The error message</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -90,12 +155,12 @@ Example: The profile has syntax errors or is doing some nasty stuff</p>
 <dt id="errors.IntegrityError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">IntegrityError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.IntegrityError" title="Permalink to this definition">¶</a></dt>
 <dd><p>A custom exception for all errors that occur because there are logical/
-sematic errors in a profile written by the user.
-Example: A link is defined multiple times with different targets</p>
-<dl class="method">
-<dt id="errors.IntegrityError.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.IntegrityError.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+sematic errors in a profile written by the user.</p>
+<p>Example: A link is defined multiple times with different targets</p>
+<dl class="attribute">
+<dt id="errors.IntegrityError.EXITCODE">
+<code class="descname">EXITCODE</code><em class="property"> = 102</em><a class="headerlink" href="#errors.IntegrityError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The exitcode for a IntegrityError</p>
 </dd></dl>
 
 </dd></dl>
@@ -104,26 +169,46 @@ Example: A link is defined multiple times with different targets</p>
 <dt id="errors.PreconditionError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">PreconditionError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.PreconditionError" title="Permalink to this definition">¶</a></dt>
 <dd><p>A custom exception for all errors that occur due to preconditions
-or expectations that are not fullfilled
-Example: A link that is defined in the installed-file doesn’t exist
+or expectations that are not fullfilled.</p>
+<p>Example: A link that is defined in the installed-file doesn’t exist
 on the system</p>
-<dl class="method">
-<dt id="errors.PreconditionError.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.PreconditionError.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="attribute">
+<dt id="errors.PreconditionError.EXITCODE">
+<code class="descname">EXITCODE</code><em class="property"> = 103</em><a class="headerlink" href="#errors.PreconditionError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The exitcode for a PreconditionError</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="errors.UnkownError">
-<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UnkownError</code><span class="sig-paren">(</span><em>originalError</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that are not expected/unkown
-Example: Used in a pokemon handler</p>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UnkownError</code><span class="sig-paren">(</span><em>original_error</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError" title="Permalink to this definition">¶</a></dt>
+<dd><p>A custom exception for all errors that are not expected/unkown.</p>
+<p>Example: Used in a pokemon handler</p>
+<dl class="attribute">
+<dt id="errors.UnkownError.EXITCODE">
+<code class="descname">EXITCODE</code><em class="property"> = 105</em><a class="headerlink" href="#errors.UnkownError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The exitcode for a UnkownError</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="errors.UnkownError.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>originalError</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>original_error</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Adds the type and the message of the original error to the error
+message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>original_error</strong> (<em>Exception</em>) – The original exception that was catched</li>
+<li><strong>message</strong> (<em>str</em>) – An additional message for context</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -132,10 +217,17 @@ Example: Used in a pokemon handler</p>
 <dt id="errors.UserAbortion">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UserAbortion</code><a class="headerlink" href="#errors.UserAbortion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to abort the dotmanager at any given point safely by the user</p>
+<dl class="attribute">
+<dt id="errors.UserAbortion.EXITCODE">
+<code class="descname">EXITCODE</code><em class="property"> = 106</em><a class="headerlink" href="#errors.UserAbortion.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The exitcode for a UserAbortion</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="errors.UserAbortion.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserAbortion.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dd><p>Constructor.</p>
+<p>Sets the error message to “Aborted by user”.</p>
 </dd></dl>
 
 </dd></dl>
@@ -143,13 +235,28 @@ Example: Used in a pokemon handler</p>
 <dl class="exception">
 <dt id="errors.UserError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UserError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that occur because the user called
-this progam with wrong arguments.
-Example: -i and -u where used in the same call</p>
+<dd><p>A custom exception for all errors that occur because the user didn’t
+used the program correctly.</p>
+<p>Example: -i and -u where used in the same call but cannot be used together</p>
+<dl class="attribute">
+<dt id="errors.UserError.EXITCODE">
+<code class="descname">EXITCODE</code><em class="property"> = 101</em><a class="headerlink" href="#errors.UserError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The exitcode for a UserError</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="errors.UserError.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dd><p>Constructor.</p>
+<p>Adds a hint how to show help.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) – The error message</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
