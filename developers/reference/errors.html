@@ -40,7 +40,8 @@
 <dl class="exception">
 <dt id="errors.CustomError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">CustomError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A base class for all custom exceptions.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>A base class for all custom exceptions.</p>
 <dl class="attribute">
 <dt id="errors.CustomError._message">
 <code class="descname">_message</code><a class="headerlink" href="#errors.CustomError._message" title="Permalink to this definition">¶</a></dt>
@@ -95,7 +96,8 @@ This needs to be implemented by subclasses.</p>
 <dl class="exception">
 <dt id="errors.FatalError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">FatalError</code><span class="sig-paren">(</span><em>message='Unkown Error'</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that violate expected invariants.</p>
+<dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
+<p>A custom exception for all errors that violate expected invariants.</p>
 <dl class="attribute">
 <dt id="errors.FatalError.EXITCODE">
 <code class="descname">EXITCODE</code><em class="property"> = 69</em><a class="headerlink" href="#errors.FatalError.EXITCODE" title="Permalink to this definition">¶</a></dt>
@@ -122,7 +124,8 @@ This needs to be implemented by subclasses.</p>
 <dl class="exception">
 <dt id="errors.GenerationError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">GenerationError</code><span class="sig-paren">(</span><em>profile_name</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that occur during generation.</p>
+<dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
+<p>A custom exception for all errors that occur during generation.</p>
 <p>Example: The profile has syntax errors or fucks with the base class</p>
 <dl class="attribute">
 <dt id="errors.GenerationError.EXITCODE">
@@ -154,7 +157,8 @@ This needs to be implemented by subclasses.</p>
 <dl class="exception">
 <dt id="errors.IntegrityError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">IntegrityError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.IntegrityError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that occur because there are logical/
+<dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
+<p>A custom exception for all errors that occur because there are logical/
 sematic errors in a profile written by the user.</p>
 <p>Example: A link is defined multiple times with different targets</p>
 <dl class="attribute">
@@ -168,7 +172,8 @@ sematic errors in a profile written by the user.</p>
 <dl class="exception">
 <dt id="errors.PreconditionError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">PreconditionError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.PreconditionError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that occur due to preconditions
+<dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
+<p>A custom exception for all errors that occur due to preconditions
 or expectations that are not fullfilled.</p>
 <p>Example: A link that is defined in the installed-file doesn’t exist
 on the system</p>
@@ -183,7 +188,8 @@ on the system</p>
 <dl class="exception">
 <dt id="errors.UnkownError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UnkownError</code><span class="sig-paren">(</span><em>original_error</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that are not expected/unkown.</p>
+<dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
+<p>A custom exception for all errors that are not expected/unkown.</p>
 <p>Example: Used in a pokemon handler</p>
 <dl class="attribute">
 <dt id="errors.UnkownError.EXITCODE">
@@ -216,7 +222,8 @@ message.</p>
 <dl class="exception">
 <dt id="errors.UserAbortion">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UserAbortion</code><a class="headerlink" href="#errors.UserAbortion" title="Permalink to this definition">¶</a></dt>
-<dd><p>Used to abort the dotmanager at any given point safely by the user</p>
+<dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
+<p>Used to abort the dotmanager at any given point safely by the user</p>
 <dl class="attribute">
 <dt id="errors.UserAbortion.EXITCODE">
 <code class="descname">EXITCODE</code><em class="property"> = 106</em><a class="headerlink" href="#errors.UserAbortion.EXITCODE" title="Permalink to this definition">¶</a></dt>
@@ -235,7 +242,8 @@ message.</p>
 <dl class="exception">
 <dt id="errors.UserError">
 <em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UserError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError" title="Permalink to this definition">¶</a></dt>
-<dd><p>A custom exception for all errors that occur because the user didn’t
+<dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
+<p>A custom exception for all errors that occur because the user didn’t
 used the program correctly.</p>
 <p>Example: -i and -u where used in the same call but cannot be used together</p>
 <dl class="attribute">

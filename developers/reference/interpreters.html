@@ -52,7 +52,8 @@ Some examples what interpreters do:</p>
 <dl class="class">
 <dt id="interpreters.Interpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">Interpreter</code><a class="headerlink" href="#interpreters.Interpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Base-class for an interpreter.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base-class for an interpreter.</p>
 <dl class="attribute">
 <dt id="interpreters.Interpreter.data">
 <code class="descname">data</code><a class="headerlink" href="#interpreters.Interpreter.data" title="Permalink to this definition">¶</a></dt>
@@ -110,7 +111,8 @@ the prefix ‘_op_’, if the function was implemented by the interpreter.</p>
 <dl class="class">
 <dt id="interpreters.CheckDynamicFilesInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckDynamicFilesInterpreter</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if there are changes to a dynamic file and
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Checks if there are changes to a dynamic file and
 gives the user the oppoutunity to interact with them.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckDynamicFilesInterpreter.dryrun">
@@ -221,7 +223,8 @@ with</p>
 <dl class="class">
 <dt id="interpreters.CheckLinkBlacklistInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkBlacklistInterpreter</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if a operation touches a link that is on the blacklist.</p>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Checks if a operation touches a link that is on the blacklist.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckLinkBlacklistInterpreter.superforce">
 <code class="descname">superforce</code><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.superforce" title="Permalink to this definition">¶</a></dt>
@@ -338,7 +341,8 @@ set</li>
 <dl class="class">
 <dt id="interpreters.CheckLinkDirsInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkDirsInterpreter</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if directories need to be created.</p>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Checks if directories need to be created.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckLinkDirsInterpreter.makedirs">
 <code class="descname">makedirs</code><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.makedirs" title="Permalink to this definition">¶</a></dt>
@@ -417,7 +421,8 @@ isn’t set</td>
 <dl class="class">
 <dt id="interpreters.CheckLinkExistsInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkExistsInterpreter</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if links of installed-file really exist in the filesystem.</p>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Checks if links of installed-file really exist in the filesystem.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckLinkExistsInterpreter.force">
 <code class="descname">force</code><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.force" title="Permalink to this definition">¶</a></dt>
@@ -519,7 +524,8 @@ file</td>
 <dl class="class">
 <dt id="interpreters.CheckLinksInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinksInterpreter</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks for conflicts between all links.</p>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Checks for conflicts between all links.</p>
 <p>Conflicts are things like duplicates, multiple targets / overwrites, etc.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -590,7 +596,8 @@ link</td>
 <dl class="class">
 <dt id="interpreters.CheckProfilesInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckProfilesInterpreter</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if profiles can be installed together. Protects against
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Checks if profiles can be installed together. Protects against
 duplicates and overwrites.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckProfilesInterpreter.parnent_arg">
@@ -705,7 +712,8 @@ no entry was found.</p>
 <dl class="class">
 <dt id="interpreters.DUIStrategyInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">DUIStrategyInterpreter</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reorders DiffLog so linking won’t be in the order of profiles but
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Reorders DiffLog so linking won’t be in the order of profiles but
 instead in the order Delete-Update-Insert. It also removes log messages
 because without the old order they are not useful anymore.</p>
 <dl class="attribute">
@@ -902,7 +910,8 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 <dl class="class">
 <dt id="interpreters.ExecuteInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteInterpreter</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>This interpreter actually executes the operations from the DiffLog.</p>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>This interpreter actually executes the operations from the DiffLog.</p>
 <p>It can create/delete links in the filesystem and modify the installed-file.</p>
 <dl class="attribute">
 <dt id="interpreters.ExecuteInterpreter.installed">
@@ -1088,7 +1097,8 @@ the corresponding profile in the installed-file.</p>
 <dl class="class">
 <dt id="interpreters.GainRootInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">GainRootInterpreter</code><a class="headerlink" href="#interpreters.GainRootInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>If root permission is needed to perform the operations,
+<dd><p>Bases: <a class="reference internal" href="#interpreters.RootNeededInterpreter" title="interpreters.RootNeededInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.RootNeededInterpreter</span></code></a></p>
+<p>If root permission is needed to perform the operations,
 this interpreter restarts the process with “sudo”.</p>
 <dl class="method">
 <dt id="interpreters.GainRootInterpreter._op_fin">
@@ -1110,7 +1120,8 @@ of Dotmanager, but prepend it with “sudo”.</p>
 <dl class="class">
 <dt id="interpreters.PlainPrintInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PlainPrintInterpreter</code><a class="headerlink" href="#interpreters.PlainPrintInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints add/remove/update-operation without any formating.</p>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Prints add/remove/update-operation without any formating.</p>
 <dl class="method">
 <dt id="interpreters.PlainPrintInterpreter.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
@@ -1151,7 +1162,8 @@ of Dotmanager, but prepend it with “sudo”.</p>
 <dl class="class">
 <dt id="interpreters.PrintInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PrintInterpreter</code><a class="headerlink" href="#interpreters.PrintInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pretty-prints log messages and what a operation is going to do.</p>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Pretty-prints log messages and what a operation is going to do.</p>
 <dl class="staticmethod">
 <dt id="interpreters.PrintInterpreter._log_interpreter">
 <em class="property">static </em><code class="descname">_log_interpreter</code><span class="sig-paren">(</span><em>dop</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._log_interpreter" title="Permalink to this definition">¶</a></dt>
@@ -1265,7 +1277,8 @@ profile name in the log message that triggered the operation.</li>
 <dl class="class">
 <dt id="interpreters.RootNeededInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">RootNeededInterpreter</code><a class="headerlink" href="#interpreters.RootNeededInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if root permission is needed to perform the operations.</p>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Checks if root permission is needed to perform the operations.</p>
 <dl class="attribute">
 <dt id="interpreters.RootNeededInterpreter.root_needed">
 <code class="descname">root_needed</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.root_needed" title="Permalink to this definition">¶</a></dt>

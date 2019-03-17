@@ -43,7 +43,8 @@ be linked instead and makes sure that user-made changes are preserved.</p>
 <dl class="class">
 <dt id="dynamicfile.DynamicFile">
 <em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">DynamicFile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>This abstract class is the base for any dynamic generated
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This abstract class is the base for any dynamic generated
 file. It provides the update functionality and some basic information.</p>
 <dl class="attribute">
 <dt id="dynamicfile.DynamicFile.name">
@@ -182,7 +183,8 @@ if it is not in its subdir yet.</p>
 <dl class="class">
 <dt id="dynamicfile.EncryptedFile">
 <em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">EncryptedFile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.EncryptedFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is an implementation of a dynamic files that allows
+<dd><p>Bases: <a class="reference internal" href="#dynamicfile.DynamicFile" title="dynamicfile.DynamicFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">dynamicfile.DynamicFile</span></code></a></p>
+<p>This is an implementation of a dynamic files that allows
 to decrypt encrypted files.</p>
 <dl class="attribute">
 <dt id="dynamicfile.EncryptedFile.SUBDIR">
@@ -209,7 +211,8 @@ to decrypt encrypted files.</p>
 <dl class="class">
 <dt id="dynamicfile.FilteredFile">
 <em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">FilteredFile</code><span class="sig-paren">(</span><em>name</em>, <em>shell_command</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is an implementation of a dynamic files that allows
+<dd><p>Bases: <a class="reference internal" href="#dynamicfile.DynamicFile" title="dynamicfile.DynamicFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">dynamicfile.DynamicFile</span></code></a></p>
+<p>This is an implementation of a dynamic files that allows
 to run a shell command on a dotfile before linking.</p>
 <dl class="attribute">
 <dt id="dynamicfile.FilteredFile.SUBDIR">
@@ -256,7 +259,8 @@ specified shell comand.</p>
 <dl class="class">
 <dt id="dynamicfile.SplittedFile">
 <em class="property">class </em><code class="descclassname">dynamicfile.</code><code class="descname">SplittedFile</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.SplittedFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is an implementation of a dynamic files that allows
+<dd><p>Bases: <a class="reference internal" href="#dynamicfile.DynamicFile" title="dynamicfile.DynamicFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">dynamicfile.DynamicFile</span></code></a></p>
+<p>This is an implementation of a dynamic files that allows
 to join multiple dotfiles together to one dotfile</p>
 <dl class="attribute">
 <dt id="dynamicfile.SplittedFile.SUBDIR">

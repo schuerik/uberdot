@@ -41,7 +41,8 @@ the standart DiffSolver) and their resulting data struct DiffLog.</p>
 <dl class="class">
 <dt id="differencesolver.DiffLog">
 <em class="property">class </em><code class="descclassname">differencesolver.</code><code class="descname">DiffLog</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class stores the operations that were determined by a Difference-
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class stores the operations that were determined by a Difference-
 Solver. Furthermore it provides helpers to create such operations and
 a funciton that allows multiple interpreter to interprete the operations
 at the same time.</p>
@@ -280,7 +281,8 @@ installed file.</p>
 <dl class="class">
 <dt id="differencesolver.DiffSolver">
 <em class="property">class </em><code class="descclassname">differencesolver.</code><code class="descname">DiffSolver</code><span class="sig-paren">(</span><em>installed</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver" title="Permalink to this definition">¶</a></dt>
-<dd><p>This solver determines the differences between a list of profiles
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This solver determines the differences between a list of profiles
 and an installed-file. It is used to generate a DiffLog that stores
 all operations to resolve the differences between those.</p>
 <dl class="attribute">
