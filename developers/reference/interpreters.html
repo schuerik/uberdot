@@ -1,0 +1,1475 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Interpreters &#8212; Dotmanager 1.9.2_3 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Profile" href="profile.html" />
+    <link rel="prev" title="Info" href="info.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-interpreters">
+<span id="interpreters"></span><h1>Interpreters<a class="headerlink" href="#module-interpreters" title="Permalink to this headline">¶</a></h1>
+<p>This module contains all the different Interpreters.
+Interpreters implement the behavior for all or a subset of operations of a
+DiffLog. That way interpreters encapsulate behavior, checks and actions of
+operations, that can be turned on and off freely.
+Some examples what interpreters do:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Checking if operations contradict each other</li>
+<li>Logging/Printing an operation</li>
+<li>Gaining root access if an operation needs them</li>
+<li>Actually create links according to the operations</li>
+</ul>
+</div></blockquote>
+<dl class="class">
+<dt id="interpreters.Interpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">Interpreter</code><a class="headerlink" href="#interpreters.Interpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base-class for an interpreter.</p>
+<dl class="attribute">
+<dt id="interpreters.Interpreter.data">
+<code class="descname">data</code><a class="headerlink" href="#interpreters.Interpreter.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>The full DiffLog that is interpreted.
+Only needed by Interpreters that alter the DiffLog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog">DiffLog</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.Interpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.Interpreter.call_operation">
+<code class="descname">call_operation</code><span class="sig-paren">(</span><em>operation</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.call_operation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the implemented behavior for this operation.</p>
+<p>This calls a function named like <code class="docutils literal notranslate"><span class="pre">operation[&quot;operation&quot;]</span></code> with
+the prefix ‘_op_’, if the function was implemented by the interpreter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>operation</strong> (<em>Dict</em>) – A operation from DiffLog</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.Interpreter.set_difflog_data">
+<code class="descname">set_difflog_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.set_difflog_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the DiffLogData.</p>
+<p>Needed by Interpreters that alter the DiffLog.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) – The DiffLog that will be set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.CheckDynamicFilesInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckDynamicFilesInterpreter</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if there are changes to a dynamic file and
+gives the user the oppoutunity to interact with them.</p>
+<dl class="attribute">
+<dt id="interpreters.CheckDynamicFilesInterpreter.dryrun">
+<code class="descname">dryrun</code><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.dryrun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--dryrun</span></code> was set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckDynamicFilesInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dryrun</strong> (<em>bool</em>) – Sets, if this is a dryrun</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckDynamicFilesInterpreter._op_remove_l">
+<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspects the target file of the to be removed link.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The remove-operation of the to be removed link</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckDynamicFilesInterpreter._op_update_l">
+<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inspects the target file of the to be updated link.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The update-operation of the to be updated link</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckDynamicFilesInterpreter.inspect_file">
+<code class="descname">inspect_file</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.inspect_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a file is dynamic and was changed. If so, it
+calls a small UI to store/undo changes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target</strong> (<em>str</em>) – The full path to the file that will be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckDynamicFilesInterpreter.user_interaction">
+<code class="descname">user_interaction</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.user_interaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a small UI for the user to interact with a changed dynamic
+file.</p>
+<p>The user can choose one of the following options to handle the changes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>A</strong>: Abort and exit Dotmanager</li>
+<li><strong>I</strong>: Ignore the changes and do nothing</li>
+<li><strong>D</strong>: Show a diff and ask again</li>
+<li><strong>P</strong>: Create a patch file and ask again</li>
+<li><strong>U</strong>: Undo the changes and restore the original file</li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>target</strong> (<em>str</em>) – The full path to the file that the user will interact
+with</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">UserAbortion</span></code> – The user decided to abort the whole process</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">PreconditionError</span></code> – The patch file could not be written</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.CheckLinkBlacklistInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkBlacklistInterpreter</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a operation touches a link that is on the blacklist.</p>
+<dl class="attribute">
+<dt id="interpreters.CheckLinkBlacklistInterpreter.superforce">
+<code class="descname">superforce</code><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.superforce" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--superforce</span></code> was set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.CheckLinkBlacklistInterpreter.blacklist">
+<code class="descname">blacklist</code><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.blacklist" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of file name patterns that are forbidden
+to touch without superforce flag</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkBlacklistInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Loads the blacklist.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>superforce</strong> (<em>bool</em>) – Sets, if superforce was turned on</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkBlacklistInterpreter._op_add_l">
+<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the to be added symlink for blacklist violations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The add-operation whose symlink will be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkBlacklistInterpreter._op_remove_l">
+<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the to be removed symlink for blacklist violations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The remove-operation whose symlink will be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkBlacklistInterpreter._op_update_l">
+<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the old and the new symlink for blacklist violations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The update-operation whose symlinks will be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkBlacklistInterpreter.check_blacklist">
+<code class="descname">check_blacklist</code><span class="sig-paren">(</span><em>file_name</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.check_blacklist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a file matches a pattern in the blacklist.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>file_name</strong> (<em>str</em>) – Name of the file</li>
+<li><strong>action</strong> (<em>str</em>) – The action that is causing the touch of the file</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">UserAbortion</span></code> – The user decided to not touch the file</li>
+<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">IntegrityError</span></code> – The file was blacklisted and <code class="docutils literal notranslate"><span class="pre">superforce</span></code> wasn’t
+set</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.CheckLinkDirsInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkDirsInterpreter</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if directories need to be created.</p>
+<dl class="attribute">
+<dt id="interpreters.CheckLinkDirsInterpreter.makedirs">
+<code class="descname">makedirs</code><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.makedirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--makedirs</span></code> was set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkDirsInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dryrun</strong> (<em>bool</em>) – Sets, if directories shall be created</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkDirsInterpreter._op_add_l">
+<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the directory of the to be added link already exists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The add-operation whose symlink will be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkDirsInterpreter._op_update_l">
+<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the directory of the to be updated link already exists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The update-operation whose symlink will be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkDirsInterpreter.check_dirname">
+<code class="descname">check_dirname</code><span class="sig-paren">(</span><em>dirname</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.check_dirname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a directory exists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dirname</strong> (<em>str</em>) – The path to a directory</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PreconditionError</span></code> – The directory doesn’t exist and <code class="docutils literal notranslate"><span class="pre">makedirs</span></code>
+isn’t set</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.CheckLinkExistsInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkExistsInterpreter</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if links of installed-file really exist in the filesystem.</p>
+<dl class="attribute">
+<dt id="interpreters.CheckLinkExistsInterpreter.force">
+<code class="descname">force</code><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--force</span></code> was set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.CheckLinkExistsInterpreter.removed_links">
+<code class="descname">removed_links</code><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.removed_links" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection of all links that are going to be
+removed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkExistsInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkExistsInterpreter._op_add_l">
+<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the new link already exists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Raise:</dt>
+<dd><dl class="first last docutils">
+<dt>PreconditionError: The new link already exists or its target does</dt>
+<dd>not exist</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkExistsInterpreter._op_remove_l">
+<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the to be removed link really exists.</p>
+<p>Furthermore adds the link to <code class="docutils literal notranslate"><span class="pre">removed_links</span></code>, because removed links
+need to be stored for <code class="docutils literal notranslate"><span class="pre">_op_add_l()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PreconditionError</span></code> – The to be removed link does not exist</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinkExistsInterpreter._op_update_l">
+<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if old and the new link already exist.</p>
+<p>Furthermore adds the old link to <code class="docutils literal notranslate"><span class="pre">removed_links</span></code> if old and new link
+have different names, because removed links need to be stored for
+<code class="docutils literal notranslate"><span class="pre">_op_add_l()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PreconditionError</span></code> – The to be old link does not exist, the new
+link already exists or the new link points to a non-existent
+file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.CheckLinksInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinksInterpreter</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks for conflicts between all links.</p>
+<p>Conflicts are things like duplicates, multiple targets / overwrites, etc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>linklist</strong> (<em>List</em>) – List that stores all links, their corresponding
+profiles and if they are already installed. Links that are already
+installed and won’t be removed, will end up twice in this list.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="interpreters.CheckLinksInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Initializes <code class="docutils literal notranslate"><span class="pre">linklist</span></code> with all links from the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>installed</strong> (<em>Dict</em>) – The installed file, that was used to create the
+current DiffLog</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinksInterpreter._op_add_l">
+<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the to be added link already occurs in <code class="docutils literal notranslate"><span class="pre">linklist</span></code>.</p>
+<p>This would be forbidden, because a link that is already installed can’t
+be added again (only updated). Similary it would be forbidden to add a
+link that was already added by another profile in the same run.
+If everything is valid, the link will be added to the list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IntegrityError</span></code> – The check failed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckLinksInterpreter._op_remove_l">
+<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes link from linklist because links could be removed and
+added in one run by different profiles.</p>
+<p>In that case it would look like the link is added even though it is
+already installed if we don’t remove it here.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be used to remove the
+link</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.CheckProfilesInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckProfilesInterpreter</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if profiles can be installed together. Protects against
+duplicates and overwrites.</p>
+<dl class="attribute">
+<dt id="interpreters.CheckProfilesInterpreter.parnent_arg">
+<code class="descname">parnent_arg</code><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.parnent_arg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores the value of <code class="docutils literal notranslate"><span class="pre">--parent</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.CheckProfilesInterpreter.profile_list">
+<code class="descname">profile_list</code><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.profile_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list that stores all profiles, their parents
+and if they are already installed. Profiles that are still
+installed in the end, will end up twice in this list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckProfilesInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Initializes <code class="docutils literal notranslate"><span class="pre">profile_list</span></code> with all profiles from the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>installed</strong> (<em>Dict</em>) – The installed file, that was used to create the
+DiffLog</li>
+<li><strong>parent_arg</strong> (<em>str</em>) – The value of <code class="docutils literal notranslate"><span class="pre">--parent</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckProfilesInterpreter._op_add_p">
+<code class="descname">_op_add_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a profile is added twice.</p>
+<p>Adds the profile to <code class="docutils literal notranslate"><span class="pre">profile_list</span></code> if the operation is valid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IntegrityError</span></code> – A profile is added twice or is already installed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckProfilesInterpreter._op_update_p">
+<code class="descname">_op_update_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if profiles will be overwritten.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">IntegrityError</span></code> – A profile installed as a subprofile of another root
+profile</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.CheckProfilesInterpreter.get_known">
+<code class="descname">get_known</code><span class="sig-paren">(</span><em>name</em>, <em>is_installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.get_known" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the entry of a profile from <code class="docutils literal notranslate"><span class="pre">profile_list</span></code>. Either for
+already installed profiles or for to be installed profiles.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str</em>) – Name of the profile</li>
+<li><strong>is_installed</strong> (<em>bool</em>) – True, for lookups of already installed
+profiles</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>Tuple</em> – The entry that was found in <code class="docutils literal notranslate"><span class="pre">profile_list</span></code>. <code class="docutils literal notranslate"><span class="pre">None</span></code> if
+no entry was found.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.DUIStrategyInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">DUIStrategyInterpreter</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reorders DiffLog so linking won’t be in the order of profiles but
+instead in the order Delete-Update-Insert. It also removes log messages
+because without the old order they are not useful anymore.</p>
+<dl class="attribute">
+<dt id="interpreters.DUIStrategyInterpreter.profile_deletes">
+<code class="descname">profile_deletes</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_deletes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection for profile-remove-operations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.DUIStrategyInterpreter.profile_updates">
+<code class="descname">profile_updates</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_updates" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection for profile-update-operations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.DUIStrategyInterpreter.profile_adds">
+<code class="descname">profile_adds</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_adds" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection for profile-add-operations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.DUIStrategyInterpreter.link_deletes">
+<code class="descname">link_deletes</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_deletes" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection for link-remove-operations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.DUIStrategyInterpreter.link_updates">
+<code class="descname">link_updates</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_updates" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection for link-update-operations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.DUIStrategyInterpreter.link_adds">
+<code class="descname">link_adds</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_adds" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection for link-add-operations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DUIStrategyInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DUIStrategyInterpreter._op_add_l">
+<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the link-add-operation to <code class="docutils literal notranslate"><span class="pre">link_adds</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DUIStrategyInterpreter._op_add_p">
+<code class="descname">_op_add_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the profile-add-operation to <code class="docutils literal notranslate"><span class="pre">profile_adds</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DUIStrategyInterpreter._op_fin">
+<code class="descname">_op_fin</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merges the collections of operations in the correct order
+and overwrites <code class="docutils literal notranslate"><span class="pre">self.data</span></code> to alter the DiffLog</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DUIStrategyInterpreter._op_remove_l">
+<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the link-remove-operation to <code class="docutils literal notranslate"><span class="pre">link_removes</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DUIStrategyInterpreter._op_remove_p">
+<code class="descname">_op_remove_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the profile-remove-operation to <code class="docutils literal notranslate"><span class="pre">profile_removes</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DUIStrategyInterpreter._op_update_l">
+<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the link-update-operation to <code class="docutils literal notranslate"><span class="pre">link_updates</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DUIStrategyInterpreter._op_update_p">
+<code class="descname">_op_update_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the profile-update-operation to <code class="docutils literal notranslate"><span class="pre">profile_updates</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.ExecuteInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteInterpreter</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>This interpreter actually executes the operations from the DiffLog.</p>
+<p>It can create/delete links in the filesystem and modify the installed-file.</p>
+<dl class="attribute">
+<dt id="interpreters.ExecuteInterpreter.installed">
+<code class="descname">installed</code><a class="headerlink" href="#interpreters.ExecuteInterpreter.installed" title="Permalink to this definition">¶</a></dt>
+<dd><p>The installed-file that will be updated</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.ExecuteInterpreter.force">
+<code class="descname">force</code><a class="headerlink" href="#interpreters.ExecuteInterpreter.force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--force</span></code> was set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink">
+<code class="descname">_ExecuteInterpreter__create_symlink</code><span class="sig-paren">(</span><em>name</em>, <em>target</em>, <em>uid</em>, <em>gid</em>, <em>permission</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a symlink in the filesystem.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<em>str</em>) – The full path of the link that will be created</li>
+<li><strong>target</strong> (<em>str</em>) – The full path of the file that the link will
+point to</li>
+<li><strong>uid</strong> (<em>int</em>) – The UID of the owner of the link</li>
+<li><strong>gid</strong> (<em>int</em>) – The GID of the owner of the link</li>
+<li><strong>permission</strong> (<em>int</em>) – The permissions of the target</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnkownError</span></code> – The link could not be created</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.ExecuteInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Updates the version number of the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>installed</strong> (<em>Dict</em>) – The installed-file that will be updated</li>
+<li><strong>force</strong> (<em>bool</em>) – The value of <code class="docutils literal notranslate"><span class="pre">--force</span></code></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="interpreters.ExecuteInterpreter._makedirs">
+<em class="property">static </em><code class="descname">_makedirs</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._makedirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom <code class="docutils literal notranslate"><span class="pre">os.makedirs()</span></code> that keeps the owner of the directory.</p>
+<p>This means that it will create the directory with the owner of the
+deepest directory that already exists instead of using current user as
+owner. This is needed, because otherwise directories won’t be
+accessible by the user, if some links would be created with root
+permissions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – The full path of the file that needs its
+directories created</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.ExecuteInterpreter._op_add_l">
+<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a link to the filesystem and adds a link entry of the
+corresponding profile in the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be executed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.ExecuteInterpreter._op_add_p">
+<code class="descname">_op_add_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a profile entry of the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be executed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.ExecuteInterpreter._op_remove_l">
+<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a link from the filesystem and removes the links entry of
+the corresponding profile in the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be executed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.ExecuteInterpreter._op_remove_p">
+<code class="descname">_op_remove_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a profile entry of the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be executed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.ExecuteInterpreter._op_update_l">
+<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates a link in the filesystem and updates the links entry of
+the corresponding profile in the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be executed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.ExecuteInterpreter._op_update_p">
+<code class="descname">_op_update_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates a profile entry of the installed-file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be executed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.GainRootInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">GainRootInterpreter</code><a class="headerlink" href="#interpreters.GainRootInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>If root permission is needed to perform the operations,
+this interpreter restarts the process with “sudo”.</p>
+<dl class="method">
+<dt id="interpreters.GainRootInterpreter._op_fin">
+<code class="descname">_op_fin</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.GainRootInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replace the process if root permission is needed with the same call
+of Dotmanager, but prepend it with “sudo”.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.PlainPrintInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PlainPrintInterpreter</code><a class="headerlink" href="#interpreters.PlainPrintInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints add/remove/update-operation without any formating.</p>
+<dl class="method">
+<dt id="interpreters.PlainPrintInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Maps <code class="docutils literal notranslate"><span class="pre">_op_*</span></code> functions to <code class="docutils literal notranslate"><span class="pre">print()</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PlainPrintInterpreter._op_fin">
+<code class="descname">_op_fin</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print “]” to show the end of an array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PlainPrintInterpreter._op_start">
+<code class="descname">_op_start</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter._op_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print “[” to show the start of an array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.PrintInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PrintInterpreter</code><a class="headerlink" href="#interpreters.PrintInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pretty-prints log messages and what a operation is going to do.</p>
+<dl class="staticmethod">
+<dt id="interpreters.PrintInterpreter._log_interpreter">
+<em class="property">static </em><code class="descname">_log_interpreter</code><span class="sig-paren">(</span><em>dop</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._log_interpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out a message for an operation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dop</strong> (<em>Dict</em>) – The operation that is logged. Used to include the
+profile name in the log message that triggered the operation.</li>
+<li><strong>message</strong> (<em>str</em>) – The message that will be logged</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PrintInterpreter._op_add_l">
+<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out that a link was added.</p>
+<dl class="docutils">
+<dt>Args</dt>
+<dd>dop (Dict): The add-operation that will be logged</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PrintInterpreter._op_add_p">
+<code class="descname">_op_add_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out that a profile was added.</p>
+<dl class="docutils">
+<dt>Args</dt>
+<dd>dop (Dict): The add-operation that will be logged</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PrintInterpreter._op_info">
+<code class="descname">_op_info</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out an info-operation.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The info-operation that will be logged</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PrintInterpreter._op_remove_l">
+<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out that a link was removed.</p>
+<dl class="docutils">
+<dt>Args</dt>
+<dd>dop (Dict): The remove-operation that will be logged</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PrintInterpreter._op_remove_p">
+<code class="descname">_op_remove_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out that a profile was removed.</p>
+<dl class="docutils">
+<dt>Args</dt>
+<dd>dop (Dict): The remove-operation that will be logged</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PrintInterpreter._op_start">
+<code class="descname">_op_start</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out the start of the linking process.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PrintInterpreter._op_update_l">
+<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out that a link was updated.</p>
+<p>The message is generated according to what changed in the updated link.</p>
+<dl class="docutils">
+<dt>Args</dt>
+<dd>dop (Dict): The update-operation that will be logged</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.PrintInterpreter._op_update_p">
+<code class="descname">_op_update_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out that a profile was updated.</p>
+<dl class="docutils">
+<dt>Args</dt>
+<dd>dop (Dict): The update-operation that will be logged</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.RootNeededInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">RootNeededInterpreter</code><a class="headerlink" href="#interpreters.RootNeededInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if root permission is needed to perform the operations.</p>
+<dl class="attribute">
+<dt id="interpreters.RootNeededInterpreter.root_needed">
+<code class="descname">root_needed</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.root_needed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores if root_permission is needed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.RootNeededInterpreter.logged">
+<code class="descname">logged</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.logged" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of operations that the root permission are
+needed for</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.RootNeededInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.RootNeededInterpreter._access">
+<code class="descname">_access</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._access" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if we have write access for a given path.</p>
+<p>Because the path might not be existent at this point,
+this function goes the full directory tree upwards until it finds
+a directory that we have write accesss to. If it finds one, it
+assumes that we have access to all subdirectories as well.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – The path that will be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>bool</em> – True, if we have access to the path</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.RootNeededInterpreter._op_add_l">
+<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if new links are either created in inaccessible directories
+or will be owned by other users than the current.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.RootNeededInterpreter._op_remove_l">
+<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if to be removed links are owned by other users than
+the current.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.RootNeededInterpreter._op_update_l">
+<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if to be updated links are owned by other users than
+the current or will be moved to inaccessible directories.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be checked</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.RootNeededInterpreter._root_needed">
+<code class="descname">_root_needed</code><span class="sig-paren">(</span><em>operation</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._root_needed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets <code class="docutils literal notranslate"><span class="pre">root_needed</span></code> to True and logs the operation that needs
+root permission.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>operation</strong> (<em>str</em>) – The action that will be done to the file</li>
+<li><strong>filename</strong> (<em>str</em>) – The name of the file for that root permission is
+needed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Dotmanager</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html">Contributing Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">For developers</a><ul>
+  <li><a href="index.html">Reference manual</a><ul>
+      <li>Previous: <a href="info.html" title="previous chapter">Info</a></li>
+      <li>Next: <a href="profile.html" title="next chapter">Profile</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Erik Schulz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/developers/reference/interpreters.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
