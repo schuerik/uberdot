@@ -1,2 +1,98 @@
+===============
 Getting started
 ===============
+
+
+---------------------------------------------------------
+Step 0: Put your dotfiles into version control (optional)
+---------------------------------------------------------
+I highly recommend to put all your dotfiles and the profiles that you are going
+to write into a version control system like git or svn for obvious reasons. But
+this is not required. The only requirement is that you have one directory that
+contains all your dotfiles. Subdirectories are ok, just make sure that your
+dotfiles are named uniquely.
+
+
+--------------------
+Step 1: Installation
+--------------------
+In near future there will be packages for AUR and pip available, as well as a
+portable binary. But for now you will have to set up Dotmanager by yourself.
+
+Step 1a: Manual set up
+======================
+First clone the repository:
+
+.. code:: bash
+
+    git clone https://github.com/RickestRickSanchez/dotmanager.git
+
+Then install dependencies:
+
+.. code:: bash
+
+    sudo apt-get install python3
+    # if you want to use encryption features
+    sudo apt-get install python3 gnupg
+
+You can run
+
+.. code:: bash
+
+    dotmanager/test/regressiontest.py
+
+to verify that Dotmanager runs correctly on your system.
+
+
+---------------------
+Step 3: Configuration
+---------------------
+There are a lot of things that you can configure in Dotmanager but for most of
+them the defaults are enough. If you are interested in further configuration,
+take a look at <configurationfile>. For the beginning you just have to set the
+directory for your dotfiles and for your profiles. To do so, either create a new
+file called `dotmanager.ini` or copy the example from `docs/config-example.ini`.
+
+You can store the configuration file at one of the following places:
+    - dotmanager/data/dotmanager.ini
+    - ~/.config/dotmanager/dotmanager.ini
+    - /etc/dotmanager/dotmanager.ini
+
+Then set the values `targetFiles` and `profileFiles` in the "Settings" section:
+
+.. code:: ini
+
+    [Settings]
+    profileFiles = /path/to/your/profiles/
+    targetFiles  = /path/to/your/dotfiles/
+
+
+-----------------------
+Step 3: A first profile
+-----------------------
+For a simple test we will create a first profile. So go ahead and create a file
+in your profile directory. It doesn't matter what you name it, as long it ends
+on ".py".
+You can copy the following, but replace `<filename>` with a file that exists in
+your dotfile directory:
+
+.. code:: python
+
+    from dotmanager.profile import profile
+
+    class Test1(Profile):
+        def generate():
+            link("<filename>")
+
+Now installing this profile is easy:
+
+.. code:: bash
+
+    ./dotmgr.py -i Test1
+    # or
+    ./dotmgr.py --install Test1
+
+
+---------------------
+Step 4: Going further
+---------------------
