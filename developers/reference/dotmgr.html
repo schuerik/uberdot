@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>DotManager &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -39,7 +37,7 @@
 <p>This is the main module. It implements the DotManager class and a short
 startup script.</p>
 <p>You can run this directly from the CLI with</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">./</span><span class="n">dotmgr</span><span class="o">.</span><span class="n">py</span> <span class="o">&lt;</span><span class="n">arguments</span><span class="o">&gt;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ./dotmgr.py &lt;arguments&gt;
 </pre></div>
 </div>
 <p>or you can import DotManager for debugging and testing purposes.</p>
@@ -54,42 +52,33 @@ printing information and executing profiles.</p>
 <dt id="dotmgr.DotManager.installed">
 <code class="descname">installed</code><a class="headerlink" href="#dotmgr.DotManager.installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>The installed-file that is used as a reference</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Dict</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dotmgr.DotManager.args">
 <code class="descname">args</code><a class="headerlink" href="#dotmgr.DotManager.args" title="Permalink to this definition">¶</a></dt>
 <dd><p>The parsed arguments</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">argparse</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>argparse</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dotmgr.DotManager.owd">
 <code class="descname">owd</code><a class="headerlink" href="#dotmgr.DotManager.owd" title="Permalink to this definition">¶</a></dt>
 <dd><p>The old working directory Dotmanager was started from</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -104,17 +93,15 @@ directory where this module is stored.</p>
 <dt id="dotmgr.DotManager.dryrun">
 <code class="descname">dryrun</code><span class="sig-paren">(</span><em>difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.dryrun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like <cite>run()</cite> but instead of resolving it it will be just printed out</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) – The Difflog that will be checked</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">CustomError</span></code> – Executed interpreters can and will raise all kinds of
-CustomError.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) – The Difflog that will be checked</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><strong>CustomError</strong></a> – Executed interpreters can and will raise all kinds of
+    CustomError.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -128,15 +115,12 @@ CustomError.</td>
 <code class="descname">load_installed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.load_installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the installed-file and parses it’s content into
 <cite>self.installed</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PreconditionError</span></code> – Dotmanager and installed-file aren’t
-version compatible.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – Dotmanager and installed-file aren’t
+    version compatible.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -144,18 +128,16 @@ version compatible.</td>
 <code class="descname">parse_arguments</code><span class="sig-paren">(</span><em>arguments=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.parse_arguments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses the commandline arguments. This function can parse a custom
 list of arguments, instead of <cite>sys.args</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>arguments</strong> (<em>List</em>) – A list of arguments that will be parsed instead
-of sys.args</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">UserError</span></code> – One ore more arguments are invalid or used in an
-invalid combination.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>arguments</strong> (<em>List</em>) – A list of arguments that will be parsed instead
+of sys.args</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.UserError" title="errors.UserError"><strong>UserError</strong></a> – One ore more arguments are invalid or used in an
+    invalid combination.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -170,14 +152,11 @@ parsed commandline arguments and settings.</p>
 <dt id="dotmgr.DotManager.print_installed">
 <code class="descname">print_installed</code><span class="sig-paren">(</span><em>profile</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints a single installed profile.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profile</strong> (<em>Dict</em>) – The profile that will be printed</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>profile</strong> (<em>Dict</em>) – The profile that will be printed</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -195,23 +174,19 @@ none are specified it prints all profiles of the installed-file.</p>
 <p>Furthermore this function handles backups, converts exceptions into
 UnkownErrors and might replace the entire process when Dotmanager was
 started with insufficient permissions.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) – The Difflog that will be resolved.</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">UnkownError</span></code> – All exceptions that are no CustomError and occured
-in the critical section will be converted to this error.</li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">CustomError</span></code> – Executed interpreters can and will raise all kinds of
-CustomError.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) – The Difflog that will be resolved.</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="errors.html#errors.UnkownError" title="errors.UnkownError"><strong>UnkownError</strong></a> – All exceptions that are no CustomError and occured
+    in the critical section will be converted to this error.</p></li>
+<li><p><a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><strong>CustomError</strong></a> – Executed interpreters can and will raise all kinds of
+    CustomError.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -253,7 +228,7 @@ values into a dictionary.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../contributing.html">Contributing Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
@@ -280,8 +255,6 @@ values into a dictionary.</p>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -302,7 +275,7 @@ values into a dictionary.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

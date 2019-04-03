@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Commandline Interface &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -43,106 +41,106 @@
 </pre></div>
 </div>
 <p>There are 5 modes of which you have to specify exactly one:</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="17%" />
-<col width="83%" />
+<col style="width: 17%" />
+<col style="width: 83%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Mode</th>
-<th class="head">Description</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Mode</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>-h, –help</td>
-<td>Shows a short help message with all options and modes
-and exits</td>
+<tbody>
+<tr class="row-even"><td><p>-h, –help</p></td>
+<td><p>Shows a short help message with all options and modes
+and exits</p></td>
 </tr>
-<tr class="row-odd"><td>–version</td>
-<td>Shows the version of dotmanager and exits</td>
+<tr class="row-odd"><td><p>–version</p></td>
+<td><p>Shows the version of dotmanager and exits</p></td>
 </tr>
-<tr class="row-even"><td>-i,
-–install</td>
-<td>Installs every specified profile. If a profile is
+<tr class="row-even"><td><p>-i,
+–install</p></td>
+<td><p>Installs every specified profile. If a profile is
 already installed it will be updated instead of
-installed.</td>
+installed.</p></td>
 </tr>
-<tr class="row-odd"><td>-u,
-–uninstall</td>
-<td>Uninstalls every specified profile. If a profile is not
-installed, dotmanager will skip this profile.</td>
+<tr class="row-odd"><td><p>-u,
+–uninstall</p></td>
+<td><p>Uninstalls every specified profile. If a profile is not
+installed, dotmanager will skip this profile.</p></td>
 </tr>
-<tr class="row-even"><td>-s, –show</td>
-<td>Shows information about installed profiles and links.
+<tr class="row-even"><td><p>-s, –show</p></td>
+<td><p>Shows information about installed profiles and links.
 If you specify <code class="docutils literal notranslate"><span class="pre">profiles</span></code> this will show only
 information about those profiles. Otherwise information
-about all installed profiles will be shown.</td>
+about all installed profiles will be shown.</p></td>
 </tr>
 </tbody>
 </table>
 <p>You can also choose a couple of optional arguments:</p>
-<table border="1" class="docutils">
+<table class="docutils align-center">
 <colgroup>
-<col width="26%" />
-<col width="74%" />
+<col style="width: 26%" />
+<col style="width: 74%" />
 </colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Option</th>
-<th class="head">Description</th>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Description</p></th>
 </tr>
 </thead>
-<tbody valign="top">
-<tr class="row-even"><td>–directory
-DIRECTORY</td>
-<td>Overwrites the default directory temporarily</td>
+<tbody>
+<tr class="row-even"><td><p>–directory
+DIRECTORY</p></td>
+<td><p>Overwrites the default directory temporarily</p></td>
 </tr>
-<tr class="row-odd"><td>-d, –dry-run</td>
-<td>Simulates the changes dotmanager would perform if
-executed without this flag</td>
+<tr class="row-odd"><td><p>-d, –dry-run</p></td>
+<td><p>Simulates the changes dotmanager would perform if
+executed without this flag</p></td>
 </tr>
-<tr class="row-even"><td>–dui</td>
-<td>Use an alternative startegy to install profiles
+<tr class="row-even"><td><p>–dui</p></td>
+<td><p>Use an alternative startegy to install profiles
 and links. The default strategy will do this by
 recursively go through the profiles and
 create/update all links one by one. This can
-cause conflicts if e.g.&nbsp;a link is moved from one
+cause conflicts if e.g. a link is moved from one
 to another profile. This strategy installs links
 by first doing all removals, then all updates and
 last all new installs. Most conflicts should be
 solved by this strategy but it has the downside
 that the output isn’t that clear as the normal
-strategy.</td>
+strategy.</p></td>
 </tr>
-<tr class="row-odd"><td>-f, –force</td>
-<td>Overwrites files that already exists in your
-filesystem with your links</td>
+<tr class="row-odd"><td><p>-f, –force</p></td>
+<td><p>Overwrites files that already exists in your
+filesystem with your links</p></td>
 </tr>
-<tr class="row-even"><td>–log LOGFILE</td>
-<td>Log everything in a logfile (this also adds
-timestamps to the log messages)</td>
+<tr class="row-even"><td><p>–log LOGFILE</p></td>
+<td><p>Log everything in a logfile (this also adds
+timestamps to the log messages)</p></td>
 </tr>
-<tr class="row-odd"><td>-m, –makedirs</td>
-<td>Makes directories if they don’t exist. Any
+<tr class="row-odd"><td><p>-m, –makedirs</p></td>
+<td><p>Makes directories if they don’t exist. Any
 directory created inherits the owner of its
-parent directory.</td>
+parent directory.</p></td>
 </tr>
-<tr class="row-even"><td>–option KEY=VAL
-[KEY=VAL …]</td>
-<td>Let you temporarily overwrite the option section
-of your config file</td>
+<tr class="row-even"><td><p>–option KEY=VAL
+[KEY=VAL …]</p></td>
+<td><p>Let you temporarily overwrite the option section
+of your config file</p></td>
 </tr>
-<tr class="row-odd"><td>–parent PARENT</td>
-<td>Forces the profiles that you install/update to be
+<tr class="row-odd"><td><p>–parent PARENT</p></td>
+<td><p>Forces the profiles that you install/update to be
 installed as subprofile of PARENT. This should be
-only needed to solve certain conflicts.</td>
+only needed to solve certain conflicts.</p></td>
 </tr>
-<tr class="row-even"><td>–plain</td>
-<td>Prints the <code class="docutils literal notranslate"><span class="pre">DiffLog</span></code> unformatted and exits.
-Only used for debugging purpose.</td>
+<tr class="row-even"><td><p>–plain</p></td>
+<td><p>Prints the <code class="docutils literal notranslate"><span class="pre">DiffLog</span></code> unformatted and exits.
+Only used for debugging purpose.</p></td>
 </tr>
-<tr class="row-odd"><td>-p,
-–pretty-print</td>
-<td>Prints out the changes that dotmanager would
+<tr class="row-odd"><td><p>-p,
+–pretty-print</p></td>
+<td><p>Prints out the changes that dotmanager would
 perform if executed without this flag. This
 differs from <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> in that way that it
 won’t do any checks on the profiles or
@@ -151,33 +149,33 @@ prefer. The only use-case is if your profiles
 will raise an error and aborts but you want to
 now what would have happen to get a better
 understanding of the issue in your
-profile/workflow itself.</td>
+profile/workflow itself.</p></td>
 </tr>
-<tr class="row-even"><td>-q, –quiet</td>
-<td>Print no log messages but warnings and errors</td>
+<tr class="row-even"><td><p>-q, –quiet</p></td>
+<td><p>Print no log messages but warnings and errors</p></td>
 </tr>
-<tr class="row-odd"><td>–save SAVE</td>
-<td>Use another <code class="docutils literal notranslate"><span class="pre">installed-file</span></code> for this
+<tr class="row-odd"><td><p>–save SAVE</p></td>
+<td><p>Use another <code class="docutils literal notranslate"><span class="pre">installed-file</span></code> for this
 execution. Can be used to install profiles
 multiple times on the same device. But be
 carefully not fuck up your other installations of
 those profiles! This is mostly useful if you want
 to test the linking process in another directory
 or if those profiles are installed in completely
-different locations of your device</td>
+different locations of your device</p></td>
 </tr>
-<tr class="row-even"><td>–silent</td>
-<td>Print no log messages at all</td>
+<tr class="row-even"><td><p>–silent</p></td>
+<td><p>Print no log messages at all</p></td>
 </tr>
-<tr class="row-odd"><td>–superforce</td>
-<td>Overwrites files and links that are blacklisted
+<tr class="row-odd"><td><p>–superforce</p></td>
+<td><p>Overwrites files and links that are blacklisted
 because it is considered dangerous to overwrite
-those files e.g.&nbsp;<code class="docutils literal notranslate"><span class="pre">/etc/hosts</span></code> or
-<code class="docutils literal notranslate"><span class="pre">/etc/passwd</span></code></td>
+those files e.g. <code class="docutils literal notranslate"><span class="pre">/etc/hosts</span></code> or
+<code class="docutils literal notranslate"><span class="pre">/etc/passwd</span></code></p></td>
 </tr>
-<tr class="row-even"><td>-v, –verbose</td>
-<td>Shows more information of the linking process and
-a stacktrace when error occur</td>
+<tr class="row-even"><td><p>-v, –verbose</p></td>
+<td><p>Shows more information of the linking process and
+a stacktrace when error occur</p></td>
 </tr>
 </tbody>
 </table>
@@ -238,8 +236,6 @@ python class names are case-sensitive.</p>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -260,7 +256,7 @@ python class names are case-sensitive.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

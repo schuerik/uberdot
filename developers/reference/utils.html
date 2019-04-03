@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Utils &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -42,16 +40,14 @@ Eg. Retrieving a environment variable or fixing file permisions</p>
 <code class="descclassname">utils.</code><code class="descname">expanduser</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the <code class="docutils literal notranslate"><span class="pre">os.path.expanduser()</span></code> but uses
 <code class="docutils literal notranslate"><span class="pre">get_user_env_var()</span></code> to look up the substitution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – The path that will be expanded</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – The expanded path</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path that will be expanded</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>str</em> – The expanded path</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -59,16 +55,14 @@ Eg. Retrieving a environment variable or fixing file permisions</p>
 <code class="descclassname">utils.</code><code class="descname">expandvars</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandvars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the <code class="docutils literal notranslate"><span class="pre">os.path.expandvars()</span></code> but uses
 <code class="docutils literal notranslate"><span class="pre">get_user_env_var()</span></code> to look up the substitution.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – The path that will be expanded</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – The expanded path</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path that will be expanded</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>str</em> – The expanded path</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -77,41 +71,36 @@ Eg. Retrieving a environment variable or fixing file permisions</p>
 <dd><p>Finds the exact target in the repository to link to.</p>
 <p>This will search <code class="docutils literal notranslate"><span class="pre">constants.TARGET_FILES</span></code> for files that match
 <code class="docutils literal notranslate"><span class="pre">target</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target</strong> (<em>str</em>) – The filename that will be searched for</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – Multiple targets where found</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target
-found.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) – The filename that will be searched for</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Multiple targets where found</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>str</em> – Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target
+found.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.find_files">
 <code class="descclassname">utils.</code><code class="descname">find_files</code><span class="sig-paren">(</span><em>filename</em>, <em>paths</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds existing files matching a specific name in a list of paths.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>filename</strong> (<em>str</em>) – The name of the file that will be searched for
-in <code class="docutils literal notranslate"><span class="pre">paths</span></code></li>
-<li><strong>paths</strong> (<em>List</em>) – A list of paths that will be searched for <code class="docutils literal notranslate"><span class="pre">filename</span></code></li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – The name of the file that will be searched for
+in <code class="docutils literal notranslate"><span class="pre">paths</span></code></p></li>
+<li><p><strong>paths</strong> (<em>List</em>) – A list of paths that will be searched for <code class="docutils literal notranslate"><span class="pre">filename</span></code></p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>List</em> – A list of file paths that were found</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>List</em> – A list of file paths that were found</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -122,25 +111,21 @@ in <code class="docutils literal notranslate"><span class="pre">paths</span></co
 schema <cite>&lt;any string&gt;%&lt;target&gt;</cite> and returns the file whose <cite>&lt;any string&gt;</cite>
 occurs first in <code class="docutils literal notranslate"><span class="pre">tags</span></code>. If no file is found the return value of
 <code class="docutils literal notranslate"><span class="pre">find_exact_target()</span></code> is returned.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target</strong> (<em>str</em>) – The filename that will be searched for</li>
-<li><strong>tags</strong> (<em>List</em>) – A list of tags that will be matched against the search
-result</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>str</em>) – The filename that will be searched for</p></li>
+<li><p><strong>tags</strong> (<em>List</em>) – A list of tags that will be matched against the search
+result</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> – Multiple targets where found</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>str</em> – Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target found.</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – Multiple targets where found</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>str</em> – Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target found.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -150,14 +135,11 @@ result</li>
 <p>Gets the username of the user that started Dotmanager. If the
 program was started with sudo, it still returns the original
 username and not “root”.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – The username of the current user</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>str</em> – The username of the current user</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -165,14 +147,11 @@ username and not “root”.</p>
 <code class="descclassname">utils.</code><code class="descname">get_date_time_now</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_date_time_now" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a datetime string for the current moment in the format
 YYYY-MM-DD hh:mm:ss</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – The datetime string</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>str</em> – The datetime string</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -183,17 +162,15 @@ YYYY-MM-DD hh:mm:ss</p>
 tree up until it finds an existing directory and returns its owner instead.
 This is used to figure out which permission shall have if it is about to be
 created.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) – (Non existing) absolute path to file</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A tuple containing the UID of the directory owner and the GID of the
-directory owner</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – (Non existing) absolute path to file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A tuple containing the UID of the directory owner and the GID of the
+directory owner</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -202,14 +179,11 @@ directory owner</td>
 <dd><p>Get the GID of the user that started dotmanager.</p>
 <p>This gets the current users GID. If SUDO_GID is set (this means the process
 was started with sudo) SUDO_GID will be returned instead.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>(int)</em> – GID of the user that started dotmanger</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>(int)</em> – GID of the user that started dotmanger</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -218,14 +192,11 @@ was started with sudo) SUDO_GID will be returned instead.</p>
 <dd><p>Get the UID of the user that started dotmanager.</p>
 <p>This gets the current users UID. If SUDO_UID is set (this means the process
 was started with sudo) SUDO_UID will be returned instead.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>(int)</em> – UID of the user that started dotmanger</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>(int)</em> – UID of the user that started dotmanger</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -239,39 +210,32 @@ look up environment variables that are for example set by the user in his
 Otherwise this function will do a standart look up of the users environment
 variables which means that all variables that were set at the time
 Dotmanager was started can be accessed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>varname</strong> (<em>str</em>) – Name of the variable to look up</li>
-<li><strong>fallback</strong> (<em>str</em>) – A fallback value if <code class="docutils literal notranslate"><span class="pre">varname</span></code> does not exist</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>varname</strong> (<em>str</em>) – Name of the variable to look up</p></li>
+<li><p><strong>fallback</strong> (<em>str</em>) – A fallback value if <code class="docutils literal notranslate"><span class="pre">varname</span></code> does not exist</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><code class="xref py py-exc docutils literal notranslate"><span class="pre">PreconditionError</span></code> – The variable does not exist and no fallback value
-was set</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>str</em> – The value of the variable</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – The variable does not exist and no fallback value
+    was set</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>str</em> – The value of the variable</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.has_root_priveleges">
 <code class="descclassname">utils.</code><code class="descname">has_root_priveleges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.has_root_priveleges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this programm has root priveleges.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>bool</em> – True, if the current process has root priveleges</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>bool</em> – True, if the current process has root priveleges</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -281,42 +245,36 @@ was set</p>
 <p>Searches <code class="docutils literal notranslate"><span class="pre">constants.PROFILE_FILES</span></code> for python modules and imports them
 temporarily. If the module has a class that is the same as <code class="docutils literal notranslate"><span class="pre">class_name</span></code>
 it returns it.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>class_name</strong> (<em>str</em>) – The name of the class that will be imported</p>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first simple">
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">GenerationError</span></code> – One of the modules in contained
-<code class="docutils literal notranslate"><span class="pre">constants.PROFILE_FILES</span></code> errors or the imported class doesn’t
-inherit from <code class="docutils literal notranslate"><span class="pre">Profile</span></code></li>
-<li><code class="xref py py-exc docutils literal notranslate"><span class="pre">PreconditionError</span></code> – No class with the provided name exists</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>class_name</strong> (<em>str</em>) – The name of the class that will be imported</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – One of the modules in contained
+    <code class="docutils literal notranslate"><span class="pre">constants.PROFILE_FILES</span></code> errors or the imported class doesn’t
+    inherit from <code class="docutils literal notranslate"><span class="pre">Profile</span></code></p></li>
+<li><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – No class with the provided name exists</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>class</em> – The class that was imported</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>class</em> – The class that was imported</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.is_dynamic_file">
 <code class="descclassname">utils.</code><code class="descname">is_dynamic_file</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.is_dynamic_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns if a given path is a dynamic file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target</strong> (<em>str</em>) – The path to the file</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>bool</em> – True, if given path is a dynamicfile</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) – The path to the file</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>bool</em> – True, if given path is a dynamicfile</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -325,14 +283,11 @@ inherit from <code class="docutils literal notranslate"><span class="pre">Profil
 <dd><p>Prints text in success color</p>
 <p>Using the log functions, the output will also be printed into a logfile
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) – The message that will be printed.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) – The message that will be printed.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -341,14 +296,11 @@ if the user set the <code class="docutils literal notranslate"><span class="pre"
 <dd><p>Prints text in warning color.</p>
 <p>Using the log functions, the output will also be printed into a logfile
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) – The message that will be printed.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) – The message that will be printed.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -356,16 +308,14 @@ if the user set the <code class="docutils literal notranslate"><span class="pre"
 <code class="descclassname">utils.</code><code class="descname">normpath</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.normpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalizes path, expands ~ and environment vars,
 and converts it in an absolute path.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – The path that will be normalized</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – The normalized path</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path that will be normalized</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>str</em> – The normalized path</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
@@ -374,15 +324,12 @@ and converts it in an absolute path.</p>
 <dd><p>Walks through the <code class="docutils literal notranslate"><span class="pre">constants.TARGET_FILES</span></code> and returns all files
 found.</p>
 <p>This also takes the .dotignore-file into account.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>(List)</em> – Contains tuples with the directory and the filename of every
-found file</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>(List)</em> – Contains tuples with the directory and the filename of every
+found file</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>
@@ -408,7 +355,7 @@ found file</td>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../contributing.html">Contributing Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
@@ -434,8 +381,6 @@ found file</td>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -456,7 +401,7 @@ found file</td>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

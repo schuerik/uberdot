@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Profile &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -56,42 +54,33 @@ the state of the set options and directory.</p>
 <dt id="profile.Profile.__old_builtins">
 <code class="descname">__old_builtins</code><a class="headerlink" href="#profile.Profile.__old_builtins" title="Permalink to this definition">¶</a></dt>
 <dd><p>A backup of the overwritten builtins</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Dict</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="profile.Profile.name">
 <code class="descname">name</code><a class="headerlink" href="#profile.Profile.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Identifier/Class name of the profile</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="profile.Profile.executed">
 <code class="descname">executed</code><a class="headerlink" href="#profile.Profile.executed" title="Permalink to this definition">¶</a></dt>
 <dd><p>True, if a result was already generated</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -99,14 +88,11 @@ the state of the set options and directory.</p>
 <code class="descname">options</code><a class="headerlink" href="#profile.Profile.options" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores options that will be set with <code class="docutils literal notranslate"><span class="pre">opt()</span></code>
 as well as the tags. None if this a root proifle.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Dict</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -114,28 +100,22 @@ as well as the tags. None if this a root proifle.</p>
 <code class="descname">directory</code><a class="headerlink" href="#profile.Profile.directory" title="Permalink to this definition">¶</a></dt>
 <dd><p>The directory that the profile is using as cwd.
 None if this a root proifle.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="profile.Profile.parent">
 <code class="descname">parent</code><a class="headerlink" href="#profile.Profile.parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>The parent profile. None if this a root proifle.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#profile.Profile" title="profile.Profile">Profile</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#profile.Profile" title="profile.Profile">Profile</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -143,14 +123,11 @@ None if this a root proifle.</p>
 <code class="descname">result</code><a class="headerlink" href="#profile.Profile.result" title="Permalink to this definition">¶</a></dt>
 <dd><p>The result of <code class="docutils literal notranslate"><span class="pre">generate()</span></code>. Contains name, parent,
 generated links and the result of all subprofiles.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Dict</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -159,23 +136,19 @@ generated links and the result of all subprofiles.</p>
 <dd><p>Creates an entry in <code class="docutils literal notranslate"><span class="pre">result[&quot;links&quot;]</span></code> with current options and a
 given target.</p>
 <p>Furthermore lets you set the directory like <code class="docutils literal notranslate"><span class="pre">cd()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target</strong> (<em>str</em>) – Full path to target file</li>
-<li><strong>directory</strong> (<em>str</em>) – A path to change the cwd</li>
-<li><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
-this call</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>str</em>) – Full path to target file</p></li>
+<li><p><strong>directory</strong> (<em>str</em>) – A path to change the cwd</p></li>
+<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
+this call</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GenerationError</span></code> – One or more options were misused</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – One or more options were misused</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -208,18 +181,16 @@ don’t need to be called using <code class="docutils literal notranslate"><span
 <code class="descname">_make_read_opt</code><span class="sig-paren">(</span><em>kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile._make_read_opt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create function that can lookup options but prefers options set for
 a concrete command.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> (<em>Dict</em>) – kwargs of a command</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>function</em> – A function that looks up and returns the value for a key
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>Dict</em>) – kwargs of a command</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>function</em> – A function that looks up and returns the value for a key
 in kwargs. If the key is not in kwargs it uses <code class="docutils literal notranslate"><span class="pre">self.options</span></code> for
-look up.</td>
-</tr>
-</tbody>
-</table>
+look up.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -228,14 +199,11 @@ look up.</td>
 <dd><p>Sets <code class="docutils literal notranslate"><span class="pre">self.directory</span></code>. Unix-like cd.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>directory</strong> (<em>str</em>) – The path to switch to</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>directory</strong> (<em>str</em>) – The path to switch to</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -248,17 +216,15 @@ for or it can be another dynamic file that already provides a generated
 file.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target</strong> (<em>str/DynamicFile</em>) – The target file that will be used as
-source of the <code class="docutils literal notranslate"><span class="pre">EncryptedFile</span></code></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>EncryptedFile</em> – The dynamic file that holds the decrypted target</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> (<em>str/DynamicFile</em>) – The target file that will be used as
+source of the <code class="docutils literal notranslate"><span class="pre">EncryptedFile</span></code></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>EncryptedFile</em> – The dynamic file that holds the decrypted target</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -268,14 +234,11 @@ source of the <code class="docutils literal notranslate"><span class="pre">Encry
 it resets all options and tags.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>options</strong> (<em>List</em>) – A list of options that will be reseted</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> (<em>List</em>) – A list of options that will be reseted</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -284,19 +247,15 @@ it resets all options and tags.</p>
 <dd><p>Link any file specified by its absolute path.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>path</strong> (<em>str</em>) – The path of the target</li>
-<li><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
-this call</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em>) – The path of the target</p></li>
+<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
+this call</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -307,18 +266,17 @@ this call</li>
 Furthermore it can be used by the user to just find a dotfile whitout
 linking it directly. Eventhough, this is not a command at the moment so
 it need to be called with <code class="docutils literal notranslate"><span class="pre">self.find()</span></code> in <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target</strong> (<em>str</em>) – A filename, without preceding tag</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GenerationError</span></code> – More than one file was found</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> – The full path of the file or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no file was found</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) – A filename, without preceding tag</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – More than one file was found</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>str</em> – The full path of the file or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no file was found</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -335,14 +293,11 @@ it need to be called with <code class="docutils literal notranslate"><span class
 and maps it own commands to them. <code class="docutils literal notranslate"><span class="pre">generate()</span></code> must not be called
 without this wrapper.</p>
 <p><cite>Do NOT call this from within the same profile, only from outside!!</cite></p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>Dict</em> – The result dictionary <code class="docutils literal notranslate"><span class="pre">self.result</span></code></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><em>Dict</em> – The result dictionary <code class="docutils literal notranslate"><span class="pre">self.result</span></code></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -351,16 +306,14 @@ without this wrapper.</p>
 <dd><p>Returns true if a tag is set.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tag</strong> (<em>str</em>) – A tag that will be checked for</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>bool</em> – True, if tag is set</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tag</strong> (<em>str</em>) – A tag that will be checked for</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>bool</em> – True, if tag is set</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -369,23 +322,19 @@ without this wrapper.</p>
 <dd><p>Link a one ore more targets with current options.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>targets</strong> (<em>List</em>) – One ore more targets that shall be linked. Targets
-can be just file names or any dynamic files.</li>
-<li><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
-this call</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>targets</strong> (<em>List</em>) – One ore more targets that shall be linked. Targets
+can be just file names or any dynamic files.</p></li>
+<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
+this call</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GenerationError</span></code> – One of the targets were not found</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – One of the targets were not found</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -396,25 +345,21 @@ this call</li>
 <code class="docutils literal notranslate"><span class="pre">target_pattern</span></code> and to decrypt matched files first.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target_pattern</strong> (<em>str</em>) – The regular expression that matches the file
-names</li>
-<li><strong>encrypted</strong> (<em>bool</em>) – True, if the targets shall be decrypted</li>
-<li><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
-this call</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_pattern</strong> (<em>str</em>) – The regular expression that matches the file
+names</p></li>
+<li><p><strong>encrypted</strong> (<em>bool</em>) – True, if the targets shall be decrypted</p></li>
+<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
+this call</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GenerationError</span></code> – No files or multiple file with the same name were
-found with this pattern</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – No files or multiple file with the same name were
+    found with this pattern</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -427,17 +372,15 @@ for or it can be another dynamic file that already provides a generated
 file.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>targets</strong> (<em>List</em>) – The list of targets that will be used as
-source of the <code class="docutils literal notranslate"><span class="pre">SplittedFile</span></code></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>SplittedFile</em> – The dynamic file that holds the merged target</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>targets</strong> (<em>List</em>) – The list of targets that will be used as
+source of the <code class="docutils literal notranslate"><span class="pre">SplittedFile</span></code></p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>SplittedFile</em> – The dynamic file that holds the merged target</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -447,16 +390,14 @@ source of the <code class="docutils literal notranslate"><span class="pre">Split
 calls of commands and subprofiles.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> – A set of options that will be set permanently</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GenerationError</span></code> – One of to be set option does not exist</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> – A set of options that will be set permanently</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – One of to be set option does not exist</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -466,24 +407,20 @@ calls of commands and subprofiles.</p>
 it.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>target</strong> (<em>str/DynamicFile</em>) – The target file that will be used as
-source of the <code class="docutils literal notranslate"><span class="pre">FilteredFile</span></code></li>
-<li><strong>shell_command</strong> (<em>str</em>) – The shell command that the content of target
-will be piped into</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target</strong> (<em>str/DynamicFile</em>) – The target file that will be used as
+source of the <code class="docutils literal notranslate"><span class="pre">FilteredFile</span></code></p></li>
+<li><p><strong>shell_command</strong> (<em>str</em>) – The shell command that the content of target
+will be piped into</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>FilteredFile</em> – The dynamic file that holds the output of the shell
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>FilteredFile</em> – The dynamic file that holds the output of the shell
 command</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -492,14 +429,11 @@ command</p>
 <dd><p>Removes a list of tags.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tags</strong> (<em>List</em>) – A list of tags that will be removed</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tags</strong> (<em>List</em>) – A list of tags that will be removed</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -508,22 +442,18 @@ command</p>
 <dd><p>Executes a list of profiles by name.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>profilenames</strong> (<em>List</em>) – List of profiles that will be executed</li>
-<li><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
-this call</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profilenames</strong> (<em>List</em>) – List of profiles that will be executed</p></li>
+<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
+this call</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">GenerationError</span></code> – Profile were executed in a cycly or recursively</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – Profile were executed in a cycly or recursively</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -532,14 +462,11 @@ this call</li>
 <dd><p>Adds a list of tags.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tags</strong> (<em>List</em>) – A list of tags that will be added</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>tags</strong> (<em>List</em>) – A list of tags that will be added</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -567,7 +494,7 @@ this call</li>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../contributing.html">Contributing Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
@@ -594,8 +521,6 @@ this call</li>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -616,7 +541,7 @@ this call</li>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

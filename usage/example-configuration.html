@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Examples &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -41,25 +39,25 @@ most features of dotmanager and what you could achieve with inheritance.
 It’s a variation of a setup I’m using for over a half year now. The tags
 that I defined have the following semantics:</p>
 <ul class="simple">
-<li><strong>arch:</strong> An Arch linux based distribution is installed</li>
-<li><strong>antergos:</strong> An Arch linux based distribution is installed</li>
-<li><strong>debian:</strong> An Debian based distribution is installed</li>
-<li><strong>master:</strong> The device is powerful and should be fullfeatured</li>
-<li><strong>minimal:</strong> The device is a low-end-device and most features should be
-disabled</li>
-<li><strong>private:</strong> This my own device with private data and access to my local
-network</li>
-<li><strong>office:</strong> A device used for work</li>
-<li><strong>laptop:</strong> This device is a laptop</li>
-<li><strong>asus:</strong> A concrete asus laptop of mine</li>
-<li><strong>asus:</strong> A concrete thinkpad laptop of mine</li>
-<li><strong>small:</strong> This device has a small monitor</li>
+<li><p><strong>arch:</strong> An Arch linux based distribution is installed</p></li>
+<li><p><strong>antergos:</strong> An Arch linux based distribution is installed</p></li>
+<li><p><strong>debian:</strong> An Debian based distribution is installed</p></li>
+<li><p><strong>master:</strong> The device is powerful and should be fullfeatured</p></li>
+<li><p><strong>minimal:</strong> The device is a low-end-device and most features should be
+disabled</p></li>
+<li><p><strong>private:</strong> This my own device with private data and access to my local
+network</p></li>
+<li><p><strong>office:</strong> A device used for work</p></li>
+<li><p><strong>laptop:</strong> This device is a laptop</p></li>
+<li><p><strong>asus:</strong> A concrete asus laptop of mine</p></li>
+<li><p><strong>asus:</strong> A concrete thinkpad laptop of mine</p></li>
+<li><p><strong>small:</strong> This device has a small monitor</p></li>
 </ul>
 <p>First I created some profiles that represent my current setup. Any
 device that I want to use this setup on inherits from it. These profiles
 define the programs that should be configured and link some platform
 specific configs.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This profile is the base for all devices that use my current setup</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This profile is the base for all devices that use my current setup</span>
 <span class="k">class</span> <span class="nc">Main</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;arch&quot;</span><span class="p">,</span> <span class="s2">&quot;master&quot;</span><span class="p">)</span>
@@ -81,7 +79,7 @@ specific configs.</p>
 
         <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;/etc&quot;</span><span class="p">)</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;hosts&quot;</span><span class="p">,</span> <span class="s2">&quot;mkinitcpio.conf&quot;</span><span class="p">)</span>
-        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;\d</span><span class="si">{2}</span><span class="s2">-\w+\.rules&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;udev/rules.d&quot;</span><span class="p">)</span>
+        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;\d{2}-\w+\.rules&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;udev/rules.d&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Then there are profiles for my different devices. <code class="docutils literal notranslate"><span class="pre">Pi</span></code> and <code class="docutils literal notranslate"><span class="pre">Server</span></code>
@@ -89,7 +87,7 @@ doesn’t inherit from <code class="docutils literal notranslate"><span class="p
 The other profiles are used to link configs that configure hardware.
 These profiles (except for <code class="docutils literal notranslate"><span class="pre">Laptop</span></code>) are the only profiles that I
 install as a root profile.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This profile contains configs that I use on all of my laptops</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This profile contains configs that I use on all of my laptops</span>
 <span class="k">class</span> <span class="nc">Laptop</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;hdmi_plugin.sh&quot;</span><span class="p">)</span>
@@ -99,7 +97,7 @@ install as a root profile.</p>
         <span class="c1"># Wifi profiles</span>
         <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;system-connections&quot;</span><span class="p">)</span>
         <span class="n">opt</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
-        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;wifi-(.+).gpg&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\1&quot;</span><span class="p">,</span> <span class="n">encrypted</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">links</span><span class="p">(</span><span class="s2">&quot;wifi-(.+).gpg&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\1&quot;</span><span class="p">,</span> <span class="n">encrypted</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 
 <span class="c1"># This is an asus laptop of mine</span>
@@ -142,7 +140,7 @@ install as a root profile.</p>
 </div>
 <p>At last there are the profiles for the individual programs that I called
 as subprofiles above. Most of the links are defined here.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Bash</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Bash</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">opt</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;bashrc&quot;</span><span class="p">,</span> <span class="s2">&quot;inputrc&quot;</span><span class="p">)</span>
@@ -151,7 +149,7 @@ as subprofiles above. Most of the links are defined here.</p>
         <span class="n">opt</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.bash_&quot;</span><span class="p">)</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;sensitiverc&quot;</span><span class="p">,</span> <span class="s2">&quot;basicrc&quot;</span><span class="p">,</span> <span class="s2">&quot;systemrc&quot;</span><span class="p">)</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;sensitiverc&quot;</span><span class="p">,</span> <span class="s2">&quot;basicrc&quot;</span><span class="p">,</span> <span class="s2">&quot;systemrc&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;/root&quot;</span><span class="p">)</span>
-        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;customrc&quot;</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;customrc&quot;</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Zsh</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
@@ -160,7 +158,7 @@ as subprofiles above. Most of the links are defined here.</p>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;zsh_profile&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;.zprofile&quot;</span><span class="p">)</span>
         <span class="n">opt</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.zsh_&quot;</span><span class="p">)</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;sensitiverc&quot;</span><span class="p">,</span> <span class="s2">&quot;basicrc&quot;</span><span class="p">,</span> <span class="s2">&quot;systemrc&quot;</span><span class="p">)</span>
-        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;customrc&quot;</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;customrc&quot;</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Git</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
@@ -284,8 +282,6 @@ profile you increase the re-usability of a configuration.</p>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -306,7 +302,7 @@ profile you increase the re-usability of a configuration.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

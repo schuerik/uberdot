@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Getting started &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -51,17 +49,17 @@ portable binary. But for now you will have to set up Dotmanager by yourself.</p>
 <div class="section" id="step-1a-manual-set-up">
 <h3>Step 1a: Manual set up<a class="headerlink" href="#step-1a-manual-set-up" title="Permalink to this headline">¶</a></h3>
 <p>First clone the repository:</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">RickestRickSanchez</span><span class="o">/</span><span class="n">dotmanager</span><span class="o">.</span><span class="n">git</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/RickestRickSanchez/dotmanager.git
 </pre></div>
 </div>
 <p>Then install dependencies:</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt-get install python3
 <span class="c1"># if you want to use encryption features</span>
-<span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">gnupg</span>
+sudo apt-get install python3 gnupg
 </pre></div>
 </div>
 <p>You can run</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">dotmanager</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">regressiontest</span><span class="o">.</span><span class="n">py</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./dotmanager/test/regressiontest.py
 </pre></div>
 </div>
 <p>to verify that Dotmanager runs correctly on your system.</p>
@@ -74,19 +72,18 @@ them the defaults are enough. If you are interested in further configuration,
 take a look at &lt;configurationfile&gt;. For the beginning you just have to set the
 directory for your dotfiles and for your profiles. To do so, either create a new
 file called <code class="docutils literal notranslate"><span class="pre">dotmanager.ini</span></code> or copy the example from <code class="docutils literal notranslate"><span class="pre">docs/config-example.ini</span></code>.</p>
-<dl class="docutils">
-<dt>You can store the configuration file at one of the following places:</dt>
-<dd><ul class="first last simple">
-<li>dotmanager/data/dotmanager.ini</li>
-<li>~/.config/dotmanager/dotmanager.ini</li>
-<li>/etc/dotmanager/dotmanager.ini</li>
+<dl class="simple">
+<dt>You can store the configuration file at one of the following places:</dt><dd><ul class="simple">
+<li><p>dotmanager/data/dotmanager.ini</p></li>
+<li><p>~/.config/dotmanager/dotmanager.ini</p></li>
+<li><p>/etc/dotmanager/dotmanager.ini</p></li>
 </ul>
 </dd>
 </dl>
 <p>Then set the values <code class="docutils literal notranslate"><span class="pre">targetFiles</span></code> and <code class="docutils literal notranslate"><span class="pre">profileFiles</span></code> in the “Settings” section:</p>
-<div class="code ini highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Settings</span><span class="p">]</span>
-<span class="n">profileFiles</span> <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">profiles</span><span class="o">/</span>
-<span class="n">targetFiles</span>  <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">dotfiles</span><span class="o">/</span>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[Settings]</span>
+<span class="na">profileFiles</span> <span class="o">=</span> <span class="s">/path/to/your/profiles/</span>
+<span class="na">targetFiles</span>  <span class="o">=</span> <span class="s">/path/to/your/dotfiles/</span>
 </pre></div>
 </div>
 </div>
@@ -97,7 +94,7 @@ in your profile directory. It doesn’t matter what you name it, as long it ends
 on “.py”.
 You can copy the following, but replace <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> with a file that exists in
 your dotfile directory:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="k">import</span> <span class="n">profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -105,16 +102,16 @@ your dotfile directory:</p>
 </pre></div>
 </div>
 <p>Now installing this profile is easy:</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
-[Test1]: Installing new profile
-[Test1]: /home/user/&lt;filename&gt; was created and links to /home/user/repos/dotfiles/files/&lt;filename&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
+<span class="o">[</span>Test1<span class="o">]</span>: Installing new profile
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/&lt;filename&gt; was created and links to /home/user/repos/dotfiles/files/&lt;filename&gt;
 Finished succesfully.
 </pre></div>
 </div>
 <p>So <code class="docutils literal notranslate"><span class="pre">link(&quot;&lt;filename&gt;&quot;)</span></code> creates a symlink in your home directory and points
 to the file <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> in your repository.</p>
 <p>Ok, lets add some more links and install it again:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="k">import</span> <span class="n">profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -129,10 +126,10 @@ to the file <code class="docutils literal notranslate"><span class="pre">&lt;fil
 command let’s you switch the directory in which the links will be created. So
 instead creating links in your home directory, all further calls of <code class="docutils literal notranslate"><span class="pre">link()</span></code>
 will create links in <code class="docutils literal notranslate"><span class="pre">~/.config</span></code>.</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
-[Test1]: Profile updated
-[Test1]: /home/user/.config/.&lt;filename2&gt; was created and links to /home/user/repos/dotfiles/files/&lt;filename2&gt;
-[Test1]: /home/user/.config/someothername.conf was created and links to /home/user/repos/dotfiles/files/&lt;filename3&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
+<span class="o">[</span>Test1<span class="o">]</span>: Profile updated
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/.&lt;filename2&gt; was created and links to /home/user/repos/dotfiles/files/&lt;filename2&gt;
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/someothername.conf was created and links to /home/user/repos/dotfiles/files/&lt;filename3&gt;
 Finished succesfully.
 </pre></div>
 </div>
@@ -144,7 +141,7 @@ the effect of the options <code class="docutils literal notranslate"><span class
 <h2>Step 4: Going further<a class="headerlink" href="#step-4-going-further" title="Permalink to this headline">¶</a></h2>
 <p>I want to show you two more commands, that provide key techniques of Dotmanager.
 To make profiles more reusable you can use the <code class="docutils literal notranslate"><span class="pre">subprof()</span></code> command:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="k">import</span> <span class="n">profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Vim</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -164,7 +161,7 @@ To make profiles more reusable you can use the <code class="docutils literal not
 <p>Here we have two profiles. The first one collects all configuration files for vim,
 the second one for zsh and bash. You can use them in any other profile as a
 subprofile:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="k">import</span> <span class="n">profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -174,22 +171,22 @@ subprofile:</p>
 </pre></div>
 </div>
 <p>Installing <code class="docutils literal notranslate"><span class="pre">Test1</span></code> again, results in the following output:</p>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
-[Test1]: Profile updated
-[Test1]: /home/user/.config/.&lt;filename2&gt; was removed from the system.
-[Test1]: /home/user/.config/someothername.conf was removed from the system.
-[Vim]: Installing new profile as subprofile of Test1
-[Vim]: /home/user/.gvimrc was created and links to /home/user/repos/dotfiles/files/gvimrc
-[Vim]: /home/user/.vimrc was created and links to /home/user/repos/dotfiles/files/vimrc
-[Vim]: /home/user/.vim/keybindings.vim was created and links to /home/user/repos/dotfiles/files/keybindings.vim
-[Vim]: /home/user/.vim/plugins.vim was created and links to /home/user/repos/dotfiles/files/plugins.vim
-[Vim]: /home/user/.vim/UltiSnips/python.snippets was created and links to /home/user/repos/dotfiles/files/python.snippets
-[Vim]: /home/user/.vim/UltiSnips/html.snippets was created and links to /home/user/repos/dotfiles/files/html.snippets
-[Shell]: Installing new profile as subprofile of Test1
-[Shell]: /home/user/.zshrc was created and links to /home/user/repos/dotfiles/files/zshrc
-[Shell]: /home/user/.bashrc was created and links to /home/user/repos/dotfiles/files/bashrc
-[Shell]: /home/user/.inputrc was created and links to /home/user/repos/dotfiles/files/inputrc
-[Shell]: /home/user/.zprofile was created and links to /home/user/repos/dotfiles/files/zsh_profile
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
+<span class="o">[</span>Test1<span class="o">]</span>: Profile updated
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/.&lt;filename2&gt; was removed from the system.
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/someothername.conf was removed from the system.
+<span class="o">[</span>Vim<span class="o">]</span>: Installing new profile as subprofile of Test1
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was created and links to /home/user/repos/dotfiles/files/gvimrc
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was created and links to /home/user/repos/dotfiles/files/vimrc
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was created and links to /home/user/repos/dotfiles/files/keybindings.vim
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/plugins.vim was created and links to /home/user/repos/dotfiles/files/plugins.vim
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/python.snippets was created and links to /home/user/repos/dotfiles/files/python.snippets
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/html.snippets was created and links to /home/user/repos/dotfiles/files/html.snippets
+<span class="o">[</span>Shell<span class="o">]</span>: Installing new profile as subprofile of Test1
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zshrc was created and links to /home/user/repos/dotfiles/files/zshrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.bashrc was created and links to /home/user/repos/dotfiles/files/bashrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.inputrc was created and links to /home/user/repos/dotfiles/files/inputrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zprofile was created and links to /home/user/repos/dotfiles/files/zsh_profile
 Finished succesfully.
 </pre></div>
 </div>
@@ -209,26 +206,26 @@ where “minimal” is the tag and the percent sign is a delimiter to indicate t
 the filename starts  now.
 Our <code class="docutils literal notranslate"><span class="pre">Test1</span></code> profile will create the same links as before, but let’s create a
 new profile that will use the new minimal plugins file:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Pi</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Pi</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;minimal&quot;</span><span class="p">)</span>
         <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Vim&quot;</span><span class="p">,</span> <span class="s2">&quot;Shell&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Pi
-[Pi]: Installing new Profile
-[Vim]: Installing new profile as subprofile of Pi
-[Vim]: /home/user/.gvimrc was created and links to /home/user/repos/dotfiles/files/gvimrc
-[Vim]: /home/user/.vimrc was created and links to /home/user/repos/dotfiles/files/vimrc
-[Vim]: /home/user/.vim/keybindings.vim was created and links to /home/user/repos/dotfiles/files/keybindings.vim
-[Vim]: /home/user/.vim/plugins.vim was created and links to /home/user/repos/dotfiles/files/minimal%plugins.vim
-[Vim]: /home/user/.vim/UltiSnips/python.snippets was created and links to /home/user/repos/dotfiles/files/python.snippets
-[Vim]: /home/user/.vim/UltiSnips/html.snippets was created and links to /home/user/repos/dotfiles/files/html.snippets
-[Shell]: Installing new profile as subprofile of Pi
-[Shell]: /home/user/.zshrc was created and links to /home/user/repos/dotfiles/files/zshrc
-[Shell]: /home/user/.bashrc was created and links to /home/user/repos/dotfiles/files/bashrc
-[Shell]: /home/user/.inputrc was created and links to /home/user/repos/dotfiles/files/inputrc
-[Shell]: /home/user/.zprofile was created and links to /home/user/repos/dotfiles/files/zsh_profile
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Pi
+<span class="o">[</span>Pi<span class="o">]</span>: Installing new Profile
+<span class="o">[</span>Vim<span class="o">]</span>: Installing new profile as subprofile of Pi
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was created and links to /home/user/repos/dotfiles/files/gvimrc
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was created and links to /home/user/repos/dotfiles/files/vimrc
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was created and links to /home/user/repos/dotfiles/files/keybindings.vim
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/plugins.vim was created and links to /home/user/repos/dotfiles/files/minimal%plugins.vim
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/python.snippets was created and links to /home/user/repos/dotfiles/files/python.snippets
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/html.snippets was created and links to /home/user/repos/dotfiles/files/html.snippets
+<span class="o">[</span>Shell<span class="o">]</span>: Installing new profile as subprofile of Pi
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zshrc was created and links to /home/user/repos/dotfiles/files/zshrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.bashrc was created and links to /home/user/repos/dotfiles/files/bashrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.inputrc was created and links to /home/user/repos/dotfiles/files/inputrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zprofile was created and links to /home/user/repos/dotfiles/files/zsh_profile
 Finished succesfully.
 </pre></div>
 </div>
@@ -302,8 +299,6 @@ well as more advanced examples and troubleshooting.</p>
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -324,7 +319,7 @@ well as more advanced examples and troubleshooting.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

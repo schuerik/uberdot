@@ -9,7 +9,7 @@ manual that explains all classes, functions and properties of Dotmanager.
    :maxdepth: 2
    :caption: Contents:
 
-   contributing.rst
+   contributing_link.rst
    documentation.rst
    tests.rst
    reference/index.rst

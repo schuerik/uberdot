@@ -1,11 +1,9 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
     <title>Differencesolver &#8212; Dotmanager 1.9.2_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -50,33 +48,26 @@ at the same time.</p>
 <dt id="differencesolver.DiffLog.data">
 <code class="descname">data</code><a class="headerlink" href="#differencesolver.DiffLog.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to store the operations</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog._DiffLog__append_data">
 <code class="descname">_DiffLog__append_data</code><span class="sig-paren">(</span><em>operation</em>, <em>profilename</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog._DiffLog__append_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Appends a new operation to <cite>self.data</cite>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>operation</strong> (<em>str</em>) – Name of the operation</li>
-<li><strong>profilename</strong> (<em>str</em>) – Name of the profile that is associated with the
-operation</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operation</strong> (<em>str</em>) – Name of the operation</p></li>
+<li><p><strong>profilename</strong> (<em>str</em>) – Name of the profile that is associated with the
+operation</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -95,19 +86,15 @@ Interpreter to print out a string like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">profilename</span><span class="p">]:</span> <span class="n">message</span>
 </pre></div>
 </div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>profilename</strong> (<em>str</em>) – The name of the profile that prints the
-information</li>
-<li><strong>message</strong> (<em>str</em>) – The message to be printed</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profilename</strong> (<em>str</em>) – The name of the profile that prints the
+information</p></li>
+<li><p><strong>message</strong> (<em>str</em>) – The message to be printed</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -118,19 +105,15 @@ information</li>
 This will be - for example - evaluated by the ExecuteInterpreter
 to create the link in the filesystem and create an entry in the
 installed file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>profilename</strong> (<em>str</em>) – The name of profile that the link belongs to</li>
-<li><strong>symlink</strong> (<em>Dict</em>) – A dictionary that describes the symbolic link that
-needs to be created</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profilename</strong> (<em>str</em>) – The name of profile that the link belongs to</p></li>
+<li><p><strong>symlink</strong> (<em>Dict</em>) – A dictionary that describes the symbolic link that
+needs to be created</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -140,19 +123,15 @@ needs to be created</li>
 <p>Add-profile operations indicate that a new profile will be added/
 installed. This will be - for example - evalutated by the
 ExecuteInterpreter to create a new empty entry in the installed-file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>profilename</strong> (<em>str</em>) – The name of the new profile</li>
-<li><strong>parentname</strong> (<em>str</em>) – The name of the parent of the new profile. If
-<cite>None</cite> it will be treated as a root profile</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profilename</strong> (<em>str</em>) – The name of the new profile</p></li>
+<li><p><strong>parentname</strong> (<em>str</em>) – The name of the parent of the new profile. If
+<cite>None</cite> it will be treated as a root profile</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -162,18 +141,14 @@ ExecuteInterpreter to create a new empty entry in the installed-file.</p>
 <p>Remove-link operation indicate that a certain link needs to be removed.
 This will be - for example - evaluated by the ExecuteInterpreter
 to remove the link from the filesystem and the installed file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>symlink_name</strong> (<em>str</em>) – The absolute path to the symbolic link</li>
-<li><strong>profilename</strong> (<em>str</em>) – The profile that the link is removed from</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>symlink_name</strong> (<em>str</em>) – The absolute path to the symbolic link</p></li>
+<li><p><strong>profilename</strong> (<em>str</em>) – The profile that the link is removed from</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -183,14 +158,11 @@ to remove the link from the filesystem and the installed file.</p>
 <p>Remove-profile operations indicate that a certain profile will be
 removed/uninstalled. This will be - for example - evaluated by the
 ExecuteInterpreter to remove the profile in the installed file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profilename</strong> (<em>str</em>) – The name of the to be removed profile</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>profilename</strong> (<em>str</em>) – The name of the to be removed profile</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -201,15 +173,12 @@ ExecuteInterpreter to remove the profile in the installed file.</p>
 feeding them into the given interpreters. Furthermore it initializes
 the interpreters and feeds them additional “start” and “fin”
 operations.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>interpreters</strong> (<a class="reference internal" href="interpreters.html#interpreters.Interpreter" title="interpreters.Interpreter"><em>Interpreter</em></a>) – A list of interpreters that will
-interpret the operations</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>interpreters</strong> (<a class="reference internal" href="interpreters.html#interpreters.Interpreter" title="interpreters.Interpreter"><em>Interpreter</em></a>) – A list of interpreters that will
+interpret the operations</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -221,20 +190,16 @@ by a new link. This will be - for example - evaluated by the
 ExecuteInterpreter to remove the old link from the filesystem, create
 the new link in the filesystem and update the entry of the old link in
 the installed file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>installed_symlink</strong> (<em>Dict</em>) – A dictionary that describes the symbolic
-link that needs to be replaced</li>
-<li><strong>new_symlink</strong> (<em>Dict</em>) – A dictionary that describes the symbolic
-link that will be the replacement for the old  link</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>installed_symlink</strong> (<em>Dict</em>) – A dictionary that describes the symbolic
+link that needs to be replaced</p></li>
+<li><p><strong>new_symlink</strong> (<em>Dict</em>) – A dictionary that describes the symbolic
+link that will be the replacement for the old  link</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -243,19 +208,15 @@ link that will be the replacement for the old  link</li>
 <dd><p>Create an update-parent operation.</p>
 <p>Update-parent operations indicate that a certain profile will change
 its parent.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>profilename</strong> (<em>str</em>) – The name of the to be updated profile</li>
-<li><strong>parentname</strong> (<em>str</em>) – The name of the new parent of the profile. If
-<cite>None</cite> it will be a root profile from now on.</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profilename</strong> (<em>str</em>) – The name of the to be updated profile</p></li>
+<li><p><strong>parentname</strong> (<em>str</em>) – The name of the new parent of the profile. If
+<cite>None</cite> it will be a root profile from now on.</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -266,14 +227,11 @@ its parent.</p>
 updated. This will be - for example - evaluated by the
 ExecuteInterpreter to update the changed-date of a profile in the
 installed file.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profilename</strong> (<em>str</em>) – The name of the to be updated profile</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>profilename</strong> (<em>str</em>) – The name of the to be updated profile</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -290,70 +248,55 @@ all operations to resolve the differences between those.</p>
 <code class="descname">profilenames</code><a class="headerlink" href="#differencesolver.DiffSolver.profilenames" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of names of all profiles that is used
 for solving</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">List</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.installed">
 <code class="descname">installed</code><a class="headerlink" href="#differencesolver.DiffSolver.installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>The installed-file that is used for solving</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Dict</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.difflog">
 <code class="descname">difflog</code><a class="headerlink" href="#differencesolver.DiffSolver.difflog" title="Permalink to this definition">¶</a></dt>
 <dd><p>The resulting difflog</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#differencesolver.DiffLog" title="differencesolver.DiffLog">DiffLog</a></td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#differencesolver.DiffLog" title="differencesolver.DiffLog">DiffLog</a></p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.default_options">
 <code class="descname">default_options</code><a class="headerlink" href="#differencesolver.DiffSolver.default_options" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default options that the profiles will use</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Dict</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>Dict</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.default_dir">
 <code class="descname">default_dir</code><a class="headerlink" href="#differencesolver.DiffSolver.default_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default directory that profiles start in</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="attribute">
@@ -361,14 +304,11 @@ for solving</p>
 <code class="descname">parent_arg</code><a class="headerlink" href="#differencesolver.DiffSolver.parent_arg" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the parent that all profiles will change
 its parent to (only set if <code class="docutils literal notranslate"><span class="pre">--parent</span></code> was specified)</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -385,23 +325,19 @@ profile with their subprofiles separately.</p>
 <dd><p>Resolves the differences between a single profile and the installed
 ones and appends the difflog for those. Calls itself recursively for
 all subprofiles.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>profile_dict</strong> (<em>Dict</em>) – The result of an executed profile that will be
-compared against the installed-file</li>
-<li><strong>all_profilenames</strong> (<em>List</em>) – A list with all profile names (including
-all sub- and root-profiles</li>
-<li><strong>parent_name</strong> (<em>str</em>) – The name of the profiles (new) parent. If
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>profile_dict</strong> (<em>Dict</em>) – The result of an executed profile that will be
+compared against the installed-file</p></li>
+<li><p><strong>all_profilenames</strong> (<em>List</em>) – A list with all profile names (including
+all sub- and root-profiles</p></li>
+<li><p><strong>parent_name</strong> (<em>str</em>) – The name of the profiles (new) parent. If
 parent_name is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the profile is treated as a root
-profile</li>
+profile</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -410,14 +346,11 @@ profile</li>
 <dd><p>Generate operations to remove a single installed profile.</p>
 <p>Appends to difflog that we want to remove a profile,
 all it’s subprofiles and all their links.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profile_name</strong> (<em>str</em>) – Name of the profile that will be removed</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>profile_name</strong> (<em>str</em>) – Name of the profile that will be removed</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
@@ -426,51 +359,42 @@ all it’s subprofiles and all their links.</p>
 <dd><p>Generates operations to remove all installed profiles of
 <code class="docutils literal notranslate"><span class="pre">profilelist</span></code>.</p>
 <p>Skips profiles that are not installed.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profilelist</strong> (<em>List</em>) – A list of names of profiles that will be
-unlinked</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>profilelist</strong> (<em>List</em>) – A list of names of profiles that will be
+unlinked</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencesolver.DiffSolver.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor. Initializes attributes from commandline arguments.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>installed</strong> (<em>Dict</em>) – The installed-file that is used for solving</li>
-<li><strong>args</strong> (<em>argparse</em>) – The parsed arguments</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>installed</strong> (<em>Dict</em>) – The installed-file that is used for solving</p></li>
+<li><p><strong>args</strong> (<em>argparse</em>) – The parsed arguments</p></li>
 </ul>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencesolver.DiffSolver.solve">
 <code class="descname">solve</code><span class="sig-paren">(</span><em>link</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver.solve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start solving differences.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>link</strong> (<em>bool</em>) – True, if this an update. False if all links shall be
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>link</strong> (<em>bool</em>) – True, if this an update. False if all links shall be
 removed (Yes, I know that’s not intuitive but it wont stay like
-this).</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>DiffLog</em> – The resulting DiffLog</td>
-</tr>
-</tbody>
-</table>
+this).</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>DiffLog</em> – The resulting DiffLog</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -498,7 +422,7 @@ this).</td>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../contributing.html">Contributing Guide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
@@ -525,8 +449,6 @@ this).</td>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -547,7 +469,7 @@ this).</td>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
