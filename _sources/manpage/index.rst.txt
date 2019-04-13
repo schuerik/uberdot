@@ -10,3 +10,4 @@ or user level. It is used to set up devices and keep their configuration up-to-d
 
    ../usage/commandline-interface.rst
    ../usage/commands.rst
+   ../usage/info-module.rst

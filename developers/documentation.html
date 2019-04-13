@@ -58,8 +58,11 @@ manual with <code class="docutils literal notranslate"><span class="pre">docs/sp
 </div>
 <div class="section" id="generating-documentation">
 <h2>Generating documentation<a class="headerlink" href="#generating-documentation" title="Permalink to this headline">¶</a></h2>
-<p>You can build the documentation locally by doing:</p>
+<p>To generate the documentation locally on your device you will need to install Sphinx
+and the autodoc plugin. To do so, you can use pip:</p>
+<p>Then you can build the documentation with:</p>
 <p>And open it directly in your favorite web browser:</p>
+<p>The same goes for the man page:</p>
 <p>If you delete or rename file you might want to do a clean up of the build directory:</p>
 </div>
 <div class="section" id="deploying">
@@ -69,6 +72,8 @@ request to verify it builds without errors. When your pull request is merged
 into master, Travis will deploy <code class="docutils literal notranslate"><span class="pre">docs/sphinx/build/html/</span></code> to the gh-pages branch,
 which is used to host the documentation.
 If there are changes to the man page, Travis will commit and push them to the master.</p>
+<p>Note: While the man page build is tracked/checked into git, the html documentation is
+not checked in and only available at the gh-pages branch.</p>
 </div>
 </div>
 
