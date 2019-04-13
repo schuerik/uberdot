@@ -33,42 +33,42 @@ Generating documentation
 To generate the documentation locally on your device you will need to install Sphinx
 and the autodoc plugin. To do so, you can use pip:
 
-.. code: bash
+.. code:: bash
 
-    pip install sphinx autodoc
+    $ pip install sphinx autodoc
 
 Then you can build the documentation with:
 
-.. code: bash
+.. code:: bash
 
-    cd docs/sphinx
-    make html
+    $ cd docs/sphinx
+    $ make html
 
 And open it directly in your favorite web browser:
 
-.. code: bash
+.. code:: bash
 
-    firefox build/html/index.html
+    $ firefox build/html/index.html
 
 The same goes for the man page:
 
-.. code: bash
+.. code:: bash
 
-    cd docs/sphinx
-    make man
+    $ cd docs/sphinx
+    $ make man
 
-    man -l build/man/dotmanager.1
+    $ man -l build/man/dotmanager.1
 
 If you delete or rename file you might want to do a clean up of the build directory:
 
-.. code: bash
+.. code:: bash
 
-    cd docs/sphinx
+    $ cd docs/sphinx
 
-    make clean-html  # Clean only the html build
-    make clean-man  # Clean only the man page build
+    $ make clean-html  # Clean only the html build
+    $ make clean-man  # Clean only the man page build
 
-    make clean  # Clean all builds
+    $ make clean  # Clean all builds
 
 
 Deploying

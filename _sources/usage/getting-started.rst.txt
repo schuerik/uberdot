@@ -25,21 +25,21 @@ First clone the repository:
 
 .. code:: bash
 
-    git clone https://github.com/RickestRickSanchez/dotmanager.git
+    $ git clone https://github.com/RickestRickSanchez/dotmanager.git
 
 Then install dependencies:
 
 .. code:: bash
 
-    sudo apt-get install python3
+    $ sudo apt-get install python3
     # if you want to use encryption features
-    sudo apt-get install python3 gnupg
+    $ sudo apt-get install python3 gnupg
 
 You can run
 
 .. code:: bash
 
-    ./dotmanager/test/regressiontest.py
+    $ ./dotmanager/test/regressiontest.py
 
 to verify that Dotmanager runs correctly on your system.
 

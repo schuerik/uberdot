@@ -60,10 +60,34 @@ manual with <code class="docutils literal notranslate"><span class="pre">docs/sp
 <h2>Generating documentation<a class="headerlink" href="#generating-documentation" title="Permalink to this headline">¶</a></h2>
 <p>To generate the documentation locally on your device you will need to install Sphinx
 and the autodoc plugin. To do so, you can use pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install sphinx autodoc
+</pre></div>
+</div>
 <p>Then you can build the documentation with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs/sphinx
+$ make html
+</pre></div>
+</div>
 <p>And open it directly in your favorite web browser:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ firefox build/html/index.html
+</pre></div>
+</div>
 <p>The same goes for the man page:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs/sphinx
+$ make man
+
+$ man -l build/man/dotmanager.1
+</pre></div>
+</div>
 <p>If you delete or rename file you might want to do a clean up of the build directory:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> docs/sphinx
+
+$ make clean-html  <span class="c1"># Clean only the html build</span>
+$ make clean-man  <span class="c1"># Clean only the man page build</span>
+
+$ make clean  <span class="c1"># Clean all builds</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="deploying">
 <h2>Deploying<a class="headerlink" href="#deploying" title="Permalink to this headline">¶</a></h2>
