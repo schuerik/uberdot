@@ -2,6 +2,63 @@
 How to document Dotmanager
 ==========================
 
+The documentation and man page of Dotmanager are generated with Sphinx_. It consists of
+mainly two big parts. First the reference manual, which is generated from the
+source code, and second the user guides which are generated from the sphinx
+source directory.
+
+You will find most information on how to write documentation with Sphinx in
+their own documentation. This document covers only how Sphinx is set up in this
+project as well as building instructions.
 
 
-blladsj
+Structure / Set up
+==================
+
+- Sphinx is located at ``docs/sphinx/``.
+- All user guides are located at ``docs/sphinx/source/usage/``
+- All developer guides (except for CONTRIBUTING.rst) are located at
+  ``docs/sphinx/source/developers/``
+- The theme was modified to hide or highlight some information in the reference
+  manual with ``docs/sphinx/source/custom.css``
+- Sphinx uses the autodoc, napoleon and github pages plugin
+- The built html documentation can be found in ``docs/sphinx/build/html/``
+- The built man page can be found in ``docs/sphinx/build/man/``
+- The man page is built from a subset of user guides
+
+
+Generating documentation
+========================
+
+You can build the documentation locally by doing:
+
+.. code: bash
+
+    cd docs/sphinx
+    make html
+
+And open it directly in your favorite web browser:
+
+.. code: bash
+
+    firefox build/html/index.html
+
+If you delete or rename file you might want to do a clean up of the build directory:
+
+.. code: bash
+
+    cd docs/sphinx
+    make clean
+
+
+Deploying
+=========
+
+The documentation and man page will be automatically generated when you create a pull
+request to verify it builds without errors. When your pull request is merged
+into master, Travis will deploy ``docs/sphinx/build/html/`` to the gh-pages branch,
+which is used to host the documentation.
+If there are changes to the man page, Travis will commit and push them to the master.
+
+
+.. _Sphinx: https://github.com/RickestRickSanchez/dotmanager/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=

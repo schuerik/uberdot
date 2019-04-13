@@ -12,6 +12,12 @@ Built for version |version|
    developers/index.rst
 
 
+.. toctree::
+   :hidden:
+
+   manpage/index.rst
+
+
 Indices and tables
 ==================
 

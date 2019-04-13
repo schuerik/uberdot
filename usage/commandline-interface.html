@@ -90,15 +90,18 @@ about all installed profiles will be shown.</p></td>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>–directory
+<tr class="row-even"><td><p>–config CONFIG</p></td>
+<td><p>Use a different config file for this call</p></td>
+</tr>
+<tr class="row-odd"><td><p>–directory
 DIRECTORY</p></td>
 <td><p>Overwrites the default directory temporarily</p></td>
 </tr>
-<tr class="row-odd"><td><p>-d, –dry-run</p></td>
+<tr class="row-even"><td><p>-d, –dry-run</p></td>
 <td><p>Simulates the changes dotmanager would perform if
 executed without this flag</p></td>
 </tr>
-<tr class="row-even"><td><p>–dui</p></td>
+<tr class="row-odd"><td><p>–dui</p></td>
 <td><p>Use an alternative startegy to install profiles
 and links. The default strategy will do this by
 recursively go through the profiles and
@@ -111,34 +114,34 @@ solved by this strategy but it has the downside
 that the output isn’t that clear as the normal
 strategy.</p></td>
 </tr>
-<tr class="row-odd"><td><p>-f, –force</p></td>
+<tr class="row-even"><td><p>-f, –force</p></td>
 <td><p>Overwrites files that already exists in your
 filesystem with your links</p></td>
 </tr>
-<tr class="row-even"><td><p>–log LOGFILE</p></td>
+<tr class="row-odd"><td><p>–log LOGFILE</p></td>
 <td><p>Log everything in a logfile (this also adds
 timestamps to the log messages)</p></td>
 </tr>
-<tr class="row-odd"><td><p>-m, –makedirs</p></td>
+<tr class="row-even"><td><p>-m, –makedirs</p></td>
 <td><p>Makes directories if they don’t exist. Any
 directory created inherits the owner of its
 parent directory.</p></td>
 </tr>
-<tr class="row-even"><td><p>–option KEY=VAL
+<tr class="row-odd"><td><p>–option KEY=VAL
 [KEY=VAL …]</p></td>
 <td><p>Let you temporarily overwrite the option section
 of your config file</p></td>
 </tr>
-<tr class="row-odd"><td><p>–parent PARENT</p></td>
+<tr class="row-even"><td><p>–parent PARENT</p></td>
 <td><p>Forces the profiles that you install/update to be
 installed as subprofile of PARENT. This should be
 only needed to solve certain conflicts.</p></td>
 </tr>
-<tr class="row-even"><td><p>–plain</p></td>
+<tr class="row-odd"><td><p>–plain</p></td>
 <td><p>Prints the <code class="docutils literal notranslate"><span class="pre">DiffLog</span></code> unformatted and exits.
 Only used for debugging purpose.</p></td>
 </tr>
-<tr class="row-odd"><td><p>-p,
+<tr class="row-even"><td><p>-p,
 –pretty-print</p></td>
 <td><p>Prints out the changes that dotmanager would
 perform if executed without this flag. This
@@ -151,10 +154,10 @@ now what would have happen to get a better
 understanding of the issue in your
 profile/workflow itself.</p></td>
 </tr>
-<tr class="row-even"><td><p>-q, –quiet</p></td>
+<tr class="row-odd"><td><p>-q, –quiet</p></td>
 <td><p>Print no log messages but warnings and errors</p></td>
 </tr>
-<tr class="row-odd"><td><p>–save SAVE</p></td>
+<tr class="row-even"><td><p>–save SAVE</p></td>
 <td><p>Use another <code class="docutils literal notranslate"><span class="pre">installed-file</span></code> for this
 execution. Can be used to install profiles
 multiple times on the same device. But be
@@ -164,16 +167,16 @@ to test the linking process in another directory
 or if those profiles are installed in completely
 different locations of your device</p></td>
 </tr>
-<tr class="row-even"><td><p>–silent</p></td>
+<tr class="row-odd"><td><p>–silent</p></td>
 <td><p>Print no log messages at all</p></td>
 </tr>
-<tr class="row-odd"><td><p>–superforce</p></td>
+<tr class="row-even"><td><p>–superforce</p></td>
 <td><p>Overwrites files and links that are blacklisted
 because it is considered dangerous to overwrite
 those files e.g. <code class="docutils literal notranslate"><span class="pre">/etc/hosts</span></code> or
 <code class="docutils literal notranslate"><span class="pre">/etc/passwd</span></code></p></td>
 </tr>
-<tr class="row-even"><td><p>-v, –verbose</p></td>
+<tr class="row-odd"><td><p>-v, –verbose</p></td>
 <td><p>Shows more information of the linking process and
 a stacktrace when error occur</p></td>
 </tr>
@@ -218,6 +221,9 @@ python class names are case-sensitive.</p>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
 </ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../manpage/index.html">Dotmanager Manual</a></li>
+</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
@@ -256,7 +262,7 @@ python class names are case-sensitive.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

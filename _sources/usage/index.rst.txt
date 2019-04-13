@@ -2,7 +2,8 @@
 Dotmanager Usage
 ****************
 
-The Dotmanager Usage manual covers all topics on how to use Dotmanager. All documents provide extensive examples and advises for best practice.
+The Dotmanager Usage manual covers all topics on how to use Dotmanager. All
+documents provide extensive examples and advises for best practice.
 
 .. toctree::
    :maxdepth: 1

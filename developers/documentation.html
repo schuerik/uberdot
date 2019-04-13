@@ -34,7 +34,42 @@
             
   <div class="section" id="how-to-document-dotmanager">
 <h1>How to document Dotmanager<a class="headerlink" href="#how-to-document-dotmanager" title="Permalink to this headline">¶</a></h1>
-<p>blladsj</p>
+<p>The documentation and man page of Dotmanager are generated with <a class="reference external" href="https://github.com/RickestRickSanchez/dotmanager/issues/new?assignees=&amp;labels=enhancement&amp;template=feature_request.md&amp;title=">Sphinx</a>. It consists of
+mainly two big parts. First the reference manual, which is generated from the
+source code, and second the user guides which are generated from the sphinx
+source directory.</p>
+<p>You will find most information on how to write documentation with Sphinx in
+their own documentation. This document covers only how Sphinx is set up in this
+project as well as building instructions.</p>
+<div class="section" id="structure-set-up">
+<h2>Structure / Set up<a class="headerlink" href="#structure-set-up" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Sphinx is located at <code class="docutils literal notranslate"><span class="pre">docs/sphinx/</span></code>.</p></li>
+<li><p>All user guides are located at <code class="docutils literal notranslate"><span class="pre">docs/sphinx/source/usage/</span></code></p></li>
+<li><p>All developer guides (except for CONTRIBUTING.rst) are located at
+<code class="docutils literal notranslate"><span class="pre">docs/sphinx/source/developers/</span></code></p></li>
+<li><p>The theme was modified to hide or highlight some information in the reference
+manual with <code class="docutils literal notranslate"><span class="pre">docs/sphinx/source/custom.css</span></code></p></li>
+<li><p>Sphinx uses the autodoc, napoleon and github pages plugin</p></li>
+<li><p>The built html documentation can be found in <code class="docutils literal notranslate"><span class="pre">docs/sphinx/build/html/</span></code></p></li>
+<li><p>The built man page can be found in <code class="docutils literal notranslate"><span class="pre">docs/sphinx/build/man/</span></code></p></li>
+<li><p>The man page is built from a subset of user guides</p></li>
+</ul>
+</div>
+<div class="section" id="generating-documentation">
+<h2>Generating documentation<a class="headerlink" href="#generating-documentation" title="Permalink to this headline">¶</a></h2>
+<p>You can build the documentation locally by doing:</p>
+<p>And open it directly in your favorite web browser:</p>
+<p>If you delete or rename file you might want to do a clean up of the build directory:</p>
+</div>
+<div class="section" id="deploying">
+<h2>Deploying<a class="headerlink" href="#deploying" title="Permalink to this headline">¶</a></h2>
+<p>The documentation and man page will be automatically generated when you create a pull
+request to verify it builds without errors. When your pull request is merged
+into master, Travis will deploy <code class="docutils literal notranslate"><span class="pre">docs/sphinx/build/html/</span></code> to the gh-pages branch,
+which is used to host the documentation.
+If there are changes to the man page, Travis will commit and push them to the master.</p>
+</div>
 </div>
 
 
@@ -64,6 +99,9 @@
 <li class="toctree-l2"><a class="reference internal" href="reference/index.html">Reference manual</a></li>
 </ul>
 </li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../manpage/index.html">Dotmanager Manual</a></li>
 </ul>
 
 <div class="relations">
@@ -103,7 +141,7 @@
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

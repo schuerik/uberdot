@@ -39,6 +39,8 @@ You can also choose a couple of optional arguments:
 +------------------+---------------------------------------------------+
 | Option           | Description                                       |
 +==================+===================================================+
+| –config CONFIG   | Use a different config file for this call         |
++------------------+---------------------------------------------------+
 | –directory       | Overwrites the default directory temporarily      |
 | DIRECTORY        |                                                   |
 +------------------+---------------------------------------------------+
