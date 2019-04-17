@@ -68,10 +68,10 @@ Otherwise information about all installed profiles will be shown.</p>
 <div class="section" id="options">
 <h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
 <dl class="option-list">
-<dt><kbd><span class="option">--config <var>CONFIG</var></span></kbd></dt>
+<dt><kbd><span class="option">--config <var>&lt;CONFIG&gt;</var></span></kbd></dt>
 <dd><p>Use a different config file for this call</p>
 </dd>
-<dt><kbd><span class="option">--directory <var>DIRECTORY</var></span></kbd></dt>
+<dt><kbd><span class="option">--directory <var>&lt;DIRECTORY&gt;</var></span></kbd></dt>
 <dd><p>Overwrites the default directory temporarily</p>
 </dd>
 <dt><kbd><span class="option">-d</span>, <span class="option">--dry-run</span></kbd></dt>
@@ -90,7 +90,7 @@ the output isn’t that clear as the normal strategy.</p>
 <dt><kbd><span class="option">-f</span>, <span class="option">--force</span></kbd></dt>
 <dd><p>Overwrites files that already exists in your filesystem with your links</p>
 </dd>
-<dt><kbd><span class="option">--l <var>LOGFILE</var></span></kbd></dt>
+<dt><kbd><span class="option">--log <var>&lt;LOGFILE&gt;</var></span></kbd></dt>
 <dd><p>Log everything in a logfile (this also adds
 timestamps to the log messages)</p>
 </dd>
@@ -98,13 +98,10 @@ timestamps to the log messages)</p>
 <dd><p>Makes directories if they don’t exist. Any directory created inherits the
 owner of its parent directory.</p>
 </dd>
-</dl>
-<p>–option <cite>KEY=VAL [KEY=VAL …]</cite></p>
-<blockquote>
-<div><p>Temporarily overwrite the option section of the config file</p>
-</div></blockquote>
-<dl class="option-list">
-<dt><kbd><span class="option">--parent <var>PARENT</var></span></kbd></dt>
+<dt><kbd><span class="option">--option <var>&lt;KEY=VAL…&gt;</var></span></kbd></dt>
+<dd><p>Temporarily overwrite the option section of the config file.</p>
+</dd>
+<dt><kbd><span class="option">--parent <var>&lt;PARENT&gt;</var></span></kbd></dt>
 <dd><p>Forces the profiles that you install/update to be installed as subprofile
 of PARENT. This should be only needed to solve certain conflicts.</p>
 </dd>
@@ -123,7 +120,7 @@ better understanding of the issue in your profile/workflow itself.</p>
 <dt><kbd><span class="option">-q</span>, <span class="option">--quiet</span></kbd></dt>
 <dd><p>Print no log messages but warnings and errors</p>
 </dd>
-<dt><kbd><span class="option">--save <var>SAVE</var></span></kbd></dt>
+<dt><kbd><span class="option">--save <var>&lt;SAVE&gt;</var></span></kbd></dt>
 <dd><p>Use another <code class="docutils literal notranslate"><span class="pre">installed-file</span></code> for this execution. Can be used to install
 profiles multiple times on the same device. But be carefully not fuck up
 your other installations of those profiles! This is mostly useful if you
@@ -135,7 +132,7 @@ are installed in completely different locations of your device</p>
 </dd>
 <dt><kbd><span class="option">--superforce</span></kbd></dt>
 <dd><p>Overwrites files and links that are blacklisted because it is considered
-dangerous to overwrite those files e.g. <code class="docutils literal notranslate"><span class="pre">/etc/hosts</span></code> or <code class="docutils literal notranslate"><span class="pre">/etc/passwd</span></code></p>
+dangerous to overwrite those files e.g. <code class="docutils literal notranslate"><span class="pre">/etc/hosts</span></code> or <code class="docutils literal notranslate"><span class="pre">/etc/passwd</span></code></p>
 </dd>
 <dt><kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></dt>
 <dd><p>Shows more information of the linking process and a stacktrace when error
