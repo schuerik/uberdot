@@ -2,12 +2,19 @@
 Dotmanager Manual
 *****************
 
+DESCRIPTION
+===========
+
 Dotmanager is a program to manage configuration files and symlinks on a system
 or user level. It is used to set up devices and keep their configuration up-to-date.
 
-.. toctree::
-   :maxdepth: 1
+.. include:: ../usage/commandline-interface.rst
+.. include:: ../usage/commands.rst
+.. include:: ../usage/info-module.rst
 
-   ../usage/commandline-interface.rst
-   ../usage/commands.rst
-   ../usage/info-module.rst
+
+NOTES
+=====
+
+Fur more information take a look at the documentation at
+https://rickestricksanchez.github.io/dotmanager/.

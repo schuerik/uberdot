@@ -34,157 +34,121 @@
             
   <div class="section" id="commandline-interface">
 <h1>Commandline Interface<a class="headerlink" href="#commandline-interface" title="Permalink to this headline">¶</a></h1>
-<p>This document explains all commandline options in detail.</p>
-<p>The general syntax is:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dotmgr</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">--</span><span class="n">directory</span> <span class="n">DIRECTORY</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">d</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">dui</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">f</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">m</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">option</span> <span class="n">KEY</span><span class="o">=</span><span class="n">VAL</span> <span class="p">[</span><span class="n">KEY</span><span class="o">=</span><span class="n">VAL</span> <span class="o">...</span><span class="p">]]</span> <span class="p">[</span><span class="o">--</span><span class="n">parent</span> <span class="n">PARENT</span><span class="p">]</span>
-          <span class="p">[</span><span class="o">-</span><span class="n">p</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">save</span> <span class="n">SAVE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">superforce</span><span class="p">]</span> <span class="p">[</span><span class="o">-</span><span class="n">v</span><span class="p">]</span> <span class="p">(</span><span class="o">-</span><span class="n">h</span> <span class="o">|</span> <span class="o">-</span><span class="n">i</span> <span class="o">|</span> <span class="o">-</span><span class="n">u</span> <span class="o">|</span> <span class="o">-</span><span class="n">s</span> <span class="o">|</span> <span class="o">--</span><span class="n">version</span><span class="p">)</span> <span class="p">[</span><span class="n">profiles</span> <span class="p">[</span><span class="n">profiles</span> <span class="o">...</span><span class="p">]]</span>
+<div class="section" id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dotmgr</span><span class="o">.</span><span class="n">py</span> <span class="n">MODE</span> <span class="p">[</span><span class="n">OPTIONS</span><span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="n">PROFILES</span><span class="o">...</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>There are 5 modes of which you have to specify exactly one:</p>
-<table class="docutils align-center">
-<colgroup>
-<col style="width: 17%" />
-<col style="width: 83%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Mode</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>-h, –help</p></td>
-<td><p>Shows a short help message with all options and modes
-and exits</p></td>
-</tr>
-<tr class="row-odd"><td><p>–version</p></td>
-<td><p>Shows the version of dotmanager and exits</p></td>
-</tr>
-<tr class="row-even"><td><p>-i,
-–install</p></td>
-<td><p>Installs every specified profile. If a profile is
-already installed it will be updated instead of
-installed.</p></td>
-</tr>
-<tr class="row-odd"><td><p>-u,
-–uninstall</p></td>
-<td><p>Uninstalls every specified profile. If a profile is not
-installed, dotmanager will skip this profile.</p></td>
-</tr>
-<tr class="row-even"><td><p>-s, –show</p></td>
-<td><p>Shows information about installed profiles and links.
-If you specify <code class="docutils literal notranslate"><span class="pre">profiles</span></code> this will show only
-information about those profiles. Otherwise information
-about all installed profiles will be shown.</p></td>
-</tr>
-</tbody>
-</table>
-<p>You can also choose a couple of optional arguments:</p>
-<table class="docutils align-center">
-<colgroup>
-<col style="width: 26%" />
-<col style="width: 74%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Option</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>–config CONFIG</p></td>
-<td><p>Use a different config file for this call</p></td>
-</tr>
-<tr class="row-odd"><td><p>–directory
-DIRECTORY</p></td>
-<td><p>Overwrites the default directory temporarily</p></td>
-</tr>
-<tr class="row-even"><td><p>-d, –dry-run</p></td>
-<td><p>Simulates the changes dotmanager would perform if
-executed without this flag</p></td>
-</tr>
-<tr class="row-odd"><td><p>–dui</p></td>
-<td><p>Use an alternative startegy to install profiles
-and links. The default strategy will do this by
-recursively go through the profiles and
-create/update all links one by one. This can
-cause conflicts if e.g. a link is moved from one
-to another profile. This strategy installs links
-by first doing all removals, then all updates and
-last all new installs. Most conflicts should be
-solved by this strategy but it has the downside
-that the output isn’t that clear as the normal
-strategy.</p></td>
-</tr>
-<tr class="row-even"><td><p>-f, –force</p></td>
-<td><p>Overwrites files that already exists in your
-filesystem with your links</p></td>
-</tr>
-<tr class="row-odd"><td><p>–log LOGFILE</p></td>
-<td><p>Log everything in a logfile (this also adds
-timestamps to the log messages)</p></td>
-</tr>
-<tr class="row-even"><td><p>-m, –makedirs</p></td>
-<td><p>Makes directories if they don’t exist. Any
-directory created inherits the owner of its
-parent directory.</p></td>
-</tr>
-<tr class="row-odd"><td><p>–option KEY=VAL
-[KEY=VAL …]</p></td>
-<td><p>Let you temporarily overwrite the option section
-of your config file</p></td>
-</tr>
-<tr class="row-even"><td><p>–parent PARENT</p></td>
-<td><p>Forces the profiles that you install/update to be
-installed as subprofile of PARENT. This should be
-only needed to solve certain conflicts.</p></td>
-</tr>
-<tr class="row-odd"><td><p>–plain</p></td>
-<td><p>Prints the <code class="docutils literal notranslate"><span class="pre">DiffLog</span></code> unformatted and exits.
-Only used for debugging purpose.</p></td>
-</tr>
-<tr class="row-even"><td><p>-p,
-–pretty-print</p></td>
-<td><p>Prints out the changes that dotmanager would
-perform if executed without this flag. This
-differs from <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> in that way that it
-won’t do any checks on the profiles or
-filesystem, so <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> is almost always to
-prefer. The only use-case is if your profiles
-will raise an error and aborts but you want to
-now what would have happen to get a better
-understanding of the issue in your
-profile/workflow itself.</p></td>
-</tr>
-<tr class="row-odd"><td><p>-q, –quiet</p></td>
-<td><p>Print no log messages but warnings and errors</p></td>
-</tr>
-<tr class="row-even"><td><p>–save SAVE</p></td>
-<td><p>Use another <code class="docutils literal notranslate"><span class="pre">installed-file</span></code> for this
-execution. Can be used to install profiles
-multiple times on the same device. But be
-carefully not fuck up your other installations of
-those profiles! This is mostly useful if you want
-to test the linking process in another directory
-or if those profiles are installed in completely
-different locations of your device</p></td>
-</tr>
-<tr class="row-odd"><td><p>–silent</p></td>
-<td><p>Print no log messages at all</p></td>
-</tr>
-<tr class="row-even"><td><p>–superforce</p></td>
-<td><p>Overwrites files and links that are blacklisted
-because it is considered dangerous to overwrite
-those files e.g. <code class="docutils literal notranslate"><span class="pre">/etc/hosts</span></code> or
-<code class="docutils literal notranslate"><span class="pre">/etc/passwd</span></code></p></td>
-</tr>
-<tr class="row-odd"><td><p>-v, –verbose</p></td>
-<td><p>Shows more information of the linking process and
-a stacktrace when error occur</p></td>
-</tr>
-</tbody>
-</table>
-<p><code class="docutils literal notranslate"><span class="pre">profiles</span></code> is a space seperated list of profiles. Any profile will be
-identified by its class name, not by its filename. Don’t forget that
-python class names are case-sensitive.</p>
+</div>
+<div class="section" id="modes">
+<h2>Modes<a class="headerlink" href="#modes" title="Permalink to this headline">¶</a></h2>
+<p>One - and only one - of the following modes has to be chosen:</p>
+<dl class="option-list">
+<dt><kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></dt>
+<dd><p>Show a short help message with all options and modes and exits</p>
+</dd>
+<dt><kbd><span class="option">--version</span></kbd></dt>
+<dd><p>Display the version of dotmanager and exits</p>
+</dd>
+<dt><kbd><span class="option">-i</span>, <span class="option">--install</span></kbd></dt>
+<dd><p>Installs every specified profile. If a profile is already installed
+it will be updated instead of installed.</p>
+</dd>
+<dt><kbd><span class="option">-u</span>, <span class="option">--uninstall</span></kbd></dt>
+<dd><p>Uninstalls every specified profile. If a profile is not installed,
+dotmanager will skip this profile.</p>
+</dd>
+<dt><kbd><span class="option">-s</span>, <span class="option">--show</span></kbd></dt>
+<dd><p>Shows information about installed profiles and links. If you specify
+<code class="docutils literal notranslate"><span class="pre">PROFILES</span></code> this will show only information about those profiles.
+Otherwise information about all installed profiles will be shown.</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<dl class="option-list">
+<dt><kbd><span class="option">--config <var>CONFIG</var></span></kbd></dt>
+<dd><p>Use a different config file for this call</p>
+</dd>
+<dt><kbd><span class="option">--directory <var>DIRECTORY</var></span></kbd></dt>
+<dd><p>Overwrites the default directory temporarily</p>
+</dd>
+<dt><kbd><span class="option">-d</span>, <span class="option">--dry-run</span></kbd></dt>
+<dd><p>Simulates the changes dotmanager would perform if executed without this
+flag</p>
+</dd>
+<dt><kbd><span class="option">--dui</span></kbd></dt>
+<dd><p>Use an alternative startegy to install profiles and links. The default
+strategy will do this by recursively go through the profiles and
+create/update all links one by one. This can cause conflicts if e.g. a link
+is moved from one to another profile. This strategy installs links by first
+doing all removals, then all updates and last all new installs. Most
+conflicts should be solved by this strategy but it has the downside that
+the output isn’t that clear as the normal strategy.</p>
+</dd>
+<dt><kbd><span class="option">-f</span>, <span class="option">--force</span></kbd></dt>
+<dd><p>Overwrites files that already exists in your filesystem with your links</p>
+</dd>
+<dt><kbd><span class="option">--l <var>LOGFILE</var></span></kbd></dt>
+<dd><p>Log everything in a logfile (this also adds
+timestamps to the log messages)</p>
+</dd>
+<dt><kbd><span class="option">-m</span>, <span class="option">--makedirs</span></kbd></dt>
+<dd><p>Makes directories if they don’t exist. Any directory created inherits the
+owner of its parent directory.</p>
+</dd>
+</dl>
+<p>–option <cite>KEY=VAL [KEY=VAL …]</cite></p>
+<blockquote>
+<div><p>Temporarily overwrite the option section of the config file</p>
+</div></blockquote>
+<dl class="option-list">
+<dt><kbd><span class="option">--parent <var>PARENT</var></span></kbd></dt>
+<dd><p>Forces the profiles that you install/update to be installed as subprofile
+of PARENT. This should be only needed to solve certain conflicts.</p>
+</dd>
+<dt><kbd><span class="option">--print</span></kbd></dt>
+<dd><p>Prints the <code class="docutils literal notranslate"><span class="pre">DiffLog</span></code> unformatted and exits. Only useful for debugging
+purpose.</p>
+</dd>
+<dt><kbd><span class="option">-p</span>, <span class="option">--pretty-print</span></kbd></dt>
+<dd><p>Prints out the changes that dotmanager would perform if executed without
+this flag. This differs from <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> in that way that it won’t do
+any checks on the profiles or filesystem, so <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> is almost
+always to prefer. The only use-case is if your profiles will raise an
+error and aborts but you want to now what would have happen to get a
+better understanding of the issue in your profile/workflow itself.</p>
+</dd>
+<dt><kbd><span class="option">-q</span>, <span class="option">--quiet</span></kbd></dt>
+<dd><p>Print no log messages but warnings and errors</p>
+</dd>
+<dt><kbd><span class="option">--save <var>SAVE</var></span></kbd></dt>
+<dd><p>Use another <code class="docutils literal notranslate"><span class="pre">installed-file</span></code> for this execution. Can be used to install
+profiles multiple times on the same device. But be carefully not fuck up
+your other installations of those profiles! This is mostly useful if you
+want to test the linking process in another directory or if those profiles
+are installed in completely different locations of your device</p>
+</dd>
+<dt><kbd><span class="option">--silent</span></kbd></dt>
+<dd><p>Print no log messages at all</p>
+</dd>
+<dt><kbd><span class="option">--superforce</span></kbd></dt>
+<dd><p>Overwrites files and links that are blacklisted because it is considered
+dangerous to overwrite those files e.g. <code class="docutils literal notranslate"><span class="pre">/etc/hosts</span></code> or <code class="docutils literal notranslate"><span class="pre">/etc/passwd</span></code></p>
+</dd>
+<dt><kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></dt>
+<dd><p>Shows more information of the linking process and a stacktrace when error
+occur</p>
+</dd>
+</dl>
+</div>
+<div class="section" id="profiles">
+<h2>Profiles<a class="headerlink" href="#profiles" title="Permalink to this headline">¶</a></h2>
+<p>This is a space seperated list of profiles. Any profile will be identified by
+its class name, not by its filename. Don’t forget that python class names are
+case-sensitive.</p>
+</div>
 </div>
 
 
@@ -223,6 +187,7 @@ python class names are case-sensitive.</p>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../manpage/index.html">Dotmanager Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manpage/index.html#commandline-interface">Commandline Interface</a></li>
 </ul>
 
 <div class="relations">

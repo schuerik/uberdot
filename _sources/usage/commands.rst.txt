@@ -1,6 +1,5 @@
-********
 Commands
-********
+========
 
 Profiles provide several so called “commands” that you will use to
 create links, set options, decrypt dotfiles and much more. They are
@@ -10,7 +9,7 @@ function. This document explains all those commands and gives examples on
 how to use them.
 
 cd(Path)
-========
+--------
 
 This command switches the directory like you are used to in UNIX. You
 can use relative paths or absolute paths and make use of environment
@@ -31,7 +30,7 @@ switched the directory will be linked relative to this directory.
 
 
 link(\*Dotfilenames, \*\*Options)
-=================================
+---------------------------------
 
 This command takes a list of dotfile names and creates a symlink for
 every single one of them in the current directory. It uses the same
@@ -65,7 +64,7 @@ This command also accepts dynamicfiles instead of filenames.
 
 
 opt(\*\*Options)
-================
+----------------
 
 There are several options that you can pass to functions like
 ``link()`` to control how links are set. The ``opt()`` command will
@@ -115,7 +114,7 @@ options. This is a list of all options available:
 
 
 default(\*Optionnames)
-======================
+----------------------
 
 This command accepts a list of options and sets them back to default.
 If no options is provided it sets all options back to default.
@@ -131,7 +130,7 @@ If no options is provided it sets all options back to default.
 
 
 links(Pattern, \*\*Options)
-===========================
+---------------------------
 
 This command works like ``link()`` but instead of a list of filenames
 it receives a regular expression. All dotfiles will be linked that
@@ -159,7 +158,7 @@ decrypt every file that matches link, when set to True.
 
 
 extlink(Path, \*\*Options)
-==========================
+--------------------------
 
 Creates a link to any file or directory by specifying a path. You can
 use a relative path if you want, but an absolute path is considered
@@ -176,7 +175,7 @@ safer in this case. Otherwise it behaves like the ``link()`` command.
 
 
 tags(\*tags)
-============
+------------
 
 Takes a list of tags and adds all of them. A tag is just any string of
 characters (except for ‘%’) that you can set as you like. It will be
@@ -231,19 +230,19 @@ a few minutes.
 
 
 rmtags(\*tags)
-==============
+--------------
 
 Takes a list of tags. Removes all of them if they are set.
 
 
 has_tag(tags)
-=============
+-------------
 
 Takes a tag and returns if it is set.
 
 
 subprof(\*profiles)
-===================
+-------------------
 This command accepts a list of profilenames that will be executed as
 subprofiles. A subprofile takes all properties (options, tags and the
 current working directory) of its parent at the time this command is
@@ -270,7 +269,7 @@ directory was set ``Main`` starts in your home-directory. This means
 
 
 decrypt(Dotfilename)
-====================
+--------------------
 
 This command takes a single filename and searches for it like
 ``link()``. It will decrypt it and return the decrypted file as a
@@ -309,7 +308,7 @@ list comprehension. This will decrypt ``key1``, ``key2``, ``key3`` and
 
 
 merge(name, \*Dotfilenames)
-===========================
+---------------------------
 
 This command lets you merge some dotfiles to a single big dotfile.
 That is useful if you want to split a configuration file that doesn’t
@@ -332,7 +331,7 @@ this creates a symlink to this DynamicFile in your home directory called
 
 
 pipe(Dotfilename, shell_command)
-================================
+--------------------------------
 
 This command lets you execute any shell command on a dotfile before
 linking it by piping it into the specified shell command. It returns the

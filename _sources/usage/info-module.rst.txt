@@ -1,6 +1,5 @@
-***********
 Info module
-***********
+===========
 
 The info module provides a set of functions to get information about the
 system you are on. At the moment the following functions are
