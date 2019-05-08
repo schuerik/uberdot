@@ -35,29 +35,32 @@
   <div class="section" id="module-constants">
 <span id="constants"></span><h1>Constants<a class="headerlink" href="#module-constants" title="Permalink to this headline">¶</a></h1>
 <p>Provides constants, defaults and the ability to load configs or
-overwrite defaults for a specific configuration</p>
+overwrite defaults for a specific configuration.</p>
 <dl class="data">
 <dt id="constants.BACKUP_EXTENSION">
 <code class="descclassname">constants.</code><code class="descname">BACKUP_EXTENSION</code><em class="property"> = 'bak'</em><a class="headerlink" href="#constants.BACKUP_EXTENSION" title="Permalink to this definition">¶</a></dt>
-<dd><p>The extension that will be used for backup files</p>
+<dd><p>The extension that will be used for backup files. Default is <code class="docutils literal notranslate"><span class="pre">bak</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.CFG_FILES">
 <code class="descclassname">constants.</code><code class="descname">CFG_FILES</code><em class="property"> = []</em><a class="headerlink" href="#constants.CFG_FILES" title="Permalink to this definition">¶</a></dt>
-<dd><p>A list with all configuration files that will be used to set constants</p>
+<dd><p>A list with all configuration files that will be used to set constants. All
+settings of all configuration files will be used. If a specific setting is set
+in more than one configuration file, the setting from the configuration file
+with higher index will be prefered.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.COLOR">
 <code class="descclassname">constants.</code><code class="descname">COLOR</code><em class="property"> = True</em><a class="headerlink" href="#constants.COLOR" title="Permalink to this definition">¶</a></dt>
-<dd><p>True, if output should be colored</p>
+<dd><p>True, if output should be colored. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.CONFIG_SEARCH_PATHS">
 <code class="descclassname">constants.</code><code class="descname">CONFIG_SEARCH_PATHS</code><em class="property"> = ['/home/travis/build/RickestRickSanchez/dotmanager/data', '/etc/dotmanager', '/home/travis/.config/dotmanager']</em><a class="headerlink" href="#constants.CONFIG_SEARCH_PATHS" title="Permalink to this definition">¶</a></dt>
-<dd><p>A list with paths that will be used to search for configuration files</p>
+<dd><p>A list with paths that will be used to search for configuration files.</p>
 </dd></dl>
 
 <dl class="data">
@@ -87,7 +90,7 @@ overwrite defaults for a specific configuration</p>
 <dl class="data">
 <dt id="constants.DUISTRATEGY">
 <code class="descclassname">constants.</code><code class="descname">DUISTRATEGY</code><em class="property"> = False</em><a class="headerlink" href="#constants.DUISTRATEGY" title="Permalink to this definition">¶</a></dt>
-<dd><p>True, if –dui should be set as default</p>
+<dd><p>True, if –dui should be set as default. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
@@ -99,7 +102,7 @@ overwrite defaults for a specific configuration</p>
 <dl class="data">
 <dt id="constants.FORCE">
 <code class="descclassname">constants.</code><code class="descname">FORCE</code><em class="property"> = False</em><a class="headerlink" href="#constants.FORCE" title="Permalink to this definition">¶</a></dt>
-<dd><p>True, if –force should be set as default</p>
+<dd><p>True, if –force should be set as default. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
@@ -115,9 +118,16 @@ overwrite defaults for a specific configuration</p>
 </dd></dl>
 
 <dl class="data">
+<dt id="constants.LOGGINGLEVEL">
+<code class="descclassname">constants.</code><code class="descname">LOGGINGLEVEL</code><em class="property"> = 'INFO'</em><a class="headerlink" href="#constants.LOGGINGLEVEL" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current logger level. Default is <code class="docutils literal notranslate"><span class="pre">INFO</span></code>.</p>
+</dd></dl>
+
+<dl class="data">
 <dt id="constants.MAKEDIRS">
 <code class="descclassname">constants.</code><code class="descname">MAKEDIRS</code><em class="property"> = False</em><a class="headerlink" href="#constants.MAKEDIRS" title="Permalink to this definition">¶</a></dt>
-<dd><p>True, if –makedirs should be set as default</p>
+<dd><p>True, if Dotmanager shall create directories if they don’t exist.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
@@ -133,12 +143,6 @@ overwrite defaults for a specific configuration</p>
 </dd></dl>
 
 <dl class="data">
-<dt id="constants.VERBOSE">
-<code class="descclassname">constants.</code><code class="descname">VERBOSE</code><em class="property"> = False</em><a class="headerlink" href="#constants.VERBOSE" title="Permalink to this definition">¶</a></dt>
-<dd><p>True, if –verbose should be set as default</p>
-</dd></dl>
-
-<dl class="data">
 <dt id="constants.VERSION">
 <code class="descclassname">constants.</code><code class="descname">VERSION</code><em class="property"> = '1.10.2_3'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd><p>Version numbers, seperated by underscore.</p>
@@ -151,7 +155,7 @@ determine compability of the Dotmanager with the installed-file.</p>
 <dt id="constants.loadconfig">
 <code class="descclassname">constants.</code><code class="descname">loadconfig</code><span class="sig-paren">(</span><em>config_file</em>, <em>installed_filename='default'</em><span class="sig-paren">)</span><a class="headerlink" href="#constants.loadconfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads constants from the config files.</p>
-<p>This will load all configs from <cite>CFG_FILES</cite> plus <cite>config_file</cite> if provided.
+<p>This will load all configs from <cite>CFG_FILES</cite> or <cite>config_file</cite> if provided.
 The name of the installed-file will be used to load installed-file specific
 values.</p>
 <dl class="field-list simple">

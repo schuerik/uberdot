@@ -2,14 +2,14 @@
 How to document Dotmanager
 ==========================
 
-The documentation and man page of Dotmanager are generated with Sphinx_. It consists of
-mainly two big parts. First the reference manual, which is generated from the
-source code, and second the user guides which are generated from the sphinx
-source directory.
+The documentation, reference manual and man page of Dotmanager are generated with
+Sphinx_. It consists of mainly two big parts. First the reference manual, which
+is generated from the source code, and second the user guides which are generated
+from the sphinx source directory.
 
 You will find most information on how to write documentation with Sphinx in
 their own documentation. This document covers only how Sphinx is set up in this
-project as well as building instructions.
+project and explains the building process.
 
 
 Structure / Set up
@@ -21,7 +21,7 @@ Structure / Set up
   ``docs/sphinx/source/developers/``
 - The theme was modified to hide or highlight some information in the reference
   manual with ``docs/sphinx/source/custom.css``
-- Sphinx uses the autodoc, napoleon and github pages plugin
+- Sphinx is configured to use the autodoc, napoleon and github pages plugin
 - The built html documentation can be found in ``docs/sphinx/build/html/``
 - The built man page can be found in ``docs/sphinx/build/man/``
 - The man page is built from a subset of user guides
@@ -75,7 +75,7 @@ Deploying
 =========
 
 The documentation and man page will be automatically generated when you create a pull
-request to verify it builds without errors. When your pull request is merged
+request to verify if it builds without errors. When your pull request is merged
 into master, Travis will deploy ``docs/sphinx/build/html/`` to the gh-pages branch,
 which is used to host the documentation.
 If there are changes to the man page, Travis will commit and push them to the master.
@@ -84,4 +84,4 @@ Note: While the man page build is tracked/checked into git, the html documentati
 not checked in and only available at the gh-pages branch.
 
 
-.. _Sphinx: https://github.com/RickestRickSanchez/dotmanager/issues/new?assignees=&labels=enhancement&template=feature_request.md&title=
+.. _Sphinx: https://www.sphinx-doc.org/en/master/

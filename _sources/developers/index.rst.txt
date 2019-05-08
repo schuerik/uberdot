@@ -2,8 +2,8 @@ For developers
 ==============
 
 This section collects all information for developers and people that want to contribute to Dotmanager or just want to dig deeper into how Dotmanager works.
-You can find a detailed contribution guide, as well as help to how write tests and documentation for Dotmanager. Furthermore you can find a full reference
-manual that explains all classes, functions and properties of Dotmanager.
+You can find a detailed contribution guide, as well as help on how to write tests and documentation for Dotmanager. Furthermore you can find a full reference
+manual for all classes, functions and properties of Dotmanager.
 
 .. toctree::
    :maxdepth: 2
