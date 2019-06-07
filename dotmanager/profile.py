@@ -19,21 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Diese Datei ist Teil von Dotmanger.
-#
-# Dotmanger ist Freie Software: Sie können es unter den Bedingungen
-# der GNU General Public License, wie von der Free Software Foundation,
-# Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
-# veröffentlichten Version, weiter verteilen und/oder modifizieren.
-#
-# Dotmanger wird in der Hoffnung, dass es nützlich sein wird, aber
-# OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
-# Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
-# Siehe die GNU General Public License für weitere Details.
-#
-# Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
-# Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
-#
 ###############################################################################
 
 
@@ -46,6 +31,7 @@ from dotmanager import constants
 from dotmanager.dynamicfile import *
 from dotmanager.errors import CustomError
 from dotmanager.errors import GenerationError
+from dotmanager.errors import FatalError
 from dotmanager.utils import expandvars
 from dotmanager.utils import expanduser
 from dotmanager.utils import find_target
@@ -55,24 +41,45 @@ from dotmanager.utils import log_warning
 from dotmanager.utils import normpath
 from dotmanager.utils import walk_dotfiles
 
-# The custom builtins that the profiles will implement
 CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink", "has_tag", "merge",
                    "default", "subprof", "tags", "rmtags", "decrypt", "pipe"]
+"""A list of custom builtins that the profiles will map its functions to before
+executing ``generate()``.
+
+This means that, if you want to use a function in ``generate()`` without the
+need to call it via ``self``, add the function name to this list.
+"""
+
 
 
 class Profile:
-    """This class provides the "API" for creating links.
-    It is also responsible for running a profile"""
+    """This class provides the "API" aka commands for creating links and stores
+    the state of the set options and directory.
+
+    Attributes:
+        __old_builtins (Dict): A backup of the overwritten builtins
+        name (str): Identifier/Class name of the profile
+        executed (bool): True, if a result was already generated
+        options (Dict): Stores options that will be set with ``opt()``
+            as well as the tags. None if this a root proifle.
+        directory (str): The directory that the profile is using as cwd.
+            None if this a root proifle.
+        parent (Profile): The parent profile. None if this a root proifle.
+        result (Dict): The result of ``generate()``. Contains name, parent,
+            generated links and the result of all subprofiles.
+    """
     def __init__(self, options=None, directory=None, parent=None):
+        """Constructor"""
         if options is None:
             options = dict(constants.DEFAULTS)
         if not directory:
             directory = constants.DIR_DEFAULT
+        self.__old_builtins = {}
         self.name = self.__class__.__name__
-        self.__execution_counter = 0
+        self.executed = False
+        self.builtins_overwritten = False
         self.options = options
         self.directory = directory
-        self.__old_builtins = {}
         self.parent = parent
         self.result = {
             "name": self.name,
@@ -81,66 +88,117 @@ class Profile:
             "profiles": []
         }
 
-    def __make_read_opt(self, kwargs):
-        """Create function that can lookup variables set in the profiles"""
+    def _make_read_opt(self, kwargs):
+        """Create function that can lookup options but prefers options set for
+        a concrete command.
+
+        Args:
+            kwargs (Dict): kwargs of a command
+        Returns:
+            function: A function that looks up and returns the value for a key
+            in kwargs. If the key is not in kwargs it uses ``self.options`` for
+            look up.
+        """
         def read_opt(opt_name):
             if opt_name in kwargs:
                 return kwargs[opt_name]
             return self.options[opt_name]
         return read_opt
 
-    def get(self):
-        """Creates a list of all links for this profile and all
-        subprofiles by calling generate()
-        DON'T use this from within a profile, only from outside!!"""
-        if self.__execution_counter > 0:
-            self.__raise_generation_error("A profile can be only generated " +
-                                          "one time to prevent side-effects!")
-        self.__execution_counter += 1
+    def generator(self):
+        """This is the wrapper for ``generate()``. It overwrites the builtins
+        and maps it own commands to them. ``generate()`` must not be called
+        without this wrapper.
+
+        `Do NOT call this from within the same profile, only from outside!!`
+
+        Returns:
+            Dict: The result dictionary ``self.result``
+        """
+        if self.executed:
+            self._gen_err("A profile can be only generated " +
+                           "one time to prevent side-effects!")
+        self.executed = True
         self.__set_builtins()
         try:
             self.generate()
         except Exception as err:
             if isinstance(err, CustomError):
                 raise
-            else:
-                msg = "An unkown error occured in your generate() function: "
-                self.__raise_generation_error(msg + type(err).__name__ +
-                                              ": " + str(err))
+            msg = "An unkown error occured in your generate() function: "
+            self._gen_err(msg + type(err).__name__ + ": " + str(err))
         self.__reset_builtins()
         return self.result
 
     def __set_builtins(self):
-        """Maps functions from self to builtins, so profiles don't
-        need to use "self" everytime"""
+        """Maps functions from ``CUSTOM_BUILTINS`` to builtins, so commands
+        don't need to be called using ``self`` everytime.
+        """
+        if self.builtins_overwritten:
+            raise FatalError("Builtins are already overwritten")
         for item in CUSTOM_BUILTINS:
             if item in builtins.__dict__:
                 self.__old_builtins[item] = builtins.__dict__[item]
             builtins.__dict__[item] = self.__getattribute__(item)
+        self.builtins_overwritten = True
 
     def __reset_builtins(self):
-        """Restores old Builtin mappings"""
+        """Restores old Builtin mappings."""
+        if not self.builtins_overwritten:
+            raise FatalError("Builtins weren't overwritten yet")
         for key, val in self.__old_builtins.items():
             builtins.__dict__[key] = val
+        self.builtins_overwritten = False
 
     @abstractmethod
     def generate(self):
-        """Used by profiles for actual link configuration"""
-        pass
+        """Implemeted by users for actual link configuration.
 
-    def __raise_generation_error(self, msg):
-        """Raise a GenerationError with the profilename"""
+        `Do NOT call this function without its wrapper ``generator()``.`
+        """
+        raise NotImplementedError
+
+    def _gen_err(self, msg):
+        """A wrapper to raise a GenerationError with the profilename."""
         raise GenerationError(self.name, msg)
 
     def find(self, target):
-        """Find a dotfile in the repository. Depends on the current set tags"""
+        """Find a dotfile in ``TARGET_DIR``. Depends on the current set tags.
+
+        This can be overwritten to change the searching behaviour of a profile.
+        Furthermore it can be used by the user to just find a dotfile whitout
+        linking it directly. Eventhough, this is not a command at the moment so
+        it need to be called with ``self.find()`` in ``generate()``.
+
+        Args:
+            target (str): A filename, without preceding tag
+        Raises:
+            GenerationError: More than one file was found
+        Return:
+            str: The full path of the file or ``None`` if no file was found
+        """
         try:
             return find_target(target, self.options["tags"])
         except ValueError as err:
-            self.__raise_generation_error(err)
+            self._gen_err(err)
 
     def decrypt(self, target):
-        """Creates an EncryptedFile instance, updates and returns it"""
+        """Creates an ``EncryptedFile`` instance from a target, updates and
+        returns it.
+
+        The target can be either just the name of a file that will be searched
+        for or it can be another dynamic file that already provides a generated
+        file.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            target(str/DynamicFile): The target file that will be used as
+                source of the ``EncryptedFile``
+        Returns:
+            EncryptedFile: The dynamic file that holds the decrypted target
+        """
         if isinstance(target, DynamicFile):
             encrypt = EncryptedFile(target.name)
             encrypt.add_source(target.getpath())
@@ -151,10 +209,25 @@ class Profile:
         return encrypt
 
     def merge(self, name, targets):
-        """Creates a SplittedFile instance, updates and returns it"""
+        """Creates a SplittedFile instance from a list of targets, updates and
+        returns it.
+
+        The target can be either just the name of a file that will be searched
+        for or it can be another dynamic file that already provides a generated
+        file.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            targets(List): The list of targets that will be used as
+                source of the ``SplittedFile``
+        Returns:
+            SplittedFile: The dynamic file that holds the merged target
+        """
         if len(targets) < 2:
-            msg = "merge() for '" + name + "' needs at least two dotfiles to merge"
-            self.__raise_generation_error(msg)
+            self._gen_err("merge() for '" + name + "' needs at least "
+                           + "two dotfiles to merge")
         split = SplittedFile(name)
         for target in targets:
             if isinstance(target, DynamicFile):
@@ -165,7 +238,21 @@ class Profile:
         return split
 
     def pipe(self, target, shell_command):
-        """Creates a FilteredFile instance, updates and returns it"""
+        """Creates a FilteredFile instance from a target, updates and returns
+        it.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            target(str/DynamicFile): The target file that will be used as
+                source of the ``FilteredFile``
+            shell_command (str): The shell command that the content of target
+                will be piped into
+        Returns:
+            FilteredFile: The dynamic file that holds the output of the shell
+            command
+        """
         if isinstance(target, DynamicFile):
             filtered = FilteredFile(target.name, shell_command)
             filtered.add_source(target.getpath())
@@ -176,8 +263,20 @@ class Profile:
         return filtered
 
     def link(self, *targets, **kwargs):
-        """Link a specific target with current options"""
-        read_opt = self.__make_read_opt(kwargs)
+        """Link a one ore more targets with current options.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            targets (List): One ore more targets that shall be linked. Targets
+                can be just file names or any dynamic files.
+            kwargs (Dict): A set of options that will be overwritten just for
+                this call
+        Raises:
+            GenerationError: One of the targets were not found
+        """
+        read_opt = self._make_read_opt(kwargs)
         for target in targets:
             if isinstance(target, DynamicFile):
                 found_target = target.getpath()
@@ -189,11 +288,20 @@ class Profile:
                 self.__create_link_descriptor(found_target, **kwargs)
             elif not read_opt("optional"):
                 msg = "There is no target that matches: '" + target + "'"
-                self.__raise_generation_error(msg)
+                self._gen_err(msg)
 
     def extlink(self, path, **kwargs):
-        """Link any file specified by its absolute path"""
-        read_opt = self.__make_read_opt(kwargs)
+        """Link any file specified by its absolute path.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            path (str): The path of the target
+            kwargs (Dict): A set of options that will be overwritten just for
+                this call
+        """
+        read_opt = self._make_read_opt(kwargs)
         path = expanduser(expandvars(path))
         if not os.path.isabs(path):
             log_warning("'path' should be specified as an absolut path" +
@@ -203,9 +311,25 @@ class Profile:
             self.__create_link_descriptor(os.path.abspath(path), **kwargs)
 
     def links(self, target_pattern, encrypted=False, **kwargs):
-        """Calls link() for all targets matching a pattern. Also allows you
-        to ommit the 'replace_pattern' and use the target_pattern instead"""
-        read_opt = self.__make_read_opt(kwargs)
+        """Calls ``link()`` for all targets matching a pattern.
+
+        Furthermore it allows to ommit the ``replace_pattern`` in favor of the
+        ``target_pattern`` and to decrypt matched files first.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            target_pattern (str): The regular expression that matches the file
+                names
+            encrypted (bool): True, if the targets shall be decrypted
+            kwargs (Dict): A set of options that will be overwritten just for
+                this call
+        Raises:
+            GenerationError: No files or multiple file with the same name were
+                found with this pattern
+        """
+        read_opt = self._make_read_opt(kwargs)
         target_list = []
         target_dir = {}
 
@@ -241,7 +365,7 @@ class Profile:
                         msg = "There are two targets found with the same name:"
                         msg += " '" + base + "'\n  " + no_tag[1]
                         msg += "\n  " + item[1]
-                        self.__raise_generation_error(msg)
+                        self._gen_err(msg)
             if no_tag is not None:
                 target_list.append(no_tag[1])
         # Then choose wisely which files will be linked
@@ -250,9 +374,8 @@ class Profile:
 
         # Now we have all targets and can create links for each one
         if not target_list and not read_opt("optional"):
-            msg = "No files found that would match the"
-            msg += " pattern: '" + target_pattern + "'"
-            self.__raise_generation_error(msg)
+            self._gen_err("No files found that would match the"
+                           + " pattern: '" + target_pattern + "'")
         else:
             for target in target_list:
                 if encrypted:
@@ -263,10 +386,20 @@ class Profile:
 
 
     def __create_link_descriptor(self, target, directory="", **kwargs):
-        """Creates a link entry for current options and a given target.
-        Also lets you set the dir like cd or options
-        temporarily only for a link"""
-        read_opt = self.__make_read_opt(kwargs)
+        """Creates an entry in ``result["links"]`` with current options and a
+        given target.
+
+        Furthermore lets you set the directory like ``cd()``.
+
+        Args:
+            target (str): Full path to target file
+            directory (str): A path to change the cwd
+            kwargs (Dict): A set of options that will be overwritten just for
+                this call
+        Raises:
+            GenerationError: One or more options were misused
+        """
+        read_opt = self._make_read_opt(kwargs)
 
         # Now generate the correct name for the symlink
         replace = read_opt("replace")
@@ -287,12 +420,12 @@ class Profile:
             else:
                 msg = "You are trying to use 'replace', but no "
                 msg += "'replace_pattern' was set."
-                self.__raise_generation_error(msg)
+                self._gen_err(msg)
         else:
             name = expandvars(read_opt("name"))
         # And prevent exceptions in os.symlink()
         if name and name[-1:] == "/":
-            self.__raise_generation_error("name mustn't represent a directory")
+            self._gen_err("name mustn't represent a directory")
 
         # Put together the path of the dir we create the link in
         if not directory:
@@ -327,19 +460,19 @@ class Profile:
                 user, group = owner.split(":")
             except ValueError:
                 msg = "The owner needs to be specified in the format"
-                self.__raise_generation_error(msg + 'user:group')
+                self._gen_err(msg + 'user:group')
             try:
                 uid = shutil._get_uid(user)
             except LookupError:
                 msg = "You want to set the owner of '" + name + "' to '" + user
                 msg += "', but there is no such user on this system."
-                self.__raise_generation_error(msg)
+                self._gen_err(msg)
             try:
                 gid = shutil._get_gid(group)
             except LookupError:
                 msg = "You want to set the owner of '" + name + "' to '"
                 msg += group + "', but there is no such group on this system."
-                self.__raise_generation_error(msg)
+                self._gen_err(msg)
         else:
             # if no owner was specified, we need to set it
             # to the owner of the dir
@@ -355,14 +488,28 @@ class Profile:
         self.result["links"].append(linkdescriptor)
 
     def cd(self, directory):
-        """Switches the directory where links should be created.
-        Unix-like cd."""
+        """Sets ``self.directory``. Unix-like cd.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            directory (str): The path to switch to
+        """
         self.directory = os.path.normpath(
             os.path.join(self.directory, expandvars(directory))
         )
 
     def default(self, *options):
-        """Resets options back to defaults"""
+        """Resets options back to defaults. If called without arguments,
+        it resets all options and tags.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            options (List): A list of options that will be reseted
+        """
         self.cd(constants.DIR_DEFAULT)
         if not options:
             self.options = dict(constants.DEFAULTS)
@@ -371,44 +518,85 @@ class Profile:
                 self.options[item] = constants.DEFAULTS[item]
 
     def rmtags(self, *tags):
-        """Remove a list of tags"""
+        """Removes a list of tags.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            tags (List): A list of tags that will be removed
+        """
         for tag in tags:
             if self.has_tag(tag):
                 self.options["tags"].remove(tag)
 
     def tags(self, *tags):
-        """Add a list of tags"""
+        """Adds a list of tags.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            tags (List): A list of tags that will be added
+        """
         for tag in tags:
             if tag not in self.options["tags"]:
                 self.options["tags"].append(tag)
 
     def has_tag(self, tag):
-        """Returns true if tag is set"""
+        """Returns true if a tag is set.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            tag (str): A tag that will be checked for
+        Returns:
+            bool: True, if tag is set
+        """
         return tag in self.options["tags"]
 
     def opt(self, **kwargs):
-        """Sets options for every next link or subprofile"""
+        """Sets options permanently. Set options will be used in all future
+        calls of commands and subprofiles.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            kwargs: A set of options that will be set permanently
+        Raises:
+            GenerationError: One of to be set option does not exist
+        """
         for key in kwargs:
             if key in constants.DEFAULTS:
                 self.options[key] = kwargs[key]
             else:
-                self.__raise_generation_error("There is no option called " +
-                                              key)
+                self._gen_err("There is no option called " + key)
 
     def subprof(self, *profilenames, **kwargs):
-        """Executes another profile by name"""
+        """Executes a list of profiles by name.
+
+        This function is a command. It can be called without the use of
+        ``self`` within ``generate()``.
+
+        Args:
+            profilenames(List): List of profiles that will be executed
+            kwargs (Dict): A set of options that will be overwritten just for
+                this call
+        Raises:
+            GenerationError: Profile were executed in a cycly or recursively
+        """
         def will_create_cycle(subp, profile=self):
             return (profile.parent is not None and
                     (profile.parent.name == subp or
                      will_create_cycle(subp, profile.parent)))
         for subprofile in profilenames:
             if subprofile == self.name:
-                self.__raise_generation_error("Recursive profiles are " +
-                                              "forbidden")
+                self._gen_err("Recursive profiles are forbidden!")
             else:
                 if will_create_cycle(subprofile):
-                    self.__raise_generation_error("Detected a cycle in" +
-                                                  " your subprofiles!")
+                    self._gen_err("Detected a cycle in your subprofiles!")
                 # All checks passed and the profile was imported, we can go on
                 # merge this profile's options with this function's options
                 suboptions = {**self.options, **kwargs}
@@ -418,4 +606,4 @@ class Profile:
                 profile = ProfileClass(suboptions, self.directory, self)
                 # Generate profile and add it to this profile's
                 # generation result
-                self.result["profiles"].append(profile.get())
+                self.result["profiles"].append(profile.generator())

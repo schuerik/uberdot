@@ -20,21 +20,6 @@ retrieve system information."""
 # You should have received a copy of the GNU General Public License
 # along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Diese Datei ist Teil von Dotmanger.
-#
-# Dotmanger ist Freie Software: Sie können es unter den Bedingungen
-# der GNU General Public License, wie von der Free Software Foundation,
-# Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
-# veröffentlichten Version, weiter verteilen und/oder modifizieren.
-#
-# Dotmanger wird in der Hoffnung, dass es nützlich sein wird, aber
-# OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
-# Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
-# Siehe die GNU General Public License für weitere Details.
-#
-# Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
-# Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
-#
 ###############################################################################
 
 
@@ -46,7 +31,11 @@ from dotmanager.utils import get_current_username
 
 
 def distribution():
-    """Returns the current running distribution"""
+    """Returns the current running distribution.
+
+    Returns:
+        str: Returns the first line of ``/etc/*-release``
+    """
     for entry in os.listdir("/etc"):
         # search for release file
         if re.search(r"^\w+(-|_)release$", entry):
@@ -56,25 +45,51 @@ def distribution():
 
 
 def hostname():
-    """Returns the host name of the device"""
+    """Returns the host name of the device.
+
+    Returns:
+        str: The devices host name
+    """
     return platform.node()
 
 
 def is_64bit():
-    """Returns if the device is running a 64bit os"""
+    """Returns if the device is running a 64bit os.
+
+    Returns:
+        bool: True, if platform is 64 bit
+    """
     return platform.architecture()[0] == "64bit"
 
 
 def kernel():
-    """Returns the current kernel release of the device"""
+    """Returns the current kernel release of the device.
+
+    The kernel release tells you what version of the kernel is currently
+    used.
+
+    Returns:
+        str: The kernel release of the device
+    """
     return platform.release()
 
 
 def pkg_installed(pkg_name):
-    """Returns if the given package is installed on the device"""
+    """Returns if the given package is installed on the device.
+
+    Args:
+        pkg_name (str): The name of a package
+
+    Returns:
+        bool: True, if installed
+    """
     return bool(shutil.which(pkg_name))
 
 
 def username():
-    """Returns the username that executed dotmanager"""
+    """Returns the username that executed dotmanager.
+
+    Returns:
+        str: Username of current user
+    """
     return get_current_username()

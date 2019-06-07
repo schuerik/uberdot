@@ -1,4 +1,5 @@
-"""This module implements the Difference-Solver"""
+"""This module implements the Difference-Solvers (at the moment there is only
+the standart DiffSolver) and their resulting data struct DiffLog."""
 
 ###############################################################################
 #
@@ -19,49 +20,230 @@
 # You should have received a copy of the GNU General Public License
 # along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Diese Datei ist Teil von Dotmanger.
-#
-# Dotmanger ist Freie Software: Sie können es unter den Bedingungen
-# der GNU General Public License, wie von der Free Software Foundation,
-# Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
-# veröffentlichten Version, weiter verteilen und/oder modifizieren.
-#
-# Dotmanger wird in der Hoffnung, dass es nützlich sein wird, aber
-# OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
-# Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
-# Siehe die GNU General Public License für weitere Details.
-#
-# Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
-# Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
-#
 ###############################################################################
 
 
 import copy
-from dotmanager import constants
-from dotmanager.differencelog import DiffLog
 from dotmanager.errors import FatalError
+from dotmanager.interpreters import Interpreter
 from dotmanager.utils import import_profile_class
 from dotmanager.utils import log_warning
+from dotmanager.utils import get_date_time_now
+
+
+class DiffLog():
+    """This class stores the operations that were determined by a Difference-
+    Solver. Furthermore it provides helpers to create such operations and
+    a funciton that allows multiple interpreter to interprete the operations
+    at the same time.
+
+    Attributes:
+        data (List): Used to store the operations
+    """
+    def __init__(self, data=None):
+        """Constructor"""
+        if data is None:
+            self.data = []
+        else:
+            self.data = data
+
+    def add_info(self, profilename, message):
+        """Create an info operation.
+
+        Info operations can be used to print out profile information to the
+        user. At the moment this is only evaluated by the PrettyPrint-
+        Interpreter to print out a string like::
+
+            [profilename]: message
+
+        Args:
+            profilename (str): The name of the profile that prints the
+                information
+            message (str): The message to be printed
+        """
+        self.__append_data("info", profilename, message=message)
+
+    def add_profile(self, profilename, parentname=None):
+        """Create an add-profile operation.
+
+        Add-profile operations indicate that a new profile will be added/
+        installed. This will be - for example - evalutated by the
+        ExecuteInterpreter to create a new empty entry in the installed-file.
+
+        Args:
+            profilename (str): The name of the new profile
+            parentname (str): The name of the parent of the new profile. If
+                `None` it will be treated as a root profile
+        """
+        self.__append_data("add_p", profilename, parent=parentname)
+
+    def update_profile(self, profilename):
+        """Create an update-profile operation.
+
+        Update-profile operations indicate that a certain profile will be
+        updated. This will be - for example - evaluated by the
+        ExecuteInterpreter to update the changed-date of a profile in the
+        installed file.
+
+        Args:
+            profilename (str): The name of the to be updated profile
+        """
+        self.__append_data("update_p", profilename)
+
+    def update_parent(self, profilename, parentname):
+        """Create an update-parent operation.
+
+        Update-parent operations indicate that a certain profile will change
+        its parent.
+
+        Args:
+            profilename (str): The name of the to be updated profile
+            parentname (str): The name of the new parent of the profile. If
+                `None` it will be a root profile from now on.
+        """
+        self.__append_data("update_p", profilename, parent=parentname)
+
+    def remove_profile(self, profilename):
+        """Create a remove-profile operation.
+
+        Remove-profile operations indicate that a certain profile will be
+        removed/uninstalled. This will be - for example - evaluated by the
+        ExecuteInterpreter to remove the profile in the installed file.
+
+        Args:
+            profilename (str): The name of the to be removed profile
+        """
+        self.__append_data("remove_p", profilename)
+
+    def add_link(self, symlink, profilename):
+        """Create an add-link operation.
+
+        Add-link operations indicate that a new link needs to be created.
+        This will be - for example - evaluated by the ExecuteInterpreter
+        to create the link in the filesystem and create an entry in the
+        installed file.
+
+        Args:
+            profilename (str): The name of profile that the link belongs to
+            symlink (Dict): A dictionary that describes the symbolic link that
+                needs to be created
+        """
+        symlink["date"] = get_date_time_now()
+        self.__append_data("add_l", profilename, symlink=symlink)
+
+    def remove_link(self, symlink_name, profilename):
+        """Create a remove-link operation.
+
+        Remove-link operation indicate that a certain link needs to be removed.
+        This will be - for example - evaluated by the ExecuteInterpreter
+        to remove the link from the filesystem and the installed file.
+
+        Args:
+            symlink_name (str): The absolute path to the symbolic link
+            profilename (str): The profile that the link is removed from
+        """
+        self.__append_data("remove_l", profilename, symlink_name=symlink_name)
+
+    def update_link(self, installed_symlink, new_symlink, profilename):
+        """Create a update-link operation.
+
+        Update-link operation indicate that a certain link needs to be replaced
+        by a new link. This will be - for example - evaluated by the
+        ExecuteInterpreter to remove the old link from the filesystem, create
+        the new link in the filesystem and update the entry of the old link in
+        the installed file.
+
+        Args:
+            installed_symlink (Dict): A dictionary that describes the symbolic
+                link that needs to be replaced
+            new_symlink (Dict): A dictionary that describes the symbolic
+                link that will be the replacement for the old  link
+        """
+        new_symlink["date"] = get_date_time_now()
+        self.__append_data("update_l", profilename,
+                           symlink1=installed_symlink,
+                           symlink2=new_symlink)
+
+    def __append_data(self, operation, profilename, **args):
+        """Appends a new operation to `self.data`.
+
+        Args:
+            operation (str): Name of the operation
+            profilename (str): Name of the profile that is associated with the
+                operation
+        """
+        self.data.append(
+            {"operation": operation, "profile": profilename, **args}
+        )
+
+    def run_interpreter(self, *interpreters):
+        """Run a list of interpreters for all operations.
+
+        This function iterates over all operations and evaluates them by
+        feeding them into the given interpreters. Furthermore it initializes
+        the interpreters and feeds them additional "start" and "fin"
+        operations.
+
+        Args:
+            interpreters (Interpreter): A list of interpreters that will
+                interpret the operations
+        """
+        # Initialize interpreters
+        for interpreter in interpreters:
+            interpreter.set_difflog_data(self.data)
+        # Send a "start" operation to indicate that operations will follow
+        # so interpreters can implement _op_start
+        for interpreter in interpreters:
+            interpreter.call_operation({"operation": "start"})
+        # Run interpreters for every operation
+        for operation in self.data:
+            for interpreter in interpreters:
+                interpreter.call_operation(operation)
+        # And send a "fin" operation when we are finished
+        for interpreter in interpreters:
+            interpreter.call_operation({"operation": "fin"})
 
 
 class DiffSolver():
-    """Takes a list of profilenames and the currend install-file.
-    Generates a the ProfileResults from the profiles and compares it
-    with the installed-file. It will then generate a DiffLog that
-    solves the difference between those two"""
+    """This solver determines the differences between a list of profiles
+    and an installed-file. It is used to generate a DiffLog that stores
+    all operations to resolve the differences between those.
+
+    Attributes:
+        profilenames (List): A list of names of all profiles that is used
+            for solving
+        installed (Dict): The installed-file that is used for solving
+        difflog (DiffLog): The resulting difflog
+        default_options (Dict): The default options that the profiles will use
+        default_dir (str): The default directory that profiles start in
+        parent_arg (str): The name of the parent that all profiles will change
+            its parent to (only set if ``--parent`` was specified)
+    """
     def __init__(self, installed, args):
+        """ Constructor. Initializes attributes from commandline arguments.
+
+        Args:
+            installed (Dict): The installed-file that is used for solving
+            args (argparse): The parsed arguments
+        """
         self.profilenames = args.profiles
         self.installed = installed
         self.difflog = None
-        self.defs = {}
         self.default_options = args.opt_dict
         self.default_dir = args.directory
         self.parent_arg = args.parent
 
     def solve(self, link):
-        """This will create an DiffLog from the set profiles"""
-        self.defs = {}
+        """Start solving differences.
+
+        Args:
+            link (bool): True, if this an update. False if all links shall be
+                removed (Yes, I know that's not intuitive but it wont stay like
+                this).
+
+        Returns:
+            DiffLog: The resulting DiffLog
+        """
         self.difflog = DiffLog()
         if link:
             self.__generate_links()
@@ -70,18 +252,31 @@ class DiffSolver():
         return self.difflog
 
     def __generate_unlinks(self, profilelist):
-        """Fill the difflog with all operations needed to
-        unlink multiple profiles"""
+        """Generates operations to remove all installed profiles of
+        ``profilelist``.
+
+        Skips profiles that are not installed.
+
+        Args:
+            profilelist (List): A list of names of profiles that will be
+                unlinked
+        """
         for profilename in profilelist:
             if profilename in self.installed:
                 self.__generate_profile_unlink(profilename)
             else:
-                log_waring("The profile " + profilename +
-                              " is not installed at the moment. Skipping...")
+                log_warning("The profile " + profilename +
+                            " is not installed at the moment. Skipping...")
 
     def __generate_profile_unlink(self, profile_name):
-        """Append to difflog that we want to remove a profile,
-        all it's subprofiles and all their links"""
+        """Generate operations to remove a single installed profile.
+
+        Appends to difflog that we want to remove a profile,
+        all it's subprofiles and all their links.
+
+        Args:
+            profile_name (str): Name of the profile that will be removed
+        """
         # Recursive call for all subprofiles
         subprofiles = []
         for installed_name, installed_dict in self.installed.items():
@@ -97,7 +292,11 @@ class DiffSolver():
         self.difflog.remove_profile(profile_name)
 
     def __generate_links(self):
-        """Fill the difflog with all operations needed to link all profiles"""
+        """Generates operations to update all profiles.
+
+        This function imports and runs the profiles and resolves each root
+        profile with their subprofiles separately.
+        """
         allpnames = []
 
         def add_profilenames(profile):
@@ -106,18 +305,15 @@ class DiffSolver():
             for prof in profile["profiles"]:
                 add_profilenames(prof)
 
+        # Setting arguments for root profiles
         pargs = {}
-        # Merge options provided by commandline with loaded defaults
-        if self.default_options:
-            pargs["options"] = {**constants.DEFAULTS, **self.default_options}
-        # Same for directory
-        if self.default_dir:
-            pargs["directory"] = self.default_dir
+        pargs["options"] = self.default_options
+        pargs["directory"] = self.default_dir
 
         plist = []
         for profilename in self.profilenames:
             # Profiles are generated
-            plist.append(import_profile_class(profilename)(**pargs).get())
+            plist.append(import_profile_class(profilename)(**pargs).generator())
         for profileresult in plist:
             add_profilenames(profileresult)
         for profileresult in plist:
@@ -128,8 +324,18 @@ class DiffSolver():
     def __generate_profile_link(self, profile_dict, all_profilenames,
                                 parent_name):
         """Resolves the differences between a single profile and the installed
-        ones and appends the difflog for those. If parent_name is None the
-        profile is treated as a root profile"""
+        ones and appends the difflog for those. Calls itself recursively for
+        all subprofiles.
+
+        Args:
+            profile_dict (Dict): The result of an executed profile that will be
+                compared against the installed-file
+            all_profilenames (List): A list with all profile names (including
+                all sub- and root-profiles
+            parent_name (str): The name of the profiles (new) parent. If
+                parent_name is ``None``, the profile is treated as a root
+                profile
+        """
         def symlinks_similar(symlink1, symlink2):
             return symlink1["name"] == symlink2["name"] or \
                    symlink1["target"] == symlink2["target"]

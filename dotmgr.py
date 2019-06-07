@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Main module. Implements DotManager and a short startup script.
-Run this directly from the CLI or import DotManager for debugging"""
+"""This is the main module. It implements the DotManager class and a short
+startup script.
 
+You can run this directly from the CLI with
+
+.. code:: bash
+
+    python ./dotmgr.py <arguments>
+
+or you can import DotManager for debugging and testing purposes."""
+
+###############################################################################
+#
 # Copyright 2018 Erik Schulz
 #
 # This file is part of Dotmanager.
@@ -20,20 +30,7 @@ Run this directly from the CLI or import DotManager for debugging"""
 # You should have received a copy of the GNU General Public License
 # along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
 #
-# Diese Datei ist Teil von Dotmanger.
-#
-# Dotmanger ist Freie Software: Sie können es unter den Bedingungen
-# der GNU General Public License, wie von der Free Software Foundation,
-# Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
-# veröffentlichten Version, weiter verteilen und/oder modifizieren.
-#
-# Dotmanger wird in der Hoffnung, dass es nützlich sein wird, aber
-# OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
-# Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
-# Siehe die GNU General Public License für weitere Details.
-#
-# Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
-# Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+###############################################################################
 
 import argparse
 import csv
@@ -46,38 +43,40 @@ import shutil
 import sys
 import traceback
 from dotmanager import constants
-from dotmanager.interpreters import CheckDynamicFilesI
-from dotmanager.interpreters import CheckLinkBlacklistI
-from dotmanager.interpreters import CheckLinkDirsI
-from dotmanager.interpreters import CheckLinkExistsI
-from dotmanager.interpreters import CheckLinksI
-from dotmanager.interpreters import CheckProfilesI
-from dotmanager.interpreters import DUIStrategyI
-from dotmanager.interpreters import ExecuteI
-from dotmanager.interpreters import GainRootI
-from dotmanager.interpreters import PlainPrintI
-from dotmanager.interpreters import PrintI
-from dotmanager.interpreters import RootNeededI
+from dotmanager.interpreters import *
 from dotmanager.errors import CustomError
 from dotmanager.errors import FatalError
 from dotmanager.errors import PreconditionError
 from dotmanager.errors import UnkownError
 from dotmanager.errors import UserError
 from dotmanager.differencesolver import DiffSolver
-from dotmanager.differencelog import DiffLog
+from dotmanager.differencesolver import DiffLog
 from dotmanager.utils import has_root_priveleges
 from dotmanager.utils import get_uid
 from dotmanager.utils import get_gid
 from dotmanager.utils import log_success
 from dotmanager.utils import log_warning
+from dotmanager.utils import normpath
 
 
 class DotManager:
-    """Main class. Parses arguments, generates DiffLog and calls DiffOperations
-    on DiffLog according to the parsed arguments."""
+    """Bundles all functionality off Dotmanager.
+
+    This includes things like parsing arguments, loading installed-files,
+    printing information and executing profiles.
+
+    Attributes:
+        installed (Dict): The installed-file that is used as a reference
+        args (argparse): The parsed arguments
+        owd (str): The old working directory Dotmanager was started from
+    """
 
     def __init__(self):
-        # Fields
+        """Constructor
+
+        Initializes attributes and changes the working directory to the
+        directory where this module is stored."""
+        # Initialise fields
         self.installed = {"@version": constants.VERSION}
         self.args = None
         # Change current working directory to the directory of this module
@@ -86,8 +85,13 @@ class DotManager:
         os.chdir(os.path.dirname(newdir))
 
     def load_installed(self):
-        """Reads Installed-File and parses it's InstallationLog
-        into self.installed"""
+        """Reads the installed-file and parses it's content into
+        `self.installed`.
+
+        Raises:
+            PreconditionError: Dotmanager and installed-file aren't
+                version compatible.
+        """
         try:
             self.installed = json.load(open(constants.INSTALLED_FILE))
         except FileNotFoundError:
@@ -101,8 +105,20 @@ class DotManager:
             msg += "all of your profiles before using this version."
             raise PreconditionError(msg)
 
-    def parse_arguments(self, arguments = None):
-        """Creates an ArgumentParser and parses sys.args into self.args"""
+    def parse_arguments(self, arguments=None):
+        """Parses the commandline arguments. This function can parse a custom
+        list of arguments, instead of `sys.args`.
+
+        Args:
+            arguments (List): A list of arguments that will be parsed instead
+                of sys.args
+
+        Raises:
+            UserError: One ore more arguments are invalid or used in an
+                invalid combination.
+        """
+        global ch, formatter
+
         if arguments is None:
             arguments = sys.argv[1:]
         # Setup parser
@@ -163,7 +179,7 @@ class DotManager:
                            help="install and update (sub)profiles",
                            action="store_true")
         modes.add_argument("--debuginfo",
-                           help="displays internal values",
+                           help="display internal values",
                            action="store_true")
         modes.add_argument("-u", "--uninstall",
                            help="uninstall (sub)profiles",
@@ -184,19 +200,58 @@ class DotManager:
             self.args = parser.parse_args(arguments)
         except argparse.ArgumentError as err:
             raise UserError(err.message)
+
+        # Options need some extra parsing for tags
         if self.args.opt_dict and "tags" in self.args.opt_dict:
             reader = csv.reader([self.args.opt_dict["tags"]])
             self.args.opt_dict["tags"] = next(reader)
+        # And the directory was specified relative to the old working directory
         if self.args.directory:
             self.args.directory = os.path.join(self.owd, self.args.directory)
+        # Like the path to the config file
+        if self.args.config:
+            self.args.config = os.path.join(self.owd, self.args.config)
+
+        # Load constants for this installed-file
+        constants.loadconfig(self.args.config, self.args.save)
+        # Write back defaults from config for arguments that weren't set
+        if not self.args.dui:
+            self.args.dui = constants.DUISTRATEGY
+        if not self.args.force:
+            self.args.force = constants.FORCE
+        if not self.args.makedirs:
+            self.args.makedirs = constants.MAKEDIRS
+        if not self.args.superforce:
+            self.args.superforce = constants.SUPERFORCE
+        if not self.args.directory:
+            self.args.directory = constants.DIR_DEFAULT
+        if not self.args.opt_dict:
+            self.args.opt_dict = constants.DEFAULTS
+        if not self.args.log and constants.LOGFILE:
+            self.args.log = normpath(constants.LOGFILE)
+        else:
+            # Merge options provided by commandline with loaded defaults
+            tmptags = self.args.opt_dict["tags"] + constants.DEFAULTS["tags"]
+            self.args.opt_dict = {**constants.DEFAULTS, **self.args.opt_dict}
+            self.args.opt_dict["tags"] = tmptags
 
         # Configure logger
-        if self.args.verbose:
-            logger.setLevel(logging.DEBUG)
-        if self.args.quiet:
-            logger.setLevel(logging.WARNING)
         if self.args.silent:
-            logger.setLevel(logging.CRITICAL)
+            constants.LOGGINGLEVEL = "SILENT"
+        if self.args.quiet:
+            constants.LOGGINGLEVEL = "QUIET"
+        if self.args.verbose:
+            constants.LOGGINGLEVEL = "VERBOSE"
+        logging_level_mapping = {
+            "SILENT": logging.CRITICAL,
+            "QUIET": logging.WARNING,
+            "INFO": logging.INFO,
+            "VERBOSE": logging.DEBUG
+        }
+        try:
+            logger.setLevel(logging_level_mapping[constants.LOGGINGLEVEL])
+        except KeyError:
+            logger.setLevel(logging.INFO)
         if self.args.log:
             ch = logging.FileHandler(os.path.join(self.owd, self.args.log))
             ch.setLevel(logging.DEBUG)
@@ -204,28 +259,49 @@ class DotManager:
             ch.setFormatter(formatter)
             logger.addHandler(ch)
 
-        # Load constants for this installed-file
-        constants.loadconfig(self.args.config, self.args.save)
-        # Set defaults for args from config
-        if not self.args.verbose:
-            self.args.verbose = constants.VERBOSE
-        if not self.args.dui:
-            self.args.dui = constants.DUISTRATEGY
-        if not self.args.force:
-            self.args.force = constants.FORCE
-        if not self.args.makedirs:
-            self.args.makedirs = constants.MAKEDIRS
+        # Check if settings are bad
+        if constants.TARGET_FILES == constants.PROFILE_FILES:
+            msg = "The directories for your profiles and for your dotfiles "
+            msg += "are the same."
+            raise UserError(msg)
 
         # Check if arguments are bad
-        if (not (self.args.show or self.args.version or self.args.debuginfo)
-                and not self.args.profiles):
-            raise UserError("No Profile specified!!")
-        if ((self.args.dryrun or self.args.force or self.args.plain or
-             self.args.dui) and not
-                (self.args.install or self.args.uninstall)):
-            raise UserError("-d/-f/-p/--dui needs to be used with -i or -u")
-        if self.args.parent and not self.args.install:
-            raise UserError("--parent needs to be used with -i")
+        def args_depend(msg, *args, need=[], omit=[]):
+            """Checks if argument dependencies are fullfilled.
+
+            Args:
+                msg (str): An error message if dependecies aren't fullfilled
+                *args (List): The argument names that depend on other arguments
+                need (List): One of this need to be set if one of the arguments
+                    is set
+                omit (List): All of this need to be set if none of the
+                    arguments are set
+            Raises:
+                UserError: The dependencies aren't fullfilled
+            """
+            # If at least one of the arguments is set, we verify that at least
+            # one argument of need is set
+            if [1 for arg in args if self.args.__dict__[arg]]:
+                if need and not [1 for arg in need if self.args.__dict__[arg]]:
+                    raise UserError(msg)
+            # No argument is set, so all args from "omit" need to be set
+            elif omit and [x for x in omit if self.args.__dict__[x]] != omit:
+                raise UserError(msg)
+
+        args_depend(
+            "-d/-f/-p/--dui needs to be used with -i or -u",
+            "dryrun", "force", "plain", "dui",
+            need=["install", "uninstall", "debuginfo"]
+        )
+        args_depend(
+            "No Profile specified!!",
+            "show", "version", "debuginfo",
+            omit=["profiles"]
+        )
+        args_depend(
+            "--parent needs to be used with -i",
+            "parent", need=["install"]
+        )
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments"""
@@ -240,54 +316,80 @@ class DotManager:
             dfs = DiffSolver(self.installed, self.args)
             dfl = dfs.solve(self.args.install)
             if self.args.dui:
-                dfl.run_interpreter(DUIStrategyI())
+                dfl.run_interpreter(DUIStrategyInterpreter())
             if self.args.dryrun:
                 self.dryrun(dfl)
             elif self.args.plain:
-                dfl.run_interpreter(PlainPrintI())
-            # elif self.args.print:
-            #     dfl.run_interpreter(PrintI())
+                dfl.run_interpreter(PlainPrintInterpreter())
+            elif self.args.print:
+                dfl.run_interpreter(PrintInterpreter())
             else:
                 self.run(dfl)
 
     def print_debuginfo(self):
-        """Print out all constants"""
-        print(constants.BOLD + "Config search paths: " + constants.ENDC)
+        """Print out internal values.
+
+        This includes search paths of configs, loaded configs,
+        parsed commandline arguments and settings.
+        """
+
+        def print_header(header):
+            """Prints out a headline.
+
+            Args:
+                header (str): The header that will be printed
+            """
+            print(constants.BOLD + header + ":" + constants.ENDC)
+
+        def print_value(name, val):
+            """Prints out a value.
+
+            Args:
+                name (str): The name of the value that will be printed
+                val (str): The value that will be printed
+            """
+            print(str("   " + name + ": ").ljust(32) + str(val))
+
+        print_header("Config search paths")
         for cfg in constants.CONFIG_SEARCH_PATHS:
             print("   " + cfg)
-        print(constants.BOLD + "Loaded configs: " + constants.ENDC)
+        print_header("Loaded configs")
         for cfg in constants.CFG_FILES:
             print("   " + cfg)
-        print(constants.BOLD + "Arguments: " + constants.ENDC)
-        print("   DUISTRATEGY: " + str(constants.DUISTRATEGY))
-        print("   FORCE: " + str(constants.FORCE))
-        print("   VERBOSE: " + str(constants.VERBOSE))
-        print("   MAKEDIRS: " + str(constants.MAKEDIRS))
-        print(constants.BOLD + "Settings: " + constants.ENDC)
-        print("   COLOR: " + str(constants.COLOR))
-        print("   DECRYPT_PWD: " + str(constants.DECRYPT_PWD))
-        print("   BACKUP_EXTENSION: " + constants.BACKUP_EXTENSION)
-        print("   PROFILE_FILES: " + constants.PROFILE_FILES)
-        print("   TARGET_FILES: " + constants.TARGET_FILES)
-        print("   INSTALLED_FILE: " + constants.INSTALLED_FILE)
-        print("   INSTALLED_FILE_BACKUP: " + constants.INSTALLED_FILE_BACKUP)
-        print(constants.BOLD + "Defaults: " + constants.ENDC)
-        print("   DIR_DEFAULT: " + constants.DIR_DEFAULT)
-        print("   DEFAULTS['name']: " + str(constants.DEFAULTS["name"]))
-        print("   DEFAULTS['optional']: " +
-              str(constants.DEFAULTS["optional"]))
-        print("   DEFAULTS['owner']: " + str(constants.DEFAULTS["owner"]))
-        print("   DEFAULTS['permission']: " +
-              str(constants.DEFAULTS["permission"]))
-        print("   DEFAULTS['prefix']: " + str(constants.DEFAULTS["prefix"]))
-        print("   DEFAULTS['replace']: " + str(constants.DEFAULTS["replace"]))
-        print("   DEFAULTS['replace_pattern']: " +
-              str(constants.DEFAULTS["replace_pattern"]))
-        print("   DEFAULTS['suffix']: " + str(constants.DEFAULTS["suffix"]))
+        print_header("Arguments")
+        print_value("DUISTRATEGY", self.args.dui)
+        print_value("FORCE", self.args.force)
+        print_value("LOGFILE", self.args.log)
+        print_value("LOGGINGLEVEL", constants.LOGGINGLEVEL)
+        print_value("MAKEDIRS", self.args.makedirs)
+        print_value("SUPERFORCE", self.args.superforce)
+        print_header("Settings")
+        print_value("BACKUP_EXTENSION", constants.BACKUP_EXTENSION)
+        print_value("COLOR", constants.COLOR)
+        print_value("DECRYPT_PWD", constants.DECRYPT_PWD)
+        print_value("PROFILE_FILES", constants.PROFILE_FILES)
+        print_value("TARGET_FILES", constants.TARGET_FILES)
+        print_header("Command options")
+        print_value("DEFAULTS['directory']", self.args.directory)
+        print_value("DEFAULTS['name']", self.args.opt_dict["name"])
+        print_value("DEFAULTS['optional']", self.args.opt_dict["optional"])
+        print_value("DEFAULTS['owner']", self.args.opt_dict["owner"])
+        print_value("DEFAULTS['permission']", self.args.opt_dict["permission"])
+        print_value("DEFAULTS['prefix']", self.args.opt_dict["prefix"])
+        print_value("DEFAULTS['replace']", self.args.opt_dict["replace"])
+        print_value("DEFAULTS['replace_pattern']",
+                    self.args.opt_dict["replace_pattern"])
+        print_value("DEFAULTS['suffix']", self.args.opt_dict["suffix"])
+        print_value("DEFAULTS['tags']", self.args.opt_dict["tags"])
+        print_header("Internal values")
+        print_value("INSTALLED_FILE", constants.INSTALLED_FILE)
+        print_value("INSTALLED_FILE_BACKUP", constants.INSTALLED_FILE_BACKUP)
 
     def print_installed_profiles(self):
-        """Shows only the profiles specified.
-        If none are specified shows all."""
+        """Print out the installed-file in a readable format.
+
+        Prints only the profiles specified in the commandline arguments. If
+        none are specified it prints all profiles of the installed-file."""
         if self.args.profiles:
             for profilename in self.args.profiles:
                 if profilename in self.installed:
@@ -300,51 +402,12 @@ class DotManager:
                 if key[0] != "@":
                     self.print_installed(self.installed[key])
 
-    def run(self, difflog):
-        """This runs Checks then executes DiffOperations while
-        pretty printing the DiffLog"""
-        # Run integration tests on difflog
-        difflog.run_interpreter(
-            CheckProfilesI(self.installed, self.args.parent)
-        )
-        tests = [
-            CheckLinksI(self.installed),
-            CheckLinkDirsI(self.args.makedirs),
-            CheckLinkExistsI(self.args.force),
-            CheckDynamicFilesI(False)
-        ]
-        difflog.run_interpreter(*tests)
-        # Gain root if needed
-        if not has_root_priveleges():
-            difflog.run_interpreter(GainRootI())
-        # Check blacklist not until now, because the user would need confirm it
-        # twice if the programm is restarted with sudo
-        difflog.run_interpreter(CheckLinkBlacklistI(self.args.superforce))
-        # Now the critical part starts
-        try:
-            # Create Backup in case something wents wrong,
-            # so the user can fix the mess we caused
-            if os.path.isfile(constants.INSTALLED_FILE):
-                shutil.copyfile(constants.INSTALLED_FILE,
-                                constants.INSTALLED_FILE_BACKUP)
-            # Execute all operations of the difflog and print them
-            difflog.run_interpreter(ExecuteI(self.installed, self.args.force),
-                                    PrintI())
-            # Remove Backup
-            if os.path.isfile(constants.INSTALLED_FILE_BACKUP):
-                os.remove(constants.INSTALLED_FILE_BACKUP)
-        except CustomError:
-            raise
-        except Exception as err:
-            msg = "An unkown error occured during linking/unlinking. Some "
-            msg += "links or your installed-file may be corrupted! Check the "
-            msg += "backup of your installed-file to resolve all possible "
-            msg += "issues before you proceed to use this tool!"
-            raise UnkownError(err, msg)
-        logger.debug("Finished succesfully.")
-
     def print_installed(self, profile):
-        """Prints a currently InstalledProfile"""
+        """Prints a single installed profile.
+
+        Args:
+            profile (Dict): The profile that will be printed
+        """
         print(constants.BOLD + profile["name"] + ":" + constants.ENDC)
         print("  Installed: " + profile["installed"])
         print("  Updated: " + profile["updated"])
@@ -364,34 +427,97 @@ class DotManager:
                   "   Permission: " + str(symlink["permission"]) +
                   "   Updated: " + symlink["date"])
 
+    def run(self, difflog):
+        """Performs checks on DiffLog and resolves it.
+
+        Furthermore this function handles backups, converts exceptions into
+        UnkownErrors and might replace the entire process when Dotmanager was
+        started with insufficient permissions.
+
+        Args:
+            difflog (DiffLog): The Difflog that will be resolved.
+
+        Raises:
+            UnkownError: All exceptions that are no CustomError and occured
+                in the critical section will be converted to this error.
+            CustomError: Executed interpreters can and will raise all kinds of
+                CustomError.
+        """
+        # Run integration tests on difflog
+        difflog.run_interpreter(
+            CheckProfilesInterpreter(self.installed, self.args.parent)
+        )
+        tests = [
+            CheckLinksInterpreter(self.installed),
+            CheckLinkDirsInterpreter(self.args.makedirs),
+            CheckLinkExistsInterpreter(self.args.force),
+            CheckDynamicFilesInterpreter(False)
+        ]
+        difflog.run_interpreter(*tests)
+        # Gain root if needed
+        if not has_root_priveleges():
+            difflog.run_interpreter(GainRootInterpreter())
+        # Check blacklist not until now, because the user would need confirm it
+        # twice if the programm is restarted with sudo
+        difflog.run_interpreter(CheckLinkBlacklistInterpreter(self.args.superforce))
+        # Now the critical part starts
+        try:
+            # Create Backup in case something wents wrong,
+            # so the user can fix the mess we caused
+            if os.path.isfile(constants.INSTALLED_FILE):
+                shutil.copyfile(constants.INSTALLED_FILE,
+                                constants.INSTALLED_FILE_BACKUP)
+            # Execute all operations of the difflog and print them
+            difflog.run_interpreter(ExecuteInterpreter(self.installed, self.args.force),
+                                    PrintInterpreter())
+            # Remove Backup
+            if os.path.isfile(constants.INSTALLED_FILE_BACKUP):
+                os.remove(constants.INSTALLED_FILE_BACKUP)
+        except CustomError:
+            raise
+        except Exception as err:
+            msg = "An unkown error occured during linking/unlinking. Some "
+            msg += "links or your installed-file may be corrupted! Check the "
+            msg += "backup of your installed-file to resolve all possible "
+            msg += "issues before you proceed to use this tool!"
+            # Convert all exceptions that are not a CustomError in a
+            # UnkownError to handle them in the outer pokemon handler
+            raise UnkownError(err, msg)
+        logger.debug("Finished succesfully.")
+
     def dryrun(self, difflog):
-        """Runs Checks and pretty prints the DiffLog"""
+        """Like `run()` but instead of resolving it it will be just printed out
+
+        Args:
+            difflog (DiffLog): The Difflog that will be checked
+
+        Raises:
+            CustomError: Executed interpreters can and will raise all kinds of
+                CustomError.
+        """
         log_warning("This is just a dry-run! Nothing of this " +
                     "is actually happening.")
         difflog.run_interpreter(
-            CheckProfilesI(self.installed, self.args.parent)
+            CheckProfilesInterpreter(self.installed, self.args.parent)
         )
         tests = [
-            CheckLinksI(self.installed),
-            CheckLinkBlacklistI(self.args.superforce),
-            CheckLinkDirsI(self.args.makedirs),
-            CheckLinkExistsI(self.args.force),
-            CheckDynamicFilesI(True)
+            CheckLinksInterpreter(self.installed),
+            CheckLinkBlacklistInterpreter(self.args.superforce),
+            CheckLinkDirsInterpreter(self.args.makedirs),
+            CheckLinkExistsInterpreter(self.args.force),
+            CheckDynamicFilesInterpreter(True)
         ]
         difflog.run_interpreter(*tests)
-        difflog.run_interpreter(RootNeededI())
-        difflog.run_interpreter(PrintI())
+        difflog.run_interpreter(RootNeededInterpreter())
+        difflog.run_interpreter(PrintInterpreter())
 
 
 class StoreDictKeyPair(argparse.Action):
-    """Used to parse an option dict from commandline"""
-    def __init__(self, option_strings, dest, nargs=None, **kwargs):
-        self._nargs = nargs
-        super(StoreDictKeyPair, self).__init__(
-            option_strings, dest, nargs=nargs, **kwargs
-        )
+    """Custom argparse.Action to parse an option dictionary from commandline"""
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """Splits a commandline argument at "=" and writes the splitted
+        values into a dictionary."""
         opt_dict = {}
         for keyval in values:
             try:
@@ -404,7 +530,8 @@ class StoreDictKeyPair(argparse.Action):
 
 
 if __name__ == "__main__":
-    # Setup the logger
+    # Init the logger, further configuration is done when we parse the
+    # commandline arguments
     logger = logging.getLogger("root")
     logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
@@ -413,27 +540,25 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    # Create DotManager and parse arguments
+    # Create DotManager instance and parse arguments
     dotm = DotManager()
     try:
         dotm.parse_arguments()
     except CustomError as err:
         logger.error(err.message)
-        sys.exit(err.exitcode)
-    # Add the profiles to the python path
+        sys.exit(err.EXITCODE)
+    # Add the users profiles to the python path
     sys.path.append(constants.PROFILE_FILES)
     # Start everything in an exception handler
     try:
         if os.path.isfile(constants.INSTALLED_FILE_BACKUP):
-            raise PreconditionError("I found a backup of your installed-" +
-                                    "file. It's most likely that the last " +
-                                    "execution of this tool failed. If you " +
-                                    "are certain that your installed-file " +
-                                    "is correct you can remove the backup " +
-                                    "and start this tool again.")
-        else:
-            dotm.load_installed()
-            dotm.execute_arguments()
+            m = "I found a backup of your installed-file. It's most likely"
+            m += " that the last execution of this tool failed. If you "
+            m += "are certain that your installed-file is correct you can"
+            m += " remove the backup and start this tool again."
+            raise PreconditionError(m)
+        dotm.load_installed()
+        dotm.execute_arguments()
     except CustomError as err:
         # An error occured that we (more or less) expected.
         # Print error, a stacktrace and exit
@@ -442,7 +567,7 @@ if __name__ == "__main__":
             logger.critical(err.message)
         else:
             logger.error(err.message)
-        sys.exit(err.exitcode)
+        sys.exit(err.EXITCODE)
     except Exception:
         # This works because all critical parts will catch also all
         # exceptions and convert them into a CustomError
@@ -451,7 +576,7 @@ if __name__ == "__main__":
                     " I haven't done anything yet :)")
         sys.exit(100)
     finally:
-        # Write installed back to json file
+        # Write installed-file back to json file
         try:
             with open(constants.INSTALLED_FILE, "w") as file:
                 file.write(json.dumps(dotm.installed, indent=4))

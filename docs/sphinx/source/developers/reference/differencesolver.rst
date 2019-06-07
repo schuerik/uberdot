@@ -1,0 +1,5 @@
+****************
+Differencesolver
+****************
+
+.. automodule:: differencesolver

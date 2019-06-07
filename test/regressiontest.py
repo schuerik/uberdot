@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-"""This module provides all functionality and base classes for
-regression tests. It provides also all needed types and colors
-as the test modules shall be independent from Dotmanager"""
 
 # Copyright 2018 Erik Schulz
 #
@@ -19,25 +16,12 @@ as the test modules shall be independent from Dotmanager"""
 #
 # You should have received a copy of the GNU General Public License
 # along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Diese Datei ist Teil von Dotmanger.
-#
-# Dotmanger ist Freie Software: Sie können es unter den Bedingungen
-# der GNU General Public License, wie von der Free Software Foundation,
-# Version 3 der Lizenz oder (nach Ihrer Wahl) jeder neueren
-# veröffentlichten Version, weiter verteilen und/oder modifizieren.
-#
-# Dotmanger wird in der Hoffnung, dass es nützlich sein wird, aber
-# OHNE JEDE GEWÄHRLEISTUNG, bereitgestellt; sogar ohne die implizite
-# Gewährleistung der MARKTFÄHIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
-# Siehe die GNU General Public License für weitere Details.
-#
-# Sie sollten eine Kopie der GNU General Public License zusammen mit diesem
-# Programm erhalten haben. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+
 
 import hashlib
 import os
 import sys
+import time
 from abc import abstractmethod
 from shutil import rmtree
 from subprocess import PIPE
@@ -48,47 +32,10 @@ from typing import Tuple
 from typing import Union
 
 
-# Example for a DirTree
-# {
-#     "test/a": {
-#         "files": [
-#             {
-#                 "name": "name.bla",
-#                 "permission": 600,
-#                 "rootuser": True,
-#                 "rootgroup": True,
-#                 "content": "b37b8487ac0b8f01e9e34949717b16d1"
-#             }
-#         ],
-#         "links": [
-#             {
-#                 "name": "name.bla1",
-#                 "target": "~/dotfiles/files/name1",
-#                 "permission": 600,
-#                 "rootuser": True,
-#                 "rootgroup": True
-#             },
-#             {
-#                 "name": "test.link",
-#                 "target": "~/dotfiles/files/test",
-#                 "permission": 777,
-#                 "rootuser": False,
-#                 "rootgroup": False
-#             }
-#         ],
-#         "permission": 777,
-#         "rootuser": True,
-#         "rootgroup": True
-#     },
-#     "test/b": {...},
-#     "test/b/c": {...},
-# }
-# Where the content property is optional for files
-
-
 # Constants and helpers
 ###############################################################################
 
+LINEWDTH = 79  # Width of a line
 DIRNAME = os.path.dirname(os.path.abspath(sys.modules[__name__].__file__))
 INSTALLED_FILE = os.path.join(DIRNAME, "../data/installed")
 INSTALLED_FILE = os.path.join(INSTALLED_FILE, "regressiontests.json")
@@ -115,8 +62,6 @@ def init():
     if not os.path.isdir(ENVIRONMENT):
         os.makedirs(ENVIRONMENT)
     cleanup()
-    print("Starting regression tests...")
-    print()
     print(79*"-")
 
 
@@ -129,9 +74,8 @@ class RegressionTest():
     def __init__(self, name, cmd_args, reset):
         self.name = name
         self.cmd_args = ["python3", os.path.abspath("../dotmgr.py"),
-                         "--config", "test/test.ini",
-                         "--save", "regressiontests",
-                         "--quiet"] + cmd_args
+                         "--config", "regressiontest.ini",
+                         "--save", "regressiontests"] + cmd_args
         self.reset = reset
 
     def start(self):
@@ -171,41 +115,51 @@ class RegressionTest():
     def success(self):
         """Execute this test. Expect it to be successful"""
         global global_result
+        now = time.time()
         result = self.start()
-        print(self.name + ": ", end="")
+        runtime = str(int((time.time()-now)*1000)) + "ms"
+        print("\033[1m" + self.name + ":", end="")
         if result["success"]:
-            print('\033[92m' + "Ok" + '\033[0m')
+            print('\033[92m' + " Ok" + '\033[0m', end="")
+            print(runtime.rjust(LINEWDTH-len(self.name)-4))
         else:
-            print('\033[91m\033[1m' + "FAILED" + '\033[0m'
-                  + " in " + str(result["phase"]))
-            print("Cause: " + str(result["cause"]))
+            print('\033[91m\033[1m' + " FAILED" + '\033[0m'
+                  + " in " + str(result["phase"]), end="")
+            print(runtime.rjust(LINEWDTH-len(self.name)-15))
+            print("\033[1mCause: \033[0m" + str(result["cause"]))
             if "msg" in result:
-                print("Error Message:")
-                print(result["msg"])
-        print(79*"-")
+                print("\033[1mError Message:\033[0m")
+                print(result["msg"].decode("utf-8"))
+        print(LINEWDTH*"-")
         global_result = global_result and result["success"]
         return result["success"]
 
     def fail(self, phase, cause):
         """Execute this test. Expect a certain error"""
         global global_result
+        now = time.time()
         result = self.start()
-        print(self.name + ": ", end="")
+        runtime = str(int((time.time()-now)*1000)) + "ms"
+        print("\033[1m" + self.name + ":", end="")
         if not result["success"]:
             if result["cause"] != cause:
-                print('\033[91m\033[1m' + "FAILED" + '\033[0m')
-                print("Expected error: " + str(cause))
-                print("Actual error: " + str(result["cause"]))
+                print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
+                print(runtime.rjust(LINEWDTH-len(self.name)-8))
+                print("\033[1mExpected error: \033[0m" + str(cause))
+                print("\033[1mActual error: \033[0m" + str(result["cause"]))
                 if "msg" in result:
-                    print("Error Message:")
-                    print(result["msg"])
+                    print("\033[1mError Message:\033[0m")
+                    print(result["msg"].decode("utf-8"))
             else:
-                print('\033[92m' + "Ok" + '\033[0m')
+                print('\033[92m' + " Ok" + '\033[0m', end="")
+                print(runtime.rjust(LINEWDTH-len(self.name)-4))
         else:
-            print('\033[91m\033[1m' + "FAILED" + '\033[0m')
-            print("Expected error in " + phase)
-            print("Expected error: " + str(cause))
-        print(79*"-")
+            print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
+            print(runtime.rjust(LINEWDTH-len(self.name)-8))
+            print("\033[93m\033[1mExpected error in " + phase + " did not" +
+                  "occur\033[0m")
+            print("\033[1mExpected error:\033[0m " + str(cause))
+        print(LINEWDTH*"-")
         global_result = global_result and not result["success"]
         return not result["success"]
 
@@ -847,6 +801,21 @@ init()
 DirRegressionTest("Simple",
                   ["-i", "NoOptions"],
                   before, after_nooptions, True).success()
+DirRegressionTest("Arguments: Incompatible modes",
+                  ["-ui", "NoOptions"],
+                  before, after_nooptions, True).fail("run", 2)
+DirRegressionTest("Arguments: No mode",
+                  ["NoOptions"],
+                  before, after_nooptions, True).fail("run", 2)
+DirRegressionTest("Arguments: Wrong Option",
+                  ["--dui", "--version", "NoOptions"],
+                  before, after_nooptions, True).fail("run", 101)
+DirRegressionTest("Arguments: Wrong mode",
+                  ["--parent", "NameOption", "-u", "NoOptions"],
+                  before, after_nooptions, True).fail("run", 101)
+DirRegressionTest("Arguments: No profiles",
+                  ["-i"],
+                  before, after_nooptions, True).fail("run", 101)
 DirRegressionTest("Option: name",
                   ["-i", "NameOption"],
                   before, after_nameoptions, True).success()

@@ -1,6 +1,10 @@
 # Python bytecode
 __pycache__
 
+# Build artifacts
+docs/sphinx/build/doctrees
+docs/sphinx/build/html/*
+
 
 # The config file of the user
 data/dotmanager.ini

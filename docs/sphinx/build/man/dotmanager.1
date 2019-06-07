@@ -1,0 +1,741 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "DOTMANAGER" "1" "Jun 07, 2019" "1.10.5_3" "Dotmanager"
+.SH NAME
+dotmanager \- Dotmanager Documentation
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH DESCRIPTION
+.sp
+Dotmanager is a program to manage configuration files and symbolic links on both the
+system and the user level. It is used to set up devices and keep their configuration
+up\-to\-date.
+.SH SYNOPSIS
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+dotmgr.py MODE [OPTIONS...] [PROFILES...]
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH MODES
+.sp
+One \- and only one \- of the following modes has to be chosen:
+.INDENT 0.0
+.TP
+.B \-h\fP,\fB  \-\-help
+Show a short help message with all options and modes and exits
+.TP
+.B \-\-version
+Displays the version of dotmanager and exits
+.TP
+.B \-i\fP,\fB  \-\-install
+Installs every specified profile. If a profile is already installed
+it will be updated instead of installed.
+.TP
+.B \-u\fP,\fB  \-\-uninstall
+Uninstalls every specified profile. If a profile is not installed,
+dotmanager will skip this profile.
+.TP
+.B \-s\fP,\fB  \-\-show
+Shows information about installed profiles and links. If you specify
+\fBPROFILES\fP this will show only information about those profiles.
+Otherwise information about all installed profiles will be shown.
+.UNINDENT
+.SH OPTIONS
+.INDENT 0.0
+.TP
+.BI \-\-config \ <CONFIG>
+Use a different config file for this call
+.TP
+.BI \-\-directory \ <DIRECTORY>
+Overwrites the default directory temporarily
+.TP
+.B \-d\fP,\fB  \-\-dry\-run
+Just simulate the changes dotmanager would perform
+.TP
+.B \-\-dui
+Use an alternative startegy to install profiles and links. The default
+strategy will do this by recursively go through the profiles and
+create/update all links one by one. This can cause conflicts if e.g.\ a link
+is moved from one to another profile. This strategy installs links by first
+doing all removals, then all updates and at last all new installs. Most
+conflicts should be solved by this strategy but it has the downside that
+the output isn’t that clear as the normal strategy.
+.TP
+.B \-f\fP,\fB  \-\-force
+Allows overwrites of files that already exists in your filesystem
+.TP
+.BI \-\-log \ <LOGFILE>
+Log everything into a logfile (this also adds timestamps to the log messages)
+.TP
+.B \-m\fP,\fB  \-\-makedirs
+Make directories if they don’t exist. Any directory that will be created
+inherits the owner of its parent directory.
+.TP
+.BI \-\-option \ <KEY=VAL…>
+Sets/Overwrites one or more keys of the option section of the config file.
+.TP
+.BI \-\-parent \ <PARENT>
+Forces the profiles that you install/update to be installed as subprofile
+of \fBPARENT\fP\&. This should be only needed to solve certain conflicts.
+.TP
+.B \-\-print
+Prints the \fBDifference Log\fP unformatted and exits. Only useful for
+debugging.
+.TP
+.B \-p\fP,\fB  \-\-pretty\-print
+Prints out the changes that dotmanager would perform if executed without
+this flag. This differs from \fB\-\-dry\-run\fP in that way that it won’t do
+any checks on the profiles or filesystem, so \fB\-\-dry\-run\fP is almost
+always to prefer. The only use\-case is if your profiles will raise an
+error and aborts but you want to now what would have happen to get a
+better understanding of the issue in your profile/workflow itself.
+.TP
+.B \-q\fP,\fB  \-\-quiet
+Print no log messages but warnings and errors.
+.TP
+.BI \-\-save \ <SAVE>
+Use another \fBinstalled\-file\fP for this execution. Can be used to install
+profiles multiple times on the same device. This is potentially dangerous
+because conflict detection works only within a single \fBinstalled\-file\fP\&.
+You need to make sure by yourself that there are no conflicts between all
+installed profiles and the profiles that you are going to install.
+This is mostly useful if you want to test the linking process in another
+directory or if those profiles are installed in completely different
+locations on your device but you don’t want your current setup be changed.
+.TP
+.B \-\-silent
+Print no log messages at all.
+.TP
+.B \-\-superforce
+Overwrites files and links that are blacklisted because it is considered
+dangerous to overwrite those files e.g. \fB/etc/hosts\fP or \fB/etc/passwd\fP
+.TP
+.B \-v\fP,\fB  \-\-verbose
+Print more information of the linking process and a stacktrace when an
+error occurs.
+.UNINDENT
+.SH PROFILES
+.sp
+This is a space seperated list of profiles. Any profile will be identified by
+its class name, not by its filename. Don’t forget that python class names are
+case\-sensitive.
+.SH EXAMPLES
+.INDENT 0.0
+.IP 1. 3
+Uninstall the profile called “Main” and all its subprofiles
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ ./dotmgr.py \-u Main
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP 2. 3
+Install the profiles “Main” and “Main2” and all their subprofiles
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ ./dotmgr.py \-i Main Main2
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP 3. 3
+Just simulate previous installation
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ ./dotmgr.py \-id Main Main2
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP 4. 3
+Perform the same installation like before but set the prefix for all links to “.”
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ ./dotmgr.py \-i \-\-option prefix=\&. \-\- Main Main2
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP 5. 3
+Also set the tags “debian” and “big”
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ ./dotmgr.py \-i \-\-option prefix=\&. tags=debian,big \-\- Main Main2
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.IP 6. 3
+Install “Main” and all it’s subprofiles, make non\-existing directories and
+override existing files
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ ./dotmgr.py \-imf Main
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH COMMANDS
+.sp
+A profile provides several so called “commands” that you will use to
+create links, set options, decrypt dotfiles and much more. They are
+called commands because they behave similar to shell script commands and
+they won’t need to be prepended with \fBself\fP like every other python
+function. This document explains all those commands and gives examples on
+how to use them. The commands are devided into “Basic Commands”, “Helper
+Commands” and “File manipulation commands”.
+.SS Basic commands:
+.SS cd(Path)
+.sp
+This command switches the directory like you are used to in UNIX. You
+can use relative paths or absolute paths and make use of environment
+variables or ‘~’ in the path. All links that will be created after you
+switched the directory will be linked relative to this directory.
+.sp
+\fBExample:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Switch to home directory
+cd("~")
+cd("$HOME")
+# Switch to a subdirectory called "config"
+cd("config")
+# Using absolute paths
+cd("/home/user")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS link(*Dotfilenames, **Options)
+.sp
+This command takes a list of dotfile names and creates a symlink for
+every single one of them in the current directory. It uses the same
+name as the dotfile for the symlink as long you don’t specify another
+one. This command lets you also set all options defined in the section
+of the \fBopt()\fP command. But unlike the \fBopt()\fP command it also
+accepts another option called \fBdirectory\fP which lets you switch the
+directory like \fBcd()\fP\&. This is handy if you have to link a few
+symlinks in different subdirectories of the same parent directory.
+This command also accepts dynamicfiles instead of filenames.
+.sp
+\fBExample:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Find tmux.conf and create a link in the current directory
+link("tmux.conf")
+# Find pacman.conf and create a link in /etc
+link("pacman.conf", directory="/etc")
+# Find zsh_profile and create a link called .zprofile in the current directory
+link("zsh_profile", name=".zprofile")
+# Find polybarconfig and polybarlaunch.sh and create two links named according to the replace regex:
+# polybarconfig \-> config
+# polybarlaunch.sh \-> launch.sh
+link("polybarconfig", "polybarlaunch.sh", replace_pattern="polybar(.+)", replace=r"\e1")
+# Find hosts and mkinitcpio.conf and create links in /etc
+cd("/etc")
+link("hosts", "mkinitcpio.conf")
+# In combination with a dynamicfile (in this case using decrypt())
+link(decrypt("id_rsa"), dircetory=".ssh")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS opt(**Options)
+.sp
+There are several options that you can pass to functions like
+\fBlink()\fP to control how links are set. The \fBopt()\fP command will
+apply those options permanently for all functions that support setting
+options. This is a list of all options available:
+.INDENT 0.0
+.IP \(bu 2
+\fBprefix\fP: Every symlink name gets prepended with the provided prefix
+.INDENT 2.0
+.IP \(bu 2
+e.g.: \fBopt(prefix=”.”)\fP
+.UNINDENT
+.IP \(bu 2
+\fBsuffix\fP: Same as prefix but appends to the symlink name
+.INDENT 2.0
+.IP \(bu 2
+e.g.: \fBopt(suffix=”.ini”)\fP
+.UNINDENT
+.IP \(bu 2
+\fBowner\fP: Sets the user and group owner of the symlink
+.INDENT 2.0
+.IP \(bu 2
+e.g.: \fBopt(owner=”peter:users”)\fP
+.UNINDENT
+.IP \(bu 2
+\fBpermission\fP: Sets the permission of the target file (symlinks are
+always 777)
+.INDENT 2.0
+.IP \(bu 2
+e.g.: \fBopt(permission=600)\fP
+.UNINDENT
+.IP \(bu 2
+\fBreplace_pattern\fP: Specify a regular expression that will match what
+you want to replace in the filename
+.INDENT 2.0
+.IP \(bu 2
+e.g.: \fBopt(replace_pattern=”vim(.+)”)\fP
+.UNINDENT
+.IP \(bu 2
+\fBreplace\fP: Specify a string that replaces the \fBreplace_pattern\fP
+.INDENT 2.0
+.IP \(bu 2
+e.g.: \fBopt(replace=r”\e1”)\fP this will strip away any “vim”
+prefix of the symlinks name if used in combination with above
+example
+.UNINDENT
+.IP \(bu 2
+\fBname\fP: Sets the name of the symlink. This can be a path as well.
+.INDENT 2.0
+.IP \(bu 2
+e.g.: \fBopt(name=”config”)\fP but usually used like this
+\fBlink(“polybarconfig”, name=”.config/polybar/config”)\fP
+.UNINDENT
+.IP \(bu 2
+\fBoptional\fP: If no correct version of a file is found and this is set
+to True no error will be raised
+.INDENT 2.0
+.IP \(bu 2
+e.g.: \fBopt(optional=True)\fP
+.UNINDENT
+.UNINDENT
+.SS links(Pattern, **Options)
+.sp
+This command works like \fBlink()\fP but instead of a list of filenames
+it receives a regular expression. All dotfiles will be linked that
+match this pattern (tags will be stripped away before matching). This
+can be very handy because you don’t even have to edit your profile
+when you add a new dotfile to your repository as long you use the same
+naming pattern for those files. This command has also the advantage
+that you don’t have to specify the \fBreplace_pattern\fP property if you
+want to use \fBreplace\fP\&. The search pattern will be reused for this
+purpose if \fBreplace_pattern\fP is not set. Another feature unique to
+this command is that it supports the option \fBencrypted\fP which will
+decrypt every file that matches link, when set to True.
+.sp
+\fBExample:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Find the files gvimrc and vimrc and create the links called .gvimrc and .vimrc
+links("g?vimrc", prefix=".")
+# Find all files that match "rofi\-*.rasi" and create links that strip away the "rofi\-"
+links("rofi\-.+\e.rasi", replace_pattern="rofi\-(.+\e.rasi)", replace=r"\e1")
+links("rofi\-(.+\e.rasi)", replace=r"\e1")  # Does the same as above
+# Decrypt files on the fly
+links("wifi\-(.+).gpg", replace=r"\e1", encrypted=True)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS extlink(Path, **Options)
+.sp
+Creates a link to any file or directory by specifying a path. You can
+use a relative path if you want, but an absolute path is considered
+safer in this case. Otherwise it behaves like the \fBlink()\fP command.
+.sp
+\fBExample:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Create a symlink from ~/Documents to ~/owncloud/data/Documents
+extlink("~/owncloud/data/Documents")
+# Create a symlink from ~/Pictures to ~/owncloud/data/Camera
+extlink("~/owncloud/data/Camera", name="Pictures")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS tags(*tags)
+.sp
+Takes a list of tags and adds all of them. A tag is just any string of
+characters (except for ‘%’) that you can choose as you like. It will be
+used to find alternate versions of a dotfile. Such a alternate version
+of a dotfile needs to be prefixed with the same tag plus a percent
+sign as a separator. The easiest way to explain this concept is with
+an example. Suppose you created a profile for your bash configuration:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+from dotmanager.profile import Profile
+class Bash(Profile):
+    def generate(self):
+        link("bashrc", "inputrc", prefix=".")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This profile will search for the files \fBbashrc\fP and \fBinputrc\fP and
+links them to \fB\&.bashrc\fP and \fB\&.inputrc\fP in your home directory. To
+reuse this profile on different distributions you can now create
+alternate versions of the files and name them like this:
+.INDENT 0.0
+.IP \(bu 2
+debian%bashrc
+.IP \(bu 2
+debian%inputrc
+.IP \(bu 2
+arch%bashrc
+.IP \(bu 2
+arch%inputrc
+.UNINDENT
+.sp
+Now you could create a profile for every device or distribution as you
+like and set the suitable tag.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+from dotmanager.profile import Profile
+class Device1(Profile):
+    def generate(self):
+        tags("debian")
+        subprof("Bash")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+from dotmanager.profile import Profile
+class Device2(Profile):
+    def generate(self):
+        tags("arch")
+        subprof("Bash")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+So just install Device1 on devices that are running Debian and Device2
+on devices that are running Arch Linux. The idea is that you create one
+“super” profile for every device and a profile for any program that you
+configure. By just setting the right tags that describe the device and
+adding the subprofiles for the programs that you want to configure you
+can basically setup any new device or variation of your configuration in
+a few minutes.
+.SS subprof(*profiles)
+.sp
+This command accepts a list of profilenames that will be executed as
+subprofiles. A subprofile takes all properties (options, tags and the
+current working directory) of its parent at the time this command is
+called. It is considered good practice to call this directly at the
+beginning of your profile but after the \fBtags()\fP because usually you
+don’t want to use the parents current working directory (which will
+most likely change) but want to start in your home directory. A
+subprofile is connected with it’s parent in that sense that it will be
+updated/removed when the parent is updated/removed.
+.sp
+\fBExample\fP: This will search for the profiles \fBBash\fP, \fBVim\fP and
+\fBI3\fP and install them as subprofile of \fBMain\fP\&. If no default
+directory was set \fBMain\fP starts in your home\-directory. This means
+\fBBash\fP and \fBVim\fP would also start in your home\-directory, whereas
+\fBI3\fP would start at \fB~/.config/\fP\&.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+class Main(Profile):
+    def generate(self):
+        subprof("Bash", "Vim")
+        cd(".config")
+        subprof("I3")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Helper commands:
+.SS has_tag(tags)
+.sp
+Takes a tag and returns if it is set.
+.SS rmtags(*tags)
+.sp
+Takes a list of tags. Removes all of them if they are set.
+.SS default(*Optionnames)
+.sp
+This command accepts a list of options and sets them back to default.
+If no option is provided it sets all options back to default.
+.sp
+\fBExample:\fP
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# Set one option back to default
+default("permission")
+# Set multiple option back to default
+default("optional", "owner", "prefix")
+# Set all option back to default
+default()
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS File manipulation commands:
+.SS decrypt(Dotfilename)
+.sp
+This command takes a single filename and searches for it like \fBlink()\fP\&. It
+will decrypt it and return the decrypted file as a dynamicfile which then can
+be used by \fBlink()\fP\&. If \fBdecryptPwd\fP is set in your configfile this will be
+used for every decryption. Otherwise Dotmanager (or more precisely gnupg) will
+ask you for the password. Because dynamicfiles are regenerated every time the
+files content changes, this command has the downside that it actually needs to
+decrypt the file every time you install/update even though there maybe are no
+changes. This can be very frustrating if you need to type in the password every
+time, so I highly recommend setting \fBdecryptPwd\fP\&.
+.sp
+\fBExample:\fP This creates a DynamicFile called \fBgitconfig\fP at
+\fBdata/decrypted\fP\&. The DynamicFile contains the decrypted content of the
+encrypted dotfile \fBgitconfig\fP\&. Furthermore this creates a symlink in your
+home directory called \fB\&.gitconfig\fP which points to the DynamicFile.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+link(decrypt("gitconfig"), prefix=".")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+\fBExample:\fP To decrypt multiple files at once you could use python’s list
+comprehension or use \fBlinks()\fP with \fBencrypted\fP setting. This will decrypt
+\fBkey1\fP, \fBkey2\fP, \fBkey3\fP and \fBkey4\fP and link them to \fBkey1.pkk\fP,
+\fBkey2.pkk\fP, \fBkey3.pkk\fP and \fBkey4.pkk\fP\&.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+# using list comprehension
+keyfiles = [decrypt(file) for file in ["key1", "key2", "key3", "key4"]]
+link(keyfiles, suffix=".pkk")
+# instead of decrypting every file by itself
+link(decrypt("key1"), decrypt("key2"), decrypt("key3"), decrypt("key4"), suffix=".pkk")
+# or use the links() command with encrypted option
+links("key[1\-4]", suffix=".pkk", encrypted=True)
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS merge(name, *Dotfilenames)
+.sp
+This command lets you merge multiple dotfiles into a single big dotfile. That
+is useful if you want to split a configuration file that doesn’t support
+source\-operations (eg i3). It even works with tags, so the dotfile can be
+generated using alternate versions of the splittet files. The first parameter
+is the name that you give the new merged dotfile. All following parameters are
+dotfiles that will be searched for and merged in the order you provide. The
+command returns the merged dotfile as DynamicFile.
+.sp
+\fBExample:\fP This creates a DynamicFile called \fBvimrc\fP at \fBdata/merged/\fP\&.
+\fBvimrc\fP contains the content of the dotfiles \fBdefaults.vim\fP,
+\fBkeybindings.vim\fP and \fBplugins.vim\fP\&. Furthermore this creates a symlink to
+this DynamicFile in your home directory called \fB\&.vimrc\fP\&.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+link(merge("vimrc", ["defaults.vim", "keybindings.vim", "plugins.vim"]), prefix=".")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS pipe(Dotfilename, shell_command)
+.sp
+This command lets you execute any shell command on a dotfile before
+linking it by piping its content into the specified shell command. It returns the
+result as a DynamicFile. This command also accepts a Dynamicfile instead
+of a filename.
+.sp
+\fBExample:\fP Think of a file \fBtext.txt\fP that only contains the numbers
+one to twenty with each number on a separate line.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+link(pipe("test.txt", "grep 2"))
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This will create a link called \fBtest.txt\fP which only contains the numbers 2,
+12 and 20.
+.SH INFO MODULE
+.sp
+The info module provides a set of functions to get information about the
+system you are on.
+.SS Functions:
+.sp
+\fBinfo.distribution()\fP
+.INDENT 0.0
+.INDENT 3.5
+Returns the distribution name (e.g. “Ubuntu”, “Antergos”)
+.UNINDENT
+.UNINDENT
+.sp
+\fBinfo.hostname()\fP
+.INDENT 0.0
+.INDENT 3.5
+Returns the hostname
+.UNINDENT
+.UNINDENT
+.sp
+\fBinfo.is_64bit()\fP
+.INDENT 0.0
+.INDENT 3.5
+Returns \fBTrue\fP if the OS is a 64 bit
+.UNINDENT
+.UNINDENT
+.sp
+\fBinfo.kernel()\fP
+.INDENT 0.0
+.INDENT 3.5
+Returns the release of the running kernel (e.g. “4.19.4”)
+.UNINDENT
+.UNINDENT
+.sp
+\fBinfo.pkg_installed(pkg_name)\fP
+.INDENT 0.0
+.INDENT 3.5
+Returns \fBTrue\fP if the package called \fBpkg_name\fP is installed
+.UNINDENT
+.UNINDENT
+.sp
+\fBinfo.username()\fP
+.INDENT 0.0
+.INDENT 3.5
+Returns the name of the logged in user
+.UNINDENT
+.UNINDENT
+.SS Usage:
+.sp
+To use those functions you need to import the info module:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+from dotmanager import info
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Then you can use it like this in a profile:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+class Main(Profile):
+    def generate(self):
+        # Install the profile "Vim" if the package vim is installed
+        if info\&.pkg_installed("vim"):
+            subprof("Vim")
+
+        # Link a .bashrc with aliases for pacman instead of apt\-get if Arch Linux is installed
+        if info\&.distribution() == "Arch Linux":
+            link("bash\-pacman.sh", name=".bashrc")
+        else:
+            link("bash\-apt\-get.sh", name=".bashrc")
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH NOTES
+.sp
+Fur more information take a look at the online documentation at
+\fI\%https://rickestricksanchez.github.io/dotmanager/\fP\&.
+.SH AUTHOR
+Erik Schulz
+.SH COPYRIGHT
+2019, Erik Schulz
+.\" Generated by docutils manpage writer.
+.
