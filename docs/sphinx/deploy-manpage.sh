@@ -15,7 +15,7 @@ git remote set-url origin git@github.com:RickestRickSanchez/dotmanager.git
 git add docs/sphinx/build/man || exit 1
 if [ "$(git status --porcelain -- docs/sphinx/build/man | head -c 1)" == "M" ]; then
     git commit -m "updated manpage" || exit 2
-    GIT_SSH_COMMAND="ssh -i github-key -F /dev/null" git push origin HEAD:documentation-with-sphinx || exit 3
+    GIT_SSH_COMMAND="ssh -i github-key -F /dev/null" git push origin HEAD:master || exit 3
     echo "Updated manpage."
 else
     echo "Manpage didn't change..."
