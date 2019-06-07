@@ -20,10 +20,4 @@ For installation instructions please take a look at :doc:`usage/getting-started`
    developers/index.rst
 
 
-.. toctree::
-   :hidden:
-
-   manpage/index.rst
-
-
 *This documentation was generated for Dotmanager* |version|

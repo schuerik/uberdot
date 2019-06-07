@@ -1,3 +1,5 @@
+.. _getting-started:
+
 ===============
 Getting started
 ===============
@@ -49,7 +51,7 @@ Step 2: Configuration
 ---------------------
 There are a lot of things that you can configure in Dotmanager but for most of
 them the defaults are enough. If you are interested in further configuration,
-take a look at <configurationfile>. For the beginning you just have to set the
+take a look at :doc:`config-file`. For the beginning you just have to set the
 directory for your dotfiles and for your profiles. To do so, either create a new
 file called ``dotmanager.ini`` or copy the example from ``docs/config-example.ini``.
 
@@ -112,7 +114,7 @@ Ok, lets add some more links and install it again:
 
 Of course ``link()`` isn't the only command that you can use. The ``cd()``
 command let's you switch the directory in which the links will be created. So
-instead creating links in your home directory, all further calls of ``link()``
+instead of creating links in your home directory, all further calls of ``link()``
 will create links in ``~/.config``.
 
 .. code:: bash
@@ -153,8 +155,8 @@ To make profiles more reusable you can use the ``subprof()`` command:
             link("zshrc", "bashrc", "inputrc", prefix=".")
             link("zsh_profile", name=".zprofile")
 
-Here we have two profiles. The first one collects all configuration files for vim,
-the second one for zsh and bash. You can use them in any other profile as a
+Here we have two profiles. The first one contains all configuration files for vim,
+the second one for zsh and bash. You can embed them in any other profile as a
 subprofile:
 
 .. code:: python
@@ -195,15 +197,15 @@ some use certain programs and some not (or shall not be configured), because
 you can enable/disable whole sets of links.
 
 This gets even more powerful in combination with the ``tags()`` command!
-The problem with the above approach is, that programs won't be configured
-the same everywhere. Maybe you want Vim to use a shit load of plugins on
+The problem with the above approach is that it is very static.
+Maybe you want Vim to use a shit load of plugins on
 your work station, but only a few when running on a raspberry pi.
-Thats were the tagging system comes into play.
-You can tag files by prepending a specific tag to their filename. When the tag
+Thats were tagging comes into play.
+You can add a tag to files by prepending a it to their filename. When the tag
 is set, the file will be prefered over a untagged file.
 We could create for example another dotfile called ``minimal%plugins.vim``,
-where "minimal" is the tag and the percent sign is a delimiter to indicate that
-the filename starts  now.
+where "minimal" is the tag and the percent sign is the seperator before the
+original filename.
 Our ``Test1`` profile will create the same links as before, but let's create a
 new profile that will use the new minimal plugins file:
 
@@ -213,6 +215,45 @@ new profile that will use the new minimal plugins file:
         def generate():
             tags("minimal")
             subprof("Vim", "Shell")
+
+As you see can we tags with the ``tags()`` command. When the tag is set, all
+future commands will prefer the files that have "minimal" as tag in their filename.
+If you set multiple tags they are prioritized in descending order. So the first
+tag that you add will be prioritized over the second.
+
+Now we install ``Pi``:
+
+.. code::
+
+    ERROR: Vim is already installed as subprofile of 'Test1'. You need to uninstall it first to avoid conflicts!
+
+Oh, I totally forgot that I already have this installed as a subprofile of ``Test1``.
+This would create an inconsistency because two profiles define contradicting configurations.
+Dotmanager detects such inconsistencies and tells me how to avoid them. I can now uninstall
+just ``Vim``, but this would result in a similar error, because ``Shell`` is also subprofile
+of ``Pi`` and ``Test1``. The better and most intuitive solution is to uninstall ``Test1``.
+This removes the full configuration (and therefore also both subprofiles):
+
+.. code:: bash
+
+    $ ./dotmgr.py -u Test1
+    [Vim]: /home/user/.gvimrc was removed from the system.
+    [Vim]: /home/user/.vimrc was removed from the system.
+    [Vim]: /home/user/.vim/keybindings.vim was removed from the system.
+    [Vim]: /home/user/.vim/plugins.vim was removed from the system.
+    [Vim]: /home/user/.vim/UltiSnips/python.snippets was removed from the system.
+    [Vim]: /home/user/.vim/UltiSnips/html.snippets was removed from the system.
+    [Vim]: Uninstalled Profile
+    [Shell]: /home/user/.zshrc was removed from the system.
+    [Shell]: /home/user/.bashrc was removed from the system.
+    [Shell]: /home/user/.inputrc was removed from the system.
+    [Shell]: /home/user/.zprofile was removed from the system.
+    [Shell]: Uninstalled profile
+    [Test1]: /home/user/<filename> was removed from the system.
+    [Test1]: Uninstalled Profile
+    Finished succesfully.
+
+Now we can finally install ``Pi``:
 
 .. code:: bash
 
@@ -235,7 +276,7 @@ new profile that will use the new minimal plugins file:
 You can see that the subprofiles behave the same as for ``Test1``, but
 ``/home/user/.vim/plugins.vim`` points now to
 ``/home/user/repos/dotfiles/files/minimal%plugins.vim``. The idea is that
-you create profiles for all kind of programs that you wants to configure
+you create profiles for all kind of programs that you want to configure
 and configuration files with different tags that describe properties of the
 system they are for, so that in the end you can quickly create a new profile
 for a new device, by just picking the programs that are installed and telling
@@ -247,5 +288,5 @@ versions of a dotfile.
 For further configuration you should take a look at the other commands and
 options. You probably won't need all of them, but they can solve a lot of
 common problems and will shorten your profiles. The documentation also covers a
-lot of topics that will help you understanding what is going under the hud, as
+lot of topics that will help you understanding what is going on under the hud, as
 well as more advanced examples and troubleshooting.

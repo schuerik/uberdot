@@ -1,6 +1,9 @@
+:orphan:
+
 *****************
 Dotmanager Manual
 *****************
+
 
 DESCRIPTION
 ===========

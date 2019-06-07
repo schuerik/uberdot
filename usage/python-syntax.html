@@ -36,7 +36,7 @@
 <h1>Python explained<a class="headerlink" href="#python-explained" title="Permalink to this headline">¶</a></h1>
 <p>Profiles are written in a programming language called python. This
 document is intended to explain the syntax of python as easy as possible
-for people who never ever heard of python. This is not a complete
+for people that never ever heard of python. This is not an exhausted
 explanation of python. It will only explain the few rules that you have
 to follow to use Dotmanager.</p>
 <div class="section" id="example">
@@ -54,27 +54,27 @@ to follow to use Dotmanager.</p>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;pacman.conf&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;/etc&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A profile is a so called <code class="docutils literal notranslate"><span class="pre">class</span></code> in python. So every profile you want
-to define will start with the keyword <code class="docutils literal notranslate"><span class="pre">class</span></code> followed by the name
-that you want to call this profile. The following <code class="docutils literal notranslate"><span class="pre">(Profile):</span></code> is
-needed to tell python that this class is actually a profile. Everything
-below this line that is indented will belong to this profile. The
-correct indentation is very important in python! The following line
-<code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">generate(self):</span></code> is not that important to understand. Just put it
-always directly below the line containing <code class="docutils literal notranslate"><span class="pre">class</span></code>. Everything below
-this line needs to be indented again. Now you can call the different
-commands that are explained in the README. Important to know is that the
-parameter in the brackets need to be surrounded by quotation marks and
-be separated by colons. The names like <code class="docutils literal notranslate"><span class="pre">arch</span></code>, <code class="docutils literal notranslate"><span class="pre">Git</span></code> or
-<code class="docutils literal notranslate"><span class="pre">tmux.conf</span></code> need to be the first parameters. Options like
-<code class="docutils literal notranslate"><span class="pre">name=&quot;.config/termite/config&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">directory=&quot;/etc&quot;</span></code> need to be
+<p>A profile is a so called <code class="docutils literal notranslate"><span class="pre">class</span></code> in python. So every profile you want to
+define will start with the keyword <code class="docutils literal notranslate"><span class="pre">class</span></code> followed by the name that you want
+to call this profile. The following <code class="docutils literal notranslate"><span class="pre">(Profile):</span></code> is needed to tell python
+that this class is actually a profile. Everything below this line that is
+indented will belong to this profile. The correct indentation is very important
+in python! The following line <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">generate(self):</span></code> is not that important to
+understand, but it does nothing more than defining a special function which
+will be later executed by Dotmanager. Just put it always directly below the
+line containing <code class="docutils literal notranslate"><span class="pre">class</span></code>. Everything below this line needs to be indented
+again. Now you can call the different commands that are explained in
+<a class="reference internal" href="commands.html"><span class="doc">Commands</span></a>. Important to know is that the parameters in the brackets need to be
+surrounded by quotation marks and be separated by colons. The names like
+<code class="docutils literal notranslate"><span class="pre">arch</span></code>, <code class="docutils literal notranslate"><span class="pre">Git</span></code> or <code class="docutils literal notranslate"><span class="pre">tmux.conf</span></code> need to be the first parameters. Options
+like <code class="docutils literal notranslate"><span class="pre">name=&quot;.config/termite/config&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">directory=&quot;/etc&quot;</span></code> need to be
 specified after those name parameters.</p>
 <p>You can create multiple classes in one file. Just make sure that the
 classes always start at the same indentation level.</p>
 <p>The last thing to note is the first line of the example. Put this line
 at the beginning of every file in that you create profiles.</p>
 <p>If you still struggle with understanding how write a profile or how to
-use certain commands take a look at the configuration examples.</p>
+use certain commands take a look at the <a class="reference internal" href="example-configuration.html"><span class="doc">Examples</span></a>.</p>
 </div>
 </div>
 
@@ -112,10 +112,6 @@ use certain commands take a look at the configuration examples.</p>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../manpage/index.html">Dotmanager Manual</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../manpage/index.html#commandline-interface">Commandline Interface</a></li>
 </ul>
 
 <div class="relations">

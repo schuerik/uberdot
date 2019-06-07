@@ -1,15 +1,22 @@
 Commands
 ========
 
-Profiles provide several so called “commands” that you will use to
+A profile provides several so called “commands” that you will use to
 create links, set options, decrypt dotfiles and much more. They are
 called commands because they behave similar to shell script commands and
 they won’t need to be prepended with ``self`` like every other python
 function. This document explains all those commands and gives examples on
-how to use them.
+how to use them. The commands are devided into "Basic Commands", "Helper
+Commands" and "File manipulation commands".
+
+
+
+Basic commands:
+---------------
+
 
 cd(Path)
---------
+^^^^^^^^
 
 This command switches the directory like you are used to in UNIX. You
 can use relative paths or absolute paths and make use of environment
@@ -30,7 +37,7 @@ switched the directory will be linked relative to this directory.
 
 
 link(\*Dotfilenames, \*\*Options)
----------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This command takes a list of dotfile names and creates a symlink for
 every single one of them in the current directory. It uses the same
@@ -64,7 +71,7 @@ This command also accepts dynamicfiles instead of filenames.
 
 
 opt(\*\*Options)
-----------------
+^^^^^^^^^^^^^^^^
 
 There are several options that you can pass to functions like
 ``link()`` to control how links are set. The ``opt()`` command will
@@ -76,61 +83,45 @@ options. This is a list of all options available:
 
 - **prefix**: Every symlink name gets prepended with the provided prefix
 
-  - eg: :python:`opt(prefix=".")`
+  - e.g.: :python:`opt(prefix=".")`
 
 - **suffix**: Same as prefix but appends to the symlink name
 
-  - eg: :python:`opt(suffix=".ini")`
+  - e.g.: :python:`opt(suffix=".ini")`
 
-- **owner**: sets the user and group owner of the symlink
+- **owner**: Sets the user and group owner of the symlink
 
-  - eg: :python:`opt(owner="peter:users")`
+  - e.g.: :python:`opt(owner="peter:users")`
 
 - **permission**: Sets the permission of the target file (symlinks are
   always 777)
 
-  - eg: :python:`opt(permission=600)`
+  - e.g.: :python:`opt(permission=600)`
 
 - **replace_pattern**: Specify a regular expression that will match what
   you want to replace in the filename
 
-  - eg: :python:`opt(replace_pattern="vim(.+)")`
+  - e.g.: :python:`opt(replace_pattern="vim(.+)")`
 
 - **replace**: Specify a string that replaces the ``replace_pattern``
 
-  - eg: :python:`opt(replace="\1")` this will strip away any “vim”
+  - e.g.: :python:`opt(replace=r"\1")` this will strip away any “vim”
     prefix of the symlinks name if used in combination with above
     example
 
 - **name**: Sets the name of the symlink. This can be a path as well.
 
-  - eg: :python:`opt(name="config")` but usually used like this
+  - e.g.: :python:`opt(name="config")` but usually used like this
     :python:`link("polybarconfig", name=".config/polybar/config")`
 
 - **optional**: If no correct version of a file is found and this is set
   to True no error will be raised
 
-  - eg: :python:`opt(optional=True)`
-
-
-default(\*Optionnames)
-----------------------
-
-This command accepts a list of options and sets them back to default.
-If no options is provided it sets all options back to default.
-
-**Example:**
-
-.. code:: python
-
-   # Set one option back to default
-   default("permission")
-   # Set multiple option back to default
-   default("optional", "owner", "prefix")
+  - e.g.: :python:`opt(optional=True)`
 
 
 links(Pattern, \*\*Options)
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This command works like ``link()`` but instead of a list of filenames
 it receives a regular expression. All dotfiles will be linked that
@@ -158,7 +149,7 @@ decrypt every file that matches link, when set to True.
 
 
 extlink(Path, \*\*Options)
---------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Creates a link to any file or directory by specifying a path. You can
 use a relative path if you want, but an absolute path is considered
@@ -175,10 +166,10 @@ safer in this case. Otherwise it behaves like the ``link()`` command.
 
 
 tags(\*tags)
-------------
+^^^^^^^^^^^^
 
 Takes a list of tags and adds all of them. A tag is just any string of
-characters (except for ‘%’) that you can set as you like. It will be
+characters (except for ‘%’) that you can choose as you like. It will be
 used to find alternate versions of a dotfile. Such a alternate version
 of a dotfile needs to be prefixed with the same tag plus a percent
 sign as a separator. The easiest way to explain this concept is with
@@ -229,20 +220,9 @@ can basically setup any new device or variation of your configuration in
 a few minutes.
 
 
-rmtags(\*tags)
---------------
-
-Takes a list of tags. Removes all of them if they are set.
-
-
-has_tag(tags)
--------------
-
-Takes a tag and returns if it is set.
-
-
 subprof(\*profiles)
--------------------
+^^^^^^^^^^^^^^^^^^^
+
 This command accepts a list of profilenames that will be executed as
 subprofiles. A subprofile takes all properties (options, tags and the
 current working directory) of its parent at the time this command is
@@ -268,33 +248,72 @@ directory was set ``Main`` starts in your home-directory. This means
            subprof("I3")
 
 
-decrypt(Dotfilename)
---------------------
 
-This command takes a single filename and searches for it like
-``link()``. It will decrypt it and return the decrypted file as a
-dynamicfile which then can be used by ``link()``. If ``decryptPwd`` is
-set in your configfile this will be used for every decryption. Otherwise
-Dotmanager (or more precisely gnupg) will ask you for the password.
-Because dynamicfiles have the property to be regenerated every time the
-file contents changes, this command has the downside that it actually
-needs to decrypt the file every time you install/update even though
-there maybe are no changes. This can be very frustrating if type in the
-password every time so I strongly recommend setting ``decryptPwd``.
+Helper commands:
+----------------
+
+
+has_tag(tags)
+^^^^^^^^^^^^^
+
+Takes a tag and returns if it is set.
+
+
+rmtags(\*tags)
+^^^^^^^^^^^^^^
+
+Takes a list of tags. Removes all of them if they are set.
+
+
+default(\*Optionnames)
+^^^^^^^^^^^^^^^^^^^^^^
+
+This command accepts a list of options and sets them back to default.
+If no option is provided it sets all options back to default.
+
+**Example:**
+
+.. code:: python
+
+   # Set one option back to default
+   default("permission")
+   # Set multiple option back to default
+   default("optional", "owner", "prefix")
+   # Set all option back to default
+   default()
+
+
+
+File manipulation commands:
+---------------------------
+
+
+decrypt(Dotfilename)
+^^^^^^^^^^^^^^^^^^^^
+
+This command takes a single filename and searches for it like ``link()``. It
+will decrypt it and return the decrypted file as a dynamicfile which then can
+be used by ``link()``. If ``decryptPwd`` is set in your configfile this will be
+used for every decryption. Otherwise Dotmanager (or more precisely gnupg) will
+ask you for the password. Because dynamicfiles are regenerated every time the
+files content changes, this command has the downside that it actually needs to
+decrypt the file every time you install/update even though there maybe are no
+changes. This can be very frustrating if you need to type in the password every
+time, so I highly recommend setting ``decryptPwd``.
 
 **Example:** This creates a DynamicFile called ``gitconfig`` at
-``data/decrypted``. The DynamicFile contains the decrypted content of
-the encrypted dotfile ``gitconfig``. Furthermore this creates a symlink
-to this DynamicFile in your home directory called ``.gitconfig``.
+``data/decrypted``. The DynamicFile contains the decrypted content of the
+encrypted dotfile ``gitconfig``. Furthermore this creates a symlink in your
+home directory called ``.gitconfig`` which points to the DynamicFile.
 
 .. code:: python
 
    link(decrypt("gitconfig"), prefix=".")
 
-**Example:** To decrypt multiple files at once you could use python’s
-list comprehension. This will decrypt ``key1``, ``key2``, ``key3`` and
-``key4`` and link them to ``key1.pkk``, ``key2.pkk``, ``key3.pkk`` and
-``key4.pkk``.
+**Example:** To decrypt multiple files at once you could use python’s list
+comprehension or use ``links()`` with ``encrypted`` setting. This will decrypt
+``key1``, ``key2``, ``key3`` and ``key4`` and link them to ``key1.pkk``,
+``key2.pkk``, ``key3.pkk`` and ``key4.pkk``.
 
 .. code:: python
 
@@ -308,22 +327,20 @@ list comprehension. This will decrypt ``key1``, ``key2``, ``key3`` and
 
 
 merge(name, \*Dotfilenames)
----------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This command lets you merge some dotfiles to a single big dotfile.
-That is useful if you want to split a configuration file that doesn’t
-support source-operations (eg i3). It even works with tags, so the
-dotfile can be generated using alternate versions of the splittet
-files. The first parameter is the name that you give the new merged
-dotfile. All following parameter are dotfiles that will be searched
-for and merged in the order you provide. The command returns the
-merged dotfile as DynamicFile.
+This command lets you merge multiple dotfiles into a single big dotfile. That
+is useful if you want to split a configuration file that doesn’t support
+source-operations (eg i3). It even works with tags, so the dotfile can be
+generated using alternate versions of the splittet files. The first parameter
+is the name that you give the new merged dotfile. All following parameters are
+dotfiles that will be searched for and merged in the order you provide. The
+command returns the merged dotfile as DynamicFile.
 
-**Example:** This creates a DynamicFile called ``vimrc`` at
-``data/merged/``. ``vimrc`` contains the content of the dotfiles
-``defaults.vim``, ``keybindings.vim`` and ``plugins.vim``. Furthermore
-this creates a symlink to this DynamicFile in your home directory called
-``.vimrc``.
+**Example:** This creates a DynamicFile called ``vimrc`` at ``data/merged/``.
+``vimrc`` contains the content of the dotfiles ``defaults.vim``,
+``keybindings.vim`` and ``plugins.vim``. Furthermore this creates a symlink to
+this DynamicFile in your home directory called ``.vimrc``.
 
 .. code:: python
 
@@ -331,19 +348,19 @@ this creates a symlink to this DynamicFile in your home directory called
 
 
 pipe(Dotfilename, shell_command)
---------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This command lets you execute any shell command on a dotfile before
-linking it by piping it into the specified shell command. It returns the
+linking it by piping its content into the specified shell command. It returns the
 result as a DynamicFile. This command also accepts a Dynamicfile instead
 of a filename.
 
 **Example:** Think of a file ``text.txt`` that only contains the numbers
-one to twenty with each number on in a separate line.
+one to twenty with each number on a separate line.
 
 .. code:: python
 
    link(pipe("test.txt", "grep 2"))
 
-This will create a link called ``test.txt`` which only contains the
-numbers 2, 12 and 20.
+This will create a link called ``test.txt`` which only contains the numbers 2,
+12 and 20.

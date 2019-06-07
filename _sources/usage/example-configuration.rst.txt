@@ -8,8 +8,8 @@ It’s a variation of a setup I’m using for over a half year now. The tags
 that I defined have the following semantics:
 
 - **arch:** An Arch linux based distribution is installed
-- **antergos:** An Arch linux based distribution is installed
-- **debian:** An Debian based distribution is installed
+- **antergos:** An Antergos based distribution is installed
+- **debian:** An Debian baAntergosbution is installed
 - **master:** The device is powerful and should be fullfeatured
 - **minimal:** The device is a low-end-device and most features should be
   disabled
@@ -17,8 +17,8 @@ that I defined have the following semantics:
   network
 - **office:** A device used for work
 - **laptop:** This device is a laptop
-- **asus:** A concrete asus laptop of mine
-- **asus:** A concrete thinkpad laptop of mine
+- **asus:** An asus laptop of mine
+- **thinkpad:** A thinkpad laptop of mine
 - **small:** This device has a small monitor
 
 First I created some profiles that represent my current setup. Any

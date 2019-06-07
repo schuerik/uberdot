@@ -14,7 +14,6 @@
     <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Utils" href="../developers/reference/utils.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -197,14 +196,17 @@ override existing files</p></li>
 </div>
 <div class="section" id="commands">
 <h2>Commands<a class="headerlink" href="#commands" title="Permalink to this headline">¶</a></h2>
-<p>Profiles provide several so called “commands” that you will use to
+<p>A profile provides several so called “commands” that you will use to
 create links, set options, decrypt dotfiles and much more. They are
 called commands because they behave similar to shell script commands and
 they won’t need to be prepended with <code class="docutils literal notranslate"><span class="pre">self</span></code> like every other python
 function. This document explains all those commands and gives examples on
-how to use them.</p>
+how to use them. The commands are devided into “Basic Commands”, “Helper
+Commands” and “File manipulation commands”.</p>
+<div class="section" id="basic-commands">
+<h3>Basic commands:<a class="headerlink" href="#basic-commands" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="cd-path">
-<h3>cd(Path)<a class="headerlink" href="#cd-path" title="Permalink to this headline">¶</a></h3>
+<h4>cd(Path)<a class="headerlink" href="#cd-path" title="Permalink to this headline">¶</a></h4>
 <p>This command switches the directory like you are used to in UNIX. You
 can use relative paths or absolute paths and make use of environment
 variables or ‘~’ in the path. All links that will be created after you
@@ -221,7 +223,7 @@ switched the directory will be linked relative to this directory.</p>
 </div>
 </div>
 <div class="section" id="link-dotfilenames-options">
-<h3>link(*Dotfilenames, **Options)<a class="headerlink" href="#link-dotfilenames-options" title="Permalink to this headline">¶</a></h3>
+<h4>link(*Dotfilenames, **Options)<a class="headerlink" href="#link-dotfilenames-options" title="Permalink to this headline">¶</a></h4>
 <p>This command takes a list of dotfile names and creates a symlink for
 every single one of them in the current directory. It uses the same
 name as the dotfile for the symlink as long you don’t specify another
@@ -251,7 +253,7 @@ This command also accepts dynamicfiles instead of filenames.</p>
 </div>
 </div>
 <div class="section" id="opt-options">
-<h3>opt(**Options)<a class="headerlink" href="#opt-options" title="Permalink to this headline">¶</a></h3>
+<h4>opt(**Options)<a class="headerlink" href="#opt-options" title="Permalink to this headline">¶</a></h4>
 <p>There are several options that you can pass to functions like
 <code class="docutils literal notranslate"><span class="pre">link()</span></code> to control how links are set. The <code class="docutils literal notranslate"><span class="pre">opt()</span></code> command will
 apply those options permanently for all functions that support setting
@@ -259,66 +261,54 @@ options. This is a list of all options available:</p>
 <ul class="simple">
 <li><p><strong>prefix</strong>: Every symlink name gets prepended with the provided prefix</p>
 <ul>
-<li><p>eg: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">prefix</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”.”</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
+<li><p>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">prefix</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”.”</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
 </ul>
 </li>
 <li><p><strong>suffix</strong>: Same as prefix but appends to the symlink name</p>
 <ul>
-<li><p>eg: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">suffix</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”.ini”</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
+<li><p>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">suffix</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”.ini”</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
 </ul>
 </li>
-<li><p><strong>owner</strong>: sets the user and group owner of the symlink</p>
+<li><p><strong>owner</strong>: Sets the user and group owner of the symlink</p>
 <ul>
-<li><p>eg: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">owner</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”peter:users”</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
+<li><p>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">owner</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”peter:users”</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
 </ul>
 </li>
 <li><p><strong>permission</strong>: Sets the permission of the target file (symlinks are
 always 777)</p>
 <ul>
-<li><p>eg: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">permission</span></span><span class="operator"><span class="pre">=</span></span><span class="literal number integer"><span class="pre">600</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
+<li><p>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">permission</span></span><span class="operator"><span class="pre">=</span></span><span class="literal number integer"><span class="pre">600</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
 </ul>
 </li>
 <li><p><strong>replace_pattern</strong>: Specify a regular expression that will match what
 you want to replace in the filename</p>
 <ul>
-<li><p>eg: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">replace_pattern</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”vim(.+)”</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
+<li><p>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">replace_pattern</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”vim(.+)”</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
 </ul>
 </li>
 <li><p><strong>replace</strong>: Specify a string that replaces the <code class="docutils literal notranslate"><span class="pre">replace_pattern</span></code></p>
 <ul>
-<li><p>eg: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">replace</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”</span></span><span class="literal string escape"><span class="pre">\1</span></span><span class="literal string double"><span class="pre">”</span></span><span class="punctuation"><span class="pre">)</span></span></code> this will strip away any “vim”
+<li><p>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">replace</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string affix"><span class="pre">r</span></span><span class="literal string double"><span class="pre">”\1”</span></span><span class="punctuation"><span class="pre">)</span></span></code> this will strip away any “vim”
 prefix of the symlinks name if used in combination with above
 example</p></li>
 </ul>
 </li>
 <li><p><strong>name</strong>: Sets the name of the symlink. This can be a path as well.</p>
 <ul>
-<li><p>eg: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">name</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”config”</span></span><span class="punctuation"><span class="pre">)</span></span></code> but usually used like this
+<li><p>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">name</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”config”</span></span><span class="punctuation"><span class="pre">)</span></span></code> but usually used like this
 <code class="code python docutils literal notranslate"><span class="name"><span class="pre">link</span></span><span class="punctuation"><span class="pre">(</span></span><span class="literal string double"><span class="pre">“polybarconfig”</span></span><span class="punctuation"><span class="pre">,</span></span> <span class="name"><span class="pre">name</span></span><span class="operator"><span class="pre">=</span></span><span class="literal string double"><span class="pre">”.config/polybar/config”</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
 </ul>
 </li>
 <li><p><strong>optional</strong>: If no correct version of a file is found and this is set
 to True no error will be raised</p>
 <ul>
-<li><p>eg: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">optional</span></span><span class="operator"><span class="pre">=</span></span><span class="name builtin pseudo"><span class="pre">True</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
+<li><p>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">optional</span></span><span class="operator"><span class="pre">=</span></span><span class="name builtin pseudo"><span class="pre">True</span></span><span class="punctuation"><span class="pre">)</span></span></code></p></li>
 </ul>
 </li>
 </ul>
 </div>
-<div class="section" id="default-optionnames">
-<h3>default(*Optionnames)<a class="headerlink" href="#default-optionnames" title="Permalink to this headline">¶</a></h3>
-<p>This command accepts a list of options and sets them back to default.
-If no options is provided it sets all options back to default.</p>
-<p><strong>Example:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set one option back to default</span>
-<span class="n">default</span><span class="p">(</span><span class="s2">&quot;permission&quot;</span><span class="p">)</span>
-<span class="c1"># Set multiple option back to default</span>
-<span class="n">default</span><span class="p">(</span><span class="s2">&quot;optional&quot;</span><span class="p">,</span> <span class="s2">&quot;owner&quot;</span><span class="p">,</span> <span class="s2">&quot;prefix&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="links-pattern-options">
-<h3>links(Pattern, **Options)<a class="headerlink" href="#links-pattern-options" title="Permalink to this headline">¶</a></h3>
+<h4>links(Pattern, **Options)<a class="headerlink" href="#links-pattern-options" title="Permalink to this headline">¶</a></h4>
 <p>This command works like <code class="docutils literal notranslate"><span class="pre">link()</span></code> but instead of a list of filenames
 it receives a regular expression. All dotfiles will be linked that
 match this pattern (tags will be stripped away before matching). This
@@ -342,7 +332,7 @@ decrypt every file that matches link, when set to True.</p>
 </div>
 </div>
 <div class="section" id="extlink-path-options">
-<h3>extlink(Path, **Options)<a class="headerlink" href="#extlink-path-options" title="Permalink to this headline">¶</a></h3>
+<h4>extlink(Path, **Options)<a class="headerlink" href="#extlink-path-options" title="Permalink to this headline">¶</a></h4>
 <p>Creates a link to any file or directory by specifying a path. You can
 use a relative path if you want, but an absolute path is considered
 safer in this case. Otherwise it behaves like the <code class="docutils literal notranslate"><span class="pre">link()</span></code> command.</p>
@@ -355,9 +345,9 @@ safer in this case. Otherwise it behaves like the <code class="docutils literal 
 </div>
 </div>
 <div class="section" id="tags-tags">
-<h3>tags(*tags)<a class="headerlink" href="#tags-tags" title="Permalink to this headline">¶</a></h3>
+<h4>tags(*tags)<a class="headerlink" href="#tags-tags" title="Permalink to this headline">¶</a></h4>
 <p>Takes a list of tags and adds all of them. A tag is just any string of
-characters (except for ‘%’) that you can set as you like. It will be
+characters (except for ‘%’) that you can choose as you like. It will be
 used to find alternate versions of a dotfile. Such a alternate version
 of a dotfile needs to be prefixed with the same tag plus a percent
 sign as a separator. The easiest way to explain this concept is with
@@ -402,16 +392,8 @@ adding the subprofiles for the programs that you want to configure you
 can basically setup any new device or variation of your configuration in
 a few minutes.</p>
 </div>
-<div class="section" id="rmtags-tags">
-<h3>rmtags(*tags)<a class="headerlink" href="#rmtags-tags" title="Permalink to this headline">¶</a></h3>
-<p>Takes a list of tags. Removes all of them if they are set.</p>
-</div>
-<div class="section" id="has-tag-tags">
-<h3>has_tag(tags)<a class="headerlink" href="#has-tag-tags" title="Permalink to this headline">¶</a></h3>
-<p>Takes a tag and returns if it is set.</p>
-</div>
 <div class="section" id="subprof-profiles">
-<h3>subprof(*profiles)<a class="headerlink" href="#subprof-profiles" title="Permalink to this headline">¶</a></h3>
+<h4>subprof(*profiles)<a class="headerlink" href="#subprof-profiles" title="Permalink to this headline">¶</a></h4>
 <p>This command accepts a list of profilenames that will be executed as
 subprofiles. A subprofile takes all properties (options, tags and the
 current working directory) of its parent at the time this command is
@@ -434,29 +416,56 @@ directory was set <code class="docutils literal notranslate"><span class="pre">M
 </pre></div>
 </div>
 </div>
+</div>
+<div class="section" id="helper-commands">
+<h3>Helper commands:<a class="headerlink" href="#helper-commands" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="has-tag-tags">
+<h4>has_tag(tags)<a class="headerlink" href="#has-tag-tags" title="Permalink to this headline">¶</a></h4>
+<p>Takes a tag and returns if it is set.</p>
+</div>
+<div class="section" id="rmtags-tags">
+<h4>rmtags(*tags)<a class="headerlink" href="#rmtags-tags" title="Permalink to this headline">¶</a></h4>
+<p>Takes a list of tags. Removes all of them if they are set.</p>
+</div>
+<div class="section" id="default-optionnames">
+<h4>default(*Optionnames)<a class="headerlink" href="#default-optionnames" title="Permalink to this headline">¶</a></h4>
+<p>This command accepts a list of options and sets them back to default.
+If no option is provided it sets all options back to default.</p>
+<p><strong>Example:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set one option back to default</span>
+<span class="n">default</span><span class="p">(</span><span class="s2">&quot;permission&quot;</span><span class="p">)</span>
+<span class="c1"># Set multiple option back to default</span>
+<span class="n">default</span><span class="p">(</span><span class="s2">&quot;optional&quot;</span><span class="p">,</span> <span class="s2">&quot;owner&quot;</span><span class="p">,</span> <span class="s2">&quot;prefix&quot;</span><span class="p">)</span>
+<span class="c1"># Set all option back to default</span>
+<span class="n">default</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="file-manipulation-commands">
+<h3>File manipulation commands:<a class="headerlink" href="#file-manipulation-commands" title="Permalink to this headline">¶</a></h3>
 <div class="section" id="decrypt-dotfilename">
-<h3>decrypt(Dotfilename)<a class="headerlink" href="#decrypt-dotfilename" title="Permalink to this headline">¶</a></h3>
-<p>This command takes a single filename and searches for it like
-<code class="docutils literal notranslate"><span class="pre">link()</span></code>. It will decrypt it and return the decrypted file as a
-dynamicfile which then can be used by <code class="docutils literal notranslate"><span class="pre">link()</span></code>. If <code class="docutils literal notranslate"><span class="pre">decryptPwd</span></code> is
-set in your configfile this will be used for every decryption. Otherwise
-Dotmanager (or more precisely gnupg) will ask you for the password.
-Because dynamicfiles have the property to be regenerated every time the
-file contents changes, this command has the downside that it actually
-needs to decrypt the file every time you install/update even though
-there maybe are no changes. This can be very frustrating if type in the
-password every time so I strongly recommend setting <code class="docutils literal notranslate"><span class="pre">decryptPwd</span></code>.</p>
+<h4>decrypt(Dotfilename)<a class="headerlink" href="#decrypt-dotfilename" title="Permalink to this headline">¶</a></h4>
+<p>This command takes a single filename and searches for it like <code class="docutils literal notranslate"><span class="pre">link()</span></code>. It
+will decrypt it and return the decrypted file as a dynamicfile which then can
+be used by <code class="docutils literal notranslate"><span class="pre">link()</span></code>. If <code class="docutils literal notranslate"><span class="pre">decryptPwd</span></code> is set in your configfile this will be
+used for every decryption. Otherwise Dotmanager (or more precisely gnupg) will
+ask you for the password. Because dynamicfiles are regenerated every time the
+files content changes, this command has the downside that it actually needs to
+decrypt the file every time you install/update even though there maybe are no
+changes. This can be very frustrating if you need to type in the password every
+time, so I highly recommend setting <code class="docutils literal notranslate"><span class="pre">decryptPwd</span></code>.</p>
 <p><strong>Example:</strong> This creates a DynamicFile called <code class="docutils literal notranslate"><span class="pre">gitconfig</span></code> at
-<code class="docutils literal notranslate"><span class="pre">data/decrypted</span></code>. The DynamicFile contains the decrypted content of
-the encrypted dotfile <code class="docutils literal notranslate"><span class="pre">gitconfig</span></code>. Furthermore this creates a symlink
-to this DynamicFile in your home directory called <code class="docutils literal notranslate"><span class="pre">.gitconfig</span></code>.</p>
+<code class="docutils literal notranslate"><span class="pre">data/decrypted</span></code>. The DynamicFile contains the decrypted content of the
+encrypted dotfile <code class="docutils literal notranslate"><span class="pre">gitconfig</span></code>. Furthermore this creates a symlink in your
+home directory called <code class="docutils literal notranslate"><span class="pre">.gitconfig</span></code> which points to the DynamicFile.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">link</span><span class="p">(</span><span class="n">decrypt</span><span class="p">(</span><span class="s2">&quot;gitconfig&quot;</span><span class="p">),</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Example:</strong> To decrypt multiple files at once you could use python’s
-list comprehension. This will decrypt <code class="docutils literal notranslate"><span class="pre">key1</span></code>, <code class="docutils literal notranslate"><span class="pre">key2</span></code>, <code class="docutils literal notranslate"><span class="pre">key3</span></code> and
-<code class="docutils literal notranslate"><span class="pre">key4</span></code> and link them to <code class="docutils literal notranslate"><span class="pre">key1.pkk</span></code>, <code class="docutils literal notranslate"><span class="pre">key2.pkk</span></code>, <code class="docutils literal notranslate"><span class="pre">key3.pkk</span></code> and
-<code class="docutils literal notranslate"><span class="pre">key4.pkk</span></code>.</p>
+<p><strong>Example:</strong> To decrypt multiple files at once you could use python’s list
+comprehension or use <code class="docutils literal notranslate"><span class="pre">links()</span></code> with <code class="docutils literal notranslate"><span class="pre">encrypted</span></code> setting. This will decrypt
+<code class="docutils literal notranslate"><span class="pre">key1</span></code>, <code class="docutils literal notranslate"><span class="pre">key2</span></code>, <code class="docutils literal notranslate"><span class="pre">key3</span></code> and <code class="docutils literal notranslate"><span class="pre">key4</span></code> and link them to <code class="docutils literal notranslate"><span class="pre">key1.pkk</span></code>,
+<code class="docutils literal notranslate"><span class="pre">key2.pkk</span></code>, <code class="docutils literal notranslate"><span class="pre">key3.pkk</span></code> and <code class="docutils literal notranslate"><span class="pre">key4.pkk</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># using list comprehension</span>
 <span class="n">keyfiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">for</span> <span class="nb">file</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="s2">&quot;key2&quot;</span><span class="p">,</span> <span class="s2">&quot;key3&quot;</span><span class="p">,</span> <span class="s2">&quot;key4&quot;</span><span class="p">]]</span>
 <span class="n">link</span><span class="p">(</span><span class="n">keyfiles</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.pkk&quot;</span><span class="p">)</span>
@@ -468,37 +477,36 @@ list comprehension. This will decrypt <code class="docutils literal notranslate"
 </div>
 </div>
 <div class="section" id="merge-name-dotfilenames">
-<h3>merge(name, *Dotfilenames)<a class="headerlink" href="#merge-name-dotfilenames" title="Permalink to this headline">¶</a></h3>
-<p>This command lets you merge some dotfiles to a single big dotfile.
-That is useful if you want to split a configuration file that doesn’t
-support source-operations (eg i3). It even works with tags, so the
-dotfile can be generated using alternate versions of the splittet
-files. The first parameter is the name that you give the new merged
-dotfile. All following parameter are dotfiles that will be searched
-for and merged in the order you provide. The command returns the
-merged dotfile as DynamicFile.</p>
-<p><strong>Example:</strong> This creates a DynamicFile called <code class="docutils literal notranslate"><span class="pre">vimrc</span></code> at
-<code class="docutils literal notranslate"><span class="pre">data/merged/</span></code>. <code class="docutils literal notranslate"><span class="pre">vimrc</span></code> contains the content of the dotfiles
-<code class="docutils literal notranslate"><span class="pre">defaults.vim</span></code>, <code class="docutils literal notranslate"><span class="pre">keybindings.vim</span></code> and <code class="docutils literal notranslate"><span class="pre">plugins.vim</span></code>. Furthermore
-this creates a symlink to this DynamicFile in your home directory called
-<code class="docutils literal notranslate"><span class="pre">.vimrc</span></code>.</p>
+<h4>merge(name, *Dotfilenames)<a class="headerlink" href="#merge-name-dotfilenames" title="Permalink to this headline">¶</a></h4>
+<p>This command lets you merge multiple dotfiles into a single big dotfile. That
+is useful if you want to split a configuration file that doesn’t support
+source-operations (eg i3). It even works with tags, so the dotfile can be
+generated using alternate versions of the splittet files. The first parameter
+is the name that you give the new merged dotfile. All following parameters are
+dotfiles that will be searched for and merged in the order you provide. The
+command returns the merged dotfile as DynamicFile.</p>
+<p><strong>Example:</strong> This creates a DynamicFile called <code class="docutils literal notranslate"><span class="pre">vimrc</span></code> at <code class="docutils literal notranslate"><span class="pre">data/merged/</span></code>.
+<code class="docutils literal notranslate"><span class="pre">vimrc</span></code> contains the content of the dotfiles <code class="docutils literal notranslate"><span class="pre">defaults.vim</span></code>,
+<code class="docutils literal notranslate"><span class="pre">keybindings.vim</span></code> and <code class="docutils literal notranslate"><span class="pre">plugins.vim</span></code>. Furthermore this creates a symlink to
+this DynamicFile in your home directory called <code class="docutils literal notranslate"><span class="pre">.vimrc</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">link</span><span class="p">(</span><span class="n">merge</span><span class="p">(</span><span class="s2">&quot;vimrc&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;defaults.vim&quot;</span><span class="p">,</span> <span class="s2">&quot;keybindings.vim&quot;</span><span class="p">,</span> <span class="s2">&quot;plugins.vim&quot;</span><span class="p">]),</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="pipe-dotfilename-shell-command">
-<h3>pipe(Dotfilename, shell_command)<a class="headerlink" href="#pipe-dotfilename-shell-command" title="Permalink to this headline">¶</a></h3>
+<h4>pipe(Dotfilename, shell_command)<a class="headerlink" href="#pipe-dotfilename-shell-command" title="Permalink to this headline">¶</a></h4>
 <p>This command lets you execute any shell command on a dotfile before
-linking it by piping it into the specified shell command. It returns the
+linking it by piping its content into the specified shell command. It returns the
 result as a DynamicFile. This command also accepts a Dynamicfile instead
 of a filename.</p>
 <p><strong>Example:</strong> Think of a file <code class="docutils literal notranslate"><span class="pre">text.txt</span></code> that only contains the numbers
-one to twenty with each number on in a separate line.</p>
+one to twenty with each number on a separate line.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">link</span><span class="p">(</span><span class="n">pipe</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;grep 2&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
-<p>This will create a link called <code class="docutils literal notranslate"><span class="pre">test.txt</span></code> which only contains the
-numbers 2, 12 and 20.</p>
+<p>This will create a link called <code class="docutils literal notranslate"><span class="pre">test.txt</span></code> which only contains the numbers 2,
+12 and 20.</p>
+</div>
 </div>
 </div>
 <div class="section" id="info-module">
@@ -583,48 +591,11 @@ system you are on.</p>
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Dotmanager Manual</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#description">DESCRIPTION</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="#commandline-interface">Commandline Interface</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#synopsis">Synopsis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#modes">Modes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#options">Options</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#profiles">Profiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#commands">Commands</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#cd-path">cd(Path)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#link-dotfilenames-options">link(*Dotfilenames, **Options)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#opt-options">opt(**Options)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#default-optionnames">default(*Optionnames)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#links-pattern-options">links(Pattern, **Options)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#extlink-path-options">extlink(Path, **Options)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#tags-tags">tags(*tags)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#rmtags-tags">rmtags(*tags)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#has-tag-tags">has_tag(tags)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#subprof-profiles">subprof(*profiles)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#decrypt-dotfilename">decrypt(Dotfilename)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#merge-name-dotfilenames">merge(name, *Dotfilenames)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pipe-dotfilename-shell-command">pipe(Dotfilename, shell_command)</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#info-module">Info module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#functions">Functions:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#usage">Usage:</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#notes">NOTES</a></li>
-</ul>
-</li>
-</ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="../developers/reference/utils.html" title="previous chapter">Utils</a></li>
   </ul></li>
 </ul>
 </div>
