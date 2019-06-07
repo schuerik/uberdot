@@ -84,4 +84,4 @@ Note: While the man page build is tracked/checked into git, the html documentati
 not checked in and only available at the gh-pages branch.
 
 
-.. _Sphinx: https://www.sphinx-doc.org/en/master/
+.. _Sphinx: http://www.sphinx-doc.org/en/master/index.html

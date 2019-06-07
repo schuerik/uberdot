@@ -2,27 +2,38 @@ Info module
 ===========
 
 The info module provides a set of functions to get information about the
-system you are on. At the moment the following functions are
-implemented:
+system you are on.
 
-+---------------------+------------------------------------------------+
-| Function            | Description                                    |
-+=====================+================================================+
-| ``distribution()``  | Returns the distribution name (eg “Ubuntu”,    |
-|                     | “Antergos”)                                    |
-+---------------------+------------------------------------------------+
-| ``hostname()``      | Returns the hostname                           |
-+---------------------+------------------------------------------------+
-| ``is_64bit()``      | Returns True if the OS is a 64 bit             |
-+---------------------+------------------------------------------------+
-| ``kernel()``        | Returns the release of the running kernel (eg  |
-|                     | “4.19.4”)                                      |
-+---------------------+------------------------------------------------+
-| ``pkg_installed(pkg | Returns True if the package called             |
-| _name)``            | ``pkg_name`` is installed                      |
-+---------------------+------------------------------------------------+
-| ``username()``      | Returns the name of the logged in user         |
-+---------------------+------------------------------------------------+
+Functions:
+----------
+
+**info.distribution()**
+
+    Returns the distribution name (e.g. “Ubuntu”, “Antergos”)
+
+**info.hostname()**
+
+    Returns the hostname
+
+**info.is_64bit()**
+
+    Returns ``True`` if the OS is a 64 bit
+
+**info.kernel()**
+
+    Returns the release of the running kernel (e.g. “4.19.4”)
+
+**info.pkg_installed(pkg_name)**
+
+    Returns ``True`` if the package called ``pkg_name`` is installed
+
+**info.username()**
+
+    Returns the name of the logged in user
+
+
+Usage:
+------
 
 To use those functions you need to import the info module:
 

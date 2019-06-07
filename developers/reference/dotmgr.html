@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>DotManager &#8212; Dotmanager 1.10.2_3 documentation</title>
+    <title>DotManager &#8212; Dotmanager 1.10.5_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -43,14 +43,14 @@ startup script.</p>
 <p>or you can import DotManager for debugging and testing purposes.</p>
 <dl class="class">
 <dt id="dotmgr.DotManager">
-<em class="property">class </em><code class="descclassname">dotmgr.</code><code class="descname">DotManager</code><a class="headerlink" href="#dotmgr.DotManager" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dotmgr.</code><code class="sig-name descname">DotManager</code><a class="headerlink" href="#dotmgr.DotManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Bundles all functionality off Dotmanager.</p>
 <p>This includes things like parsing arguments, loading installed-files,
 printing information and executing profiles.</p>
 <dl class="attribute">
 <dt id="dotmgr.DotManager.installed">
-<code class="descname">installed</code><a class="headerlink" href="#dotmgr.DotManager.installed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">installed</code><a class="headerlink" href="#dotmgr.DotManager.installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>The installed-file that is used as a reference</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -61,7 +61,7 @@ printing information and executing profiles.</p>
 
 <dl class="attribute">
 <dt id="dotmgr.DotManager.args">
-<code class="descname">args</code><a class="headerlink" href="#dotmgr.DotManager.args" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">args</code><a class="headerlink" href="#dotmgr.DotManager.args" title="Permalink to this definition">¶</a></dt>
 <dd><p>The parsed arguments</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -72,7 +72,7 @@ printing information and executing profiles.</p>
 
 <dl class="attribute">
 <dt id="dotmgr.DotManager.owd">
-<code class="descname">owd</code><a class="headerlink" href="#dotmgr.DotManager.owd" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">owd</code><a class="headerlink" href="#dotmgr.DotManager.owd" title="Permalink to this definition">¶</a></dt>
 <dd><p>The old working directory Dotmanager was started from</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -83,7 +83,7 @@ printing information and executing profiles.</p>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor</p>
 <p>Initializes attributes and changes the working directory to the
 directory where this module is stored.</p>
@@ -91,7 +91,7 @@ directory where this module is stored.</p>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.dryrun">
-<code class="descname">dryrun</code><span class="sig-paren">(</span><em>difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.dryrun" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dryrun</code><span class="sig-paren">(</span><em class="sig-param">difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.dryrun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like <cite>run()</cite> but instead of resolving it it will be just printed out</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -106,13 +106,13 @@ directory where this module is stored.</p>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.execute_arguments">
-<code class="descname">execute_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.execute_arguments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">execute_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.execute_arguments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Executes whatever was specified via commandline arguments</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.load_installed">
-<code class="descname">load_installed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.load_installed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">load_installed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.load_installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the installed-file and parses it’s content into
 <cite>self.installed</cite>.</p>
 <dl class="field-list simple">
@@ -125,7 +125,7 @@ directory where this module is stored.</p>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.parse_arguments">
-<code class="descname">parse_arguments</code><span class="sig-paren">(</span><em>arguments=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.parse_arguments" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parse_arguments</code><span class="sig-paren">(</span><em class="sig-param">arguments=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.parse_arguments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses the commandline arguments. This function can parse a custom
 list of arguments, instead of <cite>sys.args</cite>.</p>
 <dl class="field-list simple">
@@ -142,7 +142,7 @@ of sys.args</p>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.print_debuginfo">
-<code class="descname">print_debuginfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_debuginfo" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">print_debuginfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_debuginfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print out internal values.</p>
 <p>This includes search paths of configs, loaded configs,
 parsed commandline arguments and settings.</p>
@@ -150,7 +150,7 @@ parsed commandline arguments and settings.</p>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.print_installed">
-<code class="descname">print_installed</code><span class="sig-paren">(</span><em>profile</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_installed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">print_installed</code><span class="sig-paren">(</span><em class="sig-param">profile</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints a single installed profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -161,7 +161,7 @@ parsed commandline arguments and settings.</p>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.print_installed_profiles">
-<code class="descname">print_installed_profiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_installed_profiles" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">print_installed_profiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_installed_profiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print out the installed-file in a readable format.</p>
 <p>Prints only the profiles specified in the commandline arguments. If
 none are specified it prints all profiles of the installed-file.</p>
@@ -169,7 +169,7 @@ none are specified it prints all profiles of the installed-file.</p>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.run">
-<code class="descname">run</code><span class="sig-paren">(</span><em>difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.run" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs checks on DiffLog and resolves it.</p>
 <p>Furthermore this function handles backups, converts exceptions into
 UnkownErrors and might replace the entire process when Dotmanager was
@@ -193,12 +193,12 @@ started with insufficient permissions.</p>
 
 <dl class="class">
 <dt id="dotmgr.StoreDictKeyPair">
-<em class="property">class </em><code class="descclassname">dotmgr.</code><code class="descname">StoreDictKeyPair</code><span class="sig-paren">(</span><em>option_strings</em>, <em>dest</em>, <em>nargs=None</em>, <em>const=None</em>, <em>default=None</em>, <em>type=None</em>, <em>choices=None</em>, <em>required=False</em>, <em>help=None</em>, <em>metavar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dotmgr.</code><code class="sig-name descname">StoreDictKeyPair</code><span class="sig-paren">(</span><em class="sig-param">option_strings</em>, <em class="sig-param">dest</em>, <em class="sig-param">nargs=None</em>, <em class="sig-param">const=None</em>, <em class="sig-param">default=None</em>, <em class="sig-param">type=None</em>, <em class="sig-param">choices=None</em>, <em class="sig-param">required=False</em>, <em class="sig-param">help=None</em>, <em class="sig-param">metavar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.Action</span></code></p>
 <p>Custom argparse.Action to parse an option dictionary from commandline</p>
 <dl class="method">
 <dt id="dotmgr.StoreDictKeyPair.__call__">
-<code class="descname">__call__</code><span class="sig-paren">(</span><em>parser</em>, <em>namespace</em>, <em>values</em>, <em>option_string=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair.__call__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">parser</em>, <em class="sig-param">namespace</em>, <em class="sig-param">values</em>, <em class="sig-param">option_string=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair.__call__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Splits a commandline argument at “=” and writes the splitted
 values into a dictionary.</p>
 </dd></dl>
@@ -254,10 +254,10 @@ values into a dictionary.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -279,7 +279,7 @@ values into a dictionary.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

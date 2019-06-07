@@ -13,6 +13,7 @@ documents provide extensive examples and advises for best practice.
    python-syntax.rst
    commands.rst
    info-module.rst
+   config-file.rst
    encryption.rst
    dynamicfiles.rst
    installed-file.rst

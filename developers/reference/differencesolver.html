@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Differencesolver &#8212; Dotmanager 1.10.2_3 documentation</title>
+    <title>Differencesolver &#8212; Dotmanager 1.10.5_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 the standart DiffSolver) and their resulting data struct DiffLog.</p>
 <dl class="class">
 <dt id="differencesolver.DiffLog">
-<em class="property">class </em><code class="descclassname">differencesolver.</code><code class="descname">DiffLog</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">differencesolver.</code><code class="sig-name descname">DiffLog</code><span class="sig-paren">(</span><em class="sig-param">data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This class stores the operations that were determined by a Difference-
 Solver. Furthermore it provides helpers to create such operations and
@@ -46,7 +46,7 @@ a funciton that allows multiple interpreter to interprete the operations
 at the same time.</p>
 <dl class="attribute">
 <dt id="differencesolver.DiffLog.data">
-<code class="descname">data</code><a class="headerlink" href="#differencesolver.DiffLog.data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">data</code><a class="headerlink" href="#differencesolver.DiffLog.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Used to store the operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -57,7 +57,7 @@ at the same time.</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog._DiffLog__append_data">
-<code class="descname">_DiffLog__append_data</code><span class="sig-paren">(</span><em>operation</em>, <em>profilename</em>, <em>**args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog._DiffLog__append_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_DiffLog__append_data</code><span class="sig-paren">(</span><em class="sig-param">operation</em>, <em class="sig-param">profilename</em>, <em class="sig-param">**args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog._DiffLog__append_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Appends a new operation to <cite>self.data</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -72,13 +72,13 @@ operation</p></li>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">data=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.add_info">
-<code class="descname">add_info</code><span class="sig-paren">(</span><em>profilename</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_info</code><span class="sig-paren">(</span><em class="sig-param">profilename</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an info operation.</p>
 <p>Info operations can be used to print out profile information to the
 user. At the moment this is only evaluated by the PrettyPrint-
@@ -99,7 +99,7 @@ information</p></li>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.add_link">
-<code class="descname">add_link</code><span class="sig-paren">(</span><em>symlink</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_link" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_link</code><span class="sig-paren">(</span><em class="sig-param">symlink</em>, <em class="sig-param">profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an add-link operation.</p>
 <p>Add-link operations indicate that a new link needs to be created.
 This will be - for example - evaluated by the ExecuteInterpreter
@@ -118,7 +118,7 @@ needs to be created</p></li>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.add_profile">
-<code class="descname">add_profile</code><span class="sig-paren">(</span><em>profilename</em>, <em>parentname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_profile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">add_profile</code><span class="sig-paren">(</span><em class="sig-param">profilename</em>, <em class="sig-param">parentname=None</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an add-profile operation.</p>
 <p>Add-profile operations indicate that a new profile will be added/
 installed. This will be - for example - evalutated by the
@@ -136,7 +136,7 @@ ExecuteInterpreter to create a new empty entry in the installed-file.</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.remove_link">
-<code class="descname">remove_link</code><span class="sig-paren">(</span><em>symlink_name</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.remove_link" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_link</code><span class="sig-paren">(</span><em class="sig-param">symlink_name</em>, <em class="sig-param">profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.remove_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a remove-link operation.</p>
 <p>Remove-link operation indicate that a certain link needs to be removed.
 This will be - for example - evaluated by the ExecuteInterpreter
@@ -153,7 +153,7 @@ to remove the link from the filesystem and the installed file.</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.remove_profile">
-<code class="descname">remove_profile</code><span class="sig-paren">(</span><em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.remove_profile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">remove_profile</code><span class="sig-paren">(</span><em class="sig-param">profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.remove_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a remove-profile operation.</p>
 <p>Remove-profile operations indicate that a certain profile will be
 removed/uninstalled. This will be - for example - evaluated by the
@@ -167,7 +167,7 @@ ExecuteInterpreter to remove the profile in the installed file.</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.run_interpreter">
-<code class="descname">run_interpreter</code><span class="sig-paren">(</span><em>*interpreters</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.run_interpreter" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">run_interpreter</code><span class="sig-paren">(</span><em class="sig-param">*interpreters</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.run_interpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run a list of interpreters for all operations.</p>
 <p>This function iterates over all operations and evaluates them by
 feeding them into the given interpreters. Furthermore it initializes
@@ -183,7 +183,7 @@ interpret the operations</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.update_link">
-<code class="descname">update_link</code><span class="sig-paren">(</span><em>installed_symlink</em>, <em>new_symlink</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.update_link" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_link</code><span class="sig-paren">(</span><em class="sig-param">installed_symlink</em>, <em class="sig-param">new_symlink</em>, <em class="sig-param">profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.update_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a update-link operation.</p>
 <p>Update-link operation indicate that a certain link needs to be replaced
 by a new link. This will be - for example - evaluated by the
@@ -204,7 +204,7 @@ link that will be the replacement for the old  link</p></li>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.update_parent">
-<code class="descname">update_parent</code><span class="sig-paren">(</span><em>profilename</em>, <em>parentname</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.update_parent" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_parent</code><span class="sig-paren">(</span><em class="sig-param">profilename</em>, <em class="sig-param">parentname</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.update_parent" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an update-parent operation.</p>
 <p>Update-parent operations indicate that a certain profile will change
 its parent.</p>
@@ -221,7 +221,7 @@ its parent.</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffLog.update_profile">
-<code class="descname">update_profile</code><span class="sig-paren">(</span><em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.update_profile" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update_profile</code><span class="sig-paren">(</span><em class="sig-param">profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.update_profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an update-profile operation.</p>
 <p>Update-profile operations indicate that a certain profile will be
 updated. This will be - for example - evaluated by the
@@ -238,14 +238,14 @@ installed file.</p>
 
 <dl class="class">
 <dt id="differencesolver.DiffSolver">
-<em class="property">class </em><code class="descclassname">differencesolver.</code><code class="descname">DiffSolver</code><span class="sig-paren">(</span><em>installed</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">differencesolver.</code><code class="sig-name descname">DiffSolver</code><span class="sig-paren">(</span><em class="sig-param">installed</em>, <em class="sig-param">args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This solver determines the differences between a list of profiles
 and an installed-file. It is used to generate a DiffLog that stores
 all operations to resolve the differences between those.</p>
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.profilenames">
-<code class="descname">profilenames</code><a class="headerlink" href="#differencesolver.DiffSolver.profilenames" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">profilenames</code><a class="headerlink" href="#differencesolver.DiffSolver.profilenames" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of names of all profiles that is used
 for solving</p>
 <dl class="field-list simple">
@@ -257,7 +257,7 @@ for solving</p>
 
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.installed">
-<code class="descname">installed</code><a class="headerlink" href="#differencesolver.DiffSolver.installed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">installed</code><a class="headerlink" href="#differencesolver.DiffSolver.installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>The installed-file that is used for solving</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -268,7 +268,7 @@ for solving</p>
 
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.difflog">
-<code class="descname">difflog</code><a class="headerlink" href="#differencesolver.DiffSolver.difflog" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">difflog</code><a class="headerlink" href="#differencesolver.DiffSolver.difflog" title="Permalink to this definition">¶</a></dt>
 <dd><p>The resulting difflog</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -279,7 +279,7 @@ for solving</p>
 
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.default_options">
-<code class="descname">default_options</code><a class="headerlink" href="#differencesolver.DiffSolver.default_options" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_options</code><a class="headerlink" href="#differencesolver.DiffSolver.default_options" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default options that the profiles will use</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -290,7 +290,7 @@ for solving</p>
 
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.default_dir">
-<code class="descname">default_dir</code><a class="headerlink" href="#differencesolver.DiffSolver.default_dir" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">default_dir</code><a class="headerlink" href="#differencesolver.DiffSolver.default_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default directory that profiles start in</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -301,7 +301,7 @@ for solving</p>
 
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.parent_arg">
-<code class="descname">parent_arg</code><a class="headerlink" href="#differencesolver.DiffSolver.parent_arg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parent_arg</code><a class="headerlink" href="#differencesolver.DiffSolver.parent_arg" title="Permalink to this definition">¶</a></dt>
 <dd><p>The name of the parent that all profiles will change
 its parent to (only set if <code class="docutils literal notranslate"><span class="pre">--parent</span></code> was specified)</p>
 <dl class="field-list simple">
@@ -313,7 +313,7 @@ its parent to (only set if <code class="docutils literal notranslate"><span clas
 
 <dl class="method">
 <dt id="differencesolver.DiffSolver._DiffSolver__generate_links">
-<code class="descname">_DiffSolver__generate_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_links" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_DiffSolver__generate_links</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates operations to update all profiles.</p>
 <p>This function imports and runs the profiles and resolves each root
 profile with their subprofiles separately.</p>
@@ -321,7 +321,7 @@ profile with their subprofiles separately.</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffSolver._DiffSolver__generate_profile_link">
-<code class="descname">_DiffSolver__generate_profile_link</code><span class="sig-paren">(</span><em>profile_dict</em>, <em>all_profilenames</em>, <em>parent_name</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_profile_link" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_DiffSolver__generate_profile_link</code><span class="sig-paren">(</span><em class="sig-param">profile_dict</em>, <em class="sig-param">all_profilenames</em>, <em class="sig-param">parent_name</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_profile_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resolves the differences between a single profile and the installed
 ones and appends the difflog for those. Calls itself recursively for
 all subprofiles.</p>
@@ -342,7 +342,7 @@ profile</p></li>
 
 <dl class="method">
 <dt id="differencesolver.DiffSolver._DiffSolver__generate_profile_unlink">
-<code class="descname">_DiffSolver__generate_profile_unlink</code><span class="sig-paren">(</span><em>profile_name</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_profile_unlink" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_DiffSolver__generate_profile_unlink</code><span class="sig-paren">(</span><em class="sig-param">profile_name</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_profile_unlink" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate operations to remove a single installed profile.</p>
 <p>Appends to difflog that we want to remove a profile,
 all it’s subprofiles and all their links.</p>
@@ -355,7 +355,7 @@ all it’s subprofiles and all their links.</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffSolver._DiffSolver__generate_unlinks">
-<code class="descname">_DiffSolver__generate_unlinks</code><span class="sig-paren">(</span><em>profilelist</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_unlinks" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_DiffSolver__generate_unlinks</code><span class="sig-paren">(</span><em class="sig-param">profilelist</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_unlinks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates operations to remove all installed profiles of
 <code class="docutils literal notranslate"><span class="pre">profilelist</span></code>.</p>
 <p>Skips profiles that are not installed.</p>
@@ -369,7 +369,7 @@ unlinked</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffSolver.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">installed</em>, <em class="sig-param">args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor. Initializes attributes from commandline arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -383,7 +383,7 @@ unlinked</p>
 
 <dl class="method">
 <dt id="differencesolver.DiffSolver.solve">
-<code class="descname">solve</code><span class="sig-paren">(</span><em>link</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver.solve" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">solve</code><span class="sig-paren">(</span><em class="sig-param">link</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver.solve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Start solving differences.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -448,10 +448,10 @@ this).</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -473,7 +473,7 @@ this).</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

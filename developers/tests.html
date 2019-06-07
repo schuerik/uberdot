@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Testing suite of Dotmanager &#8212; Dotmanager 1.10.2_3 documentation</title>
+    <title>Testing suite of Dotmanager &#8212; Dotmanager 1.10.5_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -34,6 +34,106 @@
             
   <div class="section" id="testing-suite-of-dotmanager">
 <h1>Testing suite of Dotmanager<a class="headerlink" href="#testing-suite-of-dotmanager" title="Permalink to this headline">¶</a></h1>
+<p>To verify that Dotmanager is working correct and behaves the same on all
+platforms, there are regression tests in  <code class="docutils literal notranslate"><span class="pre">test/regressiontest.py</span></code>. At the
+moment they are far away from being complete but will be extended in the
+future.</p>
+<p>For now all regression tests can only check if Dotmanager manipulated a
+directory tree correctly. Those are <code class="docutils literal notranslate"><span class="pre">DirRegressionTest</span></code>. There is also a base
+class <code class="docutils literal notranslate"><span class="pre">RegressionTest</span></code> that does nothing more than checking a precondition,
+executing Dotmanager with some specific parameters and checking a post
+condition. If both conditions are met, the test is successful. The special
+<code class="docutils literal notranslate"><span class="pre">DirRegressionTest</span></code> takes a dictionary as condition that describes the
+expected directory tree.</p>
+<p>All profiles that are used in the tests can be found in <code class="docutils literal notranslate"><span class="pre">test/profiles/</span></code>, all
+dotfiles in <code class="docutils literal notranslate"><span class="pre">test/files</span></code>. Dotmanager will be executed with
+<code class="docutils literal notranslate"><span class="pre">test/environment</span></code> as default directory and all profiles must not define
+links outside of this directory. Otherwise the tests could overwrite existing
+setups.</p>
+<div class="section" id="creating-testcases">
+<h2>Creating testcases<a class="headerlink" href="#creating-testcases" title="Permalink to this headline">¶</a></h2>
+<p>Create a new test case with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">newtest</span> <span class="o">=</span> <span class="n">DirRegressionTest</span><span class="p">(</span><span class="n">name_of_test</span><span class="p">,</span>
+                            <span class="n">additional_cli_arguments</span><span class="p">,</span>
+                            <span class="n">precondition</span><span class="p">,</span>
+                            <span class="n">postcondition</span><span class="p">,</span>
+                            <span class="n">clean_environment</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And either expect it to be successful:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">newtest</span><span class="o">.</span><span class="n">success</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Or fail with a specific cause of failure:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">newtest</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="n">cause</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="phases">
+<h2>Phases<a class="headerlink" href="#phases" title="Permalink to this headline">¶</a></h2>
+<p>There are three phases of a regression test in which the test can fail:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>pre: The precondition is checked</p></li>
+<li><p>run: Dotmanager is executed</p></li>
+<li><p>post: The postcondition is checked</p></li>
+</ul>
+</div></blockquote>
+<p>If a test fails, it fails with a cause. For the “pre” and “post” phase the cause
+is a specific error message. For “run” it is the non-zero exitcode of Dotmanager.</p>
+</div>
+<div class="section" id="pre-and-postcondition-for-dirregressiontest">
+<h2>Pre- and postcondition for DirRegressionTest<a class="headerlink" href="#pre-and-postcondition-for-dirregressiontest" title="Permalink to this headline">¶</a></h2>
+<p>DirRegressionTests take two dictionaries that describe the directory tree of <code class="docutils literal notranslate"><span class="pre">test/</span></code>.
+The dictionary looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name.bla&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;permission&quot;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+                <span class="s2">&quot;rootuser&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s2">&quot;rootgroup&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;b37b8487ac0b8f01e9e34949717b16d1&quot;</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;links&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name.bla1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;files/name1&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;permission&quot;</span><span class="p">:</span> <span class="mi">600</span><span class="p">,</span>
+                <span class="s2">&quot;rootuser&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s2">&quot;rootgroup&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+                <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;b37b8487ac0b8f01e9e34949717b16d1&quot;</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;test.link&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;files/test&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;permission&quot;</span><span class="p">:</span> <span class="mi">777</span><span class="p">,</span>
+                <span class="s2">&quot;rootuser&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
+                <span class="s2">&quot;rootgroup&quot;</span><span class="p">:</span> <span class="bp">False</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;permission&quot;</span><span class="p">:</span> <span class="mi">777</span><span class="p">,</span>
+        <span class="s2">&quot;rootuser&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+        <span class="s2">&quot;rootgroup&quot;</span><span class="p">:</span> <span class="bp">True</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;environment/b&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
+    <span class="s2">&quot;environment/b/c&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The keys of the top dictionary are the relative paths from <code class="docutils literal notranslate"><span class="pre">test/</span></code> for any
+subdirectory that you want to verify. For every subdirectory there are the keys <code class="docutils literal notranslate"><span class="pre">files</span></code>, <code class="docutils literal notranslate"><span class="pre">links</span></code>, <code class="docutils literal notranslate"><span class="pre">permission</span></code>, <code class="docutils literal notranslate"><span class="pre">rootuser</span></code>
+and <code class="docutils literal notranslate"><span class="pre">rootgroup</span></code>. The last three describe the subdirectory itself. Because we can’t create new users/groups
+just for the sake of this test, we only distinguish between normal and root users/groups.
+<code class="docutils literal notranslate"><span class="pre">files</span></code> and <code class="docutils literal notranslate"><span class="pre">links</span></code> are both lists of dictionaries that we use describe all files in the subdirectory.
+Both have the keys <code class="docutils literal notranslate"><span class="pre">name</span></code> (which is the name of the file/symlink), <code class="docutils literal notranslate"><span class="pre">permission</span></code>, <code class="docutils literal notranslate"><span class="pre">rootuser</span></code> and <code class="docutils literal notranslate"><span class="pre">rootgroup</span></code>.
+There is also the optional key <code class="docutils literal notranslate"><span class="pre">content</span></code> which hold the md5 hash of the files content.
+The difference between those two lists is, that <code class="docutils literal notranslate"><span class="pre">links</span></code> has dictionaries with an additional <code class="docutils literal notranslate"><span class="pre">target</span></code> key that
+sets links target relatively to <code class="docutils literal notranslate"><span class="pre">test/</span></code>. Also all files that are listed in <code class="docutils literal notranslate"><span class="pre">links</span></code> will be verified to be
+a symbolic link, where as files that are listed in <code class="docutils literal notranslate"><span class="pre">files</span></code> must not be a symbolic link.</p>
+</div>
 </div>
 
 
@@ -81,10 +181,10 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -106,7 +206,7 @@
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

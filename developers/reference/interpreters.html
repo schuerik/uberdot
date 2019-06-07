@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Interpreters &#8212; Dotmanager 1.10.2_3 documentation</title>
+    <title>Interpreters &#8212; Dotmanager 1.10.5_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -49,12 +49,12 @@ Some examples what interpreters do:</p>
 </div></blockquote>
 <dl class="class">
 <dt id="interpreters.Interpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">Interpreter</code><a class="headerlink" href="#interpreters.Interpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">Interpreter</code><a class="headerlink" href="#interpreters.Interpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Base-class for an interpreter.</p>
 <dl class="attribute">
 <dt id="interpreters.Interpreter.data">
-<code class="descname">data</code><a class="headerlink" href="#interpreters.Interpreter.data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">data</code><a class="headerlink" href="#interpreters.Interpreter.data" title="Permalink to this definition">¶</a></dt>
 <dd><p>The full DiffLog that is interpreted.
 Only needed by Interpreters that alter the DiffLog.</p>
 <dl class="field-list simple">
@@ -66,13 +66,13 @@ Only needed by Interpreters that alter the DiffLog.</p>
 
 <dl class="method">
 <dt id="interpreters.Interpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="interpreters.Interpreter.call_operation">
-<code class="descname">call_operation</code><span class="sig-paren">(</span><em>operation</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.call_operation" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">call_operation</code><span class="sig-paren">(</span><em class="sig-param">operation</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.call_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the implemented behavior for this operation.</p>
 <p>This calls a function named like <code class="docutils literal notranslate"><span class="pre">operation[&quot;operation&quot;]</span></code> with
 the prefix ‘_op_’, if the function was implemented by the interpreter.</p>
@@ -85,7 +85,7 @@ the prefix ‘_op_’, if the function was implemented by the interpreter.</p>
 
 <dl class="method">
 <dt id="interpreters.Interpreter.set_difflog_data">
-<code class="descname">set_difflog_data</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.set_difflog_data" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_difflog_data</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.set_difflog_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the DiffLogData.</p>
 <p>Needed by Interpreters that alter the DiffLog.</p>
 <dl class="field-list simple">
@@ -99,13 +99,13 @@ the prefix ‘_op_’, if the function was implemented by the interpreter.</p>
 
 <dl class="class">
 <dt id="interpreters.CheckDynamicFilesInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckDynamicFilesInterpreter</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">CheckDynamicFilesInterpreter</code><span class="sig-paren">(</span><em class="sig-param">dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Checks if there are changes to a dynamic file and
 gives the user the oppoutunity to interact with them.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckDynamicFilesInterpreter.dryrun">
-<code class="descname">dryrun</code><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.dryrun" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">dryrun</code><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.dryrun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--dryrun</span></code> was set</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -116,7 +116,7 @@ gives the user the oppoutunity to interact with them.</p>
 
 <dl class="method">
 <dt id="interpreters.CheckDynamicFilesInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -127,7 +127,7 @@ gives the user the oppoutunity to interact with them.</p>
 
 <dl class="method">
 <dt id="interpreters.CheckDynamicFilesInterpreter._op_remove_l">
-<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inspects the target file of the to be removed link.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -138,7 +138,7 @@ gives the user the oppoutunity to interact with them.</p>
 
 <dl class="method">
 <dt id="interpreters.CheckDynamicFilesInterpreter._op_update_l">
-<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Inspects the target file of the to be updated link.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -149,7 +149,7 @@ gives the user the oppoutunity to interact with them.</p>
 
 <dl class="method">
 <dt id="interpreters.CheckDynamicFilesInterpreter.inspect_file">
-<code class="descname">inspect_file</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.inspect_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">inspect_file</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.inspect_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a file is dynamic and was changed. If so, it
 calls a small UI to store/undo changes.</p>
 <dl class="field-list simple">
@@ -161,7 +161,7 @@ calls a small UI to store/undo changes.</p>
 
 <dl class="method">
 <dt id="interpreters.CheckDynamicFilesInterpreter.user_interaction">
-<code class="descname">user_interaction</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.user_interaction" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">user_interaction</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.user_interaction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides a small UI for the user to interact with a changed dynamic
 file.</p>
 <p>The user can choose one of the following options to handle the changes:</p>
@@ -192,12 +192,12 @@ with</p>
 
 <dl class="class">
 <dt id="interpreters.CheckLinkBlacklistInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkBlacklistInterpreter</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">CheckLinkBlacklistInterpreter</code><span class="sig-paren">(</span><em class="sig-param">superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Checks if a operation touches a link that is on the blacklist.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckLinkBlacklistInterpreter.superforce">
-<code class="descname">superforce</code><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.superforce" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">superforce</code><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.superforce" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--superforce</span></code> was set</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -208,7 +208,7 @@ with</p>
 
 <dl class="attribute">
 <dt id="interpreters.CheckLinkBlacklistInterpreter.blacklist">
-<code class="descname">blacklist</code><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.blacklist" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">blacklist</code><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.blacklist" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of file name patterns that are forbidden
 to touch without superforce flag</p>
 <dl class="field-list simple">
@@ -220,7 +220,7 @@ to touch without superforce flag</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkBlacklistInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">superforce</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Loads the blacklist.</p>
 <dl class="field-list simple">
@@ -232,7 +232,7 @@ to touch without superforce flag</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkBlacklistInterpreter._op_add_l">
-<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks the to be added symlink for blacklist violations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -243,7 +243,7 @@ to touch without superforce flag</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkBlacklistInterpreter._op_remove_l">
-<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks the to be removed symlink for blacklist violations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -254,7 +254,7 @@ to touch without superforce flag</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkBlacklistInterpreter._op_update_l">
-<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks the old and the new symlink for blacklist violations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -265,7 +265,7 @@ to touch without superforce flag</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkBlacklistInterpreter.check_blacklist">
-<code class="descname">check_blacklist</code><span class="sig-paren">(</span><em>file_name</em>, <em>action</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.check_blacklist" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check_blacklist</code><span class="sig-paren">(</span><em class="sig-param">file_name</em>, <em class="sig-param">action</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkBlacklistInterpreter.check_blacklist" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a file matches a pattern in the blacklist.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -288,12 +288,12 @@ to touch without superforce flag</p>
 
 <dl class="class">
 <dt id="interpreters.CheckLinkDirsInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkDirsInterpreter</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">CheckLinkDirsInterpreter</code><span class="sig-paren">(</span><em class="sig-param">makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Checks if directories need to be created.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckLinkDirsInterpreter.makedirs">
-<code class="descname">makedirs</code><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.makedirs" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">makedirs</code><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.makedirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--makedirs</span></code> was set</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -304,7 +304,7 @@ to touch without superforce flag</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkDirsInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">makedirs</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -315,7 +315,7 @@ to touch without superforce flag</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkDirsInterpreter._op_add_l">
-<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the directory of the to be added link already exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -326,7 +326,7 @@ to touch without superforce flag</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkDirsInterpreter._op_update_l">
-<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the directory of the to be updated link already exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -337,7 +337,7 @@ to touch without superforce flag</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkDirsInterpreter.check_dirname">
-<code class="descname">check_dirname</code><span class="sig-paren">(</span><em>dirname</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.check_dirname" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">check_dirname</code><span class="sig-paren">(</span><em class="sig-param">dirname</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkDirsInterpreter.check_dirname" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a directory exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -354,12 +354,12 @@ to touch without superforce flag</p>
 
 <dl class="class">
 <dt id="interpreters.CheckLinkExistsInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinkExistsInterpreter</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">CheckLinkExistsInterpreter</code><span class="sig-paren">(</span><em class="sig-param">force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Checks if links of installed-file really exist in the filesystem.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckLinkExistsInterpreter.force">
-<code class="descname">force</code><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.force" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">force</code><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.force" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--force</span></code> was set</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -370,7 +370,7 @@ to touch without superforce flag</p>
 
 <dl class="attribute">
 <dt id="interpreters.CheckLinkExistsInterpreter.removed_links">
-<code class="descname">removed_links</code><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.removed_links" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">removed_links</code><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.removed_links" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collection of all links that are going to be
 removed</p>
 <dl class="field-list simple">
@@ -382,13 +382,13 @@ removed</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkExistsInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkExistsInterpreter._op_add_l">
-<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the new link already exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -406,7 +406,7 @@ removed</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinkExistsInterpreter._op_remove_l">
-<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the to be removed link really exists.</p>
 <p>Furthermore adds the link to <code class="docutils literal notranslate"><span class="pre">removed_links</span></code>, because removed links
 need to be stored for <code class="docutils literal notranslate"><span class="pre">_op_add_l()</span></code>.</p>
@@ -422,7 +422,7 @@ need to be stored for <code class="docutils literal notranslate"><span class="pr
 
 <dl class="method">
 <dt id="interpreters.CheckLinkExistsInterpreter._op_update_l">
-<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if old and the new link already exist.</p>
 <p>Furthermore adds the old link to <code class="docutils literal notranslate"><span class="pre">removed_links</span></code> if old and new link
 have different names, because removed links need to be stored for
@@ -443,7 +443,7 @@ have different names, because removed links need to be stored for
 
 <dl class="class">
 <dt id="interpreters.CheckLinksInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckLinksInterpreter</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">CheckLinksInterpreter</code><span class="sig-paren">(</span><em class="sig-param">installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Checks for conflicts between all links.</p>
 <p>Conflicts are things like duplicates, multiple targets / overwrites, etc.</p>
@@ -456,7 +456,7 @@ installed and won’t be removed, will end up twice in this list.</p>
 </dl>
 <dl class="method">
 <dt id="interpreters.CheckLinksInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Initializes <code class="docutils literal notranslate"><span class="pre">linklist</span></code> with all links from the installed-file.</p>
 <dl class="field-list simple">
@@ -469,7 +469,7 @@ current DiffLog</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinksInterpreter._op_add_l">
-<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the to be added link already occurs in <code class="docutils literal notranslate"><span class="pre">linklist</span></code>.</p>
 <p>This would be forbidden, because a link that is already installed can’t
 be added again (only updated). Similary it would be forbidden to add a
@@ -487,7 +487,7 @@ If everything is valid, the link will be added to the list.</p>
 
 <dl class="method">
 <dt id="interpreters.CheckLinksInterpreter._op_remove_l">
-<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes link from linklist because links could be removed and
 added in one run by different profiles.</p>
 <p>In that case it would look like the link is added even though it is
@@ -504,13 +504,13 @@ link</p>
 
 <dl class="class">
 <dt id="interpreters.CheckProfilesInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">CheckProfilesInterpreter</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">CheckProfilesInterpreter</code><span class="sig-paren">(</span><em class="sig-param">installed</em>, <em class="sig-param">parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Checks if profiles can be installed together. Protects against
 duplicates and overwrites.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckProfilesInterpreter.parnent_arg">
-<code class="descname">parnent_arg</code><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.parnent_arg" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">parnent_arg</code><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.parnent_arg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores the value of <code class="docutils literal notranslate"><span class="pre">--parent</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -521,7 +521,7 @@ duplicates and overwrites.</p>
 
 <dl class="attribute">
 <dt id="interpreters.CheckProfilesInterpreter.profile_list">
-<code class="descname">profile_list</code><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.profile_list" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">profile_list</code><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.profile_list" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list that stores all profiles, their parents
 and if they are already installed. Profiles that are still
 installed in the end, will end up twice in this list.</p>
@@ -534,7 +534,7 @@ installed in the end, will end up twice in this list.</p>
 
 <dl class="method">
 <dt id="interpreters.CheckProfilesInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">installed</em>, <em class="sig-param">parent_arg=None</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Initializes <code class="docutils literal notranslate"><span class="pre">profile_list</span></code> with all profiles from the installed-file.</p>
 <dl class="field-list simple">
@@ -550,7 +550,7 @@ DiffLog</p></li>
 
 <dl class="method">
 <dt id="interpreters.CheckProfilesInterpreter._op_add_p">
-<code class="descname">_op_add_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if a profile is added twice.</p>
 <p>Adds the profile to <code class="docutils literal notranslate"><span class="pre">profile_list</span></code> if the operation is valid.</p>
 <dl class="field-list simple">
@@ -565,7 +565,7 @@ DiffLog</p></li>
 
 <dl class="method">
 <dt id="interpreters.CheckProfilesInterpreter._op_update_p">
-<code class="descname">_op_update_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if profiles will be overwritten.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -580,7 +580,7 @@ DiffLog</p></li>
 
 <dl class="method">
 <dt id="interpreters.CheckProfilesInterpreter.get_known">
-<code class="descname">get_known</code><span class="sig-paren">(</span><em>name</em>, <em>is_installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.get_known" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_known</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">is_installed</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.get_known" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the entry of a profile from <code class="docutils literal notranslate"><span class="pre">profile_list</span></code>. Either for
 already installed profiles or for to be installed profiles.</p>
 <dl class="field-list simple">
@@ -602,14 +602,14 @@ no entry was found.</p>
 
 <dl class="class">
 <dt id="interpreters.DUIStrategyInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">DUIStrategyInterpreter</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">DUIStrategyInterpreter</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Reorders DiffLog so linking won’t be in the order of profiles but
 instead in the order Delete-Update-Insert. It also removes log messages
 because without the old order they are not useful anymore.</p>
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.profile_deletes">
-<code class="descname">profile_deletes</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_deletes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">profile_deletes</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_deletes" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collection for profile-remove-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -620,7 +620,7 @@ because without the old order they are not useful anymore.</p>
 
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.profile_updates">
-<code class="descname">profile_updates</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_updates" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">profile_updates</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_updates" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collection for profile-update-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -631,7 +631,7 @@ because without the old order they are not useful anymore.</p>
 
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.profile_adds">
-<code class="descname">profile_adds</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_adds" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">profile_adds</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_adds" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collection for profile-add-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -642,7 +642,7 @@ because without the old order they are not useful anymore.</p>
 
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.link_deletes">
-<code class="descname">link_deletes</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_deletes" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">link_deletes</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_deletes" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collection for link-remove-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -653,7 +653,7 @@ because without the old order they are not useful anymore.</p>
 
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.link_updates">
-<code class="descname">link_updates</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_updates" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">link_updates</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_updates" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collection for link-update-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -664,7 +664,7 @@ because without the old order they are not useful anymore.</p>
 
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.link_adds">
-<code class="descname">link_adds</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_adds" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">link_adds</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_adds" title="Permalink to this definition">¶</a></dt>
 <dd><p>A collection for link-add-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -675,13 +675,13 @@ because without the old order they are not useful anymore.</p>
 
 <dl class="method">
 <dt id="interpreters.DUIStrategyInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="interpreters.DUIStrategyInterpreter._op_add_l">
-<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the link-add-operation to <code class="docutils literal notranslate"><span class="pre">link_adds</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -692,7 +692,7 @@ because without the old order they are not useful anymore.</p>
 
 <dl class="method">
 <dt id="interpreters.DUIStrategyInterpreter._op_add_p">
-<code class="descname">_op_add_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the profile-add-operation to <code class="docutils literal notranslate"><span class="pre">profile_adds</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -703,7 +703,7 @@ because without the old order they are not useful anymore.</p>
 
 <dl class="method">
 <dt id="interpreters.DUIStrategyInterpreter._op_fin">
-<code class="descname">_op_fin</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_fin</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merges the collections of operations in the correct order
 and overwrites <code class="docutils literal notranslate"><span class="pre">self.data</span></code> to alter the DiffLog</p>
 <dl class="field-list simple">
@@ -715,7 +715,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 
 <dl class="method">
 <dt id="interpreters.DUIStrategyInterpreter._op_remove_l">
-<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the link-remove-operation to <code class="docutils literal notranslate"><span class="pre">link_removes</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -726,7 +726,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 
 <dl class="method">
 <dt id="interpreters.DUIStrategyInterpreter._op_remove_p">
-<code class="descname">_op_remove_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the profile-remove-operation to <code class="docutils literal notranslate"><span class="pre">profile_removes</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -737,7 +737,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 
 <dl class="method">
 <dt id="interpreters.DUIStrategyInterpreter._op_update_l">
-<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the link-update-operation to <code class="docutils literal notranslate"><span class="pre">link_updates</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -748,7 +748,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 
 <dl class="method">
 <dt id="interpreters.DUIStrategyInterpreter._op_update_p">
-<code class="descname">_op_update_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DUIStrategyInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds the profile-update-operation to <code class="docutils literal notranslate"><span class="pre">profile_updates</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -761,13 +761,13 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 
 <dl class="class">
 <dt id="interpreters.ExecuteInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteInterpreter</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">ExecuteInterpreter</code><span class="sig-paren">(</span><em class="sig-param">installed</em>, <em class="sig-param">force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>This interpreter actually executes the operations from the DiffLog.</p>
 <p>It can create/delete links in the filesystem and modify the installed-file.</p>
 <dl class="attribute">
 <dt id="interpreters.ExecuteInterpreter.installed">
-<code class="descname">installed</code><a class="headerlink" href="#interpreters.ExecuteInterpreter.installed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">installed</code><a class="headerlink" href="#interpreters.ExecuteInterpreter.installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>The installed-file that will be updated</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -778,7 +778,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 
 <dl class="attribute">
 <dt id="interpreters.ExecuteInterpreter.force">
-<code class="descname">force</code><a class="headerlink" href="#interpreters.ExecuteInterpreter.force" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">force</code><a class="headerlink" href="#interpreters.ExecuteInterpreter.force" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores, if <code class="docutils literal notranslate"><span class="pre">--force</span></code> was set</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -789,7 +789,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 
 <dl class="method">
 <dt id="interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink">
-<code class="descname">_ExecuteInterpreter__create_symlink</code><span class="sig-paren">(</span><em>name</em>, <em>target</em>, <em>uid</em>, <em>gid</em>, <em>permission</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_ExecuteInterpreter__create_symlink</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">target</em>, <em class="sig-param">uid</em>, <em class="sig-param">gid</em>, <em class="sig-param">permission</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a symlink in the filesystem.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -810,7 +810,7 @@ point to</p></li>
 
 <dl class="method">
 <dt id="interpreters.ExecuteInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">installed</em>, <em class="sig-param">force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Updates the version number of the installed-file.</p>
 <dl class="field-list simple">
@@ -823,9 +823,9 @@ point to</p></li>
 </dl>
 </dd></dl>
 
-<dl class="staticmethod">
+<dl class="method">
 <dt id="interpreters.ExecuteInterpreter._makedirs">
-<em class="property">static </em><code class="descname">_makedirs</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._makedirs" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">_makedirs</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._makedirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom <code class="docutils literal notranslate"><span class="pre">os.makedirs()</span></code> that keeps the owner of the directory.</p>
 <p>This means that it will create the directory with the owner of the
 deepest directory that already exists instead of using current user as
@@ -842,7 +842,7 @@ directories created</p>
 
 <dl class="method">
 <dt id="interpreters.ExecuteInterpreter._op_add_l">
-<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a link to the filesystem and adds a link entry of the
 corresponding profile in the installed-file.</p>
 <dl class="field-list simple">
@@ -854,7 +854,7 @@ corresponding profile in the installed-file.</p>
 
 <dl class="method">
 <dt id="interpreters.ExecuteInterpreter._op_add_p">
-<code class="descname">_op_add_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a profile entry of the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -865,7 +865,7 @@ corresponding profile in the installed-file.</p>
 
 <dl class="method">
 <dt id="interpreters.ExecuteInterpreter._op_remove_l">
-<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes a link from the filesystem and removes the links entry of
 the corresponding profile in the installed-file.</p>
 <dl class="field-list simple">
@@ -877,7 +877,7 @@ the corresponding profile in the installed-file.</p>
 
 <dl class="method">
 <dt id="interpreters.ExecuteInterpreter._op_remove_p">
-<code class="descname">_op_remove_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Removes a profile entry of the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -888,7 +888,7 @@ the corresponding profile in the installed-file.</p>
 
 <dl class="method">
 <dt id="interpreters.ExecuteInterpreter._op_update_l">
-<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates a link in the filesystem and updates the links entry of
 the corresponding profile in the installed-file.</p>
 <dl class="field-list simple">
@@ -900,7 +900,7 @@ the corresponding profile in the installed-file.</p>
 
 <dl class="method">
 <dt id="interpreters.ExecuteInterpreter._op_update_p">
-<code class="descname">_op_update_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates a profile entry of the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -913,13 +913,13 @@ the corresponding profile in the installed-file.</p>
 
 <dl class="class">
 <dt id="interpreters.GainRootInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">GainRootInterpreter</code><a class="headerlink" href="#interpreters.GainRootInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">GainRootInterpreter</code><a class="headerlink" href="#interpreters.GainRootInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.RootNeededInterpreter" title="interpreters.RootNeededInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.RootNeededInterpreter</span></code></a></p>
 <p>If root permission is needed to perform the operations,
 this interpreter restarts the process with “sudo”.</p>
 <dl class="method">
 <dt id="interpreters.GainRootInterpreter._op_fin">
-<code class="descname">_op_fin</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.GainRootInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_fin</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.GainRootInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace the process if root permission is needed with the same call
 of Dotmanager, but prepend it with “sudo”.</p>
 <dl class="field-list simple">
@@ -933,19 +933,19 @@ of Dotmanager, but prepend it with “sudo”.</p>
 
 <dl class="class">
 <dt id="interpreters.PlainPrintInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PlainPrintInterpreter</code><a class="headerlink" href="#interpreters.PlainPrintInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">PlainPrintInterpreter</code><a class="headerlink" href="#interpreters.PlainPrintInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Prints add/remove/update-operation without any formating.</p>
 <dl class="method">
 <dt id="interpreters.PlainPrintInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Maps <code class="docutils literal notranslate"><span class="pre">_op_*</span></code> functions to <code class="docutils literal notranslate"><span class="pre">print()</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="interpreters.PlainPrintInterpreter._op_fin">
-<code class="descname">_op_fin</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_fin</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print “]” to show the end of an array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -956,7 +956,7 @@ of Dotmanager, but prepend it with “sudo”.</p>
 
 <dl class="method">
 <dt id="interpreters.PlainPrintInterpreter._op_start">
-<code class="descname">_op_start</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter._op_start" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_start</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter._op_start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print “[” to show the start of an array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -969,12 +969,12 @@ of Dotmanager, but prepend it with “sudo”.</p>
 
 <dl class="class">
 <dt id="interpreters.PrintInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PrintInterpreter</code><a class="headerlink" href="#interpreters.PrintInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">PrintInterpreter</code><a class="headerlink" href="#interpreters.PrintInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Pretty-prints log messages and what a operation is going to do.</p>
-<dl class="staticmethod">
+<dl class="method">
 <dt id="interpreters.PrintInterpreter._log_interpreter">
-<em class="property">static </em><code class="descname">_log_interpreter</code><span class="sig-paren">(</span><em>dop</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._log_interpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="sig-name descname">_log_interpreter</code><span class="sig-paren">(</span><em class="sig-param">dop</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._log_interpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out a message for an operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -989,7 +989,7 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="method">
 <dt id="interpreters.PrintInterpreter._op_add_l">
-<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a link was added.</p>
 <dl class="simple">
 <dt>Args</dt><dd><p>dop (Dict): The add-operation that will be logged</p>
@@ -999,7 +999,7 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="method">
 <dt id="interpreters.PrintInterpreter._op_add_p">
-<code class="descname">_op_add_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a profile was added.</p>
 <dl class="simple">
 <dt>Args</dt><dd><p>dop (Dict): The add-operation that will be logged</p>
@@ -1009,7 +1009,7 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="method">
 <dt id="interpreters.PrintInterpreter._op_info">
-<code class="descname">_op_info</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_info" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_info</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out an info-operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1020,7 +1020,7 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="method">
 <dt id="interpreters.PrintInterpreter._op_remove_l">
-<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a link was removed.</p>
 <dl class="simple">
 <dt>Args</dt><dd><p>dop (Dict): The remove-operation that will be logged</p>
@@ -1030,7 +1030,7 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="method">
 <dt id="interpreters.PrintInterpreter._op_remove_p">
-<code class="descname">_op_remove_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a profile was removed.</p>
 <dl class="simple">
 <dt>Args</dt><dd><p>dop (Dict): The remove-operation that will be logged</p>
@@ -1040,7 +1040,7 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="method">
 <dt id="interpreters.PrintInterpreter._op_start">
-<code class="descname">_op_start</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_start" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_start</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out the start of the linking process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1051,7 +1051,7 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="method">
 <dt id="interpreters.PrintInterpreter._op_update_l">
-<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a link was updated.</p>
 <p>The message is generated according to what changed in the updated link.</p>
 <dl class="simple">
@@ -1062,7 +1062,7 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="method">
 <dt id="interpreters.PrintInterpreter._op_update_p">
-<code class="descname">_op_update_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a profile was updated.</p>
 <dl class="simple">
 <dt>Args</dt><dd><p>dop (Dict): The update-operation that will be logged</p>
@@ -1074,12 +1074,12 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="class">
 <dt id="interpreters.RootNeededInterpreter">
-<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">RootNeededInterpreter</code><a class="headerlink" href="#interpreters.RootNeededInterpreter" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">RootNeededInterpreter</code><a class="headerlink" href="#interpreters.RootNeededInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Checks if root permission is needed to perform the operations.</p>
 <dl class="attribute">
 <dt id="interpreters.RootNeededInterpreter.root_needed">
-<code class="descname">root_needed</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.root_needed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">root_needed</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.root_needed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores if root_permission is needed</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -1090,7 +1090,7 @@ profile name in the log message that triggered the operation.</p></li>
 
 <dl class="attribute">
 <dt id="interpreters.RootNeededInterpreter.logged">
-<code class="descname">logged</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.logged" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">logged</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.logged" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of operations that the root permission are
 needed for</p>
 <dl class="field-list simple">
@@ -1102,13 +1102,13 @@ needed for</p>
 
 <dl class="method">
 <dt id="interpreters.RootNeededInterpreter.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="interpreters.RootNeededInterpreter._access">
-<code class="descname">_access</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._access" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_access</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._access" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if we have write access for a given path.</p>
 <p>Because the path might not be existent at this point,
 this function goes the full directory tree upwards until it finds
@@ -1126,7 +1126,7 @@ assumes that we have access to all subdirectories as well.</p>
 
 <dl class="method">
 <dt id="interpreters.RootNeededInterpreter._op_add_l">
-<code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if new links are either created in inaccessible directories
 or will be owned by other users than the current.</p>
 <dl class="field-list simple">
@@ -1138,7 +1138,7 @@ or will be owned by other users than the current.</p>
 
 <dl class="method">
 <dt id="interpreters.RootNeededInterpreter._op_remove_l">
-<code class="descname">_op_remove_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if to be removed links are owned by other users than
 the current.</p>
 <dl class="field-list simple">
@@ -1150,7 +1150,7 @@ the current.</p>
 
 <dl class="method">
 <dt id="interpreters.RootNeededInterpreter._op_update_l">
-<code class="descname">_op_update_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if to be updated links are owned by other users than
 the current or will be moved to inaccessible directories.</p>
 <dl class="field-list simple">
@@ -1162,7 +1162,7 @@ the current or will be moved to inaccessible directories.</p>
 
 <dl class="method">
 <dt id="interpreters.RootNeededInterpreter._root_needed">
-<code class="descname">_root_needed</code><span class="sig-paren">(</span><em>operation</em>, <em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._root_needed" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">_root_needed</code><span class="sig-paren">(</span><em class="sig-param">operation</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._root_needed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets <code class="docutils literal notranslate"><span class="pre">root_needed</span></code> to True and logs the operation that needs
 root permission.</p>
 <dl class="field-list simple">
@@ -1227,10 +1227,10 @@ needed</p></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -1252,7 +1252,7 @@ needed</p></li>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -6,7 +6,7 @@ You can find a detailed contribution guide, as well as help on how to write test
 manual for all classes, functions and properties of Dotmanager.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    contributing_link.rst

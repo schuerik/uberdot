@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Commandline Interface &#8212; Dotmanager 1.10.2_3 documentation</title>
+    <title>Commandline Interface &#8212; Dotmanager 1.10.5_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -48,7 +48,7 @@
 <dd><p>Show a short help message with all options and modes and exits</p>
 </dd>
 <dt><kbd><span class="option">--version</span></kbd></dt>
-<dd><p>Display the version of dotmanager and exits</p>
+<dd><p>Displays the version of dotmanager and exits</p>
 </dd>
 <dt><kbd><span class="option">-i</span>, <span class="option">--install</span></kbd></dt>
 <dd><p>Installs every specified profile. If a profile is already installed
@@ -75,39 +75,37 @@ Otherwise information about all installed profiles will be shown.</p>
 <dd><p>Overwrites the default directory temporarily</p>
 </dd>
 <dt><kbd><span class="option">-d</span>, <span class="option">--dry-run</span></kbd></dt>
-<dd><p>Simulates the changes dotmanager would perform if executed without this
-flag</p>
+<dd><p>Just simulate the changes dotmanager would perform</p>
 </dd>
 <dt><kbd><span class="option">--dui</span></kbd></dt>
 <dd><p>Use an alternative startegy to install profiles and links. The default
 strategy will do this by recursively go through the profiles and
 create/update all links one by one. This can cause conflicts if e.g. a link
 is moved from one to another profile. This strategy installs links by first
-doing all removals, then all updates and last all new installs. Most
+doing all removals, then all updates and at last all new installs. Most
 conflicts should be solved by this strategy but it has the downside that
 the output isn’t that clear as the normal strategy.</p>
 </dd>
 <dt><kbd><span class="option">-f</span>, <span class="option">--force</span></kbd></dt>
-<dd><p>Overwrites files that already exists in your filesystem with your links</p>
+<dd><p>Allows overwrites of files that already exists in your filesystem</p>
 </dd>
 <dt><kbd><span class="option">--log <var>&lt;LOGFILE&gt;</var></span></kbd></dt>
-<dd><p>Log everything in a logfile (this also adds
-timestamps to the log messages)</p>
+<dd><p>Log everything into a logfile (this also adds timestamps to the log messages)</p>
 </dd>
 <dt><kbd><span class="option">-m</span>, <span class="option">--makedirs</span></kbd></dt>
-<dd><p>Makes directories if they don’t exist. Any directory created inherits the
-owner of its parent directory.</p>
+<dd><p>Make directories if they don’t exist. Any directory that will be created
+inherits the owner of its parent directory.</p>
 </dd>
 <dt><kbd><span class="option">--option <var>&lt;KEY=VAL…&gt;</var></span></kbd></dt>
-<dd><p>Temporarily overwrite the option section of the config file.</p>
+<dd><p>Sets/Overwrites one or more keys of the option section of the config file.</p>
 </dd>
 <dt><kbd><span class="option">--parent <var>&lt;PARENT&gt;</var></span></kbd></dt>
 <dd><p>Forces the profiles that you install/update to be installed as subprofile
-of PARENT. This should be only needed to solve certain conflicts.</p>
+of <code class="docutils literal notranslate"><span class="pre">PARENT</span></code>. This should be only needed to solve certain conflicts.</p>
 </dd>
 <dt><kbd><span class="option">--print</span></kbd></dt>
-<dd><p>Prints the <code class="docutils literal notranslate"><span class="pre">DiffLog</span></code> unformatted and exits. Only useful for debugging
-purpose.</p>
+<dd><p>Prints the <code class="docutils literal notranslate"><span class="pre">Difference</span> <span class="pre">Log</span></code> unformatted and exits. Only useful for
+debugging.</p>
 </dd>
 <dt><kbd><span class="option">-p</span>, <span class="option">--pretty-print</span></kbd></dt>
 <dd><p>Prints out the changes that dotmanager would perform if executed without
@@ -118,25 +116,28 @@ error and aborts but you want to now what would have happen to get a
 better understanding of the issue in your profile/workflow itself.</p>
 </dd>
 <dt><kbd><span class="option">-q</span>, <span class="option">--quiet</span></kbd></dt>
-<dd><p>Print no log messages but warnings and errors</p>
+<dd><p>Print no log messages but warnings and errors.</p>
 </dd>
 <dt><kbd><span class="option">--save <var>&lt;SAVE&gt;</var></span></kbd></dt>
 <dd><p>Use another <code class="docutils literal notranslate"><span class="pre">installed-file</span></code> for this execution. Can be used to install
-profiles multiple times on the same device. But be carefully not fuck up
-your other installations of those profiles! This is mostly useful if you
-want to test the linking process in another directory or if those profiles
-are installed in completely different locations of your device</p>
+profiles multiple times on the same device. This is potentially dangerous
+because conflict detection works only within a single <code class="docutils literal notranslate"><span class="pre">installed-file</span></code>.
+You need to make sure by yourself that there are no conflicts between all
+installed profiles and the profiles that you are going to install.
+This is mostly useful if you want to test the linking process in another
+directory or if those profiles are installed in completely different
+locations on your device but you don’t want your current setup be changed.</p>
 </dd>
 <dt><kbd><span class="option">--silent</span></kbd></dt>
-<dd><p>Print no log messages at all</p>
+<dd><p>Print no log messages at all.</p>
 </dd>
 <dt><kbd><span class="option">--superforce</span></kbd></dt>
 <dd><p>Overwrites files and links that are blacklisted because it is considered
 dangerous to overwrite those files e.g. <code class="docutils literal notranslate"><span class="pre">/etc/hosts</span></code> or <code class="docutils literal notranslate"><span class="pre">/etc/passwd</span></code></p>
 </dd>
 <dt><kbd><span class="option">-v</span>, <span class="option">--verbose</span></kbd></dt>
-<dd><p>Shows more information of the linking process and a stacktrace when error
-occur</p>
+<dd><p>Print more information of the linking process and a stacktrace when an
+error occurs.</p>
 </dd>
 </dl>
 </div>
@@ -145,6 +146,46 @@ occur</p>
 <p>This is a space seperated list of profiles. Any profile will be identified by
 its class name, not by its filename. Don’t forget that python class names are
 case-sensitive.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Uninstall the profile called “Main” and all its subprofiles</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -u Main
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Install the profiles “Main” and “Main2” and all their subprofiles</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Main Main2
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Just simulate previous installation</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -id Main Main2
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Perform the same installation like before but set the prefix for all links to “.”</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i --option <span class="nv">prefix</span><span class="o">=</span>. -- Main Main2
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Also set the tags “debian” and “big”</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i --option <span class="nv">prefix</span><span class="o">=</span>. <span class="nv">tags</span><span class="o">=</span>debian,big -- Main Main2
+</pre></div>
+</div>
+<ol class="arabic simple" start="6">
+<li><p>Install “Main” and all it’s subprofiles, make non-existing directories and
+override existing files</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -imf Main
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -173,6 +214,7 @@ case-sensitive.</p>
 <li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="info-module.html">Info module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="config-file.html">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="encryption.html">Encryption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicfiles.html">Dynamicfiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed files</a></li>
@@ -199,10 +241,10 @@ case-sensitive.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -224,7 +266,7 @@ case-sensitive.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

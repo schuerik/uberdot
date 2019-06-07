@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Utils &#8212; Dotmanager 1.10.2_3 documentation</title>
+    <title>Utils &#8212; Dotmanager 1.10.5_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,7 +38,7 @@
 Eg. Retrieving a environment variable or fixing file permisions</p>
 <dl class="function">
 <dt id="utils.expanduser">
-<code class="descclassname">utils.</code><code class="descname">expanduser</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">expanduser</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the <code class="docutils literal notranslate"><span class="pre">os.path.expanduser()</span></code> but uses
 <code class="docutils literal notranslate"><span class="pre">get_user_env_var()</span></code> to look up the substitution.</p>
 <dl class="field-list simple">
@@ -53,7 +53,7 @@ Eg. Retrieving a environment variable or fixing file permisions</p>
 
 <dl class="function">
 <dt id="utils.expandvars">
-<code class="descclassname">utils.</code><code class="descname">expandvars</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandvars" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">expandvars</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandvars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the <code class="docutils literal notranslate"><span class="pre">os.path.expandvars()</span></code> but uses
 <code class="docutils literal notranslate"><span class="pre">get_user_env_var()</span></code> to look up the substitution.</p>
 <dl class="field-list simple">
@@ -68,7 +68,7 @@ Eg. Retrieving a environment variable or fixing file permisions</p>
 
 <dl class="function">
 <dt id="utils.find_exact_target">
-<code class="descclassname">utils.</code><code class="descname">find_exact_target</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_exact_target" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">find_exact_target</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_exact_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the exact target in the repository to link to.</p>
 <p>This will search <code class="docutils literal notranslate"><span class="pre">constants.TARGET_FILES</span></code> for files that match
 <code class="docutils literal notranslate"><span class="pre">target</span></code>.</p>
@@ -88,7 +88,7 @@ found.</p>
 
 <dl class="function">
 <dt id="utils.find_files">
-<code class="descclassname">utils.</code><code class="descname">find_files</code><span class="sig-paren">(</span><em>filename</em>, <em>paths</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_files" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">find_files</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">paths</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds existing files matching a specific name in a list of paths.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -106,7 +106,7 @@ in <code class="docutils literal notranslate"><span class="pre">paths</span></co
 
 <dl class="function">
 <dt id="utils.find_target">
-<code class="descclassname">utils.</code><code class="descname">find_target</code><span class="sig-paren">(</span><em>target</em>, <em>tags</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_target" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">find_target</code><span class="sig-paren">(</span><em class="sig-param">target</em>, <em class="sig-param">tags</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the correct target version in the repository to link to.</p>
 <p>This will search <code class="docutils literal notranslate"><span class="pre">constants.TARGET_FILES</span></code> for files that match the naming
 schema <cite>&lt;any string&gt;%&lt;target&gt;</cite> and returns the file whose <cite>&lt;any string&gt;</cite>
@@ -131,7 +131,7 @@ result</p></li>
 
 <dl class="function">
 <dt id="utils.get_current_username">
-<code class="descclassname">utils.</code><code class="descname">get_current_username</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_current_username" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_current_username</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_current_username" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the current users username.</p>
 <p>Gets the username of the user that started Dotmanager. If the
 program was started with sudo, it still returns the original
@@ -145,7 +145,7 @@ username and not “root”.</p>
 
 <dl class="function">
 <dt id="utils.get_date_time_now">
-<code class="descclassname">utils.</code><code class="descname">get_date_time_now</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_date_time_now" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_date_time_now</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_date_time_now" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a datetime string for the current moment in the format
 YYYY-MM-DD hh:mm:ss</p>
 <dl class="field-list simple">
@@ -157,7 +157,7 @@ YYYY-MM-DD hh:mm:ss</p>
 
 <dl class="function">
 <dt id="utils.get_dir_owner">
-<code class="descclassname">utils.</code><code class="descname">get_dir_owner</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_dir_owner" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_dir_owner</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_dir_owner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the owner of the directory of a (non existing) file.</p>
 <p>If the the directory does not exist, this function will goes the directory
 tree up until it finds an existing directory and returns its owner instead.
@@ -176,7 +176,7 @@ directory owner</p>
 
 <dl class="function">
 <dt id="utils.get_gid">
-<code class="descclassname">utils.</code><code class="descname">get_gid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_gid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_gid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_gid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the GID of the user that started dotmanager.</p>
 <p>This gets the current users GID. If SUDO_GID is set (this means the process
 was started with sudo) SUDO_GID will be returned instead.</p>
@@ -189,7 +189,7 @@ was started with sudo) SUDO_GID will be returned instead.</p>
 
 <dl class="function">
 <dt id="utils.get_uid">
-<code class="descclassname">utils.</code><code class="descname">get_uid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_uid" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_uid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the UID of the user that started dotmanager.</p>
 <p>This gets the current users UID. If SUDO_UID is set (this means the process
 was started with sudo) SUDO_UID will be returned instead.</p>
@@ -202,7 +202,7 @@ was started with sudo) SUDO_UID will be returned instead.</p>
 
 <dl class="function">
 <dt id="utils.get_user_env_var">
-<code class="descclassname">utils.</code><code class="descname">get_user_env_var</code><span class="sig-paren">(</span><em>varname</em>, <em>fallback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_user_env_var" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_user_env_var</code><span class="sig-paren">(</span><em class="sig-param">varname</em>, <em class="sig-param">fallback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_user_env_var" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lookup an environment variable.</p>
 <p>If executed as root, this function will login as the original user
 and look up the variable there. This means that this function will fail to
@@ -230,7 +230,7 @@ Dotmanager was started can be accessed.</p>
 
 <dl class="function">
 <dt id="utils.has_root_priveleges">
-<code class="descclassname">utils.</code><code class="descname">has_root_priveleges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.has_root_priveleges" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">has_root_priveleges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.has_root_priveleges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this programm has root priveleges.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -241,7 +241,7 @@ Dotmanager was started can be accessed.</p>
 
 <dl class="function">
 <dt id="utils.import_profile_class">
-<code class="descclassname">utils.</code><code class="descname">import_profile_class</code><span class="sig-paren">(</span><em>class_name</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.import_profile_class" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">import_profile_class</code><span class="sig-paren">(</span><em class="sig-param">class_name</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.import_profile_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Imports a profile class only by it’s name.</p>
 <p>Searches <code class="docutils literal notranslate"><span class="pre">constants.PROFILE_FILES</span></code> for python modules and imports them
 temporarily. If the module has a class that is the same as <code class="docutils literal notranslate"><span class="pre">class_name</span></code>
@@ -266,7 +266,7 @@ it returns it.</p>
 
 <dl class="function">
 <dt id="utils.is_dynamic_file">
-<code class="descclassname">utils.</code><code class="descname">is_dynamic_file</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.is_dynamic_file" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">is_dynamic_file</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.is_dynamic_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns if a given path is a dynamic file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -280,7 +280,7 @@ it returns it.</p>
 
 <dl class="function">
 <dt id="utils.log_success">
-<code class="descclassname">utils.</code><code class="descname">log_success</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_success" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">log_success</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_success" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints text in success color</p>
 <p>Using the log functions, the output will also be printed into a logfile
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
@@ -293,7 +293,7 @@ if the user set the <code class="docutils literal notranslate"><span class="pre"
 
 <dl class="function">
 <dt id="utils.log_warning">
-<code class="descclassname">utils.</code><code class="descname">log_warning</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_warning" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">log_warning</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_warning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints text in warning color.</p>
 <p>Using the log functions, the output will also be printed into a logfile
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
@@ -306,7 +306,7 @@ if the user set the <code class="docutils literal notranslate"><span class="pre"
 
 <dl class="function">
 <dt id="utils.normpath">
-<code class="descclassname">utils.</code><code class="descname">normpath</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.normpath" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">normpath</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.normpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalizes path, expands ~ and environment vars,
 and converts it in an absolute path.</p>
 <dl class="field-list simple">
@@ -321,7 +321,7 @@ and converts it in an absolute path.</p>
 
 <dl class="function">
 <dt id="utils.walk_dotfiles">
-<code class="descclassname">utils.</code><code class="descname">walk_dotfiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.walk_dotfiles" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">walk_dotfiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.walk_dotfiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Walks through the <code class="docutils literal notranslate"><span class="pre">constants.TARGET_FILES</span></code> and returns all files
 found.</p>
 <p>This also takes the .dotignore-file into account.</p>
@@ -382,10 +382,10 @@ found file</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -407,7 +407,7 @@ found file</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

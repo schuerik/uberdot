@@ -1,0 +1,296 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Configuration &#8212; Dotmanager 1.10.5_3 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Encryption" href="encryption.html" />
+    <link rel="prev" title="Info module" href="info-module.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<p>Configuration files allow you to override defaults for commandline arguments, defaults for command options and even set some settings that can’t be set
+via commandline. The configuration file is an <a class="reference external" href="https://en.wikipedia.org/wiki/INI_file">INI-file</a> and can be created at the following locations:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>/etc/dotmanager/dotmanager.ini</strong> for system-wide configuration</p></li>
+<li><p><strong>/home/username/.config/dotmanager/dotmanager.ini</strong> for only a specific user</p></li>
+<li><p><strong>dotmanager-repository/dotmanager.ini</strong> for portable installations</p></li>
+</ul>
+</div></blockquote>
+<p>You can copy an example for the configuration file from <code class="docutils literal notranslate"><span class="pre">docs/config-example.ini</span></code>.</p>
+<div class="section" id="settings">
+<h2>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h2>
+<p>In this section are only settings which can’t be set via commandline. Most of them have sane defaults, just make sure that <code class="docutils literal notranslate"><span class="pre">profileFiles</span></code> and
+<code class="docutils literal notranslate"><span class="pre">targetFiles</span></code> are set. Those are the only required settings. Example:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[Settings]</span>
+<span class="na">profileFiles</span>    <span class="o">=</span> <span class="s">/path/to/your/profiles/</span>
+<span class="na">targetFiles</span>     <span class="o">=</span> <span class="s">/path/to/your/dotfiles/</span>
+</pre></div>
+</div>
+<p>The following settings are available:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 43%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Values</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>backupExtension</p></td>
+<td><p>String (Default is “bak”)</p></td>
+<td><p>The extension that is used to create backup files</p></td>
+</tr>
+<tr class="row-odd"><td><p>color</p></td>
+<td><p>True, False (Default is True)</p></td>
+<td><p>Should the output be colorized</p></td>
+</tr>
+<tr class="row-even"><td><p>decryptPwd</p></td>
+<td><p>String</p></td>
+<td><p>Default password to decrypt encrypted dotfiles</p></td>
+</tr>
+<tr class="row-odd"><td><p>profileFiles</p></td>
+<td><p>Path (absolute or relatively to the installation)</p></td>
+<td><p>The directory that contains the profiles</p></td>
+</tr>
+<tr class="row-even"><td><p>targetFiles</p></td>
+<td><p>Path (absolute or relatively to the installation)</p></td>
+<td><p>The directory that contains the dotfiles</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="arguments">
+<h2>Arguments<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h2>
+<p>The “Argument” section allows you to set defaults for commandline arguments.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 43%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Values</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>force</p></td>
+<td><p>True, False (Default is False)</p></td>
+<td><p>Equivalent to –force</p></td>
+</tr>
+<tr class="row-odd"><td><p>dui</p></td>
+<td><p>True, False (Default is False)</p></td>
+<td><p>Equivalent to –dui</p></td>
+</tr>
+<tr class="row-even"><td><p>logginglevel</p></td>
+<td><p>info, verbose, quiet or silent (Default is info)</p></td>
+<td><p>Equivalent to –verbose, –quiet and –silent</p></td>
+</tr>
+<tr class="row-odd"><td><p>logfile</p></td>
+<td><p>Path</p></td>
+<td><p>Equivalent to –log</p></td>
+</tr>
+<tr class="row-even"><td><p>makedirs</p></td>
+<td><p>True, False (Default is False)</p></td>
+<td><p>Equivalent to –makedirs</p></td>
+</tr>
+<tr class="row-odd"><td><p>superforce</p></td>
+<td><p>True, False (Default is False)</p></td>
+<td><p>Equivalent to –superforce</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="defaults">
+<h2>Defaults<a class="headerlink" href="#defaults" title="Permalink to this headline">¶</a></h2>
+<p>The “Default” section allows you to overwrite the default values of a profile. This includes defaults for command options,
+the directory and the tags.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 40%" />
+<col style="width: 46%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Values</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>directory</p></td>
+<td><p>Absolute or relative path to the repository
+(Default is “$HOME”)</p></td>
+<td><p>The directory a profile starts in</p></td>
+</tr>
+<tr class="row-odd"><td><p>name</p></td>
+<td><p>String (Default is “”)</p></td>
+<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>optional</p></td>
+<td><p>True, False (Default is False)</p></td>
+<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">optional</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>owner</p></td>
+<td><p>String (Default is “”)</p></td>
+<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">owner</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>permission</p></td>
+<td><p>Integer (Default is 644)</p></td>
+<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">permission</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>prefix</p></td>
+<td><p>String (Default is “”)</p></td>
+<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">prefix</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>replace</p></td>
+<td><p>String (Default is “”)</p></td>
+<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">replace</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>replace_pattern</p></td>
+<td><p>String (Default is “”)</p></td>
+<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">replace_pattern</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>tags</p></td>
+<td><p>Comma-seperated list (Default is “”)</p></td>
+<td><p>Sets default tags</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="set-defaults-for-specific-installed-files">
+<h2>Set defaults for specific installed files<a class="headerlink" href="#set-defaults-for-specific-installed-files" title="Permalink to this headline">¶</a></h2>
+<p>You can overwrite your own defaults when you use multiple installed file.
+For example if you create an installed file called “test” with <code class="docutils literal notranslate"><span class="pre">--save</span> <span class="pre">test</span></code>, you could set the default starting directory to
+your desktop like this:</p>
+<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[Installed.test.Defaults]</span>
+<span class="na">directory</span> <span class="o">=</span> <span class="s">/home/username/Desktop</span>
+</pre></div>
+</div>
+<p>This overwrites the section “Defaults” for all calls of dotmanager that have <code class="docutils literal notranslate"><span class="pre">--save</span> <span class="pre">test</span></code> set.
+You can do this for any section with the following naming schema: “Installed.&lt;installed-file name&gt;.&lt;section name&gt;”</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commandline-interface.html">Commandline Interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
+<li class="toctree-l2"><a class="reference internal" href="commands.html">Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="info-module.html">Info module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="encryption.html">Encryption</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dynamicfiles.html">Dynamicfiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="example-configuration.html">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html">Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../manpage/index.html">Dotmanager Manual</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manpage/index.html#commandline-interface">Commandline Interface</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Dotmanager Usage</a><ul>
+      <li>Previous: <a href="info-module.html" title="previous chapter">Info module</a></li>
+      <li>Next: <a href="encryption.html" title="next chapter">Encryption</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Erik Schulz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/usage/config-file.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
