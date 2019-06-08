@@ -34,7 +34,7 @@ echo "Fetching master..."
 # and use this git clone instead:
 #   git clone dm.bundle --branch master --single-branch $master_dir &> /dev/null
 git clone https://github.com/RickestRickSanchez/dotmanager.git --branch master --single-branch $master_dir &> /dev/null
-version_master=$($master_dir/dotmgr.py --config ../test/versiontest.ini --save master --version | cut -d' ' -f2)
+version_master=$($master_dir/dotmgr.py --config test/versiontest.ini --version | cut -d' ' -f2)
 
 echo "PullRequest version: $version_pr"
 echo "Master version: $version_master"
