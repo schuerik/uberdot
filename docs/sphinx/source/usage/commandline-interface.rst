@@ -118,6 +118,10 @@ Options
      Print no log messages at all.
 
 
+--skiproot
+    Skip all operations that would require root permission
+
+
 --superforce
      Overwrites files and links that are blacklisted because it is considered
      dangerous to overwrite those files e.g. ``/etc/hosts`` or ``/etc/passwd``

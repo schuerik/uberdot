@@ -40,6 +40,7 @@ import os
 import pwd
 import re
 import sys
+from abc import abstractmethod
 from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
@@ -67,7 +68,7 @@ class Interpreter():
     """Base-class for an interpreter.
 
     Attributes:
-        data (DiffLog): The full DiffLog that is interpreted.
+        data (List): The raw DiffLog that is interpreted.
             Only needed by Interpreters that alter the DiffLog.
     """
     def __init__(self):
@@ -80,7 +81,7 @@ class Interpreter():
         Needed by Interpreters that alter the DiffLog.
 
         Args:
-            data (DiffLog): The DiffLog that will be set
+            data (List): The raw DiffLog that will be set
         """
         self.data = data
 
@@ -1011,18 +1012,8 @@ class ExecuteInterpreter(Interpreter):
             dirname = os.path.dirname(dirname)
 
 
-class RootNeededInterpreter(Interpreter):
-    """Checks if root permission is needed to perform the operations.
-
-    Attributes:
-        root_needed (bool): Stores if root_permission is needed
-        logged (List): A list of operations that the root permission are
-            needed for
-    """
-    def __init__(self):
-        super().__init__()
-        self.root_needed = False
-        self.logged = []
+class DetectRootInterpreter(Interpreter):
+    """Checks if root permission is needed to perform operations. """
 
     def _access(self, path):
         """Checks if we have write access for a given path.
@@ -1054,9 +1045,9 @@ class RootNeededInterpreter(Interpreter):
         name = dop["symlink"]["name"]
         uid, gid = get_dir_owner(name)
         if dop["symlink"]["uid"] != uid or dop["symlink"]["gid"] != gid:
-            self._root_needed("change owner of", name)
+            self._root_detected(dop, "change owner of", name)
         elif not self._access(name):
-            self._root_needed("create links in", os.path.dirname(name))
+            self._root_detected(dop, "create links in", os.path.dirname(name))
 
     def _op_remove_l(self, dop):
         """Checks if to be removed links are owned by other users than
@@ -1067,8 +1058,8 @@ class RootNeededInterpreter(Interpreter):
         """
         try:
             if not os.access(os.path.dirname(dop["symlink_name"]), os.W_OK):
-                self._root_needed("remove links from",
-                                  os.path.dirname(dop["symlink_name"]))
+                self._root_detected(dop, "remove links from",
+                                    os.path.dirname(dop["symlink_name"]))
         except FileNotFoundError:
             raise FatalError(dop["symlink_name"] + " can't be checked " +
                              "for owner rights because it does not exist.")
@@ -1085,30 +1076,120 @@ class RootNeededInterpreter(Interpreter):
                 dop["symlink1"]["gid"] != dop["symlink2"]["gid"]:
             if dop["symlink2"]["uid"] != get_uid() or \
                     dop["symlink2"]["gid"] != get_gid():
-                self._root_needed("change the owner of", name)
+                self._root_detected(dop, "change the owner of", name)
         if dop["symlink1"]["name"] != dop["symlink2"]["name"]:
             if not self._access(dop["symlink2"]["name"]):
-                self._root_needed("create links in", os.path.dirname(name))
+                self._root_detected(dop, "create links in",
+                                    os.path.dirname(name))
             if not self._access(dop["symlink1"]["name"]):
-                self._root_needed("remove links from", os.path.dirname(name))
+                self._root_detected(dop, "remove links from",
+                                    os.path.dirname(name))
         if dop["symlink1"]["target"] != dop["symlink2"]["target"]:
             if not self._access(dop["symlink2"]["name"]):
-                self._root_needed("change target of", name)
+                self._root_detected(dop, "change target of", name)
 
-    def _root_needed(self, operation, filename):
-        """Sets ``root_needed`` to True and logs the operation that needs
-        root permission.
+    @abstractmethod
+    def _root_detected(self, dop, description, affected_file):
+        """This method is called when requirement of root permission
+        is detected.
 
         Args:
-            operation (str): The action that will be done to the file
-            filename (str): The name of the file for that root permission is
-                needed
+            dop (Dict): The operation that requires root permission
+            description (str): A description of what the operation does that
+                will require root permission
+            affected_file (str): The file that the description refers to
         """
-        self.root_needed = True
-        if (operation, filename) not in self.logged:
-            log_warning("You will need to give me root permission to " +
-                        operation + " '" + filename + "'.")
-            self.logged.append((operation, filename))
+        pass
+
+
+class SkipRootInterpreter(DetectRootInterpreter):
+    """Skips all operatrions that would require root permission.
+
+    Attributes:
+        skipped (List): A list of all operations that will be skipped
+        skipped_reasons (List): A list of tuples that counts how often a
+            description occured
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.skip = []
+        self.skipped_reasons = {}
+
+    def _root_detected(self, dop, description, affected_file):
+        """Stores which operations needs to be skipped.
+
+        Args:
+            dop (Dict): The operation that will be skipped
+            description (str): A description of what the operation does that
+                will require root permission
+            affected_file (str): Used to determine if description refers to
+                a file or a directory
+        """
+        self.skip.append(dop)
+        if os.path.isdir(affected_file):
+            description += " protected directories"
+        else:
+            description += " protected files"
+        if description not in self.skipped_reasons:
+            self.skipped_reasons[description] = 1
+        else:
+            self.skipped_reasons[description] += 1
+
+    def _op_fin(self, dop):
+        """Remove all operations from difflog that are collected in self.skip
+
+        Args:
+            dop (Dict): Unused in this implementation
+        """
+        # Remove all operations from self.skip
+        new_data = []
+        for operation in self.data:
+            if operation in self.skip:
+                self.skip.remove(operation)
+            else:
+                new_data.append(operation)
+        self.data.clear()
+        for operation in new_data:
+            self.data.append(operation)
+        # Print out summary of what we skipped
+        for reason, count in self.skipped_reasons.items():
+            if count == 1:
+                log_warning("Skipping 1 operation that would " +
+                            "require root permission to " + reason + ".")
+            else:
+                log_warning("Skipping " + str(count) + " operations that " +
+                            "would require root permission to " + reason + ".")
+
+
+class RootNeededInterpreter(DetectRootInterpreter):
+    """Checks if root permission are required to perform all operations.
+    Prints out all such operations.
+
+    Attributes:
+        logged (List): A list of tuples with (dop, description, affected_file)
+            that stores which operations requiere root permission, which file
+            or directory they affect and a description of what the operation
+            would exactly requiere root permission for
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.logged = []
+
+    def _root_detected(self, dop, description, affected_file):
+        """Logs and prints out the operation that needs root permission.
+
+        Args:
+            dop (Dict): Unused in this implementation
+            description (str): A description of what the operation does that
+                will require root permission
+            affected_file (str): The file that the description refers to
+        """
+        if affected_file not in self.logged:
+            self.logged.append(affected_file)
+            log_warning("Root permission required to " + description +
+                        " '" + affected_file + "'.")
 
 
 class GainRootInterpreter(RootNeededInterpreter):
@@ -1122,6 +1203,10 @@ class GainRootInterpreter(RootNeededInterpreter):
         Args:
             dop (Dict): Unused in this implementation
         """
-        if self.root_needed:
-            args = [sys.executable] + sys.argv
-            os.execvp('sudo', args)
+        if self.logged:
+            if constants.ASKROOT:
+                args = [sys.executable] + sys.argv
+                os.execvp('sudo', args)
+            else:
+                raise UserError("You need to restart Dotmanager using 'sudo'" +
+                                " or using the '--skiproot' option.")

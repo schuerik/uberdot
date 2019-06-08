@@ -164,6 +164,9 @@ class DotManager:
         parser.add_argument("--silent",
                             help="print absolute nothing",
                             action="store_true")
+        parser.add_argument("--skiproot",
+                            help="do nothing that requires root permissions",
+                            action="store_true")
         parser.add_argument("--superforce",
                             help="overwrite blacklisted/protected files",
                             action="store_true")
@@ -221,6 +224,8 @@ class DotManager:
             self.args.force = constants.FORCE
         if not self.args.makedirs:
             self.args.makedirs = constants.MAKEDIRS
+        if not self.args.skiproot:
+            self.args.skiproot = constants.SKIPROOT
         if not self.args.superforce:
             self.args.superforce = constants.SUPERFORCE
         if not self.args.directory:
@@ -289,8 +294,8 @@ class DotManager:
                 raise UserError(msg)
 
         args_depend(
-            "-d/-f/-p/--dui needs to be used with -i or -u",
-            "dryrun", "force", "plain", "dui",
+            "-d/-f/-m/-p/--dui needs to be used with -i or -u",
+            "dryrun", "force", "makedirs", "plain", "dui", "skiproot",
             need=["install", "uninstall", "debuginfo"]
         )
         args_depend(
@@ -317,6 +322,8 @@ class DotManager:
             dfl = dfs.solve(self.args.install)
             if self.args.dui:
                 dfl.run_interpreter(DUIStrategyInterpreter())
+            if self.args.skiproot:
+                dfl.run_interpreter(SkipRootInterpreter())
             if self.args.dryrun:
                 self.dryrun(dfl)
             elif self.args.plain:
@@ -362,8 +369,10 @@ class DotManager:
         print_value("LOGFILE", self.args.log)
         print_value("LOGGINGLEVEL", constants.LOGGINGLEVEL)
         print_value("MAKEDIRS", self.args.makedirs)
+        print_value("SKIPROOT", self.args.skiproot)
         print_value("SUPERFORCE", self.args.superforce)
         print_header("Settings")
+        print_value("ASKROOT", constants.ASKROOT)
         print_value("BACKUP_EXTENSION", constants.BACKUP_EXTENSION)
         print_value("COLOR", constants.COLOR)
         print_value("DECRYPT_PWD", constants.DECRYPT_PWD)
