@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Interpreters &#8212; Dotmanager 1.10.5_3 documentation</title>
+    <title>Interpreters &#8212; Dotmanager 1.11.0_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -55,11 +55,11 @@ Some examples what interpreters do:</p>
 <dl class="attribute">
 <dt id="interpreters.Interpreter.data">
 <code class="sig-name descname">data</code><a class="headerlink" href="#interpreters.Interpreter.data" title="Permalink to this definition">¶</a></dt>
-<dd><p>The full DiffLog that is interpreted.
+<dd><p>The raw DiffLog that is interpreted.
 Only needed by Interpreters that alter the DiffLog.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p><a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog">DiffLog</a></p>
+<dd class="field-odd"><p>List</p>
 </dd>
 </dl>
 </dd></dl>
@@ -90,7 +90,7 @@ the prefix ‘_op_’, if the function was implemented by the interpreter.</p>
 <p>Needed by Interpreters that alter the DiffLog.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) – The DiffLog that will be set</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>List</em>) – The raw DiffLog that will be set</p>
 </dd>
 </dl>
 </dd></dl>
@@ -760,6 +760,84 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 </dd></dl>
 
 <dl class="class">
+<dt id="interpreters.DetectRootInterpreter">
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">DetectRootInterpreter</code><a class="headerlink" href="#interpreters.DetectRootInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>Checks if root permission is needed to perform operations.</p>
+<dl class="method">
+<dt id="interpreters.DetectRootInterpreter._access">
+<code class="sig-name descname">_access</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DetectRootInterpreter._access" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if we have write access for a given path.</p>
+<p>Because the path might not be existent at this point,
+this function goes the full directory tree upwards until it finds
+a directory that we have write accesss to. If it finds one, it
+assumes that we have access to all subdirectories as well.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path that will be checked</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>bool</em> – True, if we have access to the path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DetectRootInterpreter._op_add_l">
+<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DetectRootInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if new links are either created in inaccessible directories
+or will be owned by other users than the current.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DetectRootInterpreter._op_remove_l">
+<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DetectRootInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if to be removed links are owned by other users than
+the current.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be checked</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DetectRootInterpreter._op_update_l">
+<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DetectRootInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if to be updated links are owned by other users than
+the current or will be moved to inaccessible directories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be checked</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.DetectRootInterpreter._root_detected">
+<em class="property">abstract </em><code class="sig-name descname">_root_detected</code><span class="sig-paren">(</span><em class="sig-param">dop</em>, <em class="sig-param">description</em>, <em class="sig-param">affected_file</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DetectRootInterpreter._root_detected" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method is called when requirement of root permission
+is detected.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dop</strong> (<em>Dict</em>) – The operation that requires root permission</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – A description of what the operation does that
+will require root permission</p></li>
+<li><p><strong>affected_file</strong> (<em>str</em>) – The file that the description refers to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="interpreters.ExecuteInterpreter">
 <em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">ExecuteInterpreter</code><span class="sig-paren">(</span><em class="sig-param">installed</em>, <em class="sig-param">force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
@@ -1075,24 +1153,16 @@ profile name in the log message that triggered the operation.</p></li>
 <dl class="class">
 <dt id="interpreters.RootNeededInterpreter">
 <em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">RootNeededInterpreter</code><a class="headerlink" href="#interpreters.RootNeededInterpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
-<p>Checks if root permission is needed to perform the operations.</p>
-<dl class="attribute">
-<dt id="interpreters.RootNeededInterpreter.root_needed">
-<code class="sig-name descname">root_needed</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.root_needed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stores if root_permission is needed</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
+<dd><p>Bases: <a class="reference internal" href="#interpreters.DetectRootInterpreter" title="interpreters.DetectRootInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.DetectRootInterpreter</span></code></a></p>
+<p>Checks if root permission are required to perform all operations.
+Prints out all such operations.</p>
 <dl class="attribute">
 <dt id="interpreters.RootNeededInterpreter.logged">
 <code class="sig-name descname">logged</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.logged" title="Permalink to this definition">¶</a></dt>
-<dd><p>A list of operations that the root permission are
-needed for</p>
+<dd><p>A list of tuples with (dop, description, affected_file)
+that stores which operations requiere root permission, which file
+or directory they affect and a description of what the operation
+would exactly requiere root permission for</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>List</p>
@@ -1107,70 +1177,80 @@ needed for</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="interpreters.RootNeededInterpreter._access">
-<code class="sig-name descname">_access</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._access" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if we have write access for a given path.</p>
-<p>Because the path might not be existent at this point,
-this function goes the full directory tree upwards until it finds
-a directory that we have write accesss to. If it finds one, it
-assumes that we have access to all subdirectories as well.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path that will be checked</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>bool</em> – True, if we have access to the path</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="interpreters.RootNeededInterpreter._op_add_l">
-<code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if new links are either created in inaccessible directories
-or will be owned by other users than the current.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="interpreters.RootNeededInterpreter._op_remove_l">
-<code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if to be removed links are owned by other users than
-the current.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be checked</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="interpreters.RootNeededInterpreter._op_update_l">
-<code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if to be updated links are owned by other users than
-the current or will be moved to inaccessible directories.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be checked</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="interpreters.RootNeededInterpreter._root_needed">
-<code class="sig-name descname">_root_needed</code><span class="sig-paren">(</span><em class="sig-param">operation</em>, <em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._root_needed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets <code class="docutils literal notranslate"><span class="pre">root_needed</span></code> to True and logs the operation that needs
-root permission.</p>
+<dt id="interpreters.RootNeededInterpreter._root_detected">
+<code class="sig-name descname">_root_detected</code><span class="sig-paren">(</span><em class="sig-param">dop</em>, <em class="sig-param">description</em>, <em class="sig-param">affected_file</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.RootNeededInterpreter._root_detected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs and prints out the operation that needs root permission.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>operation</strong> (<em>str</em>) – The action that will be done to the file</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – The name of the file for that root permission is
-needed</p></li>
+<li><p><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – A description of what the operation does that
+will require root permission</p></li>
+<li><p><strong>affected_file</strong> (<em>str</em>) – The file that the description refers to</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.SkipRootInterpreter">
+<em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">SkipRootInterpreter</code><a class="headerlink" href="#interpreters.SkipRootInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.DetectRootInterpreter" title="interpreters.DetectRootInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.DetectRootInterpreter</span></code></a></p>
+<p>Skips all operatrions that would require root permission.</p>
+<dl class="attribute">
+<dt id="interpreters.SkipRootInterpreter.skipped">
+<code class="sig-name descname">skipped</code><a class="headerlink" href="#interpreters.SkipRootInterpreter.skipped" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of all operations that will be skipped</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.SkipRootInterpreter.skipped_reasons">
+<code class="sig-name descname">skipped_reasons</code><a class="headerlink" href="#interpreters.SkipRootInterpreter.skipped_reasons" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of tuples that counts how often a
+description occured</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.SkipRootInterpreter.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.SkipRootInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.SkipRootInterpreter._op_fin">
+<code class="sig-name descname">_op_fin</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.SkipRootInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all operations from difflog that are collected in self.skip</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.SkipRootInterpreter._root_detected">
+<code class="sig-name descname">_root_detected</code><span class="sig-paren">(</span><em class="sig-param">dop</em>, <em class="sig-param">description</em>, <em class="sig-param">affected_file</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.SkipRootInterpreter._root_detected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores which operations needs to be skipped.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dop</strong> (<em>Dict</em>) – The operation that will be skipped</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – A description of what the operation does that
+will require root permission</p></li>
+<li><p><strong>affected_file</strong> (<em>str</em>) – Used to determine if description refers to
+a file or a directory</p></li>
 </ul>
 </dd>
 </dl>

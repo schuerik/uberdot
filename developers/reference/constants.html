@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Constants &#8212; Dotmanager 1.10.5_3 documentation</title>
+    <title>Constants &#8212; Dotmanager 1.11.0_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -36,6 +36,13 @@
 <span id="constants"></span><h1>Constants<a class="headerlink" href="#module-constants" title="Permalink to this headline">¶</a></h1>
 <p>Provides constants, defaults and the ability to load configs or
 overwrite defaults for a specific configuration.</p>
+<dl class="data">
+<dt id="constants.ASKROOT">
+<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">ASKROOT</code><em class="property"> = True</em><a class="headerlink" href="#constants.ASKROOT" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if Dotmanager shall ask for root permission if needed. If False,
+Dotmanager will fail if root permission is needed. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+</dd></dl>
+
 <dl class="data">
 <dt id="constants.BACKUP_EXTENSION">
 <code class="sig-prename descclassname">constants.</code><code class="sig-name descname">BACKUP_EXTENSION</code><em class="property"> = 'bak'</em><a class="headerlink" href="#constants.BACKUP_EXTENSION" title="Permalink to this definition">¶</a></dt>
@@ -168,6 +175,13 @@ Default is <code class="docutils literal notranslate"><span class="pre">False</s
 </dd></dl>
 
 <dl class="data">
+<dt id="constants.SKIPROOT">
+<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">SKIPROOT</code><em class="property"> = False</em><a class="headerlink" href="#constants.SKIPROOT" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if all operations that requiere root permission will be omitted.
+Defult is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="data">
 <dt id="constants.SUPERFORCE">
 <code class="sig-prename descclassname">constants.</code><code class="sig-name descname">SUPERFORCE</code><em class="property"> = False</em><a class="headerlink" href="#constants.SUPERFORCE" title="Permalink to this definition">¶</a></dt>
 <dd><p>True, if Dotmanager shall overwrite files that are blacklisted.
@@ -188,7 +202,7 @@ Default is <code class="docutils literal notranslate"><span class="pre">False</s
 
 <dl class="data">
 <dt id="constants.VERSION">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">VERSION</code><em class="property"> = '1.10.5_3'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">VERSION</code><em class="property"> = '1.11.0_3'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd><p>Version numbers, seperated by underscore.</p>
 <p>First part is the version of Dotmanager. The second part (after the underscore)
 is the version of the installed-file schema. The latter will be used to

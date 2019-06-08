@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Configuration &#8212; Dotmanager 1.10.5_3 documentation</title>
+    <title>Configuration &#8212; Dotmanager 1.11.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -57,8 +57,8 @@ via commandline. The configuration file is an <a class="reference external" href
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 14%" />
-<col style="width: 43%" />
-<col style="width: 43%" />
+<col style="width: 41%" />
+<col style="width: 45%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Name</p></th>
@@ -67,23 +67,27 @@ via commandline. The configuration file is an <a class="reference external" href
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>backupExtension</p></td>
+<tr class="row-even"><td><p>askroot</p></td>
+<td><p>True, False (Default is True)</p></td>
+<td><p>Shall Dotmanager ask for root permission if required</p></td>
+</tr>
+<tr class="row-odd"><td><p>backupExtension</p></td>
 <td><p>String (Default is “bak”)</p></td>
 <td><p>The extension that is used to create backup files</p></td>
 </tr>
-<tr class="row-odd"><td><p>color</p></td>
+<tr class="row-even"><td><p>color</p></td>
 <td><p>True, False (Default is True)</p></td>
 <td><p>Should the output be colorized</p></td>
 </tr>
-<tr class="row-even"><td><p>decryptPwd</p></td>
+<tr class="row-odd"><td><p>decryptPwd</p></td>
 <td><p>String</p></td>
 <td><p>Default password to decrypt encrypted dotfiles</p></td>
 </tr>
-<tr class="row-odd"><td><p>profileFiles</p></td>
+<tr class="row-even"><td><p>profileFiles</p></td>
 <td><p>Path (absolute or relatively to the installation)</p></td>
 <td><p>The directory that contains the profiles</p></td>
 </tr>
-<tr class="row-even"><td><p>targetFiles</p></td>
+<tr class="row-odd"><td><p>targetFiles</p></td>
 <td><p>Path (absolute or relatively to the installation)</p></td>
 <td><p>The directory that contains the dotfiles</p></td>
 </tr>
@@ -96,8 +100,8 @@ via commandline. The configuration file is an <a class="reference external" href
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 14%" />
-<col style="width: 43%" />
-<col style="width: 43%" />
+<col style="width: 41%" />
+<col style="width: 45%" />
 </colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Name</p></th>
@@ -126,7 +130,11 @@ via commandline. The configuration file is an <a class="reference external" href
 <td><p>True, False (Default is False)</p></td>
 <td><p>Equivalent to –makedirs</p></td>
 </tr>
-<tr class="row-odd"><td><p>superforce</p></td>
+<tr class="row-odd"><td><p>skiproot</p></td>
+<td><p>True, False (Default is False)</p></td>
+<td><p>Equivalent to –skiproot</p></td>
+</tr>
+<tr class="row-even"><td><p>superforce</p></td>
 <td><p>True, False (Default is False)</p></td>
 <td><p>Equivalent to –superforce</p></td>
 </tr>

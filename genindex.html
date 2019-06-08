@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Index &#8212; Dotmanager 1.10.5_3 documentation</title>
+    <title>Index &#8212; Dotmanager 1.11.0_3 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -109,12 +109,14 @@
 </li>
         <li><a href="developers/reference/interpreters.html#interpreters.RootNeededInterpreter.__init__">(interpreters.RootNeededInterpreter method)</a>
 </li>
+        <li><a href="developers/reference/interpreters.html#interpreters.SkipRootInterpreter.__init__">(interpreters.SkipRootInterpreter method)</a>
+</li>
         <li><a href="developers/reference/profile.html#profile.Profile.__init__">(profile.Profile method)</a>
 </li>
       </ul></li>
       <li><a href="developers/reference/profile.html#profile.Profile.__old_builtins">__old_builtins (profile.Profile attribute)</a>
 </li>
-      <li><a href="developers/reference/interpreters.html#interpreters.RootNeededInterpreter._access">_access() (interpreters.RootNeededInterpreter method)</a>
+      <li><a href="developers/reference/interpreters.html#interpreters.DetectRootInterpreter._access">_access() (interpreters.DetectRootInterpreter method)</a>
 </li>
       <li><a href="developers/reference/differencesolver.html#differencesolver.DiffLog._DiffLog__append_data">_DiffLog__append_data() (differencesolver.DiffLog method)</a>
 </li>
@@ -159,11 +161,11 @@
 </li>
         <li><a href="developers/reference/interpreters.html#interpreters.DUIStrategyInterpreter._op_add_l">(interpreters.DUIStrategyInterpreter method)</a>
 </li>
+        <li><a href="developers/reference/interpreters.html#interpreters.DetectRootInterpreter._op_add_l">(interpreters.DetectRootInterpreter method)</a>
+</li>
         <li><a href="developers/reference/interpreters.html#interpreters.ExecuteInterpreter._op_add_l">(interpreters.ExecuteInterpreter method)</a>
 </li>
         <li><a href="developers/reference/interpreters.html#interpreters.PrintInterpreter._op_add_l">(interpreters.PrintInterpreter method)</a>
-</li>
-        <li><a href="developers/reference/interpreters.html#interpreters.RootNeededInterpreter._op_add_l">(interpreters.RootNeededInterpreter method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -185,6 +187,8 @@
 </li>
         <li><a href="developers/reference/interpreters.html#interpreters.PlainPrintInterpreter._op_fin">(interpreters.PlainPrintInterpreter method)</a>
 </li>
+        <li><a href="developers/reference/interpreters.html#interpreters.SkipRootInterpreter._op_fin">(interpreters.SkipRootInterpreter method)</a>
+</li>
       </ul></li>
       <li><a href="developers/reference/interpreters.html#interpreters.PrintInterpreter._op_info">_op_info() (interpreters.PrintInterpreter method)</a>
 </li>
@@ -199,11 +203,11 @@
 </li>
         <li><a href="developers/reference/interpreters.html#interpreters.DUIStrategyInterpreter._op_remove_l">(interpreters.DUIStrategyInterpreter method)</a>
 </li>
+        <li><a href="developers/reference/interpreters.html#interpreters.DetectRootInterpreter._op_remove_l">(interpreters.DetectRootInterpreter method)</a>
+</li>
         <li><a href="developers/reference/interpreters.html#interpreters.ExecuteInterpreter._op_remove_l">(interpreters.ExecuteInterpreter method)</a>
 </li>
         <li><a href="developers/reference/interpreters.html#interpreters.PrintInterpreter._op_remove_l">(interpreters.PrintInterpreter method)</a>
-</li>
-        <li><a href="developers/reference/interpreters.html#interpreters.RootNeededInterpreter._op_remove_l">(interpreters.RootNeededInterpreter method)</a>
 </li>
       </ul></li>
       <li><a href="developers/reference/interpreters.html#interpreters.DUIStrategyInterpreter._op_remove_p">_op_remove_p() (interpreters.DUIStrategyInterpreter method)</a>
@@ -231,11 +235,11 @@
 </li>
         <li><a href="developers/reference/interpreters.html#interpreters.DUIStrategyInterpreter._op_update_l">(interpreters.DUIStrategyInterpreter method)</a>
 </li>
+        <li><a href="developers/reference/interpreters.html#interpreters.DetectRootInterpreter._op_update_l">(interpreters.DetectRootInterpreter method)</a>
+</li>
         <li><a href="developers/reference/interpreters.html#interpreters.ExecuteInterpreter._op_update_l">(interpreters.ExecuteInterpreter method)</a>
 </li>
         <li><a href="developers/reference/interpreters.html#interpreters.PrintInterpreter._op_update_l">(interpreters.PrintInterpreter method)</a>
-</li>
-        <li><a href="developers/reference/interpreters.html#interpreters.RootNeededInterpreter._op_update_l">(interpreters.RootNeededInterpreter method)</a>
 </li>
       </ul></li>
       <li><a href="developers/reference/interpreters.html#interpreters.CheckProfilesInterpreter._op_update_p">_op_update_p() (interpreters.CheckProfilesInterpreter method)</a>
@@ -254,8 +258,14 @@
 </li>
       <li><a href="developers/reference/profile.html#profile.Profile._Profile__set_builtins">_Profile__set_builtins() (profile.Profile method)</a>
 </li>
-      <li><a href="developers/reference/interpreters.html#interpreters.RootNeededInterpreter._root_needed">_root_needed() (interpreters.RootNeededInterpreter method)</a>
+      <li><a href="developers/reference/interpreters.html#interpreters.DetectRootInterpreter._root_detected">_root_detected() (interpreters.DetectRootInterpreter method)</a>
+
+      <ul>
+        <li><a href="developers/reference/interpreters.html#interpreters.RootNeededInterpreter._root_detected">(interpreters.RootNeededInterpreter method)</a>
 </li>
+        <li><a href="developers/reference/interpreters.html#interpreters.SkipRootInterpreter._root_detected">(interpreters.SkipRootInterpreter method)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -266,13 +276,15 @@
 </li>
       <li><a href="developers/reference/differencesolver.html#differencesolver.DiffLog.add_link">add_link() (differencesolver.DiffLog method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers/reference/differencesolver.html#differencesolver.DiffLog.add_profile">add_profile() (differencesolver.DiffLog method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers/reference/dynamicfile.html#dynamicfile.DynamicFile.add_source">add_source() (dynamicfile.DynamicFile method)</a>
 </li>
       <li><a href="developers/reference/dotmgr.html#dotmgr.DotManager.args">args (dotmgr.DotManager attribute)</a>
+</li>
+      <li><a href="developers/reference/constants.html#constants.ASKROOT">ASKROOT (in module constants)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -354,14 +366,16 @@
 </li>
       <li><a href="developers/reference/constants.html#constants.DEFAULTS">DEFAULTS (in module constants)</a>
 </li>
+      <li><a href="developers/reference/interpreters.html#interpreters.DetectRootInterpreter">DetectRootInterpreter (class in interpreters)</a>
+</li>
       <li><a href="developers/reference/differencesolver.html#module-differencesolver">differencesolver (module)</a>
 </li>
       <li><a href="developers/reference/differencesolver.html#differencesolver.DiffLog">DiffLog (class in differencesolver)</a>
 </li>
-      <li><a href="developers/reference/differencesolver.html#differencesolver.DiffSolver.difflog">difflog (differencesolver.DiffSolver attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="developers/reference/differencesolver.html#differencesolver.DiffSolver.difflog">difflog (differencesolver.DiffSolver attribute)</a>
+</li>
       <li><a href="developers/reference/differencesolver.html#differencesolver.DiffSolver">DiffSolver (class in differencesolver)</a>
 </li>
       <li><a href="developers/reference/constants.html#constants.DIR_DEFAULT">DIR_DEFAULT (in module constants)</a>
@@ -702,8 +716,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers/reference/profile.html#profile.Profile.rmtags">rmtags() (profile.Profile method)</a>
 </li>
-      <li><a href="developers/reference/interpreters.html#interpreters.RootNeededInterpreter.root_needed">root_needed (interpreters.RootNeededInterpreter attribute)</a>
-</li>
       <li><a href="developers/reference/interpreters.html#interpreters.RootNeededInterpreter">RootNeededInterpreter (class in interpreters)</a>
 </li>
       <li><a href="developers/reference/dotmgr.html#dotmgr.DotManager.run">run() (dotmgr.DotManager method)</a>
@@ -718,12 +730,22 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers/reference/interpreters.html#interpreters.Interpreter.set_difflog_data">set_difflog_data() (interpreters.Interpreter method)</a>
 </li>
+      <li><a href="developers/reference/interpreters.html#interpreters.SkipRootInterpreter.skipped">skipped (interpreters.SkipRootInterpreter attribute)</a>
+</li>
+      <li><a href="developers/reference/interpreters.html#interpreters.SkipRootInterpreter.skipped_reasons">skipped_reasons (interpreters.SkipRootInterpreter attribute)</a>
+</li>
+      <li><a href="developers/reference/constants.html#constants.SKIPROOT">SKIPROOT (in module constants)</a>
+</li>
+      <li><a href="developers/reference/interpreters.html#interpreters.SkipRootInterpreter">SkipRootInterpreter (class in interpreters)</a>
+</li>
       <li><a href="developers/reference/differencesolver.html#differencesolver.DiffSolver.solve">solve() (differencesolver.DiffSolver method)</a>
 </li>
       <li><a href="developers/reference/dynamicfile.html#dynamicfile.DynamicFile.sources">sources (dynamicfile.DynamicFile attribute)</a>
 </li>
       <li><a href="developers/reference/dynamicfile.html#dynamicfile.SplittedFile">SplittedFile (class in dynamicfile)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers/reference/dotmgr.html#dotmgr.StoreDictKeyPair">StoreDictKeyPair (class in dotmgr)</a>
 </li>
       <li><a href="developers/reference/dynamicfile.html#dynamicfile.EncryptedFile.SUBDIR">SUBDIR (dynamicfile.EncryptedFile attribute)</a>
@@ -734,8 +756,6 @@
         <li><a href="developers/reference/dynamicfile.html#dynamicfile.SplittedFile.SUBDIR">(dynamicfile.SplittedFile attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="developers/reference/dynamicfile.html#dynamicfile.DynamicFile.SUBDIR">SUBDIR() (dynamicfile.DynamicFile property)</a>
 </li>
       <li><a href="developers/reference/profile.html#profile.Profile.subprof">subprof() (profile.Profile method)</a>
