@@ -33,7 +33,7 @@ from dotmanager.utils import find_files
 from dotmanager.utils import get_user_env_var
 from dotmanager.utils import normpath
 
-VERSION = "1.10.5_3"
+VERSION = "1.11.0_3"
 """Version numbers, seperated by underscore.
 
 First part is the version of Dotmanager. The second part (after the underscore)
@@ -53,6 +53,10 @@ MAKEDIRS = False
 """True, if Dotmanager shall create directories if they don't exist.
 Default is ``False``.
 """
+SKIPROOT = False
+"""True, if all operations that requiere root permission will be omitted.
+Defult is ``False``.
+"""
 SUPERFORCE = False
 """True, if Dotmanager shall overwrite files that are blacklisted.
 Default is ``False``.
@@ -60,6 +64,10 @@ Default is ``False``.
 
 
 # Settings
+ASKROOT = True
+"""True, if Dotmanager shall ask for root permission if needed. If False,
+Dotmanager will fail if root permission is needed. Default is ``True``.
+"""
 LOGGINGLEVEL = "info"
 """The current logger level. Default is ``info``."""
 LOGFILE = ""
@@ -152,8 +160,10 @@ def loadconfig(config_file, installed_filename="default"):
     """
     global OKGREEN, WARNING, FAIL, ENDC, BOLD, UNDERLINE, NOBOLD
     global DUISTRATEGY, FORCE, LOGGINGLEVEL, MAKEDIRS, DECRYPT_PWD, SUPERFORCE
+    global SKIPROOT
     global BACKUP_EXTENSION, PROFILE_FILES, TARGET_FILES, INSTALLED_FILE_BACKUP
     global COLOR, INSTALLED_FILE, DEFAULTS, DIR_DEFAULT, LOGFILE, CFG_FILES
+    global ASKROOT
 
     # Load config files
     if config_file:
@@ -200,6 +210,7 @@ def loadconfig(config_file, installed_filename="default"):
     DUISTRATEGY = getbool("dui", DUISTRATEGY)
     FORCE = getbool("force", FORCE)
     MAKEDIRS = getbool("makedirs", MAKEDIRS)
+    SKIPROOT = getbool("skiproot", SKIPROOT)
     SUPERFORCE = getbool("superforce", SUPERFORCE)
     LOGGINGLEVEL = getstr("logginglevel", LOGGINGLEVEL).upper()
     LOGFILE = getstr("logfile", LOGFILE)
@@ -207,6 +218,7 @@ def loadconfig(config_file, installed_filename="default"):
     # Get settings
     getstr = getvalue(config.get, "Settings")
     getbool = getvalue(config.getboolean, "Settings")
+    ASKROOT = getbool("askroot", ASKROOT)
     DECRYPT_PWD = getstr("decryptPwd", DECRYPT_PWD)
     BACKUP_EXTENSION = getstr("backupExtension", BACKUP_EXTENSION)
     PROFILE_FILES = getstr("profileFiles")

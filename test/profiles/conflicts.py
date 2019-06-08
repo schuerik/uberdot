@@ -27,3 +27,8 @@ class MultipleTargetsConflict(Profile):
     def generate(self):
         link("name1")
         link("name2", name="name1")
+
+class NeedsRootConflict(Profile):
+    def generate(self):
+        link("name1")
+        link("name2", name="/etc/tmp_test")

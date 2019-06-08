@@ -791,6 +791,24 @@ after_optional = {
     }
 }
 
+after_skiproot = {
+    "environment": {
+        "files": [],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1",
+                "rootuser": False,
+                "rootgroup": False,
+            }
+        ],
+        "rootuser": False,
+        "rootgroup": False
+    }
+}
+
+
+
 
 
 # Test execution
@@ -806,16 +824,22 @@ DirRegressionTest("Arguments: Incompatible modes",
                   before, after_nooptions, True).fail("run", 2)
 DirRegressionTest("Arguments: No mode",
                   ["NoOptions"],
-                  before, after_nooptions, True).fail("run", 2)
+                  before, None, True).fail("run", 2)
 DirRegressionTest("Arguments: Wrong Option",
                   ["--dui", "--version", "NoOptions"],
-                  before, after_nooptions, True).fail("run", 101)
+                  before, None, True).fail("run", 101)
 DirRegressionTest("Arguments: Wrong mode",
                   ["--parent", "NameOption", "-u", "NoOptions"],
-                  before, after_nooptions, True).fail("run", 101)
+                  before, None, True).fail("run", 101)
 DirRegressionTest("Arguments: No profiles",
                   ["-i"],
-                  before, after_nooptions, True).fail("run", 101)
+                  before, None, True).fail("run", 101)
+DirRegressionTest("Arguments: No sudo",
+                  ["-i", "NeedsRootConflict"],
+                  before, None, True).fail("run", 101)
+DirRegressionTest("Arguments: --skiproot",
+                  ["-i", "--skiproot", "NeedsRootConflict"],
+                  before, after_skiproot, True).success()
 DirRegressionTest("Option: name",
                   ["-i", "NameOption"],
                   before, after_nameoptions, True).success()
