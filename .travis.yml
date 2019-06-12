@@ -13,7 +13,7 @@ before_install:
 
 # Install dependencies
 install:
-    - pip3 install autodoc sphinx  # jinja pygit2
+    - pip3 install autodoc m2r sphinx  # jinja pygit2
 
 # Exec tests and generate documentation
 script:

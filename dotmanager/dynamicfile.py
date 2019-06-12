@@ -1,8 +1,16 @@
 """
 This module contains all the different DynamicFiles and their base class.
 DynamicFiles provide mechanisms to transform or manipulate dotfiles before
-actually linking them. The DynamicFile will generate a new dotfile that will
+actually linking them. The DynamicFile will generate a new file that will
 be linked instead and makes sure that user-made changes are preserved.
+
+.. autosummary::
+    :nosignatures:
+
+    DynamicFile
+    EncryptedFile
+    FilteredFile
+    SplittedFile
 """
 
 ###############################################################################
@@ -42,13 +50,13 @@ logger = logging.getLogger("root")
 
 
 class DynamicFile:
-    """This abstract class is the base for any dynamic generated
-    file. It provides the update functionality and some basic information.
+    """The abstract base class for any dynamic generated file.
+    It provides the update functionality and some basic information.
 
     Attributes:
         name (str): Name of the file
         md5sum (str): A checksum of the contents of the file
-        sources (List): A list of paths of files that are used as source to
+        sources (list): A list of paths of files that are used as source to
             generate the dynmaic file
     """
     def __init__(self, name):
@@ -65,16 +73,16 @@ class DynamicFile:
     @abstractmethod
     def SUBDIR(self):
         """This constant needs to be implemented by subclasses. It tells the
-        dynamicfile where to store the generated content of the file. It should
-        be different for every type of dynamicfile, so the user can find them
-        easier and can view different "stages" of the generation if the dynmic-
-        file was nested."""
+        DynamicFile where to store the generated content of the file. It should
+        be different for every type of DynamicFile, so the user can find them
+        easier and can view different "stages" of the generation if the
+        DynamicFile was nested."""
         raise NotImplementedError
 
     @abstractmethod
     def _generate_file(self):
-        """This method is used to generate the contents of the
-        dynamic file from sources.
+        """This abstract method is used to generate the contents of the
+        DynamicFile from sources.
 
         Returns:
             bytearray: The raw generated content
@@ -125,8 +133,9 @@ class DynamicFile:
 
 
 class EncryptedFile(DynamicFile):
-    """This is an implementation of a dynamic files that allows
-    to decrypt encrypted files."""
+    """This implementation of a dynamic files allows to decrypt
+    encrypted files.
+    """
 
     SUBDIR = "decrypted"
     """Subdirectory used by EncryptedFile"""
@@ -159,8 +168,9 @@ class EncryptedFile(DynamicFile):
 
 
 class FilteredFile(DynamicFile):
-    """This is an implementation of a dynamic files that allows
-    to run a shell command on a dotfile before linking."""
+    """This is implementation of a dynamic files allows to run a
+    shell command on a dotfile before linking.
+    """
 
     SUBDIR = "piped"
     """Subdirectory used by FilteredFile"""
@@ -190,8 +200,9 @@ class FilteredFile(DynamicFile):
 
 
 class SplittedFile(DynamicFile):
-    """This is an implementation of a dynamic files that allows
-    to join multiple dotfiles together to one dotfile"""
+    """This is of a dynamic files allows to join multiple dotfiles
+    together to one dotfile.
+    """
 
     SUBDIR = "merged"
     """Subdirectory used by SplittedFile"""

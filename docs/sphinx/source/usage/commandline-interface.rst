@@ -18,7 +18,7 @@ One - and only one - of the following modes has to be chosen:
 
 
 -h, --help
-    Show a short help message with all options and modes and exits
+    Shows a short help message with all options and modes and exits
 
 --version
     Displays the version of dotmanager and exits
@@ -46,7 +46,7 @@ Options
 
 
 --directory <DIRECTORY>
-     Overwrites the default directory temporarily
+     Overwrite the default directory temporarily
 
 
 -d, --dry-run
@@ -55,12 +55,12 @@ Options
 
 --dui
      Use an alternative startegy to install profiles and links. The default
-     strategy will do this by recursively go through the profiles and
-     create/update all links one by one. This can cause conflicts if e.g. a link
-     is moved from one to another profile. This strategy installs links by first
-     doing all removals, then all updates and at last all new installs. Most
-     conflicts should be solved by this strategy but it has the downside that
-     the output isn’t that clear as the normal strategy.
+     strategy will do this by recursively going through the profiles and
+     create/update/remove all links one by one. This can cause conflicts if
+     e.g. a link is moved from one to another profile. This strategy installs
+     links by first doing all removals, then all updates and at last all new
+     installs. Most conflicts should be solved by this strategy but it has the
+     downside that the output isn’t that clear as the normal strategy.
 
 
 -f, --force
@@ -175,7 +175,7 @@ Examples
     $ ./dotmgr.py -i --option prefix=. tags=debian,big -- Main Main2
 
 6. Install "Main" and all it's subprofiles, make non-existing directories and
-   override existing files
+   overwrite existing files
 
 .. code:: bash
 

@@ -1,5 +1,5 @@
 ***********
-Dynamicfile
+DynamicFile
 ***********
 
 .. automodule:: dynamicfile

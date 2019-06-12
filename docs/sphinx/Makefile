@@ -13,10 +13,10 @@ help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 clean-html:
-	@ls -1 "$(BUILDDIR)/html/" | xargs -I {} rm -rf "$(BUILDDIR)/html/{}"
+	@rm -rf "$(BUILDDIR)/doctrees/" "$(BUILDDIR)/html/"
 
 clean-man:
-	@ls -1 "$(BUILDDIR)/man/" | xargs -I {} rm -rf "$(BUILDDIR)/man/{}"
+	@rm -rf "$(BUILDDIR)/doctrees/" "$(BUILDDIR)/man/"
 
 # Clean the build directory
 clean: clean-html clean-man

@@ -1,5 +1,12 @@
 """This module implements the Difference-Solvers (at the moment there is only
-the standart DiffSolver) and their resulting data struct DiffLog."""
+the standart DiffSolver) and their resulting data structure DiffLog.
+
+.. autosummary::
+    :nosignatures:
+
+    DiffLog
+    DiffSolver
+"""
 
 ###############################################################################
 #
@@ -32,27 +39,24 @@ from dotmanager.utils import get_date_time_now
 
 
 class DiffLog():
-    """This class stores the operations that were determined by a Difference-
-    Solver. Furthermore it provides helpers to create such operations and
-    a funciton that allows multiple interpreter to interprete the operations
-    at the same time.
+    """This class stores the operations that were determined by a
+    Difference-Solver. Furthermore it provides helpers to create such
+    operations and a function that allows multiple interpreters to interprete
+    the operations at the same time.
 
     Attributes:
-        data (List): Used to store the operations
+        data (list): Used to store the operations
     """
-    def __init__(self, data=None):
+    def __init__(self):
         """Constructor"""
-        if data is None:
-            self.data = []
-        else:
-            self.data = data
+        self.data = []
 
     def add_info(self, profilename, message):
         """Create an info operation.
 
         Info operations can be used to print out profile information to the
-        user. At the moment this is only evaluated by the PrettyPrint-
-        Interpreter to print out a string like::
+        user. At the moment this is only evaluated by the
+        PrettyPrint-Interpreter to print out a string like::
 
             [profilename]: message
 
@@ -66,14 +70,14 @@ class DiffLog():
     def add_profile(self, profilename, parentname=None):
         """Create an add-profile operation.
 
-        Add-profile operations indicate that a new profile will be added/
-        installed. This will be - for example - evalutated by the
+        Add-profile operations indicate that a new profile will be
+        added/installed. This will be - for example - evalutated by the
         ExecuteInterpreter to create a new empty entry in the installed-file.
 
         Args:
             profilename (str): The name of the new profile
             parentname (str): The name of the parent of the new profile. If
-                `None` it will be treated as a root profile
+                ``None`` it will be treated as a root profile
         """
         self.__append_data("add_p", profilename, parent=parentname)
 
@@ -99,7 +103,7 @@ class DiffLog():
         Args:
             profilename (str): The name of the to be updated profile
             parentname (str): The name of the new parent of the profile. If
-                `None` it will be a root profile from now on.
+                ``None`` it will be a root profile from now on.
         """
         self.__append_data("update_p", profilename, parent=parentname)
 
@@ -124,9 +128,9 @@ class DiffLog():
         installed file.
 
         Args:
-            profilename (str): The name of profile that the link belongs to
-            symlink (Dict): A dictionary that describes the symbolic link that
+            symlink (dict): A dictionary that describes the symbolic link that
                 needs to be created
+            profilename (str): The name of profile that the link belongs to
         """
         symlink["date"] = get_date_time_now()
         self.__append_data("add_l", profilename, symlink=symlink)
@@ -134,9 +138,10 @@ class DiffLog():
     def remove_link(self, symlink_name, profilename):
         """Create a remove-link operation.
 
-        Remove-link operation indicate that a certain link needs to be removed.
-        This will be - for example - evaluated by the ExecuteInterpreter
-        to remove the link from the filesystem and the installed file.
+        Remove-link operations indicate that a certain link needs to be
+        removed. This will be - for example - evaluated by the
+        ExecuteInterpreter to remove the link from the filesystem and the
+        installed file.
 
         Args:
             symlink_name (str): The absolute path to the symbolic link
@@ -145,35 +150,36 @@ class DiffLog():
         self.__append_data("remove_l", profilename, symlink_name=symlink_name)
 
     def update_link(self, installed_symlink, new_symlink, profilename):
-        """Create a update-link operation.
+        """Create an update-link operation.
 
-        Update-link operation indicate that a certain link needs to be replaced
-        by a new link. This will be - for example - evaluated by the
+        Update-link operations indicate that a certain link needs to be
+        replaced by a new link. This will be - for example - evaluated by the
         ExecuteInterpreter to remove the old link from the filesystem, create
         the new link in the filesystem and update the entry of the old link in
-        the installed file.
+        the installed-file.
 
         Args:
-            installed_symlink (Dict): A dictionary that describes the symbolic
+            installed_symlink (dict): A dictionary that describes the symbolic
                 link that needs to be replaced
-            new_symlink (Dict): A dictionary that describes the symbolic
-                link that will be the replacement for the old  link
+            new_symlink (dict): A dictionary that describes the symbolic
+                link that will replace the old link
         """
         new_symlink["date"] = get_date_time_now()
         self.__append_data("update_l", profilename,
                            symlink1=installed_symlink,
                            symlink2=new_symlink)
 
-    def __append_data(self, operation, profilename, **args):
-        """Appends a new operation to `self.data`.
+    def __append_data(self, operation, profilename, **kwargs):
+        """Appends a new operation to ``self.data``.
 
         Args:
             operation (str): Name of the operation
             profilename (str): Name of the profile that is associated with the
                 operation
+            **kwargs (dict): All further key/value pairs of the operation
         """
         self.data.append(
-            {"operation": operation, "profile": profilename, **args}
+            {"operation": operation, "profile": profilename, **kwargs}
         )
 
     def run_interpreter(self, *interpreters):
@@ -210,11 +216,11 @@ class DiffSolver():
     all operations to resolve the differences between those.
 
     Attributes:
-        profilenames (List): A list of names of all profiles that is used
+        profilenames (list): A list of names of all profiles that will be used
             for solving
-        installed (Dict): The installed-file that is used for solving
-        difflog (DiffLog): The resulting difflog
-        default_options (Dict): The default options that the profiles will use
+        installed (dict): The installed-file that is used for solving
+        difflog (DiffLog): The resulting DiffLog
+        default_options (dict): The default options that the profiles will use
         default_dir (str): The default directory that profiles start in
         parent_arg (str): The name of the parent that all profiles will change
             its parent to (only set if ``--parent`` was specified)
@@ -223,7 +229,7 @@ class DiffSolver():
         """ Constructor. Initializes attributes from commandline arguments.
 
         Args:
-            installed (Dict): The installed-file that is used for solving
+            installed (dict): The installed-file that is used for solving
             args (argparse): The parsed arguments
         """
         self.profilenames = args.profiles
@@ -233,11 +239,11 @@ class DiffSolver():
         self.default_dir = args.directory
         self.parent_arg = args.parent
 
-    def solve(self, link):
+    def solve(self, update):
         """Start solving differences.
 
         Args:
-            link (bool): True, if this an update. False if all links shall be
+            update (bool): True, if this an update. False if all links shall be
                 removed (Yes, I know that's not intuitive but it wont stay like
                 this).
 
@@ -245,7 +251,7 @@ class DiffSolver():
             DiffLog: The resulting DiffLog
         """
         self.difflog = DiffLog()
-        if link:
+        if update:
             self.__generate_links()
         else:
             self.__generate_unlinks(self.profilenames)
@@ -258,7 +264,7 @@ class DiffSolver():
         Skips profiles that are not installed.
 
         Args:
-            profilelist (List): A list of names of profiles that will be
+            profilelist (list): A list of names of profiles that will be
                 unlinked
         """
         for profilename in profilelist:
@@ -271,7 +277,7 @@ class DiffSolver():
     def __generate_profile_unlink(self, profile_name):
         """Generate operations to remove a single installed profile.
 
-        Appends to difflog that we want to remove a profile,
+        Appends to DiffLog that we want to remove a profile,
         all it's subprofiles and all their links.
 
         Args:
@@ -313,7 +319,9 @@ class DiffSolver():
         plist = []
         for profilename in self.profilenames:
             # Profiles are generated
-            plist.append(import_profile_class(profilename)(**pargs).generator())
+            plist.append(
+                import_profile_class(profilename)(**pargs).generator()
+            )
         for profileresult in plist:
             add_profilenames(profileresult)
         for profileresult in plist:
@@ -324,14 +332,14 @@ class DiffSolver():
     def __generate_profile_link(self, profile_dict, all_profilenames,
                                 parent_name):
         """Resolves the differences between a single profile and the installed
-        ones and appends the difflog for those. Calls itself recursively for
-        all subprofiles.
+        ones and appends the corresponding operations to the DiffLog for those
+        differences. Calls itself recursively for all subprofiles.
 
         Args:
-            profile_dict (Dict): The result of an executed profile that will be
+            profile_dict (dict): The result of an executed profile that will be
                 compared against the installed-file
-            all_profilenames (List): A list with all profile names (including
-                all sub- and root-profiles
+            all_profilenames (list): A list with all profile names (including
+                all sub- and root-profiles)
             parent_name (str): The name of the profiles (new) parent. If
                 parent_name is ``None``, the profile is treated as a root
                 profile
@@ -339,13 +347,6 @@ class DiffSolver():
         def symlinks_similar(symlink1, symlink2):
             return symlink1["name"] == symlink2["name"] or \
                    symlink1["target"] == symlink2["target"]
-
-        def symlinks_equal(symlink1, symlink2):
-            return symlink1["name"] == symlink2["name"] and \
-                   symlink1["target"] == symlink2["target"] and \
-                   symlink1["uid"] == symlink2["uid"] and \
-                   symlink1["gid"] == symlink2["gid"] and \
-                   symlink1["permission"] == symlink2["permission"]
 
         profile_new = False
         profile_changed = False
@@ -367,7 +368,7 @@ class DiffSolver():
         # Now we can compare installed_dict and profile_dict and write
         # the difflog that resolves these differences
         # To do this we actually compare installed_links with new_links
-        # and check which links:_
+        # and check which links:
         #   - didn't changed (must be the same in both)
         #   - are removed (occure only in installed_links)
         #   - are updated (two links that differ, but only in one property)
@@ -380,7 +381,7 @@ class DiffSolver():
         count = 0
         for installed_link in installed_links[:]:
             for new_link in new_links[:]:
-                if symlinks_equal(installed_link, new_link):
+                if installed_link == new_link:
                     # Link in new profile is the same as a installed one,
                     # so ignore it
                     installed_links.remove(installed_link)

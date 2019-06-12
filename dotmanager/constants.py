@@ -33,7 +33,7 @@ from dotmanager.utils import find_files
 from dotmanager.utils import get_user_env_var
 from dotmanager.utils import normpath
 
-VERSION = "1.11.0_3"
+VERSION = "1.11.1_3"
 """Version numbers, seperated by underscore.
 
 First part is the version of Dotmanager. The second part (after the underscore)
@@ -55,7 +55,7 @@ Default is ``False``.
 """
 SKIPROOT = False
 """True, if all operations that requiere root permission will be omitted.
-Defult is ``False``.
+Default is ``False``.
 """
 SUPERFORCE = False
 """True, if Dotmanager shall overwrite files that are blacklisted.
@@ -69,7 +69,7 @@ ASKROOT = True
 Dotmanager will fail if root permission is needed. Default is ``True``.
 """
 LOGGINGLEVEL = "info"
-"""The current logger level. Default is ``info``."""
+"""The current logging level. Default is ``info``."""
 LOGFILE = ""
 """The file that will be used as logfile. Empty if no logfile will be used.
 Needs to be normalized before usage. Default is ``""``.
@@ -77,26 +77,26 @@ Needs to be normalized before usage. Default is ``""``.
 COLOR = True
 """True, if output should be colored. Default is ``True``."""
 DECRYPT_PWD = None
-"""Contains the decryption password in plain text"""
+"""Contains the decryption password in plain text."""
 BACKUP_EXTENSION = "bak"
 """The extension that will be used for backup files. Default is ``bak``."""
 PROFILE_FILES = ""
-"""The directory the profile will be loaded from"""
+"""The directory where the profile will be loaded from."""
 TARGET_FILES = ""
-"""The directory the target files are located"""
+"""The directory where the dotfiles are located."""
 
 # Internal values
 DATA_DIR = os.path.join(
     os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
     "data"
 )
-"""The path to the data directory"""
+"""The path to the data directory."""
 INSTALLED_FILE = os.path.join(DATA_DIR, "installed/%s.json")
-"""The path to the installed-file that will be used for comparison"""
+"""The path to the installed-file that will be used for comparison."""
 INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
-"""The path to the file that will be used as backup of the installed-file"""
+"""The path to the file that will be used as backup of the installed-file."""
 DIR_DEFAULT = "$HOME"
-"""The default path that profiles start in"""
+"""The default path that profiles start in."""
 DEFAULTS = {
     "name": "",
     "optional": False,
@@ -107,21 +107,21 @@ DEFAULTS = {
     "replace_pattern": "",
     "suffix": ""
 }
-"""Default values for command options"""
+"""Default values for command options."""
 OKGREEN = '\033[92m'
-"""Bash color code for green text"""
+"""Bash color code for green text."""
 WARNING = '\033[93m'
-"""Bash color code for yellow text"""
+"""Bash color code for yellow text."""
 FAIL = '\033[91m'
-"""Bash color code for red text"""
+"""Bash color code for red text."""
 ENDC = '\033[0m'
-"""Bash color code to stop formatation of text"""
+"""Bash color code to stop formatation of text."""
 BOLD = '\033[1m'
-"""Bash color code for bold text"""
+"""Bash color code for bold text."""
 UNDERLINE = '\033[4m'
-"""Bash color code for underlined text"""
+"""Bash color code for underlined text."""
 NOBOLD = '\033[22m'
-"""Bash color code to stop bold text"""
+"""Bash color code to stop bold text."""
 
 
 # Loaders for config and installed-section

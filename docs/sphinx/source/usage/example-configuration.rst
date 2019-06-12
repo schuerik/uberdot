@@ -9,17 +9,21 @@ that I defined have the following semantics:
 
 - **arch:** An Arch linux based distribution is installed
 - **antergos:** An Antergos based distribution is installed
-- **debian:** An Debian baAntergosbution is installed
+- **debian:** An Debian based distribution is installed
+
 - **master:** The device is powerful and should be fullfeatured
 - **minimal:** The device is a low-end-device and most features should be
   disabled
+
+- **small:** This device has a small monitor
+- **laptop:** This device is a laptop
+
 - **private:** This my own device with private data and access to my local
   network
 - **office:** A device used for work
-- **laptop:** This device is a laptop
+
 - **asus:** An asus laptop of mine
 - **thinkpad:** A thinkpad laptop of mine
-- **small:** This device has a small monitor
 
 First I created some profiles that represent my current setup. Any
 device that I want to use this setup on inherits from it. These profiles
@@ -49,11 +53,13 @@ specific configs.
            link("unison_data.prf", name=".unison/data.prf")
 
            cd("/etc")
+           # Custom hosts file and udev rules
            link("hosts", "mkinitcpio.conf")
            links("\d{2}-\w+\.rules", directory="udev/rules.d")
 
-Then there are profiles for my different devices. ``Pi`` and ``Server``
-doesn’t inherit from ``Main`` so they will define subprofiles as well.
+
+Then there are profiles for each of my devices. ``Pi`` and ``Server``
+don’t inherit from ``Main`` so they will define subprofiles as well.
 The other profiles are used to link configs that configure hardware.
 These profiles (except for ``Laptop``) are the only profiles that I
 install as a root profile.
@@ -63,7 +69,9 @@ install as a root profile.
    # This profile contains configs that I use on all of my laptops
    class Laptop(Profile):
        def generate(self):
+           # Automate multimonitor if hdmi is plugged in
            link("hdmi_plugin.sh")
+           # Start ssh server if connect to my own private network
            cd("/etc/NetworkManager")
            link("sshOnConnect.sh", directory="dispatcher.d")
 
@@ -87,6 +95,7 @@ install as a root profile.
            tags("thinkpad", "small", "laptop")
            super().generate()
            subprof("Laptop")
+           # Fixes sound
            link("alsa-base.conf", directory="/etc/modprobe.d/")
 
 
@@ -109,6 +118,7 @@ install as a root profile.
        def generate(self):
            tags("debian", "master")
            subprof("Git", "Bash", "Vim")
+
 
 At last there are the profiles for the individual programs that I called
 as subprofiles above. Most of the links are defined here.
@@ -147,7 +157,7 @@ as subprofiles above. Most of the links are defined here.
            subprof("Rofi", "Polybar")
 
            cd(".config/i3")
-           link("i3config", name="config")
+           link(merge("i3config", ["i3-keybindings", "i3-settings", "i3-autostart"]), name="config")
            link("lock.sh", "lock.png")
 
            link("dunstrc", directory="../dunst")
@@ -159,6 +169,8 @@ as subprofiles above. Most of the links are defined here.
 
    class Rofi(Profile):
        def generate(self):
+           # Fing all configs with the naming schema "rofi-*.rasi" and link all of them
+           # but strip away "rofi-" of each filename
            cd(".config/rofi")
            links("rofi-(.+\.rasi)", replace=r"\1")
 
@@ -166,24 +178,25 @@ as subprofiles above. Most of the links are defined here.
    class Polybar(Profile):
        def generate(self):
            cd(".config/polybar")
+           # Strip away "polybar" from each filename
            link("polybarconfig", "polybarlaunch.sh", replace_pattern="polybar(.+)", replace=r"\1")
            link("pkg.sh")
 
 
    class Vim(Profile):
        def generate(self):
-           # Configs
+           # Link all vim configs
            links("g?vimrc", prefix=".")
            cd(".vim")
            links("\w+\.vim")
 
            # Documentation
-           link("my.txt", directory="doc")
+           link("mydoc.txt", directory="doc")
 
-           # Snippets
+           # Link all Snippets
            links(".+\.snippets", directory="UltiSnips")
 
-           # Spellfiles
+           # Link all Spellfiles
            links(".+\..+\.add(\.spl)?", directory="spell")
 
            # Configs loaded after plugins
@@ -197,6 +210,7 @@ as subprofiles above. Most of the links are defined here.
            link("radicale.conf", name="radicale/config")
            link("radicale_log.conf", name="radicale/log_config")
            link("radicale.service", directory="systemd/user")
+
 
 You could argue that some programs doesn’t need an extra profile like
 ``Polybar`` and ``Rofi`` because those would have fit in ``I3`` as well.

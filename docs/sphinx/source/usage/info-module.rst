@@ -4,8 +4,8 @@ Info module
 The info module provides a set of functions to get information about the
 system you are on.
 
-Functions:
-----------
+Functions
+---------
 
 **info.distribution()**
 
@@ -32,8 +32,8 @@ Functions:
     Returns the name of the logged in user
 
 
-Usage:
-------
+Usage
+-----
 
 To use those functions you need to import the info module:
 

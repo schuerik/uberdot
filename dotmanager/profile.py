@@ -1,4 +1,7 @@
-""" This module implements the superclass for all profiles"""
+"""This module implements the superclass for all profiles.
+
+|
+"""
 
 ###############################################################################
 #
@@ -41,13 +44,27 @@ from dotmanager.utils import log_warning
 from dotmanager.utils import normpath
 from dotmanager.utils import walk_dotfiles
 
-CUSTOM_BUILTINS = ["links", "link", "cd", "opt", "extlink", "has_tag", "merge",
-                   "default", "subprof", "tags", "rmtags", "decrypt", "pipe"]
+
+CUSTOM_BUILTINS = [
+    "cd",
+    "decrypt",
+    "default",
+    "extlink",
+    "has_tag",
+    "link",
+    "links",
+    "merge",
+    "opt",
+    "pipe",
+    "rmtags",
+    "subprof",
+    "tags",
+]
 """A list of custom builtins that the profiles will map its functions to before
 executing ``generate()``.
 
-This means that, if you want to use a function in ``generate()`` without the
-need to call it via ``self``, add the function name to this list.
+This means that, if you want to use a class function in ``generate()`` without
+the need to call it via ``self``, add the function name to this list.
 """
 
 
@@ -57,19 +74,27 @@ class Profile:
     the state of the set options and directory.
 
     Attributes:
-        __old_builtins (Dict): A backup of the overwritten builtins
+        __old_builtins (dict): A backup of the overwritten builtins
         name (str): Identifier/Class name of the profile
         executed (bool): True, if a result was already generated
-        options (Dict): Stores options that will be set with ``opt()``
-            as well as the tags. None if this a root proifle.
-        directory (str): The directory that the profile is using as cwd.
-            None if this a root proifle.
-        parent (Profile): The parent profile. None if this a root proifle.
-        result (Dict): The result of ``generate()``. Contains name, parent,
+        options (dict): Stores options that will be set with ``opt()``
+            as well as the tags. Equals ``constants.DEFAULTS`` if this a
+            root profile.
+        directory (str): The directory that the profile is using as current
+            working directory. Equals ``constants.DIR_DEFAULT`` if this a root
+            profile.
+        parent (Profile): The parent profile. ``None`` if this a root profile.
+        result (dict): The result of ``generate()``. Contains name, parent,
             generated links and the result of all subprofiles.
     """
     def __init__(self, options=None, directory=None, parent=None):
-        """Constructor"""
+        """Constructor.
+
+        Sets ``self.options`` to ``constants.DEFAULTS`` if options is ``None``.
+
+        Sets ``self.directory`` to ``constants.DIR_DEFAULT`` if directory is
+        ``None``.
+        """
         if options is None:
             options = dict(constants.DEFAULTS)
         if not directory:
@@ -93,7 +118,7 @@ class Profile:
         a concrete command.
 
         Args:
-            kwargs (Dict): kwargs of a command
+            kwargs (dict): kwargs of a command
         Returns:
             function: A function that looks up and returns the value for a key
             in kwargs. If the key is not in kwargs it uses ``self.options`` for
@@ -113,7 +138,7 @@ class Profile:
         `Do NOT call this from within the same profile, only from outside!!`
 
         Returns:
-            Dict: The result dictionary ``self.result``
+            dict: The result dictionary ``self.result``
         """
         if self.executed:
             self._gen_err("A profile can be only generated " +
@@ -154,7 +179,7 @@ class Profile:
     def generate(self):
         """Implemeted by users for actual link configuration.
 
-        `Do NOT call this function without its wrapper ``generator()``.`
+        `Do NOT call this function without its wrapper` ``generator()``.
         """
         raise NotImplementedError
 
@@ -166,7 +191,7 @@ class Profile:
         """Find a dotfile in ``TARGET_DIR``. Depends on the current set tags.
 
         This can be overwritten to change the searching behaviour of a profile.
-        Furthermore it can be used by the user to just find a dotfile whitout
+        Furthermore it can be used by the user to just find a dotfile whithout
         linking it directly. Eventhough, this is not a command at the moment so
         it need to be called with ``self.find()`` in ``generate()``.
 
@@ -209,8 +234,8 @@ class Profile:
         return encrypt
 
     def merge(self, name, targets):
-        """Creates a SplittedFile instance from a list of targets, updates and
-        returns it.
+        """Creates a ``SplittedFile`` instance from a list of targets, updates
+        and returns it.
 
         The target can be either just the name of a file that will be searched
         for or it can be another dynamic file that already provides a generated
@@ -220,14 +245,14 @@ class Profile:
         ``self`` within ``generate()``.
 
         Args:
-            targets(List): The list of targets that will be used as
+            targets(list): The list of targets that will be used as
                 source of the ``SplittedFile``
         Returns:
             SplittedFile: The dynamic file that holds the merged target
         """
         if len(targets) < 2:
             self._gen_err("merge() for '" + name + "' needs at least "
-                           + "two dotfiles to merge")
+                          + "two dotfiles to merge")
         split = SplittedFile(name)
         for target in targets:
             if isinstance(target, DynamicFile):
@@ -238,8 +263,8 @@ class Profile:
         return split
 
     def pipe(self, target, shell_command):
-        """Creates a FilteredFile instance from a target, updates and returns
-        it.
+        """Creates a ``FilteredFile`` instance from a target, updates and
+        returns it.
 
         This function is a command. It can be called without the use of
         ``self`` within ``generate()``.
@@ -263,15 +288,15 @@ class Profile:
         return filtered
 
     def link(self, *targets, **kwargs):
-        """Link a one ore more targets with current options.
+        """Link one ore more targets with current options.
 
         This function is a command. It can be called without the use of
         ``self`` within ``generate()``.
 
         Args:
-            targets (List): One ore more targets that shall be linked. Targets
+            *targets (list): One ore more targets that shall be linked. Targets
                 can be just file names or any dynamic files.
-            kwargs (Dict): A set of options that will be overwritten just for
+            **kwargs (dict): A set of options that will be overwritten just for
                 this call
         Raises:
             GenerationError: One of the targets were not found
@@ -298,8 +323,8 @@ class Profile:
 
         Args:
             path (str): The path of the target
-            kwargs (Dict): A set of options that will be overwritten just for
-                this call
+            **kwargs (dict): A set of options that will be overwritten just
+                for this call
         """
         read_opt = self._make_read_opt(kwargs)
         path = expanduser(expandvars(path))
@@ -323,7 +348,7 @@ class Profile:
             target_pattern (str): The regular expression that matches the file
                 names
             encrypted (bool): True, if the targets shall be decrypted
-            kwargs (Dict): A set of options that will be overwritten just for
+            **kwargs (dict): A set of options that will be overwritten just for
                 this call
         Raises:
             GenerationError: No files or multiple file with the same name were
@@ -394,7 +419,7 @@ class Profile:
         Args:
             target (str): Full path to target file
             directory (str): A path to change the cwd
-            kwargs (Dict): A set of options that will be overwritten just for
+            kwargs (dict): A set of options that will be overwritten just for
                 this call
         Raises:
             GenerationError: One or more options were misused
@@ -508,7 +533,7 @@ class Profile:
         ``self`` within ``generate()``.
 
         Args:
-            options (List): A list of options that will be reseted
+            *options (list): A list of options that will be reseted
         """
         self.cd(constants.DIR_DEFAULT)
         if not options:
@@ -524,7 +549,7 @@ class Profile:
         ``self`` within ``generate()``.
 
         Args:
-            tags (List): A list of tags that will be removed
+            tags (list): A list of tags that will be removed
         """
         for tag in tags:
             if self.has_tag(tag):
@@ -537,7 +562,7 @@ class Profile:
         ``self`` within ``generate()``.
 
         Args:
-            tags (List): A list of tags that will be added
+            tags (list): A list of tags that will be added
         """
         for tag in tags:
             if tag not in self.options["tags"]:
@@ -564,7 +589,7 @@ class Profile:
         ``self`` within ``generate()``.
 
         Args:
-            kwargs: A set of options that will be set permanently
+            **kwargs: A set of options that will be set permanently
         Raises:
             GenerationError: One of to be set option does not exist
         """
@@ -581,8 +606,8 @@ class Profile:
         ``self`` within ``generate()``.
 
         Args:
-            profilenames(List): List of profiles that will be executed
-            kwargs (Dict): A set of options that will be overwritten just for
+            *profilenames(list): A list of profilenames that will be executed
+            **kwargs (dict): A set of options that will be overwritten just for
                 this call
         Raises:
             GenerationError: Profile were executed in a cycly or recursively

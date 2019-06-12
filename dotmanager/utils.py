@@ -1,5 +1,5 @@
 """Provides functionality that is needed in multiple modules.
-Eg. Retrieving a environment variable or fixing file permisions"""
+E.g. retrieving a environment variable or fixing file permisions."""
 
 ###############################################################################
 #
@@ -49,7 +49,7 @@ def find_target(target, tags):
 
     Args:
         target (str): The filename that will be searched for
-        tags (List): A list of tags that will be matched against the search
+        tags (list): A list of tags that will be matched against the search
             result
     Raises:
         ValueError: Multiple targets where found
@@ -117,7 +117,7 @@ def walk_dotfiles():
     This also takes the .dotignore-file into account.
 
     Returns:
-        (List): Contains tuples with the directory and the filename of every
+        (list): Contains tuples with the directory and the filename of every
         found file
     """
     # load ignore list
@@ -345,9 +345,9 @@ def import_profile_class(class_name):
     Args:
         class_name (str): The name of the class that will be imported
     Raises:
-        GenerationError: One of the modules in contained
-            ``constants.PROFILE_FILES`` errors or the imported class doesn't
-            inherit from ``Profile``
+        GenerationError: One of the modules in ``constants.PROFILE_FILES``
+            contained errors or the imported class doesn't inherit
+            from ``Profile``
         PreconditionError: No class with the provided name exists
     Returns:
         class: The class that was imported
@@ -355,6 +355,7 @@ def import_profile_class(class_name):
     # Import profile (can't be done globally because profile needs to
     # import this module first)
     from dotmanager.profile import Profile
+
     # Go through all files in the profile directory
     for root, _, files in os.walk(constants.PROFILE_FILES):
         for file in files:
@@ -439,9 +440,9 @@ def find_files(filename, paths):
     Args:
         filename (str): The name of the file that will be searched for
             in ``paths``
-        paths (List): A list of paths that will be searched for ``filename``
+        paths (list): A list of paths that will be searched for ``filename``
     Returns:
-        List: A list of file paths that were found
+        list: A list of file paths that were found
     """
     return [os.path.join(path, filename) for path in paths
             if os.path.isfile(os.path.join(path, filename))]

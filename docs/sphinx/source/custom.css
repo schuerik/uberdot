@@ -20,6 +20,7 @@
 .field-body code:not(.xref),
 blockquote code:not(.xref),
 td code:not(.xref),
+li code:not(.xref),
 p code:not(.xref) {
     border: 1px solid #CCC;
     border-radius: 3px;

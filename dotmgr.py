@@ -60,13 +60,13 @@ from dotmanager.utils import normpath
 
 
 class DotManager:
-    """Bundles all functionality off Dotmanager.
+    """Bundles all functionality of Dotmanager.
 
     This includes things like parsing arguments, loading installed-files,
     printing information and executing profiles.
 
     Attributes:
-        installed (Dict): The installed-file that is used as a reference
+        installed (dict): The installed-file that is used as a reference
         args (argparse): The parsed arguments
         owd (str): The old working directory Dotmanager was started from
     """
@@ -86,7 +86,7 @@ class DotManager:
 
     def load_installed(self):
         """Reads the installed-file and parses it's content into
-        `self.installed`.
+        ``self.installed``.
 
         Raises:
             PreconditionError: Dotmanager and installed-file aren't
@@ -107,10 +107,10 @@ class DotManager:
 
     def parse_arguments(self, arguments=None):
         """Parses the commandline arguments. This function can parse a custom
-        list of arguments, instead of `sys.args`.
+        list of arguments, instead of ``sys.args``.
 
         Args:
-            arguments (List): A list of arguments that will be parsed instead
+            arguments (list): A list of arguments that will be parsed instead
                 of sys.args
 
         Raises:
@@ -276,10 +276,10 @@ class DotManager:
 
             Args:
                 msg (str): An error message if dependecies aren't fullfilled
-                *args (List): The argument names that depend on other arguments
-                need (List): One of this need to be set if one of the arguments
+                *args (list): The argument names that depend on other arguments
+                need (list): One of this need to be set if one of the arguments
                     is set
-                omit (List): All of this need to be set if none of the
+                omit (list): All of this need to be set if none of the
                     arguments are set
             Raises:
                 UserError: The dependencies aren't fullfilled
@@ -305,11 +305,11 @@ class DotManager:
         )
         args_depend(
             "--parent needs to be used with -i",
-            "parent", need=["install"]
+            "parent", need=["install", "debuginfo"]
         )
 
     def execute_arguments(self):
-        """Executes whatever was specified via commandline arguments"""
+        """Executes whatever was specified via commandline arguments."""
         if self.args.show:
             self.print_installed_profiles()
         elif self.args.version:
@@ -415,7 +415,7 @@ class DotManager:
         """Prints a single installed profile.
 
         Args:
-            profile (Dict): The profile that will be printed
+            profile (dict): The profile that will be printed
         """
         print(constants.BOLD + profile["name"] + ":" + constants.ENDC)
         print("  Installed: " + profile["installed"])
@@ -444,7 +444,7 @@ class DotManager:
         started with insufficient permissions.
 
         Args:
-            difflog (DiffLog): The Difflog that will be resolved.
+            difflog (DiffLog): The DiffLog that will be resolved.
 
         Raises:
             UnkownError: All exceptions that are no CustomError and occured
@@ -498,7 +498,7 @@ class DotManager:
         """Like `run()` but instead of resolving it it will be just printed out
 
         Args:
-            difflog (DiffLog): The Difflog that will be checked
+            difflog (DiffLog): The DiffLog that will be checked
 
         Raises:
             CustomError: Executed interpreters can and will raise all kinds of

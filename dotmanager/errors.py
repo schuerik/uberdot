@@ -1,4 +1,17 @@
-"""This module contains all custom errors/exceptions."""
+"""This module contains all custom errors/exceptions.
+
+.. autosummary::
+    :nosignatures:
+
+    CustomError
+    FatalError
+    GenerationError
+    IntegrityError
+    PreconditionError
+    UnkownError
+    UserAbortion
+    UserError
+"""
 
 ###############################################################################
 #
@@ -84,7 +97,7 @@ class UserError(CustomError):
     """A custom exception for all errors that occur because the user didn't
     used the program correctly.
 
-    Example: -i and -u where used in the same call but cannot be used together
+    Example: --parent was specified without using -i
     """
 
     EXITCODE = 101
@@ -128,7 +141,7 @@ class PreconditionError(CustomError):
 class GenerationError(CustomError):
     """A custom exception for all errors that occur during generation.
 
-    Example: The profile has syntax errors or fucks with the base class
+    Example: The profile has syntax errors or a dotfile can't be found
     """
 
     EXITCODE = 104
@@ -150,7 +163,8 @@ class GenerationError(CustomError):
 class UnkownError(CustomError):
     """A custom exception for all errors that are not expected/unkown.
 
-    Example: Used in a pokemon handler
+    Used in pokemon handlers of critical sections to convert all unexpected
+    errors into CustomException.
     """
 
     EXITCODE = 105
@@ -172,7 +186,7 @@ class UnkownError(CustomError):
 
 
 class UserAbortion(CustomError):
-    """Used to abort the dotmanager at any given point safely by the user"""
+    """Used to abort the dotmanager at any given point safely by the user."""
 
     EXITCODE = 106
     """The exitcode for a UserAbortion"""

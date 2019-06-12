@@ -1,14 +1,34 @@
 """
 This module contains all the different Interpreters.
-Interpreters implement the behavior for all or a subset of operations of a
-DiffLog. That way interpreters encapsulate behavior, checks and actions of
+Interpreters interprete all or a subset of operations of a DiffLog.
+That way interpreters encapsulate behavior for checks and actions of
 operations, that can be turned on and off freely.
-Some examples what interpreters do:
 
-    - Checking if operations contradict each other
-    - Logging/Printing an operation
-    - Gaining root access if an operation needs them
-    - Actually create links according to the operations
+Interpreters work by implementing callbacks that can review a single
+operation. When an interpreter gets executed on a DiffLog all operations
+of the DiffLog will be fed one by one into the interpreter. Most of the
+interpreters will just raise an exception when they detect an issue in one
+operation, some just print the operations and others can rewrite the entire
+DiffLog.
+
+.. autosummary::
+    :nosignatures:
+
+    CheckDynamicFilesInterpreter
+    CheckLinkBlacklistInterpreter
+    CheckLinkDirsInterpreter
+    CheckLinkExistsInterpreter
+    CheckLinksInterpreter
+    CheckProfilesInterpreter
+    DUIStrategyInterpreter
+    DetectRootInterpreter
+    ExecuteInterpreter
+    GainRootInterpreter
+    Interpreter
+    PlainPrintInterpreter
+    PrintInterpreter
+    RootNeededInterpreter
+    SkipRootInterpreter
 """
 
 ###############################################################################
@@ -58,17 +78,16 @@ from dotmanager.utils import get_gid
 from dotmanager.utils import get_uid
 from dotmanager.utils import is_dynamic_file
 from dotmanager.utils import log_warning
-from dotmanager.utils import normpath
 
 
 logger = logging.getLogger("root")
 
 
 class Interpreter():
-    """Base-class for an interpreter.
+    """Base-class for interpreters.
 
     Attributes:
-        data (List): The raw DiffLog that is interpreted.
+        data (list): The raw DiffLog that is interpreted.
             Only needed by Interpreters that alter the DiffLog.
     """
     def __init__(self):
@@ -76,12 +95,12 @@ class Interpreter():
         self.data = None
 
     def set_difflog_data(self, data):
-        """Sets the DiffLogData.
+        """Sets the raw DiffLog content.
 
         Needed by Interpreters that alter the DiffLog.
 
         Args:
-            data (List): The raw DiffLog that will be set
+            data (list): The raw DiffLog that will be set
         """
         self.data = data
 
@@ -92,7 +111,7 @@ class Interpreter():
         the prefix '_op_', if the function was implemented by the interpreter.
 
         Args:
-            operation (Dict): A operation from DiffLog
+            operation (dict): A operation from DiffLog
         """
         # Check if this interpreter has implemented the operation, then call
         attribute = getattr(self, "_op_" + operation["operation"], None)
@@ -115,7 +134,7 @@ class PlainPrintInterpreter(Interpreter):
         """Print "[" to show the start of an array.
 
         Args:
-            dop (Dict): Unused in this implementation
+            dop (dict): Unused in this implementation
         """
         print("[")
 
@@ -123,7 +142,7 @@ class PlainPrintInterpreter(Interpreter):
         """Print "]" to show the end of an array.
 
         Args:
-            dop (Dict): Unused in this implementation
+            dop (dict): Unused in this implementation
         """
         print("]")
 
@@ -131,11 +150,11 @@ class PlainPrintInterpreter(Interpreter):
 class PrintInterpreter(Interpreter):
     """Pretty-prints log messages and what a operation is going to do."""
     @staticmethod
-    def _log_interpreter(dop, message):
+    def _log_operation(dop, message):
         """Logs/Prints out a message for an operation.
 
         Args:
-            dop (Dict): The operation that is logged. Used to include the
+            dop (dict): The operation that is logged. Used to include the
                 profile name in the log message that triggered the operation.
             message (str): The message that will be logged
         """
@@ -146,7 +165,7 @@ class PrintInterpreter(Interpreter):
         """Logs/Prints out the start of the linking process.
 
         Args:
-            dop (Dict): Unused in this implementation
+            dop (dict): Unused in this implementation
         """
         logger.debug("Starting linking process now.")
 
@@ -154,85 +173,85 @@ class PrintInterpreter(Interpreter):
         """Logs/Prints out an info-operation.
 
         Args:
-            dop (Dict): The info-operation that will be logged
+            dop (dict): The info-operation that will be logged
         """
-        self._log_interpreter(dop, dop["message"])
+        self._log_operation(dop, dop["message"])
 
     def _op_add_p(self, dop):
         """Logs/Prints out that a profile was added.
 
-        Args
-            dop (Dict): The add-operation that will be logged
+        Args:
+            dop (dict): The add-operation that will be logged
         """
         if dop["parent"] is not None:
-            self._log_interpreter(dop, "Installing new profile as" +
-                                  " subprofile of " + dop["parent"])
+            self._log_operation(dop, "Installing new profile as" +
+                                " subprofile of " + dop["parent"])
         else:
-            self._log_interpreter(dop, "Installing new profile")
+            self._log_operation(dop, "Installing new profile")
 
     def _op_remove_p(self, dop):
         """Logs/Prints out that a profile was removed.
 
-        Args
-            dop (Dict): The remove-operation that will be logged
+        Args:
+            dop (dict): The remove-operation that will be logged
         """
-        self._log_interpreter(dop, "Uninstalled profile")
+        self._log_operation(dop, "Uninstalled profile")
 
     def _op_update_p(self, dop):
         """Logs/Prints out that a profile was updated.
 
-        Args
-            dop (Dict): The update-operation that will be logged
+        Args:
+            dop (dict): The update-operation that will be logged
         """
         if "parent" in dop:
             if dop["parent"] is not None:
-                self._log_interpreter(dop, "Changed parent to '" +
-                                      dop["parent"] + "'")
+                self._log_operation(dop, "Changed parent to '" +
+                                    dop["parent"] + "'")
             else:
-                self._log_interpreter(dop, "Detached from parent." +
-                                      " This is a root profile now.")
-        self._log_interpreter(dop, "Profile updated")
+                self._log_operation(dop, "Detached from parent." +
+                                    " This is a root profile now.")
+        self._log_operation(dop, "Profile updated")
 
     def _op_add_l(self, dop):
         """Logs/Prints out that a link was added.
 
-        Args
-            dop (Dict): The add-operation that will be logged
+        Args:
+            dop (dict): The add-operation that will be logged
         """
-        self._log_interpreter(dop, dop["symlink"]["name"] +
-                              " was created and links to " +
-                              dop["symlink"]["target"])
+        self._log_operation(dop, dop["symlink"]["name"] +
+                            " was created and links to " +
+                            dop["symlink"]["target"])
 
     def _op_remove_l(self, dop):
         """Logs/Prints out that a link was removed.
 
-        Args
-            dop (Dict): The remove-operation that will be logged
+        Args:
+            dop (dict): The remove-operation that will be logged
         """
-        self._log_interpreter(dop, dop["symlink_name"] +
-                              " was removed from the system.")
+        self._log_operation(dop, dop["symlink_name"] +
+                            " was removed from the system.")
 
     def _op_update_l(self, dop):
         """Logs/Prints out that a link was updated.
 
         The message is generated according to what changed in the updated link.
 
-        Args
-            dop (Dict): The update-operation that will be logged
+        Args:
+            dop (dict): The update-operation that will be logged
         """
         if dop["symlink1"]["name"] != dop["symlink2"]["name"]:
-            self._log_interpreter(dop, dop["symlink1"]["name"] +
-                                  " was moved to " + dop["symlink2"]["name"])
+            self._log_operation(dop, dop["symlink1"]["name"] +
+                                " was moved to " + dop["symlink2"]["name"])
         elif dop["symlink2"]["target"] != dop["symlink1"]["target"]:
-            self._log_interpreter(dop, dop["symlink1"]["name"] +
-                                  " points now to " +
-                                  dop["symlink2"]["target"])
+            self._log_operation(dop, dop["symlink1"]["name"] +
+                                " points now to " +
+                                dop["symlink2"]["target"])
         else:
             msg = dop["symlink1"]["name"] + " has changed "
             if dop["symlink2"]["permission"] != dop["symlink1"]["permission"]:
                 msg += "permission from " + str(dop["symlink1"]["permssion"])
                 msg += " to " + str(dop["symlink2"]["permssion"])
-                self._log_interpreter(dop, msg)
+                self._log_operation(dop, msg)
             elif dop["symlink2"]["uid"] != dop["symlink1"]["uid"] or \
                     dop["symlink2"]["gid"] != dop["symlink1"]["gid"]:
                 user = pwd.getpwuid(dop["symlink1"]["uid"])[0]
@@ -241,7 +260,7 @@ class PrintInterpreter(Interpreter):
                 user = pwd.getpwuid(dop["symlink2"]["uid"])
                 group = grp.getgrgid(dop["symlink2"]["gid"])
                 msg += " to " + user + ":" + group
-                self._log_interpreter(dop, msg)
+                self._log_operation(dop, msg)
 
 
 class DUIStrategyInterpreter(Interpreter):
@@ -250,12 +269,12 @@ class DUIStrategyInterpreter(Interpreter):
     because without the old order they are not useful anymore.
 
     Attributes:
-        profile_deletes (List): A collection for profile-remove-operations
-        profile_updates (List): A collection for profile-update-operations
-        profile_adds (List): A collection for profile-add-operations
-        link_deletes (List): A collection for link-remove-operations
-        link_updates (List): A collection for link-update-operations
-        link_adds (List): A collection for link-add-operations
+        profile_deletes (list): A collection of profile-remove-operations
+        profile_updates (list): A collection of profile-update-operations
+        profile_adds (list): A collection of profile-add-operations
+        link_deletes (list): A collection of link-remove-operations
+        link_updates (list): A collection of link-update-operations
+        link_adds (list): A collection of link-add-operations
     """
     def __init__(self):
         super().__init__()
@@ -270,7 +289,7 @@ class DUIStrategyInterpreter(Interpreter):
         """Adds the profile-add-operation to ``profile_adds``.
 
         Args:
-            dop (Dict): The operation that will be added
+            dop (dict): The operation that will be added
         """
         self.profile_adds.append(dop)
 
@@ -278,7 +297,7 @@ class DUIStrategyInterpreter(Interpreter):
         """Adds the profile-remove-operation to ``profile_removes``.
 
         Args:
-            dop (Dict): The operation that will be added
+            dop (dict): The operation that will be added
         """
         self.profile_deletes.append(dop)
 
@@ -286,7 +305,7 @@ class DUIStrategyInterpreter(Interpreter):
         """Adds the profile-update-operation to ``profile_updates``.
 
         Args:
-            dop (Dict): The operation that will be added
+            dop (dict): The operation that will be added
         """
         self.profile_updates.append(dop)
 
@@ -294,7 +313,7 @@ class DUIStrategyInterpreter(Interpreter):
         """Adds the link-add-operation to ``link_adds``.
 
         Args:
-            dop (Dict): The operation that will be added
+            dop (dict): The operation that will be added
         """
         self.link_adds.append(dop)
 
@@ -302,7 +321,7 @@ class DUIStrategyInterpreter(Interpreter):
         """Adds the link-remove-operation to ``link_removes``.
 
         Args:
-            dop (Dict): The operation that will be added
+            dop (dict): The operation that will be added
         """
         self.link_deletes.append(dop)
 
@@ -310,7 +329,7 @@ class DUIStrategyInterpreter(Interpreter):
         """Adds the link-update-operation to ``link_updates``.
 
         Args:
-            dop (Dict): The operation that will be added
+            dop (dict): The operation that will be added
         """
         self.link_updates.append(dop)
 
@@ -319,7 +338,7 @@ class DUIStrategyInterpreter(Interpreter):
         and overwrites ``self.data`` to alter the DiffLog
 
         Args:
-            dop (Dict): Unused in this implementation
+            dop (dict): Unused in this implementation
         """
         merged_list = self.profile_deletes + self.profile_updates
         merged_list += self.profile_adds + self.link_deletes
@@ -331,7 +350,7 @@ class DUIStrategyInterpreter(Interpreter):
 
 class CheckDynamicFilesInterpreter(Interpreter):
     """Checks if there are changes to a dynamic file and
-    gives the user the oppoutunity to interact with them.
+    gives the user the opportunity to interact with them.
 
     Attributes:
         dryrun (bool): Stores, if ``--dryrun`` was set
@@ -344,12 +363,13 @@ class CheckDynamicFilesInterpreter(Interpreter):
             dryrun (bool): Sets, if this is a dryrun
         """
         self.dryrun = dryrun
+        super().__init__()
 
     def _op_update_l(self, dop):
         """Inspects the target file of the to be updated link.
 
         Args:
-            dop (Dict): The update-operation of the to be updated link
+            dop (dict): The update-operation of the to be updated link
         """
         self.inspect_file(dop["symlink1"]["target"])
 
@@ -357,7 +377,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
         """Inspects the target file of the to be removed link.
 
         Args:
-            dop (Dict): The remove-operation of the to be removed link
+            dop (dict): The remove-operation of the to be removed link
         """
         self.inspect_file(os.readlink(dop["symlink_name"]))
 
@@ -447,7 +467,7 @@ class CheckLinksInterpreter(Interpreter):
     Conflicts are things like duplicates, multiple targets / overwrites, etc.
 
     Args:
-        linklist (List): List that stores all links, their corresponding
+        linklist (list): list that stores all links, their corresponding
             profiles and if they are already installed. Links that are already
             installed and won't be removed, will end up twice in this list.
     """
@@ -457,7 +477,7 @@ class CheckLinksInterpreter(Interpreter):
         Initializes ``linklist`` with all links from the installed-file.
 
         Args:
-            installed (Dict): The installed file, that was used to create the
+            installed (dict): The installed-file, that was used to create the
                 current DiffLog
         """
         super().__init__()
@@ -478,7 +498,7 @@ class CheckLinksInterpreter(Interpreter):
         If everything is valid, the link will be added to the list.
 
         Args:
-            dop (Dict): The add-operation that will be checked
+            dop (dict): The add-operation that will be checked
         Raises:
             IntegrityError: The check failed
         """
@@ -503,7 +523,7 @@ class CheckLinksInterpreter(Interpreter):
         already installed if we don't remove it here.
 
         Args:
-            dop (Dict): The remove-operation that will be used to remove the
+            dop (dict): The remove-operation that will be used to remove the
                 link
         """
         count = 0
@@ -521,7 +541,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
 
     Attributes:
         superforce (bool): Stores, if ``--superforce`` was set
-        blacklist (List): A list of file name patterns that are forbidden
+        blacklist (list): A list of file name patterns that are forbidden
             to touch without superforce flag
     """
     def __init__(self, superforce):
@@ -535,8 +555,8 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         super().__init__()
         self.superforce = superforce
         self.blacklist = []
-        for bl in find_files("black.list", constants.CONFIG_SEARCH_PATHS):
-            with open(bl, "r") as file:
+        for blfile in find_files("black.list", constants.CONFIG_SEARCH_PATHS):
+            with open(blfile, "r") as file:
                 for line in file.readlines():
                     self.blacklist.append(line)
         self.blacklist = [entry.strip() for entry in self.blacklist]
@@ -575,7 +595,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         """Checks the old and the new symlink for blacklist violations.
 
         Args:
-            dop (Dict): The update-operation whose symlinks will be checked
+            dop (dict): The update-operation whose symlinks will be checked
         """
         if dop["symlink1"]["name"] == dop["symlink2"]["name"]:
             self.check_blacklist(dop["symlink1"]["name"], "update")
@@ -587,7 +607,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         """Checks the to be removed symlink for blacklist violations.
 
         Args:
-            dop (Dict): The remove-operation whose symlink will be checked
+            dop (dict): The remove-operation whose symlink will be checked
         """
         self.check_blacklist(dop["symlink_name"], "remove")
 
@@ -595,7 +615,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         """Checks the to be added symlink for blacklist violations.
 
         Args:
-            dop (Dict): The add-operation whose symlink will be checked
+            dop (dict): The add-operation whose symlink will be checked
         """
         self.check_blacklist(dop["symlink"]["name"], "overwrite")
 
@@ -610,7 +630,7 @@ class CheckLinkDirsInterpreter(Interpreter):
         """Constructor
 
         Args:
-            dryrun (bool): Sets, if directories shall be created
+            makedirs (bool): Sets, if directories shall be created
         """
         super().__init__()
         self.makedirs = makedirs
@@ -619,7 +639,7 @@ class CheckLinkDirsInterpreter(Interpreter):
         """Checks if the directory of the to be added link already exists.
 
         Args:
-            dop (Dict): The add-operation whose symlink will be checked
+            dop (dict): The add-operation whose symlink will be checked
         """
         self.check_dirname(os.path.dirname(dop["symlink"]["name"]))
 
@@ -627,7 +647,7 @@ class CheckLinkDirsInterpreter(Interpreter):
         """Checks if the directory of the to be updated link already exists.
 
         Args:
-            dop (Dict): The update-operation whose symlink will be checked
+            dop (dict): The update-operation whose symlink will be checked
         """
         self.check_dirname(os.path.dirname(dop["symlink2"]["name"]))
 
@@ -653,7 +673,7 @@ class CheckLinkExistsInterpreter(Interpreter):
 
     Attributes:
         force (bool): Stores, if ``--force`` was set
-        removed_links (List): A collection of all links that are going to be
+        removed_links (list): A collection of all links that are going to be
             removed
     """
     def __init__(self, force):
@@ -669,7 +689,7 @@ class CheckLinkExistsInterpreter(Interpreter):
         need to be stored for ``_op_add_l()``.
 
         Args:
-            dop (Dict): The remove-operation that will be checked
+            dop (dict): The remove-operation that will be checked
         Raises:
             PreconditionError: The to be removed link does not exist
         """
@@ -681,16 +701,16 @@ class CheckLinkExistsInterpreter(Interpreter):
         self.removed_links.append(dop["symlink_name"])
 
     def _op_update_l(self, dop):
-        """Checks if old and the new link already exist.
+        """Checks if the old and the new link already exist.
 
         Furthermore adds the old link to ``removed_links`` if old and new link
         have different names, because removed links need to be stored for
         ``_op_add_l()``.
 
         Args:
-            dop (Dict): The update-operation that will be checked
+            dop (dict): The update-operation that will be checked
         Raises:
-            PreconditionError: The to be old link does not exist, the new
+            PreconditionError: The old link does not exist, the new
                 link already exists or the new link points to a non-existent
                 file
         """
@@ -718,7 +738,7 @@ class CheckLinkExistsInterpreter(Interpreter):
         """Checks if the new link already exists.
 
         Args:
-            dop (Dict): The add-operation that will be checked
+            dop (dict): The add-operation that will be checked
         Raise:
             PreconditionError: The new link already exists or its target does
                 not exist
@@ -741,8 +761,8 @@ class CheckProfilesInterpreter(Interpreter):
     duplicates and overwrites.
 
     Attributes:
-        parnent_arg (str): Stores the value of ``--parent``
-        profile_list (List): A list that stores all profiles, their parents
+        parent_arg (str): Stores the value of ``--parent``
+        profile_list (list): A list that stores all profiles, their parents
             and if they are already installed. Profiles that are still
             installed in the end, will end up twice in this list.
     """
@@ -752,7 +772,7 @@ class CheckProfilesInterpreter(Interpreter):
         Initializes ``profile_list`` with all profiles from the installed-file.
 
         Args:
-            installed (Dict): The installed file, that was used to create the
+            installed (dict): The installed-file, that was used to create the
                 DiffLog
             parent_arg (str): The value of ``--parent``
         """
@@ -789,7 +809,7 @@ class CheckProfilesInterpreter(Interpreter):
         Adds the profile to ``profile_list`` if the operation is valid.
 
         Args:
-            dop (Dict): The add-operation that will be checked
+            dop (dict): The add-operation that will be checked
         Raises:
             IntegrityError: A profile is added twice or is already installed
         """
@@ -813,10 +833,10 @@ class CheckProfilesInterpreter(Interpreter):
         """Checks if profiles will be overwritten.
 
         Args:
-            dop (Dict): The update-operation that will be checked
+            dop (dict): The update-operation that will be checked
         Raises:
-            IntegrityError: A profile installed as a subprofile of another root
-                profile
+            IntegrityError: A profile is already installed as a subprofile of
+                another root profile
         """
         if self.get_known(dop["profile"], False) is not None:
             raise FatalError("The profile '" + dop["profile"] +
@@ -859,7 +879,7 @@ class ExecuteInterpreter(Interpreter):
     It can create/delete links in the filesystem and modify the installed-file.
 
     Attributes:
-        installed (Dict): The installed-file that will be updated
+        installed (dict): The installed-file that will be updated
         force (bool): Stores, if ``--force`` was set
     """
     def __init__(self, installed, force):
@@ -868,7 +888,7 @@ class ExecuteInterpreter(Interpreter):
         Updates the version number of the installed-file.
 
         Args:
-            installed (Dict): The installed-file that will be updated
+            installed (dict): The installed-file that will be updated
             force (bool): The value of ``--force``
         """
         super().__init__()
@@ -880,7 +900,7 @@ class ExecuteInterpreter(Interpreter):
         """Adds a profile entry of the installed-file.
 
         Args:
-            dop (Dict): The add-operation that will be executed
+            dop (dict): The add-operation that will be executed
         """
         new_profile = {}
         new_profile["name"] = dop["profile"]
@@ -894,7 +914,7 @@ class ExecuteInterpreter(Interpreter):
         """Removes a profile entry of the installed-file.
 
         Args:
-            dop (Dict): The remove-operation that will be executed
+            dop (dict): The remove-operation that will be executed
         """
         del self.installed[dop["profile"]]
 
@@ -902,7 +922,7 @@ class ExecuteInterpreter(Interpreter):
         """Updates a profile entry of the installed-file.
 
         Args:
-            dop (Dict): The update-operation that will be executed
+            dop (dict): The update-operation that will be executed
         """
         if "parent" in dop:
             if dop["parent"] is not None:
@@ -916,7 +936,7 @@ class ExecuteInterpreter(Interpreter):
         corresponding profile in the installed-file.
 
         Args:
-            dop (Dict): The add-operation that will be executed
+            dop (dict): The add-operation that will be executed
         """
         self.__create_symlink(dop["symlink"]["name"],
                               dop["symlink"]["target"],
@@ -930,7 +950,7 @@ class ExecuteInterpreter(Interpreter):
         the corresponding profile in the installed-file.
 
         Args:
-            dop (Dict): The remove-operation that will be executed
+            dop (dict): The remove-operation that will be executed
         """
         os.unlink(dop["symlink_name"])
         for link in self.installed[dop["profile"]]["links"]:
@@ -942,7 +962,7 @@ class ExecuteInterpreter(Interpreter):
         the corresponding profile in the installed-file.
 
         Args:
-            dop (Dict): The update-operation that will be executed
+            dop (dict): The update-operation that will be executed
         """
         os.unlink(dop["symlink1"]["name"])
         self.__create_symlink(dop["symlink2"]["name"],
@@ -986,9 +1006,9 @@ class ExecuteInterpreter(Interpreter):
     def _makedirs(filename):
         """Custom ``os.makedirs()`` that keeps the owner of the directory.
 
-        This means that it will create the directory with the owner of the
-        deepest directory that already exists instead of using current user as
-        owner. This is needed, because otherwise directories won't be
+        This means that it will create the directory with the same owner as of the
+        deepest parent directory that already exists instead of using current
+        user as owner. This is needed, because otherwise directories won't be
         accessible by the user, if some links would be created with root
         permissions.
 
@@ -1013,7 +1033,7 @@ class ExecuteInterpreter(Interpreter):
 
 
 class DetectRootInterpreter(Interpreter):
-    """Checks if root permission is needed to perform operations. """
+    """DetectDetects if root permission is needed to perform operations. """
 
     def _access(self, path):
         """Checks if we have write access for a given path.
@@ -1040,7 +1060,7 @@ class DetectRootInterpreter(Interpreter):
         or will be owned by other users than the current.
 
         Args:
-            dop (Dict): The add-operation that will be checked
+            dop (dict): The add-operation that will be checked
         """
         name = dop["symlink"]["name"]
         uid, gid = get_dir_owner(name)
@@ -1054,7 +1074,7 @@ class DetectRootInterpreter(Interpreter):
         the current.
 
         Args:
-            dop (Dict): The remove-operation that will be checked
+            dop (dict): The remove-operation that will be checked
         """
         try:
             if not os.access(os.path.dirname(dop["symlink_name"]), os.W_OK):
@@ -1069,7 +1089,7 @@ class DetectRootInterpreter(Interpreter):
         the current or will be moved to inaccessible directories.
 
         Args:
-            dop (Dict): The update-operation that will be checked
+            dop (dict): The update-operation that will be checked
         """
         name = dop["symlink2"]["name"]
         if dop["symlink1"]["uid"] != dop["symlink2"]["uid"] or \
@@ -1094,7 +1114,7 @@ class DetectRootInterpreter(Interpreter):
         is detected.
 
         Args:
-            dop (Dict): The operation that requires root permission
+            dop (dict): The operation that requires root permission
             description (str): A description of what the operation does that
                 will require root permission
             affected_file (str): The file that the description refers to
@@ -1103,11 +1123,11 @@ class DetectRootInterpreter(Interpreter):
 
 
 class SkipRootInterpreter(DetectRootInterpreter):
-    """Skips all operatrions that would require root permission.
+    """Skips all operations that would require root permission.
 
     Attributes:
-        skipped (List): A list of all operations that will be skipped
-        skipped_reasons (List): A list of tuples that counts how often a
+        skipped (list): A list of all operations that will be skipped
+        skipped_reasons (list): A list of tuples that counts how often a
             description occured
     """
 
@@ -1120,7 +1140,7 @@ class SkipRootInterpreter(DetectRootInterpreter):
         """Stores which operations needs to be skipped.
 
         Args:
-            dop (Dict): The operation that will be skipped
+            dop (dict): The operation that will be skipped
             description (str): A description of what the operation does that
                 will require root permission
             affected_file (str): Used to determine if description refers to
@@ -1137,10 +1157,11 @@ class SkipRootInterpreter(DetectRootInterpreter):
             self.skipped_reasons[description] += 1
 
     def _op_fin(self, dop):
-        """Remove all operations from difflog that are collected in self.skip
+        """Remove all operations from difflog that are collected in
+        ``self.skip``.
 
         Args:
-            dop (Dict): Unused in this implementation
+            dop (dict): Unused in this implementation
         """
         # Remove all operations from self.skip
         new_data = []
@@ -1167,10 +1188,10 @@ class RootNeededInterpreter(DetectRootInterpreter):
     Prints out all such operations.
 
     Attributes:
-        logged (List): A list of tuples with (dop, description, affected_file)
-            that stores which operations requiere root permission, which file
+         content (list): A list of tuples with (dop, description, affected_file)
+            that stores which operations require root permission, which file
             or directory they affect and a description of what the operation
-            would exactly requiere root permission for
+            would exactly require root permission for
     """
 
     def __init__(self):
@@ -1181,7 +1202,7 @@ class RootNeededInterpreter(DetectRootInterpreter):
         """Logs and prints out the operation that needs root permission.
 
         Args:
-            dop (Dict): Unused in this implementation
+            dop (dict): Unused in this implementation
             description (str): A description of what the operation does that
                 will require root permission
             affected_file (str): The file that the description refers to
@@ -1201,7 +1222,7 @@ class GainRootInterpreter(RootNeededInterpreter):
         of Dotmanager, but prepend it with "sudo".
 
         Args:
-            dop (Dict): Unused in this implementation
+            dop (dict): Unused in this implementation
         """
         if self.logged:
             if constants.ASKROOT:
