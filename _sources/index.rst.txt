@@ -36,14 +36,37 @@ manager for only most of my dotfiles and had to manually work around some edge c
 that with most dotfile managers you can't properly reuse profiles or (only parts of) configuration files.
 
 Dotmanager aims to implement all features that all other configuration managers provide and is especially suited for complex
-setups with multiple devices. Furthermore it allows to automate workarounds directly within the profiles and to easily reuse all
-your configuration files and profiles.
+setups with multiple devices. Furthermore it allows to automate workarounds directly within the profiles and pushes reusability
+of all your configuration files and profiles to it's limit.
 
 Dotmanager is intended to give you maximal flexibility while checking the integrity of all operations that you
 configured/programmed to prevent that you accidentally break your systems. To achieve this, profiles aren't static configuration
 files but python classes to really give you all power you need.
 If you don't know python don't worry, you won't need to know it to use Dotmanger, but if you do you can really go nuts with this.
 
+Already working features:
+
+- Very flexible generic python profiles
+- Easy to use but powerful commands + clean syntax
+- You can use your old repository without any changes. It doesn't matter how you organize your dotfiles.
+- Use multiple versions of a single dotfile
+- Advanced error handling (e.g. integration tests for your written profiles)
+- Create links anywhere in the filesystem as you like ($HOME is not enough)
+- Create links that point anywhere in the filesystem (not exclusively to your repository)
+- Set owner and permission for links
+- Find and rename dotfiles using regular expressions
+- Use encrypted dotfiles
+- Split any dotfile in multiple parts where each part can have multiple versions
+- Provides an interface for system information (like hostname, distribution, etc)
+- You can simulate (dry run) everything to see if your self written profiles behave like you expect
+
+More features are coming:
+
+- Templates
+- Hard links (in some edge cases a symbolic link can't be used)
+- Keep a history of all changes to go back in time
+- Hooks
+- Compability Layers for easy migration from other dotfile managers
 
 About this documentation
 ------------------------

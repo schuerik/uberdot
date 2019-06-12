@@ -74,12 +74,36 @@ essential features missing right away or after some time my setup got more compl
 manager for only most of my dotfiles and had to manually work around some edge cases every god damn time. It also bothered me,
 that with most dotfile managers you can't properly reuse profiles or (only parts of) configuration files.</p>
 <p>Dotmanager aims to implement all features that all other configuration managers provide and is especially suited for complex
-setups with multiple devices. Furthermore it allows to automate workarounds directly within the profiles and to easily reuse all
-your configuration files and profiles.</p>
+setups with multiple devices. Furthermore it allows to automate workarounds directly within the profiles and pushes reusability
+of all your configuration files and profiles to it's limit.</p>
 <p>Dotmanager is intended to give you maximal flexibility while checking the integrity of all operations that you
 configured/programmed to prevent that you accidentally break your systems. To achieve this, profiles aren't static configuration
 files but python classes to really give you all power you need.
 If you don't know python don't worry, you won't need to know it to use Dotmanger, but if you do you can really go nuts with this.</p>
+<p>Already working features:</p>
+<ul class="simple">
+<li><p>Very flexible generic python profiles</p></li>
+<li><p>Easy to use but powerful commands + clean syntax</p></li>
+<li><p>You can use your old repository without any changes. It doesn't matter how you organize your dotfiles.</p></li>
+<li><p>Use multiple versions of a single dotfile</p></li>
+<li><p>Advanced error handling (e.g. integration tests for your written profiles)</p></li>
+<li><p>Create links anywhere in the filesystem as you like ($HOME is not enough)</p></li>
+<li><p>Create links that point anywhere in the filesystem (not exclusively to your repository)</p></li>
+<li><p>Set owner and permission for links</p></li>
+<li><p>Find and rename dotfiles using regular expressions</p></li>
+<li><p>Use encrypted dotfiles</p></li>
+<li><p>Split any dotfile in multiple parts where each part can have multiple versions</p></li>
+<li><p>Provides an interface for system information (like hostname, distribution, etc)</p></li>
+<li><p>You can simulate (dry run) everything to see if your self written profiles behave like you expect</p></li>
+</ul>
+<p>More features are coming:</p>
+<ul class="simple">
+<li><p>Templates</p></li>
+<li><p>Hard links (in some edge cases a symbolic link can't be used)</p></li>
+<li><p>Keep a history of all changes to go back in time</p></li>
+<li><p>Hooks</p></li>
+<li><p>Compability Layers for easy migration from other dotfile managers</p></li>
+</ul>
 </div>
 <div class="section" id="about-this-documentation">
 <h2>About this documentation<a class="headerlink" href="#about-this-documentation" title="Permalink to this headline">¶</a></h2>
