@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "DOTMANAGER" "1" "Jun 08, 2019" "1.11.0_3" "Dotmanager"
+.TH "DOTMANAGER" "1" "Jun 12, 2019" "1.11.1_3" "Dotmanager"
 .SH NAME
 dotmanager \- Dotmanager Documentation
 .
@@ -52,7 +52,7 @@ One \- and only one \- of the following modes has to be chosen:
 .INDENT 0.0
 .TP
 .B \-h\fP,\fB  \-\-help
-Show a short help message with all options and modes and exits
+Shows a short help message with all options and modes and exits
 .TP
 .B \-\-version
 Displays the version of dotmanager and exits
@@ -77,19 +77,19 @@ Otherwise information about all installed profiles will be shown.
 Use a different config file for this call
 .TP
 .BI \-\-directory \ <DIRECTORY>
-Overwrites the default directory temporarily
+Overwrite the default directory temporarily
 .TP
 .B \-d\fP,\fB  \-\-dry\-run
 Just simulate the changes dotmanager would perform
 .TP
 .B \-\-dui
 Use an alternative startegy to install profiles and links. The default
-strategy will do this by recursively go through the profiles and
-create/update all links one by one. This can cause conflicts if e.g.\ a link
-is moved from one to another profile. This strategy installs links by first
-doing all removals, then all updates and at last all new installs. Most
-conflicts should be solved by this strategy but it has the downside that
-the output isn’t that clear as the normal strategy.
+strategy will do this by recursively going through the profiles and
+create/update/remove all links one by one. This can cause conflicts if
+e.g. a link is moved from one to another profile. This strategy installs
+links by first doing all removals, then all updates and at last all new
+installs. Most conflicts should be solved by this strategy but it has the
+downside that the output isn’t that clear as the normal strategy.
 .TP
 .B \-f\fP,\fB  \-\-force
 Allows overwrites of files that already exists in your filesystem
@@ -101,7 +101,7 @@ Log everything into a logfile (this also adds timestamps to the log messages)
 Make directories if they don’t exist. Any directory that will be created
 inherits the owner of its parent directory.
 .TP
-.BI \-\-option \ <KEY=VAL…>
+.BI \-\-option \ <KEY=VAL...>
 Sets/Overwrites one or more keys of the option section of the config file.
 .TP
 .BI \-\-parent \ <PARENT>
@@ -131,7 +131,7 @@ You need to make sure by yourself that there are no conflicts between all
 installed profiles and the profiles that you are going to install.
 This is mostly useful if you want to test the linking process in another
 directory or if those profiles are installed in completely different
-locations on your device but you don’t want your current setup be changed.
+locations on your device but you don\(aqt want your current setup be changed.
 .TP
 .B \-\-silent
 Print no log messages at all.
@@ -155,7 +155,7 @@ case\-sensitive.
 .SH EXAMPLES
 .INDENT 0.0
 .IP 1. 3
-Uninstall the profile called “Main” and all its subprofiles
+Uninstall the profile called "Main" and all its subprofiles
 .UNINDENT
 .INDENT 0.0
 .INDENT 3.5
@@ -169,7 +169,7 @@ $ ./dotmgr.py \-u Main
 .UNINDENT
 .INDENT 0.0
 .IP 2. 3
-Install the profiles “Main” and “Main2” and all their subprofiles
+Install the profiles "Main" and "Main2" and all their subprofiles
 .UNINDENT
 .INDENT 0.0
 .INDENT 3.5
@@ -197,7 +197,7 @@ $ ./dotmgr.py \-id Main Main2
 .UNINDENT
 .INDENT 0.0
 .IP 4. 3
-Perform the same installation like before but set the prefix for all links to “.”
+Perform the same installation like before but set the prefix for all links to "."
 .UNINDENT
 .INDENT 0.0
 .INDENT 3.5
@@ -211,7 +211,7 @@ $ ./dotmgr.py \-i \-\-option prefix=. \-\- Main Main2
 .UNINDENT
 .INDENT 0.0
 .IP 5. 3
-Also set the tags “debian” and “big”
+Also set the tags "debian" and "big"
 .UNINDENT
 .INDENT 0.0
 .INDENT 3.5
@@ -225,8 +225,8 @@ $ ./dotmgr.py \-i \-\-option prefix=. tags=debian,big \-\- Main Main2
 .UNINDENT
 .INDENT 0.0
 .IP 6. 3
-Install “Main” and all it’s subprofiles, make non\-existing directories and
-override existing files
+Install "Main" and all it\(aqs subprofiles, make non\-existing directories and
+overwrite existing files
 .UNINDENT
 .INDENT 0.0
 .INDENT 3.5
@@ -240,14 +240,14 @@ $ ./dotmgr.py \-imf Main
 .UNINDENT
 .SH COMMANDS
 .sp
-A profile provides several so called “commands” that you will use to
-create links, set options, decrypt dotfiles and much more. They are
-called commands because they behave similar to shell script commands and
-they won’t need to be prepended with \fBself\fP like every other python
-function. This document explains all those commands and gives examples on
-how to use them. The commands are devided into “Basic Commands”, “Helper
-Commands” and “File manipulation commands”.
-.SS Basic commands:
+A profile provides several so called “commands” that you will use to create
+links, set options, decrypt dotfiles and much more. They are called commands
+because they behave similar to shell script commands and they won’t need to be
+prepended with \fBself\fP like every other class function needs to in python.
+This document explains all those commands and gives examples on how to use
+them. The commands are devided into "Basic Commands", "Helper Commands" and
+"File manipulation commands".
+.SS Basic commands
 .SS cd(Path)
 .sp
 This command switches the directory like you are used to in UNIX. You
@@ -320,19 +320,19 @@ options. This is a list of all options available:
 \fBprefix\fP: Every symlink name gets prepended with the provided prefix
 .INDENT 2.0
 .IP \(bu 2
-e.g.: \fBopt(prefix=”.”)\fP
+e.g.: \fBopt(prefix=".")\fP
 .UNINDENT
 .IP \(bu 2
 \fBsuffix\fP: Same as prefix but appends to the symlink name
 .INDENT 2.0
 .IP \(bu 2
-e.g.: \fBopt(suffix=”.ini”)\fP
+e.g.: \fBopt(suffix=".ini")\fP
 .UNINDENT
 .IP \(bu 2
 \fBowner\fP: Sets the user and group owner of the symlink
 .INDENT 2.0
 .IP \(bu 2
-e.g.: \fBopt(owner=”peter:users”)\fP
+e.g.: \fBopt(owner="peter:users")\fP
 .UNINDENT
 .IP \(bu 2
 \fBpermission\fP: Sets the permission of the target file (symlinks are
@@ -346,13 +346,13 @@ e.g.: \fBopt(permission=600)\fP
 you want to replace in the filename
 .INDENT 2.0
 .IP \(bu 2
-e.g.: \fBopt(replace_pattern=”vim(.+)”)\fP
+e.g.: \fBopt(replace_pattern="vim(.+)")\fP
 .UNINDENT
 .IP \(bu 2
 \fBreplace\fP: Specify a string that replaces the \fBreplace_pattern\fP
 .INDENT 2.0
 .IP \(bu 2
-e.g.: \fBopt(replace=r”\e1”)\fP this will strip away any “vim”
+e.g.: \fBopt(replace=r"\e1")\fP this will strip away any “vim”
 prefix of the symlinks name if used in combination with above
 example
 .UNINDENT
@@ -360,8 +360,8 @@ example
 \fBname\fP: Sets the name of the symlink. This can be a path as well.
 .INDENT 2.0
 .IP \(bu 2
-e.g.: \fBopt(name=”config”)\fP but usually used like this
-\fBlink(“polybarconfig”, name=”.config/polybar/config”)\fP
+e.g.: \fBopt(name="config")\fP but usually used like this
+\fBlink("polybarconfig", name=".config/polybar/config")\fP
 .UNINDENT
 .IP \(bu 2
 \fBoptional\fP: If no correct version of a file is found and this is set
@@ -378,7 +378,7 @@ it receives a regular expression. All dotfiles will be linked that
 match this pattern (tags will be stripped away before matching). This
 can be very handy because you don’t even have to edit your profile
 when you add a new dotfile to your repository as long you use the same
-naming pattern for those files. This command has also the advantage
+naming pattern for those files. This command also has the advantage
 that you don’t have to specify the \fBreplace_pattern\fP property if you
 want to use \fBreplace\fP\&. The search pattern will be reused for this
 purpose if \fBreplace_pattern\fP is not set. Another feature unique to
@@ -528,7 +528,7 @@ class Main(Profile):
 .fi
 .UNINDENT
 .UNINDENT
-.SS Helper commands:
+.SS Helper commands
 .SS has_tag(tags)
 .sp
 Takes a tag and returns if it is set.
@@ -538,7 +538,9 @@ Takes a list of tags. Removes all of them if they are set.
 .SS default(*Optionnames)
 .sp
 This command accepts a list of options and sets them back to default.
-If no option is provided it sets all options back to default.
+If no option is provided it sets all options back to default. Tags are
+handeled internally as an option that has list of tags, so you can
+reset them with \fBdefault()\fP as well.
 .sp
 \fBExample:\fP
 .INDENT 0.0
@@ -550,24 +552,25 @@ If no option is provided it sets all options back to default.
 default("permission")
 # Set multiple option back to default
 default("optional", "owner", "prefix")
-# Set all option back to default
+# Set all option (tags inclusive) back to default
 default()
+# Remove all tags (the default list of tags is empty)
+default("tags")
 .ft P
 .fi
 .UNINDENT
 .UNINDENT
-.SS File manipulation commands:
+.SS File manipulation commands
 .SS decrypt(Dotfilename)
 .sp
 This command takes a single filename and searches for it like \fBlink()\fP\&. It
 will decrypt it and return the decrypted file as a dynamicfile which then can
 be used by \fBlink()\fP\&. If \fBdecryptPwd\fP is set in your configfile this will be
 used for every decryption. Otherwise Dotmanager (or more precisely gnupg) will
-ask you for the password. Because dynamicfiles are regenerated every time the
-files content changes, this command has the downside that it actually needs to
-decrypt the file every time you install/update even though there maybe are no
-changes. This can be very frustrating if you need to type in the password every
-time, so I highly recommend setting \fBdecryptPwd\fP\&.
+ask you for the password. Because all dynamicfiles are regenerated every time a
+profile gets executed, this command has the downside that it actually asks for
+the decryption password even though nothing changed, so I highly recommend setting
+\fBdecryptPwd\fP\&.
 .sp
 \fBExample:\fP This creates a DynamicFile called \fBgitconfig\fP at
 \fBdata/decrypted\fP\&. The DynamicFile contains the decrypted content of the
@@ -606,9 +609,9 @@ links("key[1\-4]", suffix=".pkk", encrypted=True)
 .UNINDENT
 .SS merge(name, *Dotfilenames)
 .sp
-This command lets you merge multiple dotfiles into a single big dotfile. That
+This command lets you merge multiple dotfiles into a one big dotfile. That
 is useful if you want to split a configuration file that doesn’t support
-source\-operations (eg i3). It even works with tags, so the dotfile can be
+source\-operations (e.g. i3). It even works with tags, so the dotfile can be
 generated using alternate versions of the splittet files. The first parameter
 is the name that you give the new merged dotfile. All following parameters are
 dotfiles that will be searched for and merged in the order you provide. The
@@ -654,7 +657,7 @@ This will create a link called \fBtest.txt\fP which only contains the numbers 2,
 .sp
 The info module provides a set of functions to get information about the
 system you are on.
-.SS Functions:
+.SS Functions
 .sp
 \fBinfo.distribution()\fP
 .INDENT 0.0
@@ -697,7 +700,7 @@ Returns \fBTrue\fP if the package called \fBpkg_name\fP is installed
 Returns the name of the logged in user
 .UNINDENT
 .UNINDENT
-.SS Usage:
+.SS Usage
 .sp
 To use those functions you need to import the info module:
 .INDENT 0.0
