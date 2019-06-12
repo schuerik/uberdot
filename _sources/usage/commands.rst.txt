@@ -1,18 +1,18 @@
 Commands
 ========
 
-A profile provides several so called “commands” that you will use to
-create links, set options, decrypt dotfiles and much more. They are
-called commands because they behave similar to shell script commands and
-they won’t need to be prepended with ``self`` like every other python
-function. This document explains all those commands and gives examples on
-how to use them. The commands are devided into "Basic Commands", "Helper
-Commands" and "File manipulation commands".
+A profile provides several so called “commands” that you will use to create
+links, set options, decrypt dotfiles and much more. They are called commands
+because they behave similar to shell script commands and they won’t need to be
+prepended with ``self`` like every other class function needs to in python.
+This document explains all those commands and gives examples on how to use
+them. The commands are devided into "Basic Commands", "Helper Commands" and
+"File manipulation commands".
 
 
 
-Basic commands:
----------------
+Basic commands
+--------------
 
 
 cd(Path)
@@ -128,7 +128,7 @@ it receives a regular expression. All dotfiles will be linked that
 match this pattern (tags will be stripped away before matching). This
 can be very handy because you don’t even have to edit your profile
 when you add a new dotfile to your repository as long you use the same
-naming pattern for those files. This command has also the advantage
+naming pattern for those files. This command also has the advantage
 that you don’t have to specify the ``replace_pattern`` property if you
 want to use ``replace``. The search pattern will be reused for this
 purpose if ``replace_pattern`` is not set. Another feature unique to
@@ -249,8 +249,8 @@ directory was set ``Main`` starts in your home-directory. This means
 
 
 
-Helper commands:
-----------------
+Helper commands
+---------------
 
 
 has_tag(tags)
@@ -269,7 +269,9 @@ default(\*Optionnames)
 ^^^^^^^^^^^^^^^^^^^^^^
 
 This command accepts a list of options and sets them back to default.
-If no option is provided it sets all options back to default.
+If no option is provided it sets all options back to default. Tags are
+handeled internally as an option that has list of tags, so you can
+reset them with ``default()`` as well.
 
 **Example:**
 
@@ -279,13 +281,15 @@ If no option is provided it sets all options back to default.
    default("permission")
    # Set multiple option back to default
    default("optional", "owner", "prefix")
-   # Set all option back to default
+   # Set all option (tags inclusive) back to default
    default()
+   # Remove all tags (the default list of tags is empty)
+   default("tags")
 
 
 
-File manipulation commands:
----------------------------
+File manipulation commands
+--------------------------
 
 
 decrypt(Dotfilename)
@@ -295,11 +299,10 @@ This command takes a single filename and searches for it like ``link()``. It
 will decrypt it and return the decrypted file as a dynamicfile which then can
 be used by ``link()``. If ``decryptPwd`` is set in your configfile this will be
 used for every decryption. Otherwise Dotmanager (or more precisely gnupg) will
-ask you for the password. Because dynamicfiles are regenerated every time the
-files content changes, this command has the downside that it actually needs to
-decrypt the file every time you install/update even though there maybe are no
-changes. This can be very frustrating if you need to type in the password every
-time, so I highly recommend setting ``decryptPwd``.
+ask you for the password. Because all dynamicfiles are regenerated every time a
+profile gets executed, this command has the downside that it actually asks for
+the decryption password even though nothing changed, so I highly recommend setting
+``decryptPwd``.
 
 **Example:** This creates a DynamicFile called ``gitconfig`` at
 ``data/decrypted``. The DynamicFile contains the decrypted content of the
@@ -329,9 +332,9 @@ comprehension or use ``links()`` with ``encrypted`` setting. This will decrypt
 merge(name, \*Dotfilenames)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This command lets you merge multiple dotfiles into a single big dotfile. That
+This command lets you merge multiple dotfiles into a one big dotfile. That
 is useful if you want to split a configuration file that doesn’t support
-source-operations (eg i3). It even works with tags, so the dotfile can be
+source-operations (e.g. i3). It even works with tags, so the dotfile can be
 generated using alternate versions of the splittet files. The first parameter
 is the name that you give the new merged dotfile. All following parameters are
 dotfiles that will be searched for and merged in the order you provide. The

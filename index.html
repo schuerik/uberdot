@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Welcome to Dotmanager’s documentation! &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Dotmanager &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -31,18 +31,16 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-dotmanager-s-documentation">
-<h1>Welcome to Dotmanager’s documentation!<a class="headerlink" href="#welcome-to-dotmanager-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>Dotmanager is a tool to manage different versions of your dotfiles on different
-hosts. Dotmanager is intended to give you maximal flexibility while checking
-the integrity of all operations that you configured/programmed to prevent that you
-accidentally break your systems. To achieve this you can write simple profiles
-which will define a set of dotfiles that you want to install.</p>
-<p>This documetation covers installation instructions, user guides, configuration examples
-and guides for developers as well as a reference manual.</p>
-<p>For installation instructions please take a look at <a class="reference internal" href="usage/getting-started.html"><span class="doc">Getting started</span></a>.</p>
+  <div class="section" id="dotmanager">
+<h1>Dotmanager<a class="headerlink" href="#dotmanager" title="Permalink to this headline">¶</a></h1>
+<a class="reference external image-reference" href="https://travis-ci.com/RickestRickSanchez/dotmanager"><img alt="https://travis-ci.com/RickestRickSanchez/dotmanager.svg?branch=master" src="https://travis-ci.com/RickestRickSanchez/dotmanager.svg?branch=master" /></a>
+<a class="reference external image-reference" href="https://github.com/RickestRickSanchez/dotmanager/releases/latest"><img alt="https://img.shields.io/github/release/RickestRickSanchez/dotmanager.svg" src="https://img.shields.io/github/release/RickestRickSanchez/dotmanager.svg" /></a>
+<a class="reference external image-reference" href="https://www.codefactor.io/repository/github/rickestricksanchez/dotmanager"><img alt="https://www.codefactor.io/repository/github/rickestricksanchez/dotmanager/badge" src="https://www.codefactor.io/repository/github/rickestricksanchez/dotmanager/badge" /></a>
+<img alt="https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7-blue.svg" src="https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7-blue.svg" /><p>Dotmanager is a tool to manage different versions of dotfiles/configs on different hosts. You can define little profiles
+that specify which configuration files shall be symlinked.</p>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="usage/index.html">Dotmanager Usage</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="usage/getting-started.html">Getting started</a></li>
@@ -51,9 +49,10 @@ and guides for developers as well as a reference manual.</p>
 <li class="toctree-l2"><a class="reference internal" href="usage/commands.html">Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/info-module.html">Info module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/config-file.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/dotignore.html">.dotignore</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/encryption.html">Encryption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/dynamicfiles.html">Dynamicfiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage/installed-file.html">Installed files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage/installed-file.html">Installed-files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/example-configuration.html">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="usage/tips.html">Tips</a></li>
 </ul>
@@ -61,13 +60,33 @@ and guides for developers as well as a reference manual.</p>
 <li class="toctree-l1"><a class="reference internal" href="developers/index.html">For developers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="developers/contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers/documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="developers/tests.html">Testing suite of Dotmanager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="developers/tests.html">Testing Dotmanager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="developers/reference/index.html">Reference manual</a></li>
 </ul>
 </li>
 </ul>
 </div>
-<p><em>This documentation was generated for Dotmanager</em> 1.11.0_3</p>
+</div>
+<div class="section" id="why-dotmanager">
+<h2>Why Dotmanager?<a class="headerlink" href="#why-dotmanager" title="Permalink to this headline">¶</a></h2>
+<p>I created Dotmanager because none of the existing configuration/dotfile managers satisfied my needs. Either there were
+essential features missing right away or after some time my setup got more complex and I ended up using the configuration
+manager for only most of my dotfiles and had to manually work around some edge cases every god damn time. It also bothered me,
+that with most dotfile managers you can't properly reuse profiles or (only parts of) configuration files.</p>
+<p>Dotmanager aims to implement all features that all other configuration managers provide and is especially suited for complex
+setups with multiple devices. Furthermore it allows to automate workarounds directly within the profiles and to easily reuse all
+your configuration files and profiles.</p>
+<p>Dotmanager is intended to give you maximal flexibility while checking the integrity of all operations that you
+configured/programmed to prevent that you accidentally break your systems. To achieve this, profiles aren't static configuration
+files but python classes to really give you all power you need.
+If you don't know python don't worry, you won't need to know it to use Dotmanger, but if you do you can really go nuts with this.</p>
+</div>
+<div class="section" id="about-this-documentation">
+<h2>About this documentation<a class="headerlink" href="#about-this-documentation" title="Permalink to this headline">¶</a></h2>
+<p>This documentation covers installation instructions, user guides, configuration examples
+and guides for developers as well as a reference manual.</p>
+<p>This documentation was generated for version 1.11.1_3 of Dotmanager.</p>
+</div>
 </div>
 
 
@@ -84,15 +103,20 @@ and guides for developers as well as a reference manual.</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developers/index.html">For developers</a></li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -127,7 +151,7 @@ and guides for developers as well as a reference manual.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -135,6 +159,10 @@ and guides for developers as well as a reference manual.</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

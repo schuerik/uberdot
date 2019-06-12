@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Testing suite of Dotmanager &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Testing Dotmanager &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -32,8 +32,8 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="testing-suite-of-dotmanager">
-<h1>Testing suite of Dotmanager<a class="headerlink" href="#testing-suite-of-dotmanager" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="testing-dotmanager">
+<h1>Testing Dotmanager<a class="headerlink" href="#testing-dotmanager" title="Permalink to this headline">¶</a></h1>
 <p>To verify that Dotmanager is working correct and behaves the same on all
 platforms, there are regression tests in  <code class="docutils literal notranslate"><span class="pre">test/regressiontest.py</span></code>. At the
 moment they are far away from being complete but will be extended in the
@@ -79,8 +79,8 @@ setups.</p>
 <li><p>post: The postcondition is checked</p></li>
 </ul>
 </div></blockquote>
-<p>If a test fails, it fails with a cause. For the “pre” and “post” phase the cause
-is a specific error message. For “run” it is the non-zero exitcode of Dotmanager.</p>
+<p>If a test fails, it fails with a cause. For the &quot;pre&quot; and &quot;post&quot; phase the cause
+is a specific error message. For &quot;run&quot; it is the non-zero exitcode of Dotmanager.</p>
 </div>
 <div class="section" id="pre-and-postcondition-for-dirregressiontest">
 <h2>Pre- and postcondition for DirRegressionTest<a class="headerlink" href="#pre-and-postcondition-for-dirregressiontest" title="Permalink to this headline">¶</a></h2>
@@ -125,13 +125,13 @@ The dictionary looks like this:</p>
 </div>
 <p>The keys of the top dictionary are the relative paths from <code class="docutils literal notranslate"><span class="pre">test/</span></code> for any
 subdirectory that you want to verify. For every subdirectory there are the keys <code class="docutils literal notranslate"><span class="pre">files</span></code>, <code class="docutils literal notranslate"><span class="pre">links</span></code>, <code class="docutils literal notranslate"><span class="pre">permission</span></code>, <code class="docutils literal notranslate"><span class="pre">rootuser</span></code>
-and <code class="docutils literal notranslate"><span class="pre">rootgroup</span></code>. The last three describe the subdirectory itself. Because we can’t create new users/groups
+and <code class="docutils literal notranslate"><span class="pre">rootgroup</span></code>. The last three describe the subdirectory itself. Because we can't create new users/groups
 just for the sake of this test, we only distinguish between normal and root users/groups.
-<code class="docutils literal notranslate"><span class="pre">files</span></code> and <code class="docutils literal notranslate"><span class="pre">links</span></code> are both lists of dictionaries that we use describe all files in the subdirectory.
+<code class="docutils literal notranslate"><span class="pre">files</span></code> and <code class="docutils literal notranslate"><span class="pre">links</span></code> are both lists of dictionaries that we use to describe all files in the subdirectory.
 Both have the keys <code class="docutils literal notranslate"><span class="pre">name</span></code> (which is the name of the file/symlink), <code class="docutils literal notranslate"><span class="pre">permission</span></code>, <code class="docutils literal notranslate"><span class="pre">rootuser</span></code> and <code class="docutils literal notranslate"><span class="pre">rootgroup</span></code>.
 There is also the optional key <code class="docutils literal notranslate"><span class="pre">content</span></code> which hold the md5 hash of the files content.
 The difference between those two lists is, that <code class="docutils literal notranslate"><span class="pre">links</span></code> has dictionaries with an additional <code class="docutils literal notranslate"><span class="pre">target</span></code> key that
-sets links target relatively to <code class="docutils literal notranslate"><span class="pre">test/</span></code>. Also all files that are listed in <code class="docutils literal notranslate"><span class="pre">links</span></code> will be verified to be
+specifies a links target relatively to <code class="docutils literal notranslate"><span class="pre">test/</span></code>. Also all files that are listed in <code class="docutils literal notranslate"><span class="pre">links</span></code> will be verified to be
 a symbolic link, where as files that are listed in <code class="docutils literal notranslate"><span class="pre">files</span></code> must not be a symbolic link.</p>
 </div>
 </div>
@@ -150,21 +150,31 @@ a symbolic link, where as files that are listed in <code class="docutils literal
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Testing suite of Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Testing Dotmanager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-testcases">Creating testcases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phases">Phases</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pre-and-postcondition-for-dirregressiontest">Pre- and postcondition for DirRegressionTest</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="reference/index.html">Reference manual</a></li>
 </ul>
 </li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -202,7 +212,7 @@ a symbolic link, where as files that are listed in <code class="docutils literal
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -210,6 +220,10 @@ a symbolic link, where as files that are listed in <code class="docutils literal
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

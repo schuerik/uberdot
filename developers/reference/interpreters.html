@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Interpreters &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Interpreters &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -35,23 +35,73 @@
   <div class="section" id="module-interpreters">
 <span id="interpreters"></span><h1>Interpreters<a class="headerlink" href="#module-interpreters" title="Permalink to this headline">¶</a></h1>
 <p>This module contains all the different Interpreters.
-Interpreters implement the behavior for all or a subset of operations of a
-DiffLog. That way interpreters encapsulate behavior, checks and actions of
-operations, that can be turned on and off freely.
-Some examples what interpreters do:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>Checking if operations contradict each other</p></li>
-<li><p>Logging/Printing an operation</p></li>
-<li><p>Gaining root access if an operation needs them</p></li>
-<li><p>Actually create links according to the operations</p></li>
-</ul>
-</div></blockquote>
+Interpreters interprete all or a subset of operations of a DiffLog.
+That way interpreters encapsulate behavior for checks and actions of
+operations, that can be turned on and off freely.</p>
+<p>Interpreters work by implementing callbacks that can review a single
+operation. When an interpreter gets executed on a DiffLog all operations
+of the DiffLog will be fed one by one into the interpreter. Most of the
+interpreters will just raise an exception when they detect an issue in one
+operation, some just print the operations and others can rewrite the entire
+DiffLog.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#interpreters.CheckDynamicFilesInterpreter" title="interpreters.CheckDynamicFilesInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CheckDynamicFilesInterpreter</span></code></a></p></td>
+<td><p>Checks if there are changes to a dynamic file and gives the user the opportunity to interact with them.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#interpreters.CheckLinkBlacklistInterpreter" title="interpreters.CheckLinkBlacklistInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CheckLinkBlacklistInterpreter</span></code></a></p></td>
+<td><p>Checks if a operation touches a link that is on the blacklist.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#interpreters.CheckLinkDirsInterpreter" title="interpreters.CheckLinkDirsInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CheckLinkDirsInterpreter</span></code></a></p></td>
+<td><p>Checks if directories need to be created.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#interpreters.CheckLinkExistsInterpreter" title="interpreters.CheckLinkExistsInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CheckLinkExistsInterpreter</span></code></a></p></td>
+<td><p>Checks if links of installed-file really exist in the filesystem.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#interpreters.CheckLinksInterpreter" title="interpreters.CheckLinksInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CheckLinksInterpreter</span></code></a></p></td>
+<td><p>Checks for conflicts between all links.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#interpreters.CheckProfilesInterpreter" title="interpreters.CheckProfilesInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CheckProfilesInterpreter</span></code></a></p></td>
+<td><p>Checks if profiles can be installed together.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#interpreters.DUIStrategyInterpreter" title="interpreters.DUIStrategyInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DUIStrategyInterpreter</span></code></a></p></td>
+<td><p>Reorders DiffLog so linking won't be in the order of profiles but instead in the order Delete-Update-Insert.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#interpreters.DetectRootInterpreter" title="interpreters.DetectRootInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DetectRootInterpreter</span></code></a></p></td>
+<td><p>DetectDetects if root permission is needed to perform operations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#interpreters.ExecuteInterpreter" title="interpreters.ExecuteInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExecuteInterpreter</span></code></a></p></td>
+<td><p>This interpreter actually executes the operations from the DiffLog.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#interpreters.GainRootInterpreter" title="interpreters.GainRootInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GainRootInterpreter</span></code></a></p></td>
+<td><p>If root permission is needed to perform the operations, this interpreter restarts the process with &quot;sudo&quot;.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Interpreter</span></code></a></p></td>
+<td><p>Base-class for interpreters.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#interpreters.PlainPrintInterpreter" title="interpreters.PlainPrintInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlainPrintInterpreter</span></code></a></p></td>
+<td><p>Prints add/remove/update-operation without any formating.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#interpreters.PrintInterpreter" title="interpreters.PrintInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrintInterpreter</span></code></a></p></td>
+<td><p>Pretty-prints log messages and what a operation is going to do.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#interpreters.RootNeededInterpreter" title="interpreters.RootNeededInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RootNeededInterpreter</span></code></a></p></td>
+<td><p>Checks if root permission are required to perform all operations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#interpreters.SkipRootInterpreter" title="interpreters.SkipRootInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkipRootInterpreter</span></code></a></p></td>
+<td><p>Skips all operations that would require root permission.</p></td>
+</tr>
+</tbody>
+</table>
 <dl class="class">
 <dt id="interpreters.Interpreter">
 <em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">Interpreter</code><a class="headerlink" href="#interpreters.Interpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Base-class for an interpreter.</p>
+<p>Base-class for interpreters.</p>
 <dl class="attribute">
 <dt id="interpreters.Interpreter.data">
 <code class="sig-name descname">data</code><a class="headerlink" href="#interpreters.Interpreter.data" title="Permalink to this definition">¶</a></dt>
@@ -59,7 +109,7 @@ Some examples what interpreters do:</p>
 Only needed by Interpreters that alter the DiffLog.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -75,10 +125,10 @@ Only needed by Interpreters that alter the DiffLog.</p>
 <code class="sig-name descname">call_operation</code><span class="sig-paren">(</span><em class="sig-param">operation</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.call_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the implemented behavior for this operation.</p>
 <p>This calls a function named like <code class="docutils literal notranslate"><span class="pre">operation[&quot;operation&quot;]</span></code> with
-the prefix ‘_op_’, if the function was implemented by the interpreter.</p>
+the prefix '_op_', if the function was implemented by the interpreter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>operation</strong> (<em>Dict</em>) – A operation from DiffLog</p>
+<dd class="field-odd"><p><strong>operation</strong> (<em>dict</em>) -- A operation from DiffLog</p>
 </dd>
 </dl>
 </dd></dl>
@@ -86,11 +136,11 @@ the prefix ‘_op_’, if the function was implemented by the interpreter.</p>
 <dl class="method">
 <dt id="interpreters.Interpreter.set_difflog_data">
 <code class="sig-name descname">set_difflog_data</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.Interpreter.set_difflog_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the DiffLogData.</p>
+<dd><p>Sets the raw DiffLog content.</p>
 <p>Needed by Interpreters that alter the DiffLog.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>data</strong> (<em>List</em>) – The raw DiffLog that will be set</p>
+<dd class="field-odd"><p><strong>data</strong> (<em>list</em>) -- The raw DiffLog that will be set</p>
 </dd>
 </dl>
 </dd></dl>
@@ -102,7 +152,7 @@ the prefix ‘_op_’, if the function was implemented by the interpreter.</p>
 <em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">CheckDynamicFilesInterpreter</code><span class="sig-paren">(</span><em class="sig-param">dryrun</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Checks if there are changes to a dynamic file and
-gives the user the oppoutunity to interact with them.</p>
+gives the user the opportunity to interact with them.</p>
 <dl class="attribute">
 <dt id="interpreters.CheckDynamicFilesInterpreter.dryrun">
 <code class="sig-name descname">dryrun</code><a class="headerlink" href="#interpreters.CheckDynamicFilesInterpreter.dryrun" title="Permalink to this definition">¶</a></dt>
@@ -120,7 +170,7 @@ gives the user the oppoutunity to interact with them.</p>
 <dd><p>Constructor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dryrun</strong> (<em>bool</em>) – Sets, if this is a dryrun</p>
+<dd class="field-odd"><p><strong>dryrun</strong> (<em>bool</em>) -- Sets, if this is a dryrun</p>
 </dd>
 </dl>
 </dd></dl>
@@ -131,7 +181,7 @@ gives the user the oppoutunity to interact with them.</p>
 <dd><p>Inspects the target file of the to be removed link.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The remove-operation of the to be removed link</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The remove-operation of the to be removed link</p>
 </dd>
 </dl>
 </dd></dl>
@@ -142,7 +192,7 @@ gives the user the oppoutunity to interact with them.</p>
 <dd><p>Inspects the target file of the to be updated link.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation of the to be updated link</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation of the to be updated link</p>
 </dd>
 </dl>
 </dd></dl>
@@ -154,7 +204,7 @@ gives the user the oppoutunity to interact with them.</p>
 calls a small UI to store/undo changes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) – The full path to the file that will be checked</p>
+<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) -- The full path to the file that will be checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -176,13 +226,13 @@ file.</p>
 </div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) – The full path to the file that the user will interact
+<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) -- The full path to the file that the user will interact
 with</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="errors.html#errors.UserAbortion" title="errors.UserAbortion"><strong>UserAbortion</strong></a> – The user decided to abort the whole process</p></li>
-<li><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – The patch file could not be written</p></li>
+<li><p><a class="reference internal" href="errors.html#errors.UserAbortion" title="errors.UserAbortion"><strong>UserAbortion</strong></a> -- The user decided to abort the whole process</p></li>
+<li><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- The patch file could not be written</p></li>
 </ul>
 </dd>
 </dl>
@@ -213,7 +263,7 @@ with</p>
 to touch without superforce flag</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -225,7 +275,7 @@ to touch without superforce flag</p>
 <p>Loads the blacklist.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>superforce</strong> (<em>bool</em>) – Sets, if superforce was turned on</p>
+<dd class="field-odd"><p><strong>superforce</strong> (<em>bool</em>) -- Sets, if superforce was turned on</p>
 </dd>
 </dl>
 </dd></dl>
@@ -236,7 +286,7 @@ to touch without superforce flag</p>
 <dd><p>Checks the to be added symlink for blacklist violations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation whose symlink will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation whose symlink will be checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -247,7 +297,7 @@ to touch without superforce flag</p>
 <dd><p>Checks the to be removed symlink for blacklist violations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The remove-operation whose symlink will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The remove-operation whose symlink will be checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -258,7 +308,7 @@ to touch without superforce flag</p>
 <dd><p>Checks the old and the new symlink for blacklist violations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation whose symlinks will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation whose symlinks will be checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -270,14 +320,14 @@ to touch without superforce flag</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>file_name</strong> (<em>str</em>) – Name of the file</p></li>
-<li><p><strong>action</strong> (<em>str</em>) – The action that is causing the touch of the file</p></li>
+<li><p><strong>file_name</strong> (<em>str</em>) -- Name of the file</p></li>
+<li><p><strong>action</strong> (<em>str</em>) -- The action that is causing the touch of the file</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="errors.html#errors.UserAbortion" title="errors.UserAbortion"><strong>UserAbortion</strong></a> – The user decided to not touch the file</p></li>
-<li><p><a class="reference internal" href="errors.html#errors.IntegrityError" title="errors.IntegrityError"><strong>IntegrityError</strong></a> – The file was blacklisted and <code class="docutils literal notranslate"><span class="pre">superforce</span></code> wasn’t
+<li><p><a class="reference internal" href="errors.html#errors.UserAbortion" title="errors.UserAbortion"><strong>UserAbortion</strong></a> -- The user decided to not touch the file</p></li>
+<li><p><a class="reference internal" href="errors.html#errors.IntegrityError" title="errors.IntegrityError"><strong>IntegrityError</strong></a> -- The file was blacklisted and <code class="docutils literal notranslate"><span class="pre">superforce</span></code> wasn't
     set</p></li>
 </ul>
 </dd>
@@ -308,7 +358,7 @@ to touch without superforce flag</p>
 <dd><p>Constructor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dryrun</strong> (<em>bool</em>) – Sets, if directories shall be created</p>
+<dd class="field-odd"><p><strong>makedirs</strong> (<em>bool</em>) -- Sets, if directories shall be created</p>
 </dd>
 </dl>
 </dd></dl>
@@ -319,7 +369,7 @@ to touch without superforce flag</p>
 <dd><p>Checks if the directory of the to be added link already exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation whose symlink will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation whose symlink will be checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -330,7 +380,7 @@ to touch without superforce flag</p>
 <dd><p>Checks if the directory of the to be updated link already exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation whose symlink will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation whose symlink will be checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -341,11 +391,11 @@ to touch without superforce flag</p>
 <dd><p>Checks if a directory exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dirname</strong> (<em>str</em>) – The path to a directory</p>
+<dd class="field-odd"><p><strong>dirname</strong> (<em>str</em>) -- The path to a directory</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – The directory doesn’t exist and <code class="docutils literal notranslate"><span class="pre">makedirs</span></code>
-    isn’t set</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- The directory doesn't exist and <code class="docutils literal notranslate"><span class="pre">makedirs</span></code>
+    isn't set</p>
 </dd>
 </dl>
 </dd></dl>
@@ -375,7 +425,7 @@ to touch without superforce flag</p>
 removed</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -392,7 +442,7 @@ removed</p>
 <dd><p>Checks if the new link already exists.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation that will be checked</p>
 </dd>
 </dl>
 <dl class="simple">
@@ -412,10 +462,10 @@ removed</p>
 need to be stored for <code class="docutils literal notranslate"><span class="pre">_op_add_l()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The remove-operation that will be checked</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – The to be removed link does not exist</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- The to be removed link does not exist</p>
 </dd>
 </dl>
 </dd></dl>
@@ -423,16 +473,16 @@ need to be stored for <code class="docutils literal notranslate"><span class="pr
 <dl class="method">
 <dt id="interpreters.CheckLinkExistsInterpreter._op_update_l">
 <code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinkExistsInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if old and the new link already exist.</p>
+<dd><p>Checks if the old and the new link already exist.</p>
 <p>Furthermore adds the old link to <code class="docutils literal notranslate"><span class="pre">removed_links</span></code> if old and new link
 have different names, because removed links need to be stored for
 <code class="docutils literal notranslate"><span class="pre">_op_add_l()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation that will be checked</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – The to be old link does not exist, the new
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- The old link does not exist, the new
     link already exists or the new link points to a non-existent
     file</p>
 </dd>
@@ -449,9 +499,9 @@ have different names, because removed links need to be stored for
 <p>Conflicts are things like duplicates, multiple targets / overwrites, etc.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>linklist</strong> (<em>List</em>) – List that stores all links, their corresponding
+<dd class="field-odd"><p><strong>linklist</strong> (<em>list</em>) -- list that stores all links, their corresponding
 profiles and if they are already installed. Links that are already
-installed and won’t be removed, will end up twice in this list.</p>
+installed and won't be removed, will end up twice in this list.</p>
 </dd>
 </dl>
 <dl class="method">
@@ -461,7 +511,7 @@ installed and won’t be removed, will end up twice in this list.</p>
 <p>Initializes <code class="docutils literal notranslate"><span class="pre">linklist</span></code> with all links from the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>installed</strong> (<em>Dict</em>) – The installed file, that was used to create the
+<dd class="field-odd"><p><strong>installed</strong> (<em>dict</em>) -- The installed-file, that was used to create the
 current DiffLog</p>
 </dd>
 </dl>
@@ -471,16 +521,16 @@ current DiffLog</p>
 <dt id="interpreters.CheckLinksInterpreter._op_add_l">
 <code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.CheckLinksInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if the to be added link already occurs in <code class="docutils literal notranslate"><span class="pre">linklist</span></code>.</p>
-<p>This would be forbidden, because a link that is already installed can’t
+<p>This would be forbidden, because a link that is already installed can't
 be added again (only updated). Similary it would be forbidden to add a
 link that was already added by another profile in the same run.
 If everything is valid, the link will be added to the list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation that will be checked</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.IntegrityError" title="errors.IntegrityError"><strong>IntegrityError</strong></a> – The check failed</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.IntegrityError" title="errors.IntegrityError"><strong>IntegrityError</strong></a> -- The check failed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -491,10 +541,10 @@ If everything is valid, the link will be added to the list.</p>
 <dd><p>Removes link from linklist because links could be removed and
 added in one run by different profiles.</p>
 <p>In that case it would look like the link is added even though it is
-already installed if we don’t remove it here.</p>
+already installed if we don't remove it here.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be used to remove the
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The remove-operation that will be used to remove the
 link</p>
 </dd>
 </dl>
@@ -509,8 +559,8 @@ link</p>
 <p>Checks if profiles can be installed together. Protects against
 duplicates and overwrites.</p>
 <dl class="attribute">
-<dt id="interpreters.CheckProfilesInterpreter.parnent_arg">
-<code class="sig-name descname">parnent_arg</code><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.parnent_arg" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.CheckProfilesInterpreter.parent_arg">
+<code class="sig-name descname">parent_arg</code><a class="headerlink" href="#interpreters.CheckProfilesInterpreter.parent_arg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores the value of <code class="docutils literal notranslate"><span class="pre">--parent</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -527,7 +577,7 @@ and if they are already installed. Profiles that are still
 installed in the end, will end up twice in this list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -540,9 +590,9 @@ installed in the end, will end up twice in this list.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>installed</strong> (<em>Dict</em>) – The installed file, that was used to create the
+<li><p><strong>installed</strong> (<em>dict</em>) -- The installed-file, that was used to create the
 DiffLog</p></li>
-<li><p><strong>parent_arg</strong> (<em>str</em>) – The value of <code class="docutils literal notranslate"><span class="pre">--parent</span></code></p></li>
+<li><p><strong>parent_arg</strong> (<em>str</em>) -- The value of <code class="docutils literal notranslate"><span class="pre">--parent</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -555,10 +605,10 @@ DiffLog</p></li>
 <p>Adds the profile to <code class="docutils literal notranslate"><span class="pre">profile_list</span></code> if the operation is valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation that will be checked</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.IntegrityError" title="errors.IntegrityError"><strong>IntegrityError</strong></a> – A profile is added twice or is already installed</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.IntegrityError" title="errors.IntegrityError"><strong>IntegrityError</strong></a> -- A profile is added twice or is already installed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -569,11 +619,11 @@ DiffLog</p></li>
 <dd><p>Checks if profiles will be overwritten.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation that will be checked</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.IntegrityError" title="errors.IntegrityError"><strong>IntegrityError</strong></a> – A profile installed as a subprofile of another root
-    profile</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.IntegrityError" title="errors.IntegrityError"><strong>IntegrityError</strong></a> -- A profile is already installed as a subprofile of
+    another root profile</p>
 </dd>
 </dl>
 </dd></dl>
@@ -586,13 +636,13 @@ already installed profiles or for to be installed profiles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Name of the profile</p></li>
-<li><p><strong>is_installed</strong> (<em>bool</em>) – True, for lookups of already installed
+<li><p><strong>name</strong> (<em>str</em>) -- Name of the profile</p></li>
+<li><p><strong>is_installed</strong> (<em>bool</em>) -- True, for lookups of already installed
 profiles</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>Tuple</em> – The entry that was found in <code class="docutils literal notranslate"><span class="pre">profile_list</span></code>. <code class="docutils literal notranslate"><span class="pre">None</span></code> if
+<dd class="field-even"><p><em>Tuple</em> -- The entry that was found in <code class="docutils literal notranslate"><span class="pre">profile_list</span></code>. <code class="docutils literal notranslate"><span class="pre">None</span></code> if
 no entry was found.</p>
 </dd>
 </dl>
@@ -604,16 +654,16 @@ no entry was found.</p>
 <dt id="interpreters.DUIStrategyInterpreter">
 <em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">DUIStrategyInterpreter</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
-<p>Reorders DiffLog so linking won’t be in the order of profiles but
+<p>Reorders DiffLog so linking won't be in the order of profiles but
 instead in the order Delete-Update-Insert. It also removes log messages
 because without the old order they are not useful anymore.</p>
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.profile_deletes">
 <code class="sig-name descname">profile_deletes</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_deletes" title="Permalink to this definition">¶</a></dt>
-<dd><p>A collection for profile-remove-operations</p>
+<dd><p>A collection of profile-remove-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -621,10 +671,10 @@ because without the old order they are not useful anymore.</p>
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.profile_updates">
 <code class="sig-name descname">profile_updates</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_updates" title="Permalink to this definition">¶</a></dt>
-<dd><p>A collection for profile-update-operations</p>
+<dd><p>A collection of profile-update-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -632,10 +682,10 @@ because without the old order they are not useful anymore.</p>
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.profile_adds">
 <code class="sig-name descname">profile_adds</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.profile_adds" title="Permalink to this definition">¶</a></dt>
-<dd><p>A collection for profile-add-operations</p>
+<dd><p>A collection of profile-add-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -643,10 +693,10 @@ because without the old order they are not useful anymore.</p>
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.link_deletes">
 <code class="sig-name descname">link_deletes</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_deletes" title="Permalink to this definition">¶</a></dt>
-<dd><p>A collection for link-remove-operations</p>
+<dd><p>A collection of link-remove-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -654,10 +704,10 @@ because without the old order they are not useful anymore.</p>
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.link_updates">
 <code class="sig-name descname">link_updates</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_updates" title="Permalink to this definition">¶</a></dt>
-<dd><p>A collection for link-update-operations</p>
+<dd><p>A collection of link-update-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -665,10 +715,10 @@ because without the old order they are not useful anymore.</p>
 <dl class="attribute">
 <dt id="interpreters.DUIStrategyInterpreter.link_adds">
 <code class="sig-name descname">link_adds</code><a class="headerlink" href="#interpreters.DUIStrategyInterpreter.link_adds" title="Permalink to this definition">¶</a></dt>
-<dd><p>A collection for link-add-operations</p>
+<dd><p>A collection of link-add-operations</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -685,7 +735,7 @@ because without the old order they are not useful anymore.</p>
 <dd><p>Adds the link-add-operation to <code class="docutils literal notranslate"><span class="pre">link_adds</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The operation that will be added</p>
 </dd>
 </dl>
 </dd></dl>
@@ -696,7 +746,7 @@ because without the old order they are not useful anymore.</p>
 <dd><p>Adds the profile-add-operation to <code class="docutils literal notranslate"><span class="pre">profile_adds</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The operation that will be added</p>
 </dd>
 </dl>
 </dd></dl>
@@ -708,7 +758,7 @@ because without the old order they are not useful anymore.</p>
 and overwrites <code class="docutils literal notranslate"><span class="pre">self.data</span></code> to alter the DiffLog</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- Unused in this implementation</p>
 </dd>
 </dl>
 </dd></dl>
@@ -719,7 +769,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 <dd><p>Adds the link-remove-operation to <code class="docutils literal notranslate"><span class="pre">link_removes</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The operation that will be added</p>
 </dd>
 </dl>
 </dd></dl>
@@ -730,7 +780,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 <dd><p>Adds the profile-remove-operation to <code class="docutils literal notranslate"><span class="pre">profile_removes</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The operation that will be added</p>
 </dd>
 </dl>
 </dd></dl>
@@ -741,7 +791,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 <dd><p>Adds the link-update-operation to <code class="docutils literal notranslate"><span class="pre">link_updates</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The operation that will be added</p>
 </dd>
 </dl>
 </dd></dl>
@@ -752,7 +802,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 <dd><p>Adds the profile-update-operation to <code class="docutils literal notranslate"><span class="pre">profile_updates</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The operation that will be added</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The operation that will be added</p>
 </dd>
 </dl>
 </dd></dl>
@@ -763,7 +813,7 @@ and overwrites <code class="docutils literal notranslate"><span class="pre">self
 <dt id="interpreters.DetectRootInterpreter">
 <em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">DetectRootInterpreter</code><a class="headerlink" href="#interpreters.DetectRootInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
-<p>Checks if root permission is needed to perform operations.</p>
+<p>DetectDetects if root permission is needed to perform operations.</p>
 <dl class="method">
 <dt id="interpreters.DetectRootInterpreter._access">
 <code class="sig-name descname">_access</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.DetectRootInterpreter._access" title="Permalink to this definition">¶</a></dt>
@@ -774,10 +824,10 @@ a directory that we have write accesss to. If it finds one, it
 assumes that we have access to all subdirectories as well.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path that will be checked</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be checked</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>bool</em> – True, if we have access to the path</p>
+<dd class="field-even"><p><em>bool</em> -- True, if we have access to the path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -789,7 +839,7 @@ assumes that we have access to all subdirectories as well.</p>
 or will be owned by other users than the current.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation that will be checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -801,7 +851,7 @@ or will be owned by other users than the current.</p>
 the current.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The remove-operation that will be checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -813,7 +863,7 @@ the current.</p>
 the current or will be moved to inaccessible directories.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be checked</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation that will be checked</p>
 </dd>
 </dl>
 </dd></dl>
@@ -826,10 +876,10 @@ is detected.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dop</strong> (<em>Dict</em>) – The operation that requires root permission</p></li>
-<li><p><strong>description</strong> (<em>str</em>) – A description of what the operation does that
+<li><p><strong>dop</strong> (<em>dict</em>) -- The operation that requires root permission</p></li>
+<li><p><strong>description</strong> (<em>str</em>) -- A description of what the operation does that
 will require root permission</p></li>
-<li><p><strong>affected_file</strong> (<em>str</em>) – The file that the description refers to</p></li>
+<li><p><strong>affected_file</strong> (<em>str</em>) -- The file that the description refers to</p></li>
 </ul>
 </dd>
 </dl>
@@ -849,7 +899,7 @@ will require root permission</p></li>
 <dd><p>The installed-file that will be updated</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Dict</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -872,16 +922,16 @@ will require root permission</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – The full path of the link that will be created</p></li>
-<li><p><strong>target</strong> (<em>str</em>) – The full path of the file that the link will
+<li><p><strong>name</strong> (<em>str</em>) -- The full path of the link that will be created</p></li>
+<li><p><strong>target</strong> (<em>str</em>) -- The full path of the file that the link will
 point to</p></li>
-<li><p><strong>uid</strong> (<em>int</em>) – The UID of the owner of the link</p></li>
-<li><p><strong>gid</strong> (<em>int</em>) – The GID of the owner of the link</p></li>
-<li><p><strong>permission</strong> (<em>int</em>) – The permissions of the target</p></li>
+<li><p><strong>uid</strong> (<em>int</em>) -- The UID of the owner of the link</p></li>
+<li><p><strong>gid</strong> (<em>int</em>) -- The GID of the owner of the link</p></li>
+<li><p><strong>permission</strong> (<em>int</em>) -- The permissions of the target</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.UnkownError" title="errors.UnkownError"><strong>UnkownError</strong></a> – The link could not be created</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.UnkownError" title="errors.UnkownError"><strong>UnkownError</strong></a> -- The link could not be created</p>
 </dd>
 </dl>
 </dd></dl>
@@ -894,8 +944,8 @@ point to</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>installed</strong> (<em>Dict</em>) – The installed-file that will be updated</p></li>
-<li><p><strong>force</strong> (<em>bool</em>) – The value of <code class="docutils literal notranslate"><span class="pre">--force</span></code></p></li>
+<li><p><strong>installed</strong> (<em>dict</em>) -- The installed-file that will be updated</p></li>
+<li><p><strong>force</strong> (<em>bool</em>) -- The value of <code class="docutils literal notranslate"><span class="pre">--force</span></code></p></li>
 </ul>
 </dd>
 </dl>
@@ -905,14 +955,14 @@ point to</p></li>
 <dt id="interpreters.ExecuteInterpreter._makedirs">
 <em class="property">static </em><code class="sig-name descname">_makedirs</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._makedirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom <code class="docutils literal notranslate"><span class="pre">os.makedirs()</span></code> that keeps the owner of the directory.</p>
-<p>This means that it will create the directory with the owner of the
-deepest directory that already exists instead of using current user as
-owner. This is needed, because otherwise directories won’t be
+<p>This means that it will create the directory with the same owner as of the
+deepest parent directory that already exists instead of using current
+user as owner. This is needed, because otherwise directories won't be
 accessible by the user, if some links would be created with root
 permissions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – The full path of the file that needs its
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) -- The full path of the file that needs its
 directories created</p>
 </dd>
 </dl>
@@ -925,7 +975,7 @@ directories created</p>
 corresponding profile in the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be executed</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation that will be executed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -936,7 +986,7 @@ corresponding profile in the installed-file.</p>
 <dd><p>Adds a profile entry of the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The add-operation that will be executed</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation that will be executed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -948,7 +998,7 @@ corresponding profile in the installed-file.</p>
 the corresponding profile in the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be executed</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The remove-operation that will be executed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -959,7 +1009,7 @@ the corresponding profile in the installed-file.</p>
 <dd><p>Removes a profile entry of the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The remove-operation that will be executed</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The remove-operation that will be executed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -971,7 +1021,7 @@ the corresponding profile in the installed-file.</p>
 the corresponding profile in the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be executed</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation that will be executed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -982,7 +1032,7 @@ the corresponding profile in the installed-file.</p>
 <dd><p>Updates a profile entry of the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The update-operation that will be executed</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation that will be executed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -994,15 +1044,15 @@ the corresponding profile in the installed-file.</p>
 <em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">GainRootInterpreter</code><a class="headerlink" href="#interpreters.GainRootInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.RootNeededInterpreter" title="interpreters.RootNeededInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.RootNeededInterpreter</span></code></a></p>
 <p>If root permission is needed to perform the operations,
-this interpreter restarts the process with “sudo”.</p>
+this interpreter restarts the process with &quot;sudo&quot;.</p>
 <dl class="method">
 <dt id="interpreters.GainRootInterpreter._op_fin">
 <code class="sig-name descname">_op_fin</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.GainRootInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
 <dd><p>Replace the process if root permission is needed with the same call
-of Dotmanager, but prepend it with “sudo”.</p>
+of Dotmanager, but prepend it with &quot;sudo&quot;.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- Unused in this implementation</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1024,10 +1074,10 @@ of Dotmanager, but prepend it with “sudo”.</p>
 <dl class="method">
 <dt id="interpreters.PlainPrintInterpreter._op_fin">
 <code class="sig-name descname">_op_fin</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print “]” to show the end of an array.</p>
+<dd><p>Print &quot;]&quot; to show the end of an array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- Unused in this implementation</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1035,10 +1085,10 @@ of Dotmanager, but prepend it with “sudo”.</p>
 <dl class="method">
 <dt id="interpreters.PlainPrintInterpreter._op_start">
 <code class="sig-name descname">_op_start</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PlainPrintInterpreter._op_start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print “[” to show the start of an array.</p>
+<dd><p>Print &quot;[&quot; to show the start of an array.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- Unused in this implementation</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1051,15 +1101,15 @@ of Dotmanager, but prepend it with “sudo”.</p>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Pretty-prints log messages and what a operation is going to do.</p>
 <dl class="method">
-<dt id="interpreters.PrintInterpreter._log_interpreter">
-<em class="property">static </em><code class="sig-name descname">_log_interpreter</code><span class="sig-paren">(</span><em class="sig-param">dop</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._log_interpreter" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.PrintInterpreter._log_operation">
+<em class="property">static </em><code class="sig-name descname">_log_operation</code><span class="sig-paren">(</span><em class="sig-param">dop</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._log_operation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out a message for an operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dop</strong> (<em>Dict</em>) – The operation that is logged. Used to include the
+<li><p><strong>dop</strong> (<em>dict</em>) -- The operation that is logged. Used to include the
 profile name in the log message that triggered the operation.</p></li>
-<li><p><strong>message</strong> (<em>str</em>) – The message that will be logged</p></li>
+<li><p><strong>message</strong> (<em>str</em>) -- The message that will be logged</p></li>
 </ul>
 </dd>
 </dl>
@@ -1069,8 +1119,9 @@ profile name in the log message that triggered the operation.</p></li>
 <dt id="interpreters.PrintInterpreter._op_add_l">
 <code class="sig-name descname">_op_add_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a link was added.</p>
-<dl class="simple">
-<dt>Args</dt><dd><p>dop (Dict): The add-operation that will be logged</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation that will be logged</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1079,8 +1130,9 @@ profile name in the log message that triggered the operation.</p></li>
 <dt id="interpreters.PrintInterpreter._op_add_p">
 <code class="sig-name descname">_op_add_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_add_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a profile was added.</p>
-<dl class="simple">
-<dt>Args</dt><dd><p>dop (Dict): The add-operation that will be logged</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The add-operation that will be logged</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1091,7 +1143,7 @@ profile name in the log message that triggered the operation.</p></li>
 <dd><p>Logs/Prints out an info-operation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – The info-operation that will be logged</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The info-operation that will be logged</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1100,8 +1152,9 @@ profile name in the log message that triggered the operation.</p></li>
 <dt id="interpreters.PrintInterpreter._op_remove_l">
 <code class="sig-name descname">_op_remove_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_remove_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a link was removed.</p>
-<dl class="simple">
-<dt>Args</dt><dd><p>dop (Dict): The remove-operation that will be logged</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The remove-operation that will be logged</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1110,8 +1163,9 @@ profile name in the log message that triggered the operation.</p></li>
 <dt id="interpreters.PrintInterpreter._op_remove_p">
 <code class="sig-name descname">_op_remove_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a profile was removed.</p>
-<dl class="simple">
-<dt>Args</dt><dd><p>dop (Dict): The remove-operation that will be logged</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The remove-operation that will be logged</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1122,7 +1176,7 @@ profile name in the log message that triggered the operation.</p></li>
 <dd><p>Logs/Prints out the start of the linking process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- Unused in this implementation</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1132,8 +1186,9 @@ profile name in the log message that triggered the operation.</p></li>
 <code class="sig-name descname">_op_update_l</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_update_l" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a link was updated.</p>
 <p>The message is generated according to what changed in the updated link.</p>
-<dl class="simple">
-<dt>Args</dt><dd><p>dop (Dict): The update-operation that will be logged</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation that will be logged</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1142,8 +1197,9 @@ profile name in the log message that triggered the operation.</p></li>
 <dt id="interpreters.PrintInterpreter._op_update_p">
 <code class="sig-name descname">_op_update_p</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_update_p" title="Permalink to this definition">¶</a></dt>
 <dd><p>Logs/Prints out that a profile was updated.</p>
-<dl class="simple">
-<dt>Args</dt><dd><p>dop (Dict): The update-operation that will be logged</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- The update-operation that will be logged</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1157,15 +1213,15 @@ profile name in the log message that triggered the operation.</p></li>
 <p>Checks if root permission are required to perform all operations.
 Prints out all such operations.</p>
 <dl class="attribute">
-<dt id="interpreters.RootNeededInterpreter.logged">
-<code class="sig-name descname">logged</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.logged" title="Permalink to this definition">¶</a></dt>
+<dt id="interpreters.RootNeededInterpreter.content">
+<code class="sig-name descname">content</code><a class="headerlink" href="#interpreters.RootNeededInterpreter.content" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of tuples with (dop, description, affected_file)
-that stores which operations requiere root permission, which file
+that stores which operations require root permission, which file
 or directory they affect and a description of what the operation
-would exactly requiere root permission for</p>
+would exactly require root permission for</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1183,10 +1239,10 @@ would exactly requiere root permission for</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</p></li>
-<li><p><strong>description</strong> (<em>str</em>) – A description of what the operation does that
+<li><p><strong>dop</strong> (<em>dict</em>) -- Unused in this implementation</p></li>
+<li><p><strong>description</strong> (<em>str</em>) -- A description of what the operation does that
 will require root permission</p></li>
-<li><p><strong>affected_file</strong> (<em>str</em>) – The file that the description refers to</p></li>
+<li><p><strong>affected_file</strong> (<em>str</em>) -- The file that the description refers to</p></li>
 </ul>
 </dd>
 </dl>
@@ -1198,14 +1254,14 @@ will require root permission</p></li>
 <dt id="interpreters.SkipRootInterpreter">
 <em class="property">class </em><code class="sig-prename descclassname">interpreters.</code><code class="sig-name descname">SkipRootInterpreter</code><a class="headerlink" href="#interpreters.SkipRootInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.DetectRootInterpreter" title="interpreters.DetectRootInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.DetectRootInterpreter</span></code></a></p>
-<p>Skips all operatrions that would require root permission.</p>
+<p>Skips all operations that would require root permission.</p>
 <dl class="attribute">
 <dt id="interpreters.SkipRootInterpreter.skipped">
 <code class="sig-name descname">skipped</code><a class="headerlink" href="#interpreters.SkipRootInterpreter.skipped" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of all operations that will be skipped</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1217,7 +1273,7 @@ will require root permission</p></li>
 description occured</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1231,10 +1287,11 @@ description occured</p>
 <dl class="method">
 <dt id="interpreters.SkipRootInterpreter._op_fin">
 <code class="sig-name descname">_op_fin</code><span class="sig-paren">(</span><em class="sig-param">dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.SkipRootInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove all operations from difflog that are collected in self.skip</p>
+<dd><p>Remove all operations from difflog that are collected in
+<code class="docutils literal notranslate"><span class="pre">self.skip</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>dop</strong> (<em>Dict</em>) – Unused in this implementation</p>
+<dd class="field-odd"><p><strong>dop</strong> (<em>dict</em>) -- Unused in this implementation</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1246,10 +1303,10 @@ description occured</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dop</strong> (<em>Dict</em>) – The operation that will be skipped</p></li>
-<li><p><strong>description</strong> (<em>str</em>) – A description of what the operation does that
+<li><p><strong>dop</strong> (<em>dict</em>) -- The operation that will be skipped</p></li>
+<li><p><strong>description</strong> (<em>str</em>) -- A description of what the operation does that
 will require root permission</p></li>
-<li><p><strong>affected_file</strong> (<em>str</em>) – Used to determine if description refers to
+<li><p><strong>affected_file</strong> (<em>str</em>) -- Used to determine if description refers to
 a file or a directory</p></li>
 </ul>
 </dd>
@@ -1274,21 +1331,37 @@ a file or a directory</p></li>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicfile.html">DynamicFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">Info</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Interpreters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="profile.html">Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
-
+</li>
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -1328,7 +1401,7 @@ a file or a directory</p></li>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -1336,6 +1409,10 @@ a file or a directory</p></li>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

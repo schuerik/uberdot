@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Tips &#8212; Dotmanager 1.11.1_3 documentation</title>
+    <title>.dotignore &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -14,8 +14,8 @@
     <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="For developers" href="../developers/index.html" />
-    <link rel="prev" title="Examples" href="example-configuration.html" />
+    <link rel="next" title="Encryption" href="encryption.html" />
+    <link rel="prev" title="Configuration" href="config-file.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -32,52 +32,12 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="tips">
-<h1>Tips<a class="headerlink" href="#tips" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="set-decryption-password">
-<h2>Set decryption password<a class="headerlink" href="#set-decryption-password" title="Permalink to this headline">¶</a></h2>
-<p>If you use encrypted dotfiles you should really set the password in your
-<code class="docutils literal notranslate"><span class="pre">dotmanager.ini</span></code> config. Otherwise you will have to type it in
-literally everytime that you execute Dotmanager because Dotmanager will
-never know if the file changed until it decrypted it.</p>
-</div>
-<div class="section" id="create-aliases-for-dotmanager">
-<h2>Create aliases for Dotmanager<a class="headerlink" href="#create-aliases-for-dotmanager" title="Permalink to this headline">¶</a></h2>
-<p>You should create aliases for Dotmanager in your favourite shell so you
-can access it from everywhere. For example:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">alias</span> <span class="nv">dot</span> <span class="o">=</span> ~/repos/dotmanager/dotmgr.py
-<span class="nb">alias</span> <span class="nv">dup</span> <span class="o">=</span> ~/repos/dotmanager/dotmgr.py -i  <span class="c1"># Update profiles</span>
-<span class="nb">alias</span> <span class="nv">drm</span> <span class="o">=</span> ~/repos/dotmanager/dotmgr.py -u  <span class="c1"># Remove profiles</span>
-<span class="nb">alias</span> <span class="nv">dls</span> <span class="o">=</span> ~/repos/dotmanager/dotmgr.py -s  <span class="c1"># List installed profiles</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="organizing-profiles">
-<h2>Organizing profiles<a class="headerlink" href="#organizing-profiles" title="Permalink to this headline">¶</a></h2>
-<p>Personally I prefer to divide my profiles in profiles for devices and
-for programs. So your directory tree for profiles could look like this:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>profiles
-├── devices
-│   ├── laptop.py
-│   ├── pi.py
-│   ├── desktop.py
-│   └── work.py
-├── main.py
-└── programs
-    ├── bash.py
-    ├── git.py
-    ├── i3.py
-    ├── polybar.py
-    ├── rofi.py
-    ├── vim.py
-    └── zsh.py
-</pre></div>
-</div>
-<p>In this example I have also a <code class="docutils literal notranslate"><span class="pre">main.py</span></code> module at the top level that I
-use as super class. Every device that should use my main setup would
-inherit of a profile called “Main”. Of course you can put all profiles
-in a single module but I like it to be a bit more separated.</p>
-</div>
+  <div class="section" id="dotignore">
+<h1>.dotignore<a class="headerlink" href="#dotignore" title="Permalink to this headline">¶</a></h1>
+<p>When you are already familiar with git, you probably already know what a .dotignore-file is about, although this works a little different.</p>
+<p>A .dotignore-file is used to specify files that Dotmanager will ignore and therefore won't link. The file needs to be placed at the top of
+your dotfiles repository and contains in each line a <a class="reference external" href="https://docs.python.org/3.7/howto/regex.html">regular expression</a> that will be matched
+against the absolute path of every file in your dotfiles repository. If a pattern matches, that file will be ignored.</p>
 </div>
 
 
@@ -112,17 +72,12 @@ in a single module but I like it to be a bit more separated.</p>
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="info-module.html">Info module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config-file.html">Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dotignore.html">.dotignore</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">.dotignore</a></li>
 <li class="toctree-l2"><a class="reference internal" href="encryption.html">Encryption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicfiles.html">Dynamicfiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed-files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example-configuration.html">Examples</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Tips</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#set-decryption-password">Set decryption password</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#create-aliases-for-dotmanager">Create aliases for Dotmanager</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#organizing-profiles">Organizing profiles</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="tips.html">Tips</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
@@ -132,8 +87,8 @@ in a single module but I like it to be a bit more separated.</p>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">Dotmanager Usage</a><ul>
-      <li>Previous: <a href="example-configuration.html" title="previous chapter">Examples</a></li>
-      <li>Next: <a href="../developers/index.html" title="next chapter">For developers</a></li>
+      <li>Previous: <a href="config-file.html" title="previous chapter">Configuration</a></li>
+      <li>Next: <a href="encryption.html" title="next chapter">Encryption</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -168,7 +123,7 @@ in a single module but I like it to be a bit more separated.</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/usage/tips.rst.txt"
+      <a href="../_sources/usage/dotignore.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

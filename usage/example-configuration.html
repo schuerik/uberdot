@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Examples &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Examples &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Tips" href="tips.html" />
-    <link rel="prev" title="Installed files" href="installed-file.html" />
+    <link rel="prev" title="Installed-files" href="installed-file.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -41,17 +41,17 @@ that I defined have the following semantics:</p>
 <ul class="simple">
 <li><p><strong>arch:</strong> An Arch linux based distribution is installed</p></li>
 <li><p><strong>antergos:</strong> An Antergos based distribution is installed</p></li>
-<li><p><strong>debian:</strong> An Debian baAntergosbution is installed</p></li>
+<li><p><strong>debian:</strong> An Debian based distribution is installed</p></li>
 <li><p><strong>master:</strong> The device is powerful and should be fullfeatured</p></li>
 <li><p><strong>minimal:</strong> The device is a low-end-device and most features should be
 disabled</p></li>
+<li><p><strong>small:</strong> This device has a small monitor</p></li>
+<li><p><strong>laptop:</strong> This device is a laptop</p></li>
 <li><p><strong>private:</strong> This my own device with private data and access to my local
 network</p></li>
 <li><p><strong>office:</strong> A device used for work</p></li>
-<li><p><strong>laptop:</strong> This device is a laptop</p></li>
 <li><p><strong>asus:</strong> An asus laptop of mine</p></li>
 <li><p><strong>thinkpad:</strong> A thinkpad laptop of mine</p></li>
-<li><p><strong>small:</strong> This device has a small monitor</p></li>
 </ul>
 <p>First I created some profiles that represent my current setup. Any
 device that I want to use this setup on inherits from it. These profiles
@@ -78,19 +78,22 @@ specific configs.</p>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;unison_data.prf&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;.unison/data.prf&quot;</span><span class="p">)</span>
 
         <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;/etc&quot;</span><span class="p">)</span>
+        <span class="c1"># Custom hosts file and udev rules</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;hosts&quot;</span><span class="p">,</span> <span class="s2">&quot;mkinitcpio.conf&quot;</span><span class="p">)</span>
         <span class="n">links</span><span class="p">(</span><span class="s2">&quot;\d{2}-\w+\.rules&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;udev/rules.d&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Then there are profiles for my different devices. <code class="docutils literal notranslate"><span class="pre">Pi</span></code> and <code class="docutils literal notranslate"><span class="pre">Server</span></code>
-doesn’t inherit from <code class="docutils literal notranslate"><span class="pre">Main</span></code> so they will define subprofiles as well.
+<p>Then there are profiles for each of my devices. <code class="docutils literal notranslate"><span class="pre">Pi</span></code> and <code class="docutils literal notranslate"><span class="pre">Server</span></code>
+don’t inherit from <code class="docutils literal notranslate"><span class="pre">Main</span></code> so they will define subprofiles as well.
 The other profiles are used to link configs that configure hardware.
 These profiles (except for <code class="docutils literal notranslate"><span class="pre">Laptop</span></code>) are the only profiles that I
 install as a root profile.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This profile contains configs that I use on all of my laptops</span>
 <span class="k">class</span> <span class="nc">Laptop</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Automate multimonitor if hdmi is plugged in</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;hdmi_plugin.sh&quot;</span><span class="p">)</span>
+        <span class="c1"># Start ssh server if connect to my own private network</span>
         <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;/etc/NetworkManager&quot;</span><span class="p">)</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;sshOnConnect.sh&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;dispatcher.d&quot;</span><span class="p">)</span>
 
@@ -114,6 +117,7 @@ install as a root profile.</p>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;thinkpad&quot;</span><span class="p">,</span> <span class="s2">&quot;small&quot;</span><span class="p">,</span> <span class="s2">&quot;laptop&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
         <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Laptop&quot;</span><span class="p">)</span>
+        <span class="c1"># Fixes sound</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;alsa-base.conf&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;/etc/modprobe.d/&quot;</span><span class="p">)</span>
 
 
@@ -172,7 +176,7 @@ as subprofiles above. Most of the links are defined here.</p>
         <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Rofi&quot;</span><span class="p">,</span> <span class="s2">&quot;Polybar&quot;</span><span class="p">)</span>
 
         <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.config/i3&quot;</span><span class="p">)</span>
-        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;i3config&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="n">merge</span><span class="p">(</span><span class="s2">&quot;i3config&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;i3-keybindings&quot;</span><span class="p">,</span> <span class="s2">&quot;i3-settings&quot;</span><span class="p">,</span> <span class="s2">&quot;i3-autostart&quot;</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;config&quot;</span><span class="p">)</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;lock.sh&quot;</span><span class="p">,</span> <span class="s2">&quot;lock.png&quot;</span><span class="p">)</span>
 
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;dunstrc&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;../dunst&quot;</span><span class="p">)</span>
@@ -184,6 +188,8 @@ as subprofiles above. Most of the links are defined here.</p>
 
 <span class="k">class</span> <span class="nc">Rofi</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Fing all configs with the naming schema &quot;rofi-*.rasi&quot; and link all of them</span>
+        <span class="c1"># but strip away &quot;rofi-&quot; of each filename</span>
         <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.config/rofi&quot;</span><span class="p">)</span>
         <span class="n">links</span><span class="p">(</span><span class="s2">&quot;rofi-(.+\.rasi)&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\1&quot;</span><span class="p">)</span>
 
@@ -191,24 +197,25 @@ as subprofiles above. Most of the links are defined here.</p>
 <span class="k">class</span> <span class="nc">Polybar</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.config/polybar&quot;</span><span class="p">)</span>
+        <span class="c1"># Strip away &quot;polybar&quot; from each filename</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;polybarconfig&quot;</span><span class="p">,</span> <span class="s2">&quot;polybarlaunch.sh&quot;</span><span class="p">,</span> <span class="n">replace_pattern</span><span class="o">=</span><span class="s2">&quot;polybar(.+)&quot;</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\1&quot;</span><span class="p">)</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;pkg.sh&quot;</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Vim</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Configs</span>
+        <span class="c1"># Link all vim configs</span>
         <span class="n">links</span><span class="p">(</span><span class="s2">&quot;g?vimrc&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
         <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.vim&quot;</span><span class="p">)</span>
         <span class="n">links</span><span class="p">(</span><span class="s2">&quot;\w+\.vim&quot;</span><span class="p">)</span>
 
         <span class="c1"># Documentation</span>
-        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;my.txt&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;doc&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;mydoc.txt&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;doc&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Snippets</span>
+        <span class="c1"># Link all Snippets</span>
         <span class="n">links</span><span class="p">(</span><span class="s2">&quot;.+\.snippets&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;UltiSnips&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Spellfiles</span>
+        <span class="c1"># Link all Spellfiles</span>
         <span class="n">links</span><span class="p">(</span><span class="s2">&quot;.+\..+\.add(\.spl)?&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;spell&quot;</span><span class="p">)</span>
 
         <span class="c1"># Configs loaded after plugins</span>
@@ -244,10 +251,16 @@ profile you increase the re-usability of a configuration.</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
@@ -256,22 +269,22 @@ profile you increase the re-usability of a configuration.</p>
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="info-module.html">Info module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config-file.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dotignore.html">.dotignore</a></li>
 <li class="toctree-l2"><a class="reference internal" href="encryption.html">Encryption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicfiles.html">Dynamicfiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed-files</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tips.html">Tips</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">Dotmanager Usage</a><ul>
-      <li>Previous: <a href="installed-file.html" title="previous chapter">Installed files</a></li>
+      <li>Previous: <a href="installed-file.html" title="previous chapter">Installed-files</a></li>
       <li>Next: <a href="tips.html" title="next chapter">Tips</a></li>
   </ul></li>
   </ul></li>
@@ -303,7 +316,7 @@ profile you increase the re-usability of a configuration.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -311,6 +324,10 @@ profile you increase the re-usability of a configuration.</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

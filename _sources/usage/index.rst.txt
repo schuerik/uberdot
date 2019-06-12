@@ -14,6 +14,7 @@ documents provide extensive examples and advises for best practice.
    commands.rst
    info-module.rst
    config-file.rst
+   dotignore.rst
    encryption.rst
    dynamicfiles.rst
    installed-file.rst

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>How to document Dotmanager &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>How to document Dotmanager &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -14,7 +14,7 @@
     <script type="text/javascript" src="../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Testing suite of Dotmanager" href="tests.html" />
+    <link rel="next" title="Testing Dotmanager" href="tests.html" />
     <link rel="prev" title="Contributing Guide" href="contributing_link.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -34,7 +34,7 @@
             
   <div class="section" id="how-to-document-dotmanager">
 <h1>How to document Dotmanager<a class="headerlink" href="#how-to-document-dotmanager" title="Permalink to this headline">¶</a></h1>
-<p>The documentation, reference manual and man page of Dotmanager are generated with
+<p>The documentation, reference manual and manpage of Dotmanager are all generated with
 <a class="reference external" href="http://www.sphinx-doc.org/en/master/index.html">Sphinx</a>. It consists of mainly two big parts. First the reference manual, which
 is generated from the source code, and second the user guides which are generated
 from the sphinx source directory.</p>
@@ -46,11 +46,13 @@ project and explains the building process.</p>
 <ul class="simple">
 <li><p>Sphinx is located at <code class="docutils literal notranslate"><span class="pre">docs/sphinx/</span></code>.</p></li>
 <li><p>All user guides are located at <code class="docutils literal notranslate"><span class="pre">docs/sphinx/source/usage/</span></code></p></li>
-<li><p>All developer guides (except for CONTRIBUTING.rst) are located at
+<li><p>All developer guides (except for CONTRIBUTING.md) are located at
 <code class="docutils literal notranslate"><span class="pre">docs/sphinx/source/developers/</span></code></p></li>
 <li><p>The theme was modified to hide or highlight some information in the reference
 manual with <code class="docutils literal notranslate"><span class="pre">docs/sphinx/source/custom.css</span></code></p></li>
-<li><p>Sphinx is configured to use the autodoc, napoleon and github pages plugin</p></li>
+<li><p>Sphinx is configured to use the autodoc, m2r, napoleon and github pages plugin</p></li>
+<li><p>The contributing guide is converted from markdown to restructered text using m2r</p></li>
+<li><p>The navigation of the theme is overridden by <code class="docutils literal notranslate"><span class="pre">docs/sphinx/source/_templates/navigation.html</span></code></p></li>
 <li><p>The built html documentation can be found in <code class="docutils literal notranslate"><span class="pre">docs/sphinx/build/html/</span></code></p></li>
 <li><p>The built man page can be found in <code class="docutils literal notranslate"><span class="pre">docs/sphinx/build/man/</span></code></p></li>
 <li><p>The man page is built from a subset of user guides</p></li>
@@ -58,9 +60,9 @@ manual with <code class="docutils literal notranslate"><span class="pre">docs/sp
 </div>
 <div class="section" id="generating-documentation">
 <h2>Generating documentation<a class="headerlink" href="#generating-documentation" title="Permalink to this headline">¶</a></h2>
-<p>To generate the documentation locally on your device you will need to install Sphinx
-and the autodoc plugin. To do so, you can use pip:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install sphinx autodoc
+<p>To generate the documentation locally on your device you will need to install Sphinx,
+m2r and the autodoc plugin. To do so, you can use pip:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install sphinx autodoc m2r
 </pre></div>
 </div>
 <p>Then you can build the documentation with:</p>
@@ -115,28 +117,38 @@ not checked in and only available at the gh-pages branch.</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="contributing_link.html">Contributing Guide</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html">Testing suite of Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">How to document Dotmanager</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#structure-set-up">Structure / Set up</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generating-documentation">Generating documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deploying">Deploying</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html">Testing Dotmanager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/index.html">Reference manual</a></li>
 </ul>
 </li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">For developers</a><ul>
       <li>Previous: <a href="contributing_link.html" title="previous chapter">Contributing Guide</a></li>
-      <li>Next: <a href="tests.html" title="next chapter">Testing suite of Dotmanager</a></li>
+      <li>Next: <a href="tests.html" title="next chapter">Testing Dotmanager</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -167,7 +179,7 @@ not checked in and only available at the gh-pages branch.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -175,6 +187,10 @@ not checked in and only available at the gh-pages branch.</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

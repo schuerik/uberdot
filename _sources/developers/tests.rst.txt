@@ -1,5 +1,5 @@
-Testing suite of Dotmanager
-===========================
+Testing Dotmanager
+==================
 
 To verify that Dotmanager is working correct and behaves the same on all
 platforms, there are regression tests in  ``test/regressiontest.py``. At the
@@ -108,9 +108,9 @@ The keys of the top dictionary are the relative paths from ``test/`` for any
 subdirectory that you want to verify. For every subdirectory there are the keys ``files``, ``links``, ``permission``, ``rootuser``
 and ``rootgroup``. The last three describe the subdirectory itself. Because we can't create new users/groups
 just for the sake of this test, we only distinguish between normal and root users/groups.
-``files`` and ``links`` are both lists of dictionaries that we use describe all files in the subdirectory.
+``files`` and ``links`` are both lists of dictionaries that we use to describe all files in the subdirectory.
 Both have the keys ``name`` (which is the name of the file/symlink), ``permission``, ``rootuser`` and ``rootgroup``.
 There is also the optional key ``content`` which hold the md5 hash of the files content.
 The difference between those two lists is, that ``links`` has dictionaries with an additional ``target`` key that
-sets links target relatively to ``test/``. Also all files that are listed in ``links`` will be verified to be
+specifies a links target relatively to ``test/``. Also all files that are listed in ``links`` will be verified to be
 a symbolic link, where as files that are listed in ``files`` must not be a symbolic link.

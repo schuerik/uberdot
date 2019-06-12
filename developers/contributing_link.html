@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Contributing Guide &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Contributing Guide &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -35,45 +35,43 @@
   <div class="section" id="contributing-guide">
 <h1>Contributing Guide<a class="headerlink" href="#contributing-guide" title="Permalink to this headline">¶</a></h1>
 <p>Everyone is encouraged to contribute to this project. You can contribute by
-<a class="reference external" href="https://github.com/RickestRickSanchez/dotmanager/issues/new?assignees=&amp;labels=enhancement&amp;template=feature_request.md&amp;title=">proposing new features</a>, <a class="reference external" href="https://github.com/RickestRickSanchez/dotmanager/issues/new?assignees=&amp;labels=bug&amp;template=bug_report.md&amp;title=">submitting a bug</a>, improving the documentation
-(see <a class="reference internal" href="documentation.html"><span class="doc">How to document Dotmanager</span></a>) or by helping me programming.</p>
+<a class="reference external" href="https://github.com/RickestRickSanchez/dotmanager/issues/new?assignees=&amp;labels=enhancement&amp;template=feature_request.md&amp;title=">proposing new features</a>,
+<a class="reference external" href="https://github.com/RickestRickSanchez/dotmanager/issues/new?assignees=&amp;labels=bug&amp;template=bug_report.md&amp;title=">submitting a bug</a>,
+improving the documentation (see <a class="reference external" href="https://rickestricksanchez.github.io/dotmanager/developers/documentation.html">documentation</a>)
+or by helping me programming.</p>
 <div class="section" id="code-contributions">
 <h2>Code Contributions<a class="headerlink" href="#code-contributions" title="Permalink to this headline">¶</a></h2>
-<p>If you want to modify the code, you need to follow some rules or I won’t accept
+<p>If you want to modify the code, you need to follow some rules or I won't accept
 your pull requests. Exceptions are possible but need to be justified.</p>
 <div class="section" id="coding-style">
 <h3>Coding style<a class="headerlink" href="#coding-style" title="Permalink to this headline">¶</a></h3>
-<p>All code contributions should follow the <a class="reference external" href="https://github.com/google/styleguide/blob/gh-pages/pyguide.md">Google styleguide</a> and <a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP8</a> the
-best way possible. I highly recommend using pylint (although it’s not perfect)
-to check if your modifications are PEP8 conform. If you don’t do this, the PR
-will be automatically rejected by CodeFactor. In this case you should fix the
-issues that CodeFactor found and update your PR.</p>
+<p>All code contributions should follow the <a class="reference external" href="https://github.com/google/styleguide/blob/gh-pages/pyguide.md">Google styleguide</a> and
+<a class="reference external" href="https://www.python.org/dev/peps/pep-0008/">PEP8</a> the best way possible. I highly recommend using pylint (although it's not
+perfect) to check if your modifications are PEP8 conform. <span class="raw-html-m2r"><del>If you don't do this, the PR will be automatically rejected by
+CodeFactor. In this case you should fix the issues that CodeFactor found and update your PR.</del></span>
+In the future PRs will be automatically rejected if they violate PEP8.</p>
 </div>
 <div class="section" id="documenting">
 <h3>Documenting<a class="headerlink" href="#documenting" title="Permalink to this headline">¶</a></h3>
-<p>Whenever you modify the functionality of Dotmanager, a single function/class or
-add completely new functionality, you have to update the documentation. Most
-documentation updates will be very simple, because they only require an update
-of the reference manual which is generated from the doc strings in the code.
-Yow can find a section about the doc string syntax in the <a class="reference external" href="https://github.com/google/styleguide/blob/gh-pages/pyguide.md">Google styleguide</a>.
-But if you modify or add bigger features, you should verify if you have to
-update the user guide. Take a look at <a class="reference external" href="https://rickestricksanchez.github.io/dotmanager/developers/documentation.html">documentation</a> for more information
-about the documenation system.</p>
+<p>Whenever you modify the functionality of Dotmanager, a single function/class or add completely new functionality, you have to
+update the documentation. Most documentation updates will be very simple, because they only require an update of the reference
+manual which is generated automatically from the doc strings in the code. Yow can find a section about the google doc string syntax
+<a class="reference external" href="https://github.com/google/styleguide/blob/gh-pages/pyguide.md#38-comments-and-docstrings">here</a>. But if you
+modify or add bigger features, you should verify if you have to update the user guide. Take a look at
+<a class="reference external" href="https://rickestricksanchez.github.io/dotmanager/developers/documentation.html">documentation</a> for more information about the
+documentation system.</p>
 </div>
 <div class="section" id="versioning">
 <h3>Versioning<a class="headerlink" href="#versioning" title="Permalink to this headline">¶</a></h3>
 <p>Always remember to increment the version number before you submit a pull
-request. Given the version number <code class="docutils literal notranslate"><span class="pre">MILESTONE.MAJOR.PATCH_SCHEMA</span></code> increment
-the:</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>MILESTONE when the pr solves a milestone goal</p></li>
-<li><p>MAJOR when the pr adds a new feature</p></li>
-<li><p>PATCH when the pr solves a bug</p></li>
-<li><p>SCHEMA when the pr makes a change to installed file schema</p></li>
+request. Given the version number <code class="docutils literal notranslate"><span class="pre">MILESTONE.MAJOR.PATCH_SCHEMA</span></code> increment</p>
+<ul class="simple">
+<li><p><strong>MILESTONE</strong> when the pr solves a milestone goal</p></li>
+<li><p><strong>MAJOR</strong> when the pr adds a new feature</p></li>
+<li><p><strong>PATCH</strong> when the pr solves a bug or changes documentation</p></li>
+<li><p><strong>SCHEMA</strong> when the pr makes a change to installed file schema</p></li>
 </ul>
-</div></blockquote>
-<p>You will find the version number in <code class="docutils literal notranslate"><span class="pre">dotmanager/constants.py</span></code></p>
+<p>You can set the version number in <code class="docutils literal notranslate"><span class="pre">dotmanager/constants.py</span></code></p>
 </div>
 </div>
 </div>
@@ -92,21 +90,29 @@ the:</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">For developers</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Contributing Guide</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Contributing Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#code-contributions">Code Contributions</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tests.html">Testing suite of Dotmanager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html">Testing Dotmanager</a></li>
 <li class="toctree-l2"><a class="reference internal" href="reference/index.html">Reference manual</a></li>
 </ul>
 </li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -144,7 +150,7 @@ the:</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -152,6 +158,10 @@ the:</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

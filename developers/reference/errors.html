@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Errors &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Errors &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Info" href="info.html" />
-    <link rel="prev" title="Dynamicfile" href="dynamicfile.html" />
+    <link rel="prev" title="DynamicFile" href="dynamicfile.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
@@ -35,6 +35,38 @@
   <div class="section" id="module-errors">
 <span id="errors"></span><h1>Errors<a class="headerlink" href="#module-errors" title="Permalink to this headline">¶</a></h1>
 <p>This module contains all custom errors/exceptions.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CustomError</span></code></a></p></td>
+<td><p>A base class for all custom exceptions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#errors.FatalError" title="errors.FatalError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FatalError</span></code></a></p></td>
+<td><p>A custom exception for all errors that violate expected invariants.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#errors.GenerationError" title="errors.GenerationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GenerationError</span></code></a></p></td>
+<td><p>A custom exception for all errors that occur during generation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#errors.IntegrityError" title="errors.IntegrityError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IntegrityError</span></code></a></p></td>
+<td><p>A custom exception for all errors that occur because there are logical/ sematic errors in a profile written by the user.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PreconditionError</span></code></a></p></td>
+<td><p>A custom exception for all errors that occur due to preconditions or expectations that are not fullfilled.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#errors.UnkownError" title="errors.UnkownError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnkownError</span></code></a></p></td>
+<td><p>A custom exception for all errors that are not expected/unkown.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#errors.UserAbortion" title="errors.UserAbortion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserAbortion</span></code></a></p></td>
+<td><p>Used to abort the dotmanager at any given point safely by the user.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#errors.UserError" title="errors.UserError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserError</span></code></a></p></td>
+<td><p>A custom exception for all errors that occur because the user didn't used the program correctly.</p></td>
+</tr>
+</tbody>
+</table>
 <dl class="exception">
 <dt id="errors.CustomError">
 <em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">CustomError</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError" title="Permalink to this definition">¶</a></dt>
@@ -75,7 +107,7 @@ This needs to be implemented by subclasses.</p>
 <dd><p>Constructor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) – The error message</p>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The error message</p>
 </dd>
 </dl>
 </dd></dl>
@@ -100,7 +132,7 @@ This needs to be implemented by subclasses.</p>
 <p>Adds a disclaimer that this error is indeed really bad.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) – The error message</p>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The error message</p>
 </dd>
 </dl>
 </dd></dl>
@@ -112,7 +144,7 @@ This needs to be implemented by subclasses.</p>
 <em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">GenerationError</code><span class="sig-paren">(</span><em class="sig-param">profile_name</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur during generation.</p>
-<p>Example: The profile has syntax errors or fucks with the base class</p>
+<p>Example: The profile has syntax errors or a dotfile can't be found</p>
 <dl class="attribute">
 <dt id="errors.GenerationError.EXITCODE">
 <code class="sig-name descname">EXITCODE</code><em class="property"> = 104</em><a class="headerlink" href="#errors.GenerationError.EXITCODE" title="Permalink to this definition">¶</a></dt>
@@ -127,8 +159,8 @@ This needs to be implemented by subclasses.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>profile_name</strong> (<em>str</em>) – Name of the profile that triggered the error</p></li>
-<li><p><strong>message</strong> (<em>str</em>) – The error message</p></li>
+<li><p><strong>profile_name</strong> (<em>str</em>) -- Name of the profile that triggered the error</p></li>
+<li><p><strong>message</strong> (<em>str</em>) -- The error message</p></li>
 </ul>
 </dd>
 </dl>
@@ -157,7 +189,7 @@ sematic errors in a profile written by the user.</p>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur due to preconditions
 or expectations that are not fullfilled.</p>
-<p>Example: A link that is defined in the installed-file doesn’t exist
+<p>Example: A link that is defined in the installed-file doesn't exist
 on the system</p>
 <dl class="attribute">
 <dt id="errors.PreconditionError.EXITCODE">
@@ -172,7 +204,8 @@ on the system</p>
 <em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">UnkownError</code><span class="sig-paren">(</span><em class="sig-param">original_error</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that are not expected/unkown.</p>
-<p>Example: Used in a pokemon handler</p>
+<p>Used in pokemon handlers of critical sections to convert all unexpected
+errors into CustomException.</p>
 <dl class="attribute">
 <dt id="errors.UnkownError.EXITCODE">
 <code class="sig-name descname">EXITCODE</code><em class="property"> = 105</em><a class="headerlink" href="#errors.UnkownError.EXITCODE" title="Permalink to this definition">¶</a></dt>
@@ -188,8 +221,8 @@ message.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>original_error</strong> (<em>Exception</em>) – The original exception that was catched</p></li>
-<li><p><strong>message</strong> (<em>str</em>) – An additional message for context</p></li>
+<li><p><strong>original_error</strong> (<em>Exception</em>) -- The original exception that was catched</p></li>
+<li><p><strong>message</strong> (<em>str</em>) -- An additional message for context</p></li>
 </ul>
 </dd>
 </dl>
@@ -201,7 +234,7 @@ message.</p>
 <dt id="errors.UserAbortion">
 <em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">UserAbortion</code><a class="headerlink" href="#errors.UserAbortion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
-<p>Used to abort the dotmanager at any given point safely by the user</p>
+<p>Used to abort the dotmanager at any given point safely by the user.</p>
 <dl class="attribute">
 <dt id="errors.UserAbortion.EXITCODE">
 <code class="sig-name descname">EXITCODE</code><em class="property"> = 106</em><a class="headerlink" href="#errors.UserAbortion.EXITCODE" title="Permalink to this definition">¶</a></dt>
@@ -212,7 +245,7 @@ message.</p>
 <dt id="errors.UserAbortion.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserAbortion.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
-<p>Sets the error message to “Aborted by user”.</p>
+<p>Sets the error message to &quot;Aborted by user&quot;.</p>
 </dd></dl>
 
 </dd></dl>
@@ -221,9 +254,9 @@ message.</p>
 <dt id="errors.UserError">
 <em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">UserError</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
-<p>A custom exception for all errors that occur because the user didn’t
+<p>A custom exception for all errors that occur because the user didn't
 used the program correctly.</p>
-<p>Example: -i and -u where used in the same call but cannot be used together</p>
+<p>Example: --parent was specified without using -i</p>
 <dl class="attribute">
 <dt id="errors.UserError.EXITCODE">
 <code class="sig-name descname">EXITCODE</code><em class="property"> = 101</em><a class="headerlink" href="#errors.UserError.EXITCODE" title="Permalink to this definition">¶</a></dt>
@@ -237,7 +270,7 @@ used the program correctly.</p>
 <p>Adds a hint how to show help.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) – The error message</p>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The error message</p>
 </dd>
 </dl>
 </dd></dl>
@@ -260,28 +293,44 @@ used the program correctly.</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicfile.html">DynamicFile</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">Info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="profile.html">Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
-
+</li>
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
   <li><a href="../index.html">For developers</a><ul>
   <li><a href="index.html">Reference manual</a><ul>
-      <li>Previous: <a href="dynamicfile.html" title="previous chapter">Dynamicfile</a></li>
+      <li>Previous: <a href="dynamicfile.html" title="previous chapter">DynamicFile</a></li>
       <li>Next: <a href="info.html" title="next chapter">Info</a></li>
   </ul></li>
   </ul></li>
@@ -314,7 +363,7 @@ used the program correctly.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -322,6 +371,10 @@ used the program correctly.</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

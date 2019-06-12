@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Getting started &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Getting started &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -80,7 +80,7 @@ file called <code class="docutils literal notranslate"><span class="pre">dotmana
 </ul>
 </dd>
 </dl>
-<p>Then set the values <code class="docutils literal notranslate"><span class="pre">targetFiles</span></code> and <code class="docutils literal notranslate"><span class="pre">profileFiles</span></code> in the “Settings” section:</p>
+<p>Then set the values <code class="docutils literal notranslate"><span class="pre">targetFiles</span></code> and <code class="docutils literal notranslate"><span class="pre">profileFiles</span></code> in the &quot;Settings&quot; section:</p>
 <div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[Settings]</span>
 <span class="na">profileFiles</span> <span class="o">=</span> <span class="s">/path/to/your/profiles/</span>
 <span class="na">targetFiles</span>  <span class="o">=</span> <span class="s">/path/to/your/dotfiles/</span>
@@ -90,8 +90,8 @@ file called <code class="docutils literal notranslate"><span class="pre">dotmana
 <div class="section" id="step-3-a-first-profile">
 <h2>Step 3: A first profile<a class="headerlink" href="#step-3-a-first-profile" title="Permalink to this headline">¶</a></h2>
 <p>For a simple test we will create a first profile. So go ahead and create a file
-in your profile directory. It doesn’t matter what you name it, as long it ends
-on “.py”.
+in your profile directory. It doesn't matter what you name it, as long it ends
+on &quot;.py&quot;.
 You can copy the following, but replace <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> with a file that exists in
 your dotfile directory:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
@@ -104,32 +104,33 @@ your dotfile directory:</p>
 <p>Now installing this profile is easy:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
 <span class="o">[</span>Test1<span class="o">]</span>: Installing new profile
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/&lt;filename&gt; was created and links to /home/user/repos/dotfiles/files/&lt;filename&gt;
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/&lt;filename&gt; was created and links to /path/to/your/dotfiles/&lt;filename&gt;
 Finished succesfully.
 </pre></div>
 </div>
 <p>So <code class="docutils literal notranslate"><span class="pre">link(&quot;&lt;filename&gt;&quot;)</span></code> creates a symlink in your home directory and points
 to the file <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> in your repository.</p>
-<p>Ok, lets add some more links and install it again:</p>
+<p>Ok, lets modify this a little bit and add some more links:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
-        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;&lt;filename&gt;&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;&lt;filename&gt;&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
 
         <span class="n">cd</span><span class="p">(</span><span class="s2">&quot;.config&quot;</span><span class="p">)</span>
-        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;&lt;filename2&gt;&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+        <span class="n">link</span><span class="p">(</span><span class="s2">&quot;&lt;filename2&gt;&quot;</span><span class="p">)</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;&lt;filename3&gt;&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;someothername.conf&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Of course <code class="docutils literal notranslate"><span class="pre">link()</span></code> isn’t the only command that you can use. The <code class="docutils literal notranslate"><span class="pre">cd()</span></code>
-command let’s you switch the directory in which the links will be created. So
+<p>Of course <code class="docutils literal notranslate"><span class="pre">link()</span></code> isn't the only command that you can use. The <code class="docutils literal notranslate"><span class="pre">cd()</span></code>
+command let's you switch the directory in which the links will be created. So
 instead of creating links in your home directory, all further calls of <code class="docutils literal notranslate"><span class="pre">link()</span></code>
 will create links in <code class="docutils literal notranslate"><span class="pre">~/.config</span></code>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
 <span class="o">[</span>Test1<span class="o">]</span>: Profile updated
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/.&lt;filename2&gt; was created and links to /home/user/repos/dotfiles/files/&lt;filename2&gt;
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/someothername.conf was created and links to /home/user/repos/dotfiles/files/&lt;filename3&gt;
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/&lt;filename&gt; was moved to /home/user/.&lt;filename&gt;
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/&lt;filename2&gt; was created and links to /path/to/your/dotfiles/&lt;filename2&gt;
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/someothername.conf was created and links to /path/to/your/dotfiles/&lt;filename3&gt;
 Finished succesfully.
 </pre></div>
 </div>
@@ -173,20 +174,21 @@ subprofile:</p>
 <p>Installing <code class="docutils literal notranslate"><span class="pre">Test1</span></code> again, results in the following output:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
 <span class="o">[</span>Test1<span class="o">]</span>: Profile updated
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/.&lt;filename2&gt; was removed from the system.
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.&lt;filename&gt; was moved to /home/user/&lt;filename&gt;
+<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/&lt;filename2&gt; was removed from the system.
 <span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/someothername.conf was removed from the system.
 <span class="o">[</span>Vim<span class="o">]</span>: Installing new profile as subprofile of Test1
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was created and links to /home/user/repos/dotfiles/files/gvimrc
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was created and links to /home/user/repos/dotfiles/files/vimrc
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was created and links to /home/user/repos/dotfiles/files/keybindings.vim
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/plugins.vim was created and links to /home/user/repos/dotfiles/files/plugins.vim
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/python.snippets was created and links to /home/user/repos/dotfiles/files/python.snippets
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/html.snippets was created and links to /home/user/repos/dotfiles/files/html.snippets
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was created and links to /path/to/your/dotfiles/vimrc
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was created and links to /path/to/your/dotfiles/keybindings.vim
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/plugins.vim was created and links to /path/to/your/dotfiles/plugins.vim
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/python.snippets was created and links to /path/to/your/dotfiles/python.snippets
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/html.snippets was created and links to /path/to/your/dotfiles/html.snippets
 <span class="o">[</span>Shell<span class="o">]</span>: Installing new profile as subprofile of Test1
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zshrc was created and links to /home/user/repos/dotfiles/files/zshrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.bashrc was created and links to /home/user/repos/dotfiles/files/bashrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.inputrc was created and links to /home/user/repos/dotfiles/files/inputrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zprofile was created and links to /home/user/repos/dotfiles/files/zsh_profile
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zshrc was created and links to /path/to/your/dotfiles/zshrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.bashrc was created and links to /path/to/your/dotfiles/bashrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.inputrc was created and links to /path/to/your/dotfiles/inputrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zprofile was created and links to /path/to/your/dotfiles/zsh_profile
 Finished succesfully.
 </pre></div>
 </div>
@@ -195,16 +197,16 @@ parent profile. This gets useful, when you have multiple devices of which
 some use certain programs and some not (or shall not be configured), because
 you can enable/disable whole sets of links.</p>
 <p>This gets even more powerful in combination with the <code class="docutils literal notranslate"><span class="pre">tags()</span></code> command!
-The problem with the above approach is that it is very static.
+The problem with the above approach is that it is still very static.
 Maybe you want Vim to use a shit load of plugins on
-your work station, but only a few when running on a raspberry pi.
+your work station, but use only a few plugins when running on a raspberry pi.
 Thats were tagging comes into play.
-You can add a tag to files by prepending a it to their filename. When the tag
-is set, the file will be prefered over a untagged file.
+You can add a tag to a file by prepending it to their filename, seperated by a
+percent sign. When the tag is set, the file will be prefered over a untagged file.
 We could create for example another dotfile called <code class="docutils literal notranslate"><span class="pre">minimal%plugins.vim</span></code>,
-where “minimal” is the tag and the percent sign is the seperator before the
+where &quot;minimal&quot; is the tag and the percent sign is the seperator before the
 original filename.
-Our <code class="docutils literal notranslate"><span class="pre">Test1</span></code> profile will create the same links as before, but let’s create a
+Our <code class="docutils literal notranslate"><span class="pre">Test1</span></code> profile will behave the same as before, but let's create a
 new profile that will use the new minimal plugins file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Pi</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -212,17 +214,20 @@ new profile that will use the new minimal plugins file:</p>
         <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Vim&quot;</span><span class="p">,</span> <span class="s2">&quot;Shell&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>As you see can we tags with the <code class="docutils literal notranslate"><span class="pre">tags()</span></code> command. When the tag is set, all
-future commands will prefer the files that have “minimal” as tag in their filename.
+<p>As you see can we set tags with the <code class="docutils literal notranslate"><span class="pre">tags()</span></code> command. When the tag is set, all
+future commands will prefer the files that have &quot;minimal&quot; as tag in their filename.
 If you set multiple tags they are prioritized in descending order. So the first
 tag that you add will be prioritized over the second.</p>
-<p>Now we install <code class="docutils literal notranslate"><span class="pre">Pi</span></code>:</p>
+<p>Let's take a look what happens if we install <code class="docutils literal notranslate"><span class="pre">Pi</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ERROR: Vim is already installed as subprofile of &#39;Test1&#39;. You need to uninstall it first to avoid conflicts!
 </pre></div>
 </div>
-<p>Oh, I totally forgot that I already have this installed as a subprofile of <code class="docutils literal notranslate"><span class="pre">Test1</span></code>.
-This would create an inconsistency because two profiles define contradicting configurations.
-Dotmanager detects such inconsistencies and tells me how to avoid them. I can now uninstall
+<p>Oh, I totally forgot that I already have &quot;Vim&quot; installed as a subprofile of <code class="docutils literal notranslate"><span class="pre">Test1</span></code>.
+This would create an inconsistency because first a profile can't be installed twice at the
+same time and second two profiles define contradicting configurations (one profile wants to
+create a link to &quot;plugins.vim&quot; whereas the other profile wants to create the same link to
+&quot;minmal%plugins.vim&quot;).
+Dotmanager detects such inconsistencies and tells you how to avoid them. I can now uninstall
 just <code class="docutils literal notranslate"><span class="pre">Vim</span></code>, but this would result in a similar error, because <code class="docutils literal notranslate"><span class="pre">Shell</span></code> is also subprofile
 of <code class="docutils literal notranslate"><span class="pre">Pi</span></code> and <code class="docutils literal notranslate"><span class="pre">Test1</span></code>. The better and most intuitive solution is to uninstall <code class="docutils literal notranslate"><span class="pre">Test1</span></code>.
 This removes the full configuration (and therefore also both subprofiles):</p>
@@ -248,32 +253,33 @@ Finished succesfully.
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Pi
 <span class="o">[</span>Pi<span class="o">]</span>: Installing new Profile
 <span class="o">[</span>Vim<span class="o">]</span>: Installing new profile as subprofile of Pi
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was created and links to /home/user/repos/dotfiles/files/gvimrc
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was created and links to /home/user/repos/dotfiles/files/vimrc
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was created and links to /home/user/repos/dotfiles/files/keybindings.vim
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/plugins.vim was created and links to /home/user/repos/dotfiles/files/minimal%plugins.vim
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/python.snippets was created and links to /home/user/repos/dotfiles/files/python.snippets
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/html.snippets was created and links to /home/user/repos/dotfiles/files/html.snippets
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was created and links to /path/to/your/dotfiles/vimrc
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was created and links to /path/to/your/dotfiles/keybindings.vim
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/plugins.vim was created and links to /path/to/your/dotfiles/minimal%plugins.vim
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/python.snippets was created and links to /path/to/your/dotfiles/python.snippets
+<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/html.snippets was created and links to /path/to/your/dotfiles/html.snippets
 <span class="o">[</span>Shell<span class="o">]</span>: Installing new profile as subprofile of Pi
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zshrc was created and links to /home/user/repos/dotfiles/files/zshrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.bashrc was created and links to /home/user/repos/dotfiles/files/bashrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.inputrc was created and links to /home/user/repos/dotfiles/files/inputrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zprofile was created and links to /home/user/repos/dotfiles/files/zsh_profile
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zshrc was created and links to /path/to/your/dotfiles/zshrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.bashrc was created and links to /path/to/your/dotfiles/bashrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.inputrc was created and links to /path/to/your/dotfiles/inputrc
+<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zprofile was created and links to /path/to/your/dotfiles/zsh_profile
 Finished succesfully.
 </pre></div>
 </div>
 <p>You can see that the subprofiles behave the same as for <code class="docutils literal notranslate"><span class="pre">Test1</span></code>, but
 <code class="docutils literal notranslate"><span class="pre">/home/user/.vim/plugins.vim</span></code> points now to
-<code class="docutils literal notranslate"><span class="pre">/home/user/repos/dotfiles/files/minimal%plugins.vim</span></code>. The idea is that
+<code class="docutils literal notranslate"><span class="pre">/path/to/your/dotfiles/minimal%plugins.vim</span></code>. The idea is that
 you create profiles for all kind of programs that you want to configure
-and configuration files with different tags that describe properties of the
+and create configuration files with different tags that describe properties of the
 system they are for, so that in the end you can quickly create a new profile
 for a new device, by just picking the programs that are installed and telling
 Dotmanager what tags will be applied for the device.</p>
 <p>Of course that is just one way to work with tags and just one way to alternate
 versions of a dotfile.</p>
-<p>For further configuration you should take a look at the other commands and
-options. You probably won’t need all of them, but they can solve a lot of
+<p>For further configuration you should take a look at the other
+<a class="reference external" href="https://rickestricksanchez.github.io/dotmanager/usage/commands.html">commands and options</a>.
+You probably won't need all of them, but they can solve a lot of
 common problems and will shorten your profiles. The documentation also covers a
 lot of topics that will help you understanding what is going on under the hud, as
 well as more advanced examples and troubleshooting.</p>
@@ -294,28 +300,41 @@ well as more advanced examples and troubleshooting.</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Getting started</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#step-0-put-your-dotfiles-into-version-control-optional">Step 0: Put your dotfiles into version control (optional)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-installation">Step 1: Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-configuration">Step 2: Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-a-first-profile">Step 3: A first profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-4-going-further">Step 4: Going further</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="commandline-interface.html">Commandline Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="info-module.html">Info module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config-file.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dotignore.html">.dotignore</a></li>
 <li class="toctree-l2"><a class="reference internal" href="encryption.html">Encryption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicfiles.html">Dynamicfiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed-files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example-configuration.html">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tips.html">Tips</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -353,7 +372,7 @@ well as more advanced examples and troubleshooting.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -361,6 +380,10 @@ well as more advanced examples and troubleshooting.</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

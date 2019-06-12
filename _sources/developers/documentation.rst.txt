@@ -2,7 +2,7 @@
 How to document Dotmanager
 ==========================
 
-The documentation, reference manual and man page of Dotmanager are generated with
+The documentation, reference manual and manpage of Dotmanager are all generated with
 Sphinx_. It consists of mainly two big parts. First the reference manual, which
 is generated from the source code, and second the user guides which are generated
 from the sphinx source directory.
@@ -17,11 +17,13 @@ Structure / Set up
 
 - Sphinx is located at ``docs/sphinx/``.
 - All user guides are located at ``docs/sphinx/source/usage/``
-- All developer guides (except for CONTRIBUTING.rst) are located at
+- All developer guides (except for CONTRIBUTING.md) are located at
   ``docs/sphinx/source/developers/``
 - The theme was modified to hide or highlight some information in the reference
   manual with ``docs/sphinx/source/custom.css``
-- Sphinx is configured to use the autodoc, napoleon and github pages plugin
+- Sphinx is configured to use the autodoc, m2r, napoleon and github pages plugin
+- The contributing guide is converted from markdown to restructered text using m2r
+- The navigation of the theme is overridden by ``docs/sphinx/source/_templates/navigation.html``
 - The built html documentation can be found in ``docs/sphinx/build/html/``
 - The built man page can be found in ``docs/sphinx/build/man/``
 - The man page is built from a subset of user guides
@@ -30,12 +32,12 @@ Structure / Set up
 Generating documentation
 ========================
 
-To generate the documentation locally on your device you will need to install Sphinx
-and the autodoc plugin. To do so, you can use pip:
+To generate the documentation locally on your device you will need to install Sphinx,
+m2r and the autodoc plugin. To do so, you can use pip:
 
 .. code:: bash
 
-    $ pip install sphinx autodoc
+    $ pip install sphinx autodoc m2r
 
 Then you can build the documentation with:
 

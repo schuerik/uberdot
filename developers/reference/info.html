@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Info &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Info &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -42,7 +42,7 @@ retrieve system information.</p>
 <dd><p>Returns the current running distribution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – Returns the first line of <code class="docutils literal notranslate"><span class="pre">/etc/*-release</span></code></p>
+<dd class="field-odd"><p><em>str</em> -- Returns the first line of <code class="docutils literal notranslate"><span class="pre">/etc/*-release</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -53,7 +53,7 @@ retrieve system information.</p>
 <dd><p>Returns the host name of the device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – The devices host name</p>
+<dd class="field-odd"><p><em>str</em> -- The devices host name</p>
 </dd>
 </dl>
 </dd></dl>
@@ -64,7 +64,7 @@ retrieve system information.</p>
 <dd><p>Returns if the device is running a 64bit os.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>bool</em> – True, if platform is 64 bit</p>
+<dd class="field-odd"><p><em>bool</em> -- True, if platform is 64 bit</p>
 </dd>
 </dl>
 </dd></dl>
@@ -77,7 +77,7 @@ retrieve system information.</p>
 used.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – The kernel release of the device</p>
+<dd class="field-odd"><p><em>str</em> -- The kernel release of the device</p>
 </dd>
 </dl>
 </dd></dl>
@@ -88,10 +88,10 @@ used.</p>
 <dd><p>Returns if the given package is installed on the device.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>pkg_name</strong> (<em>str</em>) – The name of a package</p>
+<dd class="field-odd"><p><strong>pkg_name</strong> (<em>str</em>) -- The name of a package</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>bool</em> – True, if installed</p>
+<dd class="field-even"><p><em>bool</em> -- True, if installed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -102,7 +102,7 @@ used.</p>
 <dd><p>Returns the username that executed dotmanager.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – Username of current user</p>
+<dd class="field-odd"><p><em>str</em> -- Username of current user</p>
 </dd>
 </dl>
 </dd></dl>
@@ -123,21 +123,37 @@ used.</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicfile.html">DynamicFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="profile.html">Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
-
+</li>
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -177,7 +193,7 @@ used.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -185,6 +201,10 @@ used.</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

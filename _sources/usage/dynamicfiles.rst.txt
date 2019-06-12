@@ -10,6 +10,7 @@ types of dynamicfiles, each one using their own subdirectory:
 
 - ``data/decrypted``: dotfiles that were decrypted
 - ``data/merged``: dotfiles that were merged from multiple dotfiles
+- ``data/piped``: dotfiles that were piped into a shell command
 
 To make use of a dynamicfile you can either use one of the helper
 commands like ``decrypt()`` or ``merge()`` which will return a
@@ -22,7 +23,7 @@ subdirectory.
 Because the generated file that will be linked is now outside of your
 repository, the repository is obviously not able to track changes
 anymore. Also editing a symlink to this file won’t update the original
-dotfiles in your repository. To circumvent this disadvantage, Dotmanager
+dotfile(s) in your repository. To circumvent this disadvantage, Dotmanager
 will track changes that you apply to the symlinked generated file and
 warns you if you would overwrite those changes when you install a
 profile. To do so, Dotmanager appends the md5 hash of the file to its
@@ -51,20 +52,21 @@ writes the decrypted file to
 
 Dotmanager will later link to
 “data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1”. Now every
-time this link is updated or removed, Dotmanager will check if the
-calculated hash differs from the current installed hash and if so warn
-you that you could lose changes. To help you write back the changes to
-the original file it gives you the following options:
+time this profile is updated or removed, Dotmanager will update the dynamic
+file - which again creates new files with a new hash if the file content
+changed - and checks if the calculated hash differs from the current installed
+hash. If so Dotmanager warns you that you could lose changes and helps you to
+write back the changes to the original file by giving you the following options:
 
-- **Abort**: abort the installation/removal process to fix changes manually
-- **Diff**: displays a diff of the changes and lets you decide again what
+- **Abort**: Abort the installation/removal process to fix changes manually
+- **Diff**: Displays a diff of the changes and lets you decide again what
   to do
-- **Ignore**: ignore the warning. The link will be updated/removed but the
+- **Ignore**: Ignore the warning. The link will be updated/removed but the
   changes to the old dynamicfile will stay.
-- **Patch**: write a git diff of the changes to a desired location. In some
-  cases you can apply it to the original directly with git
-- **Undo**: discards all changes made to the file and proceed with
-  updating/removing the link
+- **Patch**: Write a git diff of the changes to a desired location. In some
+  cases you can apply it to the original directly with git.
+- **Undo**: Discards all changes made to the file and proceed with
+  updating/removing the link.
 
 
 Creating an instance of a dynamicfile manually
@@ -82,7 +84,7 @@ Creating an instance of a dynamicfile manually
    encrypt.update()
 
 Instead of using the absolute path to the dotfile you could use
-``self.find()`` of the profile to find the file automatically
+``self.find()`` of the profile to find the file automatically.
 
 .. code:: python
 

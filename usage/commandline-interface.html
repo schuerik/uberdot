@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Commandline Interface &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Commandline Interface &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -45,7 +45,7 @@
 <p>One - and only one - of the following modes has to be chosen:</p>
 <dl class="option-list">
 <dt><kbd><span class="option">-h</span>, <span class="option">--help</span></kbd></dt>
-<dd><p>Show a short help message with all options and modes and exits</p>
+<dd><p>Shows a short help message with all options and modes and exits</p>
 </dd>
 <dt><kbd><span class="option">--version</span></kbd></dt>
 <dd><p>Displays the version of dotmanager and exits</p>
@@ -72,19 +72,19 @@ Otherwise information about all installed profiles will be shown.</p>
 <dd><p>Use a different config file for this call</p>
 </dd>
 <dt><kbd><span class="option">--directory <var>&lt;DIRECTORY&gt;</var></span></kbd></dt>
-<dd><p>Overwrites the default directory temporarily</p>
+<dd><p>Overwrite the default directory temporarily</p>
 </dd>
 <dt><kbd><span class="option">-d</span>, <span class="option">--dry-run</span></kbd></dt>
 <dd><p>Just simulate the changes dotmanager would perform</p>
 </dd>
 <dt><kbd><span class="option">--dui</span></kbd></dt>
 <dd><p>Use an alternative startegy to install profiles and links. The default
-strategy will do this by recursively go through the profiles and
-create/update all links one by one. This can cause conflicts if e.g. a link
-is moved from one to another profile. This strategy installs links by first
-doing all removals, then all updates and at last all new installs. Most
-conflicts should be solved by this strategy but it has the downside that
-the output isn’t that clear as the normal strategy.</p>
+strategy will do this by recursively going through the profiles and
+create/update/remove all links one by one. This can cause conflicts if
+e.g. a link is moved from one to another profile. This strategy installs
+links by first doing all removals, then all updates and at last all new
+installs. Most conflicts should be solved by this strategy but it has the
+downside that the output isn’t that clear as the normal strategy.</p>
 </dd>
 <dt><kbd><span class="option">-f</span>, <span class="option">--force</span></kbd></dt>
 <dd><p>Allows overwrites of files that already exists in your filesystem</p>
@@ -96,7 +96,7 @@ the output isn’t that clear as the normal strategy.</p>
 <dd><p>Make directories if they don’t exist. Any directory that will be created
 inherits the owner of its parent directory.</p>
 </dd>
-<dt><kbd><span class="option">--option <var>&lt;KEY=VAL…&gt;</var></span></kbd></dt>
+<dt><kbd><span class="option">--option <var>&lt;KEY=VAL...&gt;</var></span></kbd></dt>
 <dd><p>Sets/Overwrites one or more keys of the option section of the config file.</p>
 </dd>
 <dt><kbd><span class="option">--parent <var>&lt;PARENT&gt;</var></span></kbd></dt>
@@ -126,7 +126,7 @@ You need to make sure by yourself that there are no conflicts between all
 installed profiles and the profiles that you are going to install.
 This is mostly useful if you want to test the linking process in another
 directory or if those profiles are installed in completely different
-locations on your device but you don’t want your current setup be changed.</p>
+locations on your device but you don't want your current setup be changed.</p>
 </dd>
 <dt><kbd><span class="option">--silent</span></kbd></dt>
 <dd><p>Print no log messages at all.</p>
@@ -153,13 +153,13 @@ case-sensitive.</p>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li><p>Uninstall the profile called “Main” and all its subprofiles</p></li>
+<li><p>Uninstall the profile called &quot;Main&quot; and all its subprofiles</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -u Main
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li><p>Install the profiles “Main” and “Main2” and all their subprofiles</p></li>
+<li><p>Install the profiles &quot;Main&quot; and &quot;Main2&quot; and all their subprofiles</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Main Main2
 </pre></div>
@@ -171,20 +171,20 @@ case-sensitive.</p>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li><p>Perform the same installation like before but set the prefix for all links to “.”</p></li>
+<li><p>Perform the same installation like before but set the prefix for all links to &quot;.&quot;</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i --option <span class="nv">prefix</span><span class="o">=</span>. -- Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
-<li><p>Also set the tags “debian” and “big”</p></li>
+<li><p>Also set the tags &quot;debian&quot; and &quot;big&quot;</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i --option <span class="nv">prefix</span><span class="o">=</span>. <span class="nv">tags</span><span class="o">=</span>debian,big -- Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
-<li><p>Install “Main” and all it’s subprofiles, make non-existing directories and
-override existing files</p></li>
+<li><p>Install &quot;Main&quot; and all it's subprofiles, make non-existing directories and
+overwrite existing files</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -imf Main
 </pre></div>
@@ -206,28 +206,41 @@ override existing files</p></li>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Commandline Interface</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Commandline Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modes">Modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#options">Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#profiles">Profiles</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="info-module.html">Info module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config-file.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dotignore.html">.dotignore</a></li>
 <li class="toctree-l2"><a class="reference internal" href="encryption.html">Encryption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicfiles.html">Dynamicfiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installed-file.html">Installed-files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="example-configuration.html">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tips.html">Tips</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -265,7 +278,7 @@ override existing files</p></li>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -273,6 +286,10 @@ override existing files</p></li>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

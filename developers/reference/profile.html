@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Profile &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Profile &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -34,21 +34,24 @@
             
   <div class="section" id="module-profile">
 <span id="profile"></span><h1>Profile<a class="headerlink" href="#module-profile" title="Permalink to this headline">¶</a></h1>
-<p>This module implements the superclass for all profiles</p>
+<p>This module implements the superclass for all profiles.</p>
+<div class="line-block">
+<div class="line"><br /></div>
+</div>
 <dl class="data">
 <dt id="profile.CUSTOM_BUILTINS">
-<code class="sig-prename descclassname">profile.</code><code class="sig-name descname">CUSTOM_BUILTINS</code><em class="property"> = ['links', 'link', 'cd', 'opt', 'extlink', 'has_tag', 'merge', 'default', 'subprof', 'tags', 'rmtags', 'decrypt', 'pipe']</em><a class="headerlink" href="#profile.CUSTOM_BUILTINS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">profile.</code><code class="sig-name descname">CUSTOM_BUILTINS</code><em class="property"> = ['cd', 'decrypt', 'default', 'extlink', 'has_tag', 'link', 'links', 'merge', 'opt', 'pipe', 'rmtags', 'subprof', 'tags']</em><a class="headerlink" href="#profile.CUSTOM_BUILTINS" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of custom builtins that the profiles will map its functions to before
 executing <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
-<p>This means that, if you want to use a function in <code class="docutils literal notranslate"><span class="pre">generate()</span></code> without the
-need to call it via <code class="docutils literal notranslate"><span class="pre">self</span></code>, add the function name to this list.</p>
+<p>This means that, if you want to use a class function in <code class="docutils literal notranslate"><span class="pre">generate()</span></code> without
+the need to call it via <code class="docutils literal notranslate"><span class="pre">self</span></code>, add the function name to this list.</p>
 </dd></dl>
 
 <dl class="class">
 <dt id="profile.Profile">
 <em class="property">class </em><code class="sig-prename descclassname">profile.</code><code class="sig-name descname">Profile</code><span class="sig-paren">(</span><em class="sig-param">options=None</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This class provides the “API” aka commands for creating links and stores
+<p>This class provides the &quot;API&quot; aka commands for creating links and stores
 the state of the set options and directory.</p>
 <dl class="attribute">
 <dt id="profile.Profile.__old_builtins">
@@ -56,7 +59,7 @@ the state of the set options and directory.</p>
 <dd><p>A backup of the overwritten builtins</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Dict</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -87,10 +90,11 @@ the state of the set options and directory.</p>
 <dt id="profile.Profile.options">
 <code class="sig-name descname">options</code><a class="headerlink" href="#profile.Profile.options" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores options that will be set with <code class="docutils literal notranslate"><span class="pre">opt()</span></code>
-as well as the tags. None if this a root proifle.</p>
+as well as the tags. Equals <code class="docutils literal notranslate"><span class="pre">constants.DEFAULTS</span></code> if this a
+root profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Dict</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -98,8 +102,9 @@ as well as the tags. None if this a root proifle.</p>
 <dl class="attribute">
 <dt id="profile.Profile.directory">
 <code class="sig-name descname">directory</code><a class="headerlink" href="#profile.Profile.directory" title="Permalink to this definition">¶</a></dt>
-<dd><p>The directory that the profile is using as cwd.
-None if this a root proifle.</p>
+<dd><p>The directory that the profile is using as current
+working directory. Equals <code class="docutils literal notranslate"><span class="pre">constants.DIR_DEFAULT</span></code> if this a root
+profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -110,7 +115,7 @@ None if this a root proifle.</p>
 <dl class="attribute">
 <dt id="profile.Profile.parent">
 <code class="sig-name descname">parent</code><a class="headerlink" href="#profile.Profile.parent" title="Permalink to this definition">¶</a></dt>
-<dd><p>The parent profile. None if this a root proifle.</p>
+<dd><p>The parent profile. <code class="docutils literal notranslate"><span class="pre">None</span></code> if this a root profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p><a class="reference internal" href="#profile.Profile" title="profile.Profile">Profile</a></p>
@@ -125,7 +130,7 @@ None if this a root proifle.</p>
 generated links and the result of all subprofiles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Dict</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -139,14 +144,14 @@ given target.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> (<em>str</em>) – Full path to target file</p></li>
-<li><p><strong>directory</strong> (<em>str</em>) – A path to change the cwd</p></li>
-<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
+<li><p><strong>target</strong> (<em>str</em>) -- Full path to target file</p></li>
+<li><p><strong>directory</strong> (<em>str</em>) -- A path to change the cwd</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) -- A set of options that will be overwritten just for
 this call</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – One or more options were misused</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> -- One or more options were misused</p>
 </dd>
 </dl>
 </dd></dl>
@@ -161,13 +166,16 @@ this call</p></li>
 <dt id="profile.Profile._Profile__set_builtins">
 <code class="sig-name descname">_Profile__set_builtins</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile._Profile__set_builtins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maps functions from <code class="docutils literal notranslate"><span class="pre">CUSTOM_BUILTINS</span></code> to builtins, so commands
-don’t need to be called using <code class="docutils literal notranslate"><span class="pre">self</span></code> everytime.</p>
+don't need to be called using <code class="docutils literal notranslate"><span class="pre">self</span></code> everytime.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="profile.Profile.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">options=None</em>, <em class="sig-param">directory=None</em>, <em class="sig-param">parent=None</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructor</p>
+<dd><p>Constructor.</p>
+<p>Sets <code class="docutils literal notranslate"><span class="pre">self.options</span></code> to <code class="docutils literal notranslate"><span class="pre">constants.DEFAULTS</span></code> if options is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<p>Sets <code class="docutils literal notranslate"><span class="pre">self.directory</span></code> to <code class="docutils literal notranslate"><span class="pre">constants.DIR_DEFAULT</span></code> if directory is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -183,10 +191,10 @@ don’t need to be called using <code class="docutils literal notranslate"><span
 a concrete command.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>kwargs</strong> (<em>Dict</em>) – kwargs of a command</p>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>dict</em>) -- kwargs of a command</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>function</em> – A function that looks up and returns the value for a key
+<dd class="field-even"><p><em>function</em> -- A function that looks up and returns the value for a key
 in kwargs. If the key is not in kwargs it uses <code class="docutils literal notranslate"><span class="pre">self.options</span></code> for
 look up.</p>
 </dd>
@@ -201,7 +209,7 @@ look up.</p>
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>directory</strong> (<em>str</em>) – The path to switch to</p>
+<dd class="field-odd"><p><strong>directory</strong> (<em>str</em>) -- The path to switch to</p>
 </dd>
 </dl>
 </dd></dl>
@@ -218,11 +226,11 @@ file.</p>
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<em>str/DynamicFile</em>) – The target file that will be used as
+<dd class="field-odd"><p><strong>target</strong> (<em>str/DynamicFile</em>) -- The target file that will be used as
 source of the <code class="docutils literal notranslate"><span class="pre">EncryptedFile</span></code></p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>EncryptedFile</em> – The dynamic file that holds the decrypted target</p>
+<dd class="field-even"><p><em>EncryptedFile</em> -- The dynamic file that holds the decrypted target</p>
 </dd>
 </dl>
 </dd></dl>
@@ -236,7 +244,7 @@ it resets all options and tags.</p>
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>options</strong> (<em>List</em>) – A list of options that will be reseted</p>
+<dd class="field-odd"><p><strong>*options</strong> (<em>list</em>) -- A list of options that will be reseted</p>
 </dd>
 </dl>
 </dd></dl>
@@ -250,9 +258,9 @@ it resets all options and tags.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em>) – The path of the target</p></li>
-<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
-this call</p></li>
+<li><p><strong>path</strong> (<em>str</em>) -- The path of the target</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) -- A set of options that will be overwritten just
+for this call</p></li>
 </ul>
 </dd>
 </dl>
@@ -263,18 +271,18 @@ this call</p></li>
 <code class="sig-name descname">find</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.find" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find a dotfile in <code class="docutils literal notranslate"><span class="pre">TARGET_DIR</span></code>. Depends on the current set tags.</p>
 <p>This can be overwritten to change the searching behaviour of a profile.
-Furthermore it can be used by the user to just find a dotfile whitout
+Furthermore it can be used by the user to just find a dotfile whithout
 linking it directly. Eventhough, this is not a command at the moment so
 it need to be called with <code class="docutils literal notranslate"><span class="pre">self.find()</span></code> in <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) – A filename, without preceding tag</p>
+<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) -- A filename, without preceding tag</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – More than one file was found</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> -- More than one file was found</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – The full path of the file or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no file was found</p>
+<dd class="field-odd"><p><em>str</em> -- The full path of the file or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no file was found</p>
 </dd>
 </dl>
 </dd></dl>
@@ -283,7 +291,7 @@ it need to be called with <code class="docutils literal notranslate"><span class
 <dt id="profile.Profile.generate">
 <em class="property">abstract </em><code class="sig-name descname">generate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.generate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implemeted by users for actual link configuration.</p>
-<p><cite>Do NOT call this function without its wrapper ``generator()`</cite>.`</p>
+<p><cite>Do NOT call this function without its wrapper</cite> <code class="docutils literal notranslate"><span class="pre">generator()</span></code>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -295,7 +303,7 @@ without this wrapper.</p>
 <p><cite>Do NOT call this from within the same profile, only from outside!!</cite></p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>Dict</em> – The result dictionary <code class="docutils literal notranslate"><span class="pre">self.result</span></code></p>
+<dd class="field-odd"><p><em>dict</em> -- The result dictionary <code class="docutils literal notranslate"><span class="pre">self.result</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -308,10 +316,10 @@ without this wrapper.</p>
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>tag</strong> (<em>str</em>) – A tag that will be checked for</p>
+<dd class="field-odd"><p><strong>tag</strong> (<em>str</em>) -- A tag that will be checked for</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>bool</em> – True, if tag is set</p>
+<dd class="field-even"><p><em>bool</em> -- True, if tag is set</p>
 </dd>
 </dl>
 </dd></dl>
@@ -319,20 +327,20 @@ without this wrapper.</p>
 <dl class="method">
 <dt id="profile.Profile.link">
 <code class="sig-name descname">link</code><span class="sig-paren">(</span><em class="sig-param">*targets</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.link" title="Permalink to this definition">¶</a></dt>
-<dd><p>Link a one ore more targets with current options.</p>
+<dd><p>Link one ore more targets with current options.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>targets</strong> (<em>List</em>) – One ore more targets that shall be linked. Targets
+<li><p><strong>*targets</strong> (<em>list</em>) -- One ore more targets that shall be linked. Targets
 can be just file names or any dynamic files.</p></li>
-<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
+<li><p><strong>**kwargs</strong> (<em>dict</em>) -- A set of options that will be overwritten just for
 this call</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – One of the targets were not found</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> -- One of the targets were not found</p>
 </dd>
 </dl>
 </dd></dl>
@@ -348,15 +356,15 @@ this call</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>target_pattern</strong> (<em>str</em>) – The regular expression that matches the file
+<li><p><strong>target_pattern</strong> (<em>str</em>) -- The regular expression that matches the file
 names</p></li>
-<li><p><strong>encrypted</strong> (<em>bool</em>) – True, if the targets shall be decrypted</p></li>
-<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
+<li><p><strong>encrypted</strong> (<em>bool</em>) -- True, if the targets shall be decrypted</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) -- A set of options that will be overwritten just for
 this call</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – No files or multiple file with the same name were
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> -- No files or multiple file with the same name were
     found with this pattern</p>
 </dd>
 </dl>
@@ -365,8 +373,8 @@ this call</p></li>
 <dl class="method">
 <dt id="profile.Profile.merge">
 <code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">targets</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.merge" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a SplittedFile instance from a list of targets, updates and
-returns it.</p>
+<dd><p>Creates a <code class="docutils literal notranslate"><span class="pre">SplittedFile</span></code> instance from a list of targets, updates
+and returns it.</p>
 <p>The target can be either just the name of a file that will be searched
 for or it can be another dynamic file that already provides a generated
 file.</p>
@@ -374,11 +382,11 @@ file.</p>
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>targets</strong> (<em>List</em>) – The list of targets that will be used as
+<dd class="field-odd"><p><strong>targets</strong> (<em>list</em>) -- The list of targets that will be used as
 source of the <code class="docutils literal notranslate"><span class="pre">SplittedFile</span></code></p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>SplittedFile</em> – The dynamic file that holds the merged target</p>
+<dd class="field-even"><p><em>SplittedFile</em> -- The dynamic file that holds the merged target</p>
 </dd>
 </dl>
 </dd></dl>
@@ -392,10 +400,10 @@ calls of commands and subprofiles.</p>
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>kwargs</strong> – A set of options that will be set permanently</p>
+<dd class="field-odd"><p><strong>**kwargs</strong> -- A set of options that will be set permanently</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – One of to be set option does not exist</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> -- One of to be set option does not exist</p>
 </dd>
 </dl>
 </dd></dl>
@@ -403,21 +411,21 @@ calls of commands and subprofiles.</p>
 <dl class="method">
 <dt id="profile.Profile.pipe">
 <code class="sig-name descname">pipe</code><span class="sig-paren">(</span><em class="sig-param">target</em>, <em class="sig-param">shell_command</em><span class="sig-paren">)</span><a class="headerlink" href="#profile.Profile.pipe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a FilteredFile instance from a target, updates and returns
-it.</p>
+<dd><p>Creates a <code class="docutils literal notranslate"><span class="pre">FilteredFile</span></code> instance from a target, updates and
+returns it.</p>
 <p>This function is a command. It can be called without the use of
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> (<em>str/DynamicFile</em>) – The target file that will be used as
+<li><p><strong>target</strong> (<em>str/DynamicFile</em>) -- The target file that will be used as
 source of the <code class="docutils literal notranslate"><span class="pre">FilteredFile</span></code></p></li>
-<li><p><strong>shell_command</strong> (<em>str</em>) – The shell command that the content of target
+<li><p><strong>shell_command</strong> (<em>str</em>) -- The shell command that the content of target
 will be piped into</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>FilteredFile</em> – The dynamic file that holds the output of the shell
+<dd class="field-even"><p><em>FilteredFile</em> -- The dynamic file that holds the output of the shell
 command</p>
 </dd>
 </dl>
@@ -431,7 +439,7 @@ command</p>
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>tags</strong> (<em>List</em>) – A list of tags that will be removed</p>
+<dd class="field-odd"><p><strong>tags</strong> (<em>list</em>) -- A list of tags that will be removed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -445,13 +453,13 @@ command</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>profilenames</strong> (<em>List</em>) – List of profiles that will be executed</p></li>
-<li><p><strong>kwargs</strong> (<em>Dict</em>) – A set of options that will be overwritten just for
+<li><p><strong>*profilenames</strong> (<em>list</em>) -- A list of profilenames that will be executed</p></li>
+<li><p><strong>**kwargs</strong> (<em>dict</em>) -- A set of options that will be overwritten just for
 this call</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – Profile were executed in a cycly or recursively</p>
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> -- Profile were executed in a cycly or recursively</p>
 </dd>
 </dl>
 </dd></dl>
@@ -464,7 +472,7 @@ this call</p></li>
 <code class="docutils literal notranslate"><span class="pre">self</span></code> within <code class="docutils literal notranslate"><span class="pre">generate()</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>tags</strong> (<em>List</em>) – A list of tags that will be added</p>
+<dd class="field-odd"><p><strong>tags</strong> (<em>list</em>) -- A list of tags that will be added</p>
 </dd>
 </dl>
 </dd></dl>
@@ -487,21 +495,37 @@ this call</p></li>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicfile.html">DynamicFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">Info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
-
+</li>
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -541,7 +565,7 @@ this call</p></li>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -549,6 +573,10 @@ this call</p></li>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

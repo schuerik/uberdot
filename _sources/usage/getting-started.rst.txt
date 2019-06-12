@@ -92,13 +92,13 @@ Now installing this profile is easy:
 
     $ ./dotmgr.py -i Test1
     [Test1]: Installing new profile
-    [Test1]: /home/user/<filename> was created and links to /home/user/repos/dotfiles/files/<filename>
+    [Test1]: /home/user/<filename> was created and links to /path/to/your/dotfiles/<filename>
     Finished succesfully.
 
 So ``link("<filename>")`` creates a symlink in your home directory and points
 to the file ``<filename>`` in your repository.
 
-Ok, lets add some more links and install it again:
+Ok, lets modify this a little bit and add some more links:
 
 .. code:: python
 
@@ -106,10 +106,10 @@ Ok, lets add some more links and install it again:
 
     class Test1(Profile):
         def generate():
-            link("<filename>")
+            link("<filename>", prefix=".")
 
             cd(".config")
-            link("<filename2>", prefix=".")
+            link("<filename2>")
             link("<filename3>", name="someothername.conf")
 
 Of course ``link()`` isn't the only command that you can use. The ``cd()``
@@ -121,8 +121,9 @@ will create links in ``~/.config``.
 
     $ ./dotmgr.py -i Test1
     [Test1]: Profile updated
-    [Test1]: /home/user/.config/.<filename2> was created and links to /home/user/repos/dotfiles/files/<filename2>
-    [Test1]: /home/user/.config/someothername.conf was created and links to /home/user/repos/dotfiles/files/<filename3>
+    [Test1]: /home/user/<filename> was moved to /home/user/.<filename>
+    [Test1]: /home/user/.config/<filename2> was created and links to /path/to/your/dotfiles/<filename2>
+    [Test1]: /home/user/.config/someothername.conf was created and links to /path/to/your/dotfiles/<filename3>
     Finished succesfully.
 
 As you can see, the profile gets updated now and only the difference to the
@@ -175,20 +176,21 @@ Installing ``Test1`` again, results in the following output:
 
     $ ./dotmgr.py -i Test1
     [Test1]: Profile updated
-    [Test1]: /home/user/.config/.<filename2> was removed from the system.
+    [Test1]: /home/user/.<filename> was moved to /home/user/<filename>
+    [Test1]: /home/user/.config/<filename2> was removed from the system.
     [Test1]: /home/user/.config/someothername.conf was removed from the system.
     [Vim]: Installing new profile as subprofile of Test1
-    [Vim]: /home/user/.gvimrc was created and links to /home/user/repos/dotfiles/files/gvimrc
-    [Vim]: /home/user/.vimrc was created and links to /home/user/repos/dotfiles/files/vimrc
-    [Vim]: /home/user/.vim/keybindings.vim was created and links to /home/user/repos/dotfiles/files/keybindings.vim
-    [Vim]: /home/user/.vim/plugins.vim was created and links to /home/user/repos/dotfiles/files/plugins.vim
-    [Vim]: /home/user/.vim/UltiSnips/python.snippets was created and links to /home/user/repos/dotfiles/files/python.snippets
-    [Vim]: /home/user/.vim/UltiSnips/html.snippets was created and links to /home/user/repos/dotfiles/files/html.snippets
+    [Vim]: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
+    [Vim]: /home/user/.vimrc was created and links to /path/to/your/dotfiles/vimrc
+    [Vim]: /home/user/.vim/keybindings.vim was created and links to /path/to/your/dotfiles/keybindings.vim
+    [Vim]: /home/user/.vim/plugins.vim was created and links to /path/to/your/dotfiles/plugins.vim
+    [Vim]: /home/user/.vim/UltiSnips/python.snippets was created and links to /path/to/your/dotfiles/python.snippets
+    [Vim]: /home/user/.vim/UltiSnips/html.snippets was created and links to /path/to/your/dotfiles/html.snippets
     [Shell]: Installing new profile as subprofile of Test1
-    [Shell]: /home/user/.zshrc was created and links to /home/user/repos/dotfiles/files/zshrc
-    [Shell]: /home/user/.bashrc was created and links to /home/user/repos/dotfiles/files/bashrc
-    [Shell]: /home/user/.inputrc was created and links to /home/user/repos/dotfiles/files/inputrc
-    [Shell]: /home/user/.zprofile was created and links to /home/user/repos/dotfiles/files/zsh_profile
+    [Shell]: /home/user/.zshrc was created and links to /path/to/your/dotfiles/zshrc
+    [Shell]: /home/user/.bashrc was created and links to /path/to/your/dotfiles/bashrc
+    [Shell]: /home/user/.inputrc was created and links to /path/to/your/dotfiles/inputrc
+    [Shell]: /home/user/.zprofile was created and links to /path/to/your/dotfiles/zsh_profile
     Finished succesfully.
 
 The subprofiles will be updated/removed, whenever you update/remove their
@@ -197,16 +199,16 @@ some use certain programs and some not (or shall not be configured), because
 you can enable/disable whole sets of links.
 
 This gets even more powerful in combination with the ``tags()`` command!
-The problem with the above approach is that it is very static.
+The problem with the above approach is that it is still very static.
 Maybe you want Vim to use a shit load of plugins on
-your work station, but only a few when running on a raspberry pi.
+your work station, but use only a few plugins when running on a raspberry pi.
 Thats were tagging comes into play.
-You can add a tag to files by prepending a it to their filename. When the tag
-is set, the file will be prefered over a untagged file.
+You can add a tag to a file by prepending it to their filename, seperated by a
+percent sign. When the tag is set, the file will be prefered over a untagged file.
 We could create for example another dotfile called ``minimal%plugins.vim``,
 where "minimal" is the tag and the percent sign is the seperator before the
 original filename.
-Our ``Test1`` profile will create the same links as before, but let's create a
+Our ``Test1`` profile will behave the same as before, but let's create a
 new profile that will use the new minimal plugins file:
 
 .. code:: python
@@ -216,20 +218,23 @@ new profile that will use the new minimal plugins file:
             tags("minimal")
             subprof("Vim", "Shell")
 
-As you see can we tags with the ``tags()`` command. When the tag is set, all
+As you see can we set tags with the ``tags()`` command. When the tag is set, all
 future commands will prefer the files that have "minimal" as tag in their filename.
 If you set multiple tags they are prioritized in descending order. So the first
 tag that you add will be prioritized over the second.
 
-Now we install ``Pi``:
+Let's take a look what happens if we install ``Pi``:
 
 .. code::
 
     ERROR: Vim is already installed as subprofile of 'Test1'. You need to uninstall it first to avoid conflicts!
 
-Oh, I totally forgot that I already have this installed as a subprofile of ``Test1``.
-This would create an inconsistency because two profiles define contradicting configurations.
-Dotmanager detects such inconsistencies and tells me how to avoid them. I can now uninstall
+Oh, I totally forgot that I already have "Vim" installed as a subprofile of ``Test1``.
+This would create an inconsistency because first a profile can't be installed twice at the
+same time and second two profiles define contradicting configurations (one profile wants to
+create a link to "plugins.vim" whereas the other profile wants to create the same link to
+"minmal%plugins.vim").
+Dotmanager detects such inconsistencies and tells you how to avoid them. I can now uninstall
 just ``Vim``, but this would result in a similar error, because ``Shell`` is also subprofile
 of ``Pi`` and ``Test1``. The better and most intuitive solution is to uninstall ``Test1``.
 This removes the full configuration (and therefore also both subprofiles):
@@ -260,24 +265,24 @@ Now we can finally install ``Pi``:
     $ ./dotmgr.py -i Pi
     [Pi]: Installing new Profile
     [Vim]: Installing new profile as subprofile of Pi
-    [Vim]: /home/user/.gvimrc was created and links to /home/user/repos/dotfiles/files/gvimrc
-    [Vim]: /home/user/.vimrc was created and links to /home/user/repos/dotfiles/files/vimrc
-    [Vim]: /home/user/.vim/keybindings.vim was created and links to /home/user/repos/dotfiles/files/keybindings.vim
-    [Vim]: /home/user/.vim/plugins.vim was created and links to /home/user/repos/dotfiles/files/minimal%plugins.vim
-    [Vim]: /home/user/.vim/UltiSnips/python.snippets was created and links to /home/user/repos/dotfiles/files/python.snippets
-    [Vim]: /home/user/.vim/UltiSnips/html.snippets was created and links to /home/user/repos/dotfiles/files/html.snippets
+    [Vim]: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
+    [Vim]: /home/user/.vimrc was created and links to /path/to/your/dotfiles/vimrc
+    [Vim]: /home/user/.vim/keybindings.vim was created and links to /path/to/your/dotfiles/keybindings.vim
+    [Vim]: /home/user/.vim/plugins.vim was created and links to /path/to/your/dotfiles/minimal%plugins.vim
+    [Vim]: /home/user/.vim/UltiSnips/python.snippets was created and links to /path/to/your/dotfiles/python.snippets
+    [Vim]: /home/user/.vim/UltiSnips/html.snippets was created and links to /path/to/your/dotfiles/html.snippets
     [Shell]: Installing new profile as subprofile of Pi
-    [Shell]: /home/user/.zshrc was created and links to /home/user/repos/dotfiles/files/zshrc
-    [Shell]: /home/user/.bashrc was created and links to /home/user/repos/dotfiles/files/bashrc
-    [Shell]: /home/user/.inputrc was created and links to /home/user/repos/dotfiles/files/inputrc
-    [Shell]: /home/user/.zprofile was created and links to /home/user/repos/dotfiles/files/zsh_profile
+    [Shell]: /home/user/.zshrc was created and links to /path/to/your/dotfiles/zshrc
+    [Shell]: /home/user/.bashrc was created and links to /path/to/your/dotfiles/bashrc
+    [Shell]: /home/user/.inputrc was created and links to /path/to/your/dotfiles/inputrc
+    [Shell]: /home/user/.zprofile was created and links to /path/to/your/dotfiles/zsh_profile
     Finished succesfully.
 
 You can see that the subprofiles behave the same as for ``Test1``, but
 ``/home/user/.vim/plugins.vim`` points now to
-``/home/user/repos/dotfiles/files/minimal%plugins.vim``. The idea is that
+``/path/to/your/dotfiles/minimal%plugins.vim``. The idea is that
 you create profiles for all kind of programs that you want to configure
-and configuration files with different tags that describe properties of the
+and create configuration files with different tags that describe properties of the
 system they are for, so that in the end you can quickly create a new profile
 for a new device, by just picking the programs that are installed and telling
 Dotmanager what tags will be applied for the device.
@@ -285,8 +290,9 @@ Dotmanager what tags will be applied for the device.
 Of course that is just one way to work with tags and just one way to alternate
 versions of a dotfile.
 
-For further configuration you should take a look at the other commands and
-options. You probably won't need all of them, but they can solve a lot of
+For further configuration you should take a look at the other
+`commands and options <https://rickestricksanchez.github.io/dotmanager/usage/commands.html>`_.
+You probably won't need all of them, but they can solve a lot of
 common problems and will shorten your profiles. The documentation also covers a
 lot of topics that will help you understanding what is going on under the hud, as
 well as more advanced examples and troubleshooting.

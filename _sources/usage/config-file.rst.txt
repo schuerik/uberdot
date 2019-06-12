@@ -3,8 +3,8 @@ Configuration
 =============
 
 
-Configuration files allow you to override defaults for commandline arguments, defaults for command options and even set some settings that can't be set
-via commandline. The configuration file is an `INI-file`_ and can be created at the following locations:
+Configuration files allow you to override defaults for commandline arguments, defaults for command options and even set
+some settings that can't be set via commandline. The configuration file is an `INI-file`_ and can be created at the following locations:
 
     * **/etc/dotmanager/dotmanager.ini** for system-wide configuration
     * **/home/username/.config/dotmanager/dotmanager.ini** for only a specific user
@@ -97,8 +97,8 @@ the directory and the tags.
 +-----------------+---------------------------------------------------+----------------------------------------------------------+
 
 
-Set defaults for specific installed files
------------------------------------------
+Defaults for installed-files
+----------------------------
 
 You can overwrite your own defaults when you use multiple installed file.
 For example if you create an installed file called "test" with ``--save test``, you could set the default starting directory to

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Dynamicfile &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>DynamicFile &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -33,17 +33,37 @@
           <div class="body" role="main">
             
   <div class="section" id="module-dynamicfile">
-<span id="dynamicfile"></span><h1>Dynamicfile<a class="headerlink" href="#module-dynamicfile" title="Permalink to this headline">¶</a></h1>
+<span id="dynamicfile"></span><h1>DynamicFile<a class="headerlink" href="#module-dynamicfile" title="Permalink to this headline">¶</a></h1>
 <p>This module contains all the different DynamicFiles and their base class.
 DynamicFiles provide mechanisms to transform or manipulate dotfiles before
-actually linking them. The DynamicFile will generate a new dotfile that will
+actually linking them. The DynamicFile will generate a new file that will
 be linked instead and makes sure that user-made changes are preserved.</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dynamicfile.DynamicFile" title="dynamicfile.DynamicFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DynamicFile</span></code></a></p></td>
+<td><p>The abstract base class for any dynamic generated file.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dynamicfile.EncryptedFile" title="dynamicfile.EncryptedFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EncryptedFile</span></code></a></p></td>
+<td><p>This implementation of a dynamic files allows to decrypt encrypted files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dynamicfile.FilteredFile" title="dynamicfile.FilteredFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FilteredFile</span></code></a></p></td>
+<td><p>This is implementation of a dynamic files allows to run a shell command on a dotfile before linking.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dynamicfile.SplittedFile" title="dynamicfile.SplittedFile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SplittedFile</span></code></a></p></td>
+<td><p>This is of a dynamic files allows to join multiple dotfiles together to one dotfile.</p></td>
+</tr>
+</tbody>
+</table>
 <dl class="class">
 <dt id="dynamicfile.DynamicFile">
 <em class="property">class </em><code class="sig-prename descclassname">dynamicfile.</code><code class="sig-name descname">DynamicFile</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>This abstract class is the base for any dynamic generated
-file. It provides the update functionality and some basic information.</p>
+<p>The abstract base class for any dynamic generated file.
+It provides the update functionality and some basic information.</p>
 <dl class="attribute">
 <dt id="dynamicfile.DynamicFile.name">
 <code class="sig-name descname">name</code><a class="headerlink" href="#dynamicfile.DynamicFile.name" title="Permalink to this definition">¶</a></dt>
@@ -73,7 +93,7 @@ file. It provides the update functionality and some basic information.</p>
 generate the dynmaic file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>List</p>
+<dd class="field-odd"><p>list</p>
 </dd>
 </dl>
 </dd></dl>
@@ -82,10 +102,10 @@ generate the dynmaic file</p>
 <dt id="dynamicfile.DynamicFile.SUBDIR">
 <em class="property">abstract property </em><code class="sig-name descname">SUBDIR</code><a class="headerlink" href="#dynamicfile.DynamicFile.SUBDIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>This constant needs to be implemented by subclasses. It tells the
-dynamicfile where to store the generated content of the file. It should
-be different for every type of dynamicfile, so the user can find them
-easier and can view different “stages” of the generation if the dynmic-
-file was nested.</p>
+DynamicFile where to store the generated content of the file. It should
+be different for every type of DynamicFile, so the user can find them
+easier and can view different &quot;stages&quot; of the generation if the
+DynamicFile was nested.</p>
 </dd></dl>
 
 <dl class="method">
@@ -94,7 +114,7 @@ file was nested.</p>
 <dd><p>Constructor</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the file</p>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) -- Name of the file</p>
 </dd>
 </dl>
 </dd></dl>
@@ -102,11 +122,11 @@ file was nested.</p>
 <dl class="method">
 <dt id="dynamicfile.DynamicFile._generate_file">
 <em class="property">abstract </em><code class="sig-name descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.DynamicFile._generate_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method is used to generate the contents of the
-dynamic file from sources.</p>
+<dd><p>This abstract method is used to generate the contents of the
+DynamicFile from sources.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>bytearray</em> – The raw generated content</p>
+<dd class="field-odd"><p><em>bytearray</em> -- The raw generated content</p>
 </dd>
 </dl>
 </dd></dl>
@@ -117,7 +137,7 @@ dynamic file from sources.</p>
 <dd><p>Adds a source path and normalizes it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) – A path to a file that will be used as source</p>
+<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) -- A path to a file that will be used as source</p>
 </dd>
 </dl>
 </dd></dl>
@@ -129,7 +149,7 @@ dynamic file from sources.</p>
 file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – The path to the directory</p>
+<dd class="field-odd"><p><em>str</em> -- The path to the directory</p>
 </dd>
 </dl>
 </dd></dl>
@@ -140,7 +160,7 @@ file.</p>
 <dd><p>Gets the path of the generated file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – The full path to the generated file</p>
+<dd class="field-odd"><p><em>str</em> -- The full path to the generated file</p>
 </dd>
 </dl>
 </dd></dl>
@@ -158,8 +178,8 @@ if it is not in its subdir yet.</p>
 <dt id="dynamicfile.EncryptedFile">
 <em class="property">class </em><code class="sig-prename descclassname">dynamicfile.</code><code class="sig-name descname">EncryptedFile</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.EncryptedFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dynamicfile.DynamicFile" title="dynamicfile.DynamicFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">dynamicfile.DynamicFile</span></code></a></p>
-<p>This is an implementation of a dynamic files that allows
-to decrypt encrypted files.</p>
+<p>This implementation of a dynamic files allows to decrypt
+encrypted files.</p>
 <dl class="attribute">
 <dt id="dynamicfile.EncryptedFile.SUBDIR">
 <code class="sig-name descname">SUBDIR</code><em class="property"> = 'decrypted'</em><a class="headerlink" href="#dynamicfile.EncryptedFile.SUBDIR" title="Permalink to this definition">¶</a></dt>
@@ -172,7 +192,7 @@ to decrypt encrypted files.</p>
 <dd><p>Decrypts the first file in <code class="docutils literal notranslate"><span class="pre">self.sources</span></code> using gpg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>bytearray</em> – The content of the decrypted file</p>
+<dd class="field-odd"><p><em>bytearray</em> -- The content of the decrypted file</p>
 </dd>
 </dl>
 </dd></dl>
@@ -183,8 +203,8 @@ to decrypt encrypted files.</p>
 <dt id="dynamicfile.FilteredFile">
 <em class="property">class </em><code class="sig-prename descclassname">dynamicfile.</code><code class="sig-name descname">FilteredFile</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">shell_command</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dynamicfile.DynamicFile" title="dynamicfile.DynamicFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">dynamicfile.DynamicFile</span></code></a></p>
-<p>This is an implementation of a dynamic files that allows
-to run a shell command on a dotfile before linking.</p>
+<p>This is implementation of a dynamic files allows to run a
+shell command on a dotfile before linking.</p>
 <dl class="attribute">
 <dt id="dynamicfile.FilteredFile.SUBDIR">
 <code class="sig-name descname">SUBDIR</code><em class="property"> = 'piped'</em><a class="headerlink" href="#dynamicfile.FilteredFile.SUBDIR" title="Permalink to this definition">¶</a></dt>
@@ -198,8 +218,8 @@ to run a shell command on a dotfile before linking.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Name of the file</p></li>
-<li><p><strong>shell_command</strong> (<em>str</em>) – A shell command that the file will be piped
+<li><p><strong>name</strong> (<em>str</em>) -- Name of the file</p></li>
+<li><p><strong>shell_command</strong> (<em>str</em>) -- A shell command that the file will be piped
 into</p></li>
 </ul>
 </dd>
@@ -213,7 +233,7 @@ into</p></li>
 specified shell comand.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>bytearray</em> – The output of the shell command</p>
+<dd class="field-odd"><p><em>bytearray</em> -- The output of the shell command</p>
 </dd>
 </dl>
 </dd></dl>
@@ -224,8 +244,8 @@ specified shell comand.</p>
 <dt id="dynamicfile.SplittedFile">
 <em class="property">class </em><code class="sig-prename descclassname">dynamicfile.</code><code class="sig-name descname">SplittedFile</code><span class="sig-paren">(</span><em class="sig-param">name</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.SplittedFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dynamicfile.DynamicFile" title="dynamicfile.DynamicFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">dynamicfile.DynamicFile</span></code></a></p>
-<p>This is an implementation of a dynamic files that allows
-to join multiple dotfiles together to one dotfile</p>
+<p>This is of a dynamic files allows to join multiple dotfiles
+together to one dotfile.</p>
 <dl class="attribute">
 <dt id="dynamicfile.SplittedFile.SUBDIR">
 <code class="sig-name descname">SUBDIR</code><em class="property"> = 'merged'</em><a class="headerlink" href="#dynamicfile.SplittedFile.SUBDIR" title="Permalink to this definition">¶</a></dt>
@@ -238,7 +258,7 @@ to join multiple dotfiles together to one dotfile</p>
 <dd><p>Merges all files from <code class="docutils literal notranslate"><span class="pre">self.sources</span></code> in order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>bytearray</em> – The content of all files merged together</p>
+<dd class="field-odd"><p><em>bytearray</em> -- The content of all files merged together</p>
 </dd>
 </dl>
 </dd></dl>
@@ -261,21 +281,37 @@ to join multiple dotfiles together to one dotfile</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">DynamicFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">Info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="profile.html">Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
-
+</li>
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -315,7 +351,7 @@ to join multiple dotfiles together to one dotfile</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -323,6 +359,10 @@ to join multiple dotfiles together to one dotfile</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

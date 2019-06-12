@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>DotManager &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>DotManager &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -14,7 +14,7 @@
     <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Dynamicfile" href="dynamicfile.html" />
+    <link rel="next" title="DynamicFile" href="dynamicfile.html" />
     <link rel="prev" title="Differencesolver" href="differencesolver.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -45,7 +45,7 @@ startup script.</p>
 <dt id="dotmgr.DotManager">
 <em class="property">class </em><code class="sig-prename descclassname">dotmgr.</code><code class="sig-name descname">DotManager</code><a class="headerlink" href="#dotmgr.DotManager" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Bundles all functionality off Dotmanager.</p>
+<p>Bundles all functionality of Dotmanager.</p>
 <p>This includes things like parsing arguments, loading installed-files,
 printing information and executing profiles.</p>
 <dl class="attribute">
@@ -54,7 +54,7 @@ printing information and executing profiles.</p>
 <dd><p>The installed-file that is used as a reference</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>Dict</p>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -95,10 +95,10 @@ directory where this module is stored.</p>
 <dd><p>Like <cite>run()</cite> but instead of resolving it it will be just printed out</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) – The Difflog that will be checked</p>
+<dd class="field-odd"><p><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) -- The DiffLog that will be checked</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><strong>CustomError</strong></a> – Executed interpreters can and will raise all kinds of
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><strong>CustomError</strong></a> -- Executed interpreters can and will raise all kinds of
     CustomError.</p>
 </dd>
 </dl>
@@ -107,17 +107,17 @@ directory where this module is stored.</p>
 <dl class="method">
 <dt id="dotmgr.DotManager.execute_arguments">
 <code class="sig-name descname">execute_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.execute_arguments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Executes whatever was specified via commandline arguments</p>
+<dd><p>Executes whatever was specified via commandline arguments.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="dotmgr.DotManager.load_installed">
 <code class="sig-name descname">load_installed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.load_installed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads the installed-file and parses it’s content into
-<cite>self.installed</cite>.</p>
+<dd><p>Reads the installed-file and parses it's content into
+<code class="docutils literal notranslate"><span class="pre">self.installed</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – Dotmanager and installed-file aren’t
+<dd class="field-odd"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- Dotmanager and installed-file aren't
     version compatible.</p>
 </dd>
 </dl>
@@ -127,14 +127,14 @@ directory where this module is stored.</p>
 <dt id="dotmgr.DotManager.parse_arguments">
 <code class="sig-name descname">parse_arguments</code><span class="sig-paren">(</span><em class="sig-param">arguments=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.parse_arguments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses the commandline arguments. This function can parse a custom
-list of arguments, instead of <cite>sys.args</cite>.</p>
+list of arguments, instead of <code class="docutils literal notranslate"><span class="pre">sys.args</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>arguments</strong> (<em>List</em>) – A list of arguments that will be parsed instead
+<dd class="field-odd"><p><strong>arguments</strong> (<em>list</em>) -- A list of arguments that will be parsed instead
 of sys.args</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.UserError" title="errors.UserError"><strong>UserError</strong></a> – One ore more arguments are invalid or used in an
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.UserError" title="errors.UserError"><strong>UserError</strong></a> -- One ore more arguments are invalid or used in an
     invalid combination.</p>
 </dd>
 </dl>
@@ -154,7 +154,7 @@ parsed commandline arguments and settings.</p>
 <dd><p>Prints a single installed profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>profile</strong> (<em>Dict</em>) – The profile that will be printed</p>
+<dd class="field-odd"><p><strong>profile</strong> (<em>dict</em>) -- The profile that will be printed</p>
 </dd>
 </dl>
 </dd></dl>
@@ -176,13 +176,13 @@ UnkownErrors and might replace the entire process when Dotmanager was
 started with insufficient permissions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) – The Difflog that will be resolved.</p>
+<dd class="field-odd"><p><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) -- The DiffLog that will be resolved.</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="errors.html#errors.UnkownError" title="errors.UnkownError"><strong>UnkownError</strong></a> – All exceptions that are no CustomError and occured
+<li><p><a class="reference internal" href="errors.html#errors.UnkownError" title="errors.UnkownError"><strong>UnkownError</strong></a> -- All exceptions that are no CustomError and occured
     in the critical section will be converted to this error.</p></li>
-<li><p><a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><strong>CustomError</strong></a> – Executed interpreters can and will raise all kinds of
+<li><p><a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><strong>CustomError</strong></a> -- Executed interpreters can and will raise all kinds of
     CustomError.</p></li>
 </ul>
 </dd>
@@ -199,7 +199,7 @@ started with insufficient permissions.</p>
 <dl class="method">
 <dt id="dotmgr.StoreDictKeyPair.__call__">
 <code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">parser</em>, <em class="sig-param">namespace</em>, <em class="sig-param">values</em>, <em class="sig-param">option_string=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits a commandline argument at “=” and writes the splitted
+<dd><p>Splits a commandline argument at &quot;=&quot; and writes the splitted
 values into a dictionary.</p>
 </dd></dl>
 
@@ -221,21 +221,37 @@ values into a dictionary.</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">DotManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicfile.html">DynamicFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">Info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="profile.html">Profile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
 </ul>
 </li>
 </ul>
-
+</li>
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -243,7 +259,7 @@ values into a dictionary.</p>
   <li><a href="../index.html">For developers</a><ul>
   <li><a href="index.html">Reference manual</a><ul>
       <li>Previous: <a href="differencesolver.html" title="previous chapter">Differencesolver</a></li>
-      <li>Next: <a href="dynamicfile.html" title="next chapter">Dynamicfile</a></li>
+      <li>Next: <a href="dynamicfile.html" title="next chapter">DynamicFile</a></li>
   </ul></li>
   </ul></li>
   </ul></li>
@@ -275,7 +291,7 @@ values into a dictionary.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -283,6 +299,10 @@ values into a dictionary.</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

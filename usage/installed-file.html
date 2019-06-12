@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Installed files &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Installed-files &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -33,16 +33,16 @@
           <div class="body" role="main">
             
   <div class="section" id="installed-files">
-<h1>Installed files<a class="headerlink" href="#installed-files" title="Permalink to this headline">¶</a></h1>
-<p>The installed files store what links were created by Dotmanger. This
-document explains how it is structured and how you can fix those file if
+<h1>Installed-files<a class="headerlink" href="#installed-files" title="Permalink to this headline">¶</a></h1>
+<p>The installed-files store what links were created by Dotmanger. This
+document explains how they are structured and how you can fix those files if
 a critical unexpected error occurs.</p>
 <div class="section" id="structure">
 <h2>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h2>
-<p>Installed files are JSON files that are stored in <code class="docutils literal notranslate"><span class="pre">data/installed/</span></code>.
+<p>Installed-files are JSON files that are stored in <code class="docutils literal notranslate"><span class="pre">data/installed/</span></code>.
 If you use the <code class="docutils literal notranslate"><span class="pre">--save</span></code> flag you can set the name of the installed
 file that Dotmanger should use otherwise <code class="docutils literal notranslate"><span class="pre">default.json</span></code> is used.</p>
-<p>This is a example of such a installed file.</p>
+<p>This is a example of such a installed-file.</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;@version&quot;</span><span class="o">:</span> <span class="s2">&quot;1.5.0_3&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Main&quot;</span><span class="o">:</span> <span class="p">{</span>
@@ -110,9 +110,9 @@ and all other keys are the names of installed profiles.</p>
 <div class="section" id="version-key">
 <h3>&#64;version key<a class="headerlink" href="#version-key" title="Permalink to this headline">¶</a></h3>
 <p>The version key is important because Dotmanager will compare it to its
-own version and will refuse to read the installed file if the installed
+own version and will refuse to read the installed-file if the installed
 file schema version (the number after the underscore) does not match its
-own installed file schema version.</p>
+own installed-file schema version.</p>
 </div>
 <div class="section" id="profile-keys">
 <h3>Profile keys<a class="headerlink" href="#profile-keys" title="Permalink to this headline">¶</a></h3>
@@ -142,29 +142,29 @@ each link there is a dictionary storing the following information:</p>
 </div>
 </div>
 <div class="section" id="installed-file-is-corrupted">
-<h2>Installed file is corrupted<a class="headerlink" href="#installed-file-is-corrupted" title="Permalink to this headline">¶</a></h2>
+<h2>Installed-file is corrupted<a class="headerlink" href="#installed-file-is-corrupted" title="Permalink to this headline">¶</a></h2>
 <p>This should actually never happen and if it does please create a bug
 ticket so we can make sure that this won’t happen again. But it is
 possible -in very early versions of Dotmanager this happened a lot- that
 an unexpected error occurs during the linking process. For those cases
-Dotmanager creates a backup of the installed file before modifying it.
+Dotmanager creates a backup of the installed-file before modifying it.
 You will need to look into the backup and the modified version and
-verify if all removals/additions/updates were really written to the
-filesystem. When you are certain that the current installed file matches
+verify that all removals/additions/updates were really written to the
+filesystem. When you are certain that the current installed-file matches
 the state of your filesystem you can remove the backup file and use
 dotmanager again.</p>
 </div>
 <div class="section" id="version-update">
 <h2>Version update<a class="headerlink" href="#version-update" title="Permalink to this headline">¶</a></h2>
-<p>Dotmanager refuses to read the installed file if the installed file
+<p>Dotmanager refuses to read the installed-file if the installed-file
 schema version does not match it’s own version. This can happen when you
-update Dotmanager and have an old installed file left on your device. To
+update Dotmanager and have an old installed-file left on your device. To
 circumvent this issue you have two opportunities:</p>
 <ol class="arabic simple">
 <li><p>Revert to an old version of Dotmanager, uninstall all profiles,
 update Dotmanager, install all uninstalled profiles again</p></li>
-<li><p>Look into the changes of the installed file, update the installed file
-manually, increment the version number</p></li>
+<li><p>Look into the changes of the installed-file schema, update the
+installed-file manually, increment the version number</p></li>
 </ol>
 </div>
 </div>
@@ -183,10 +183,16 @@ manually, increment the version number</p></li>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
@@ -195,16 +201,21 @@ manually, increment the version number</p></li>
 <li class="toctree-l2"><a class="reference internal" href="commands.html">Commands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="info-module.html">Info module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="config-file.html">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dotignore.html">.dotignore</a></li>
 <li class="toctree-l2"><a class="reference internal" href="encryption.html">Encryption</a></li>
 <li class="toctree-l2"><a class="reference internal" href="dynamicfiles.html">Dynamicfiles</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Installed files</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installed-files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#structure">Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installed-file-is-corrupted">Installed-file is corrupted</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#version-update">Version update</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="example-configuration.html">Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tips.html">Tips</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
 </ul>
-
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -242,7 +253,7 @@ manually, increment the version number</p></li>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -250,6 +261,10 @@ manually, increment the version number</p></li>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

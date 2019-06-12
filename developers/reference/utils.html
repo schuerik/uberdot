@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Utils &#8212; Dotmanager 1.11.0_3 documentation</title>
+    <title>Utils &#8212; Dotmanager 1.11.1_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -34,7 +34,7 @@
   <div class="section" id="module-utils">
 <span id="utils"></span><h1>Utils<a class="headerlink" href="#module-utils" title="Permalink to this headline">¶</a></h1>
 <p>Provides functionality that is needed in multiple modules.
-Eg. Retrieving a environment variable or fixing file permisions</p>
+E.g. retrieving a environment variable or fixing file permisions.</p>
 <dl class="function">
 <dt id="utils.expanduser">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">expanduser</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
@@ -42,10 +42,10 @@ Eg. Retrieving a environment variable or fixing file permisions</p>
 <code class="docutils literal notranslate"><span class="pre">get_user_env_var()</span></code> to look up the substitution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path that will be expanded</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be expanded</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>str</em> – The expanded path</p>
+<dd class="field-even"><p><em>str</em> -- The expanded path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -57,10 +57,10 @@ Eg. Retrieving a environment variable or fixing file permisions</p>
 <code class="docutils literal notranslate"><span class="pre">get_user_env_var()</span></code> to look up the substitution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path that will be expanded</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be expanded</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>str</em> – The expanded path</p>
+<dd class="field-even"><p><em>str</em> -- The expanded path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -73,13 +73,13 @@ Eg. Retrieving a environment variable or fixing file permisions</p>
 <code class="docutils literal notranslate"><span class="pre">target</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) – The filename that will be searched for</p>
+<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) -- The filename that will be searched for</p>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> – Multiple targets where found</p>
+<dd class="field-even"><p><strong>ValueError</strong> -- Multiple targets where found</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target
+<dd class="field-odd"><p><em>str</em> -- Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target
 found.</p>
 </dd>
 </dl>
@@ -92,13 +92,13 @@ found.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) – The name of the file that will be searched for
+<li><p><strong>filename</strong> (<em>str</em>) -- The name of the file that will be searched for
 in <code class="docutils literal notranslate"><span class="pre">paths</span></code></p></li>
-<li><p><strong>paths</strong> (<em>List</em>) – A list of paths that will be searched for <code class="docutils literal notranslate"><span class="pre">filename</span></code></p></li>
+<li><p><strong>paths</strong> (<em>list</em>) -- A list of paths that will be searched for <code class="docutils literal notranslate"><span class="pre">filename</span></code></p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>List</em> – A list of file paths that were found</p>
+<dd class="field-even"><p><em>list</em> -- A list of file paths that were found</p>
 </dd>
 </dl>
 </dd></dl>
@@ -114,16 +114,16 @@ occurs first in <code class="docutils literal notranslate"><span class="pre">tag
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> (<em>str</em>) – The filename that will be searched for</p></li>
-<li><p><strong>tags</strong> (<em>List</em>) – A list of tags that will be matched against the search
+<li><p><strong>target</strong> (<em>str</em>) -- The filename that will be searched for</p></li>
+<li><p><strong>tags</strong> (<em>list</em>) -- A list of tags that will be matched against the search
 result</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> – Multiple targets where found</p>
+<dd class="field-even"><p><strong>ValueError</strong> -- Multiple targets where found</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target found.</p>
+<dd class="field-odd"><p><em>str</em> -- Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target found.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -134,10 +134,10 @@ result</p></li>
 <dd><p>Gets the current users username.</p>
 <p>Gets the username of the user that started Dotmanager. If the
 program was started with sudo, it still returns the original
-username and not “root”.</p>
+username and not &quot;root&quot;.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – The username of the current user</p>
+<dd class="field-odd"><p><em>str</em> -- The username of the current user</p>
 </dd>
 </dl>
 </dd></dl>
@@ -149,7 +149,7 @@ username and not “root”.</p>
 YYYY-MM-DD hh:mm:ss</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – The datetime string</p>
+<dd class="field-odd"><p><em>str</em> -- The datetime string</p>
 </dd>
 </dl>
 </dd></dl>
@@ -164,7 +164,7 @@ This is used to figure out which permission shall have if it is about to be
 created.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – (Non existing) absolute path to file</p>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) -- (Non existing) absolute path to file</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>A tuple containing the UID of the directory owner and the GID of the
@@ -181,7 +181,7 @@ directory owner</p>
 was started with sudo) SUDO_GID will be returned instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>(int)</em> – GID of the user that started dotmanger</p>
+<dd class="field-odd"><p><em>(int)</em> -- GID of the user that started dotmanger</p>
 </dd>
 </dl>
 </dd></dl>
@@ -194,7 +194,7 @@ was started with sudo) SUDO_GID will be returned instead.</p>
 was started with sudo) SUDO_UID will be returned instead.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>(int)</em> – UID of the user that started dotmanger</p>
+<dd class="field-odd"><p><em>(int)</em> -- UID of the user that started dotmanger</p>
 </dd>
 </dl>
 </dd></dl>
@@ -206,23 +206,23 @@ was started with sudo) SUDO_UID will be returned instead.</p>
 <p>If executed as root, this function will login as the original user
 and look up the variable there. This means that this function will fail to
 look up environment variables that are for example set by the user in his
-.bashrc, because they aren’t set at the time they will be looked up.
+.bashrc, because they aren't set at the time they will be looked up.
 Otherwise this function will do a standart look up of the users environment
 variables which means that all variables that were set at the time
 Dotmanager was started can be accessed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>varname</strong> (<em>str</em>) – Name of the variable to look up</p></li>
-<li><p><strong>fallback</strong> (<em>str</em>) – A fallback value if <code class="docutils literal notranslate"><span class="pre">varname</span></code> does not exist</p></li>
+<li><p><strong>varname</strong> (<em>str</em>) -- Name of the variable to look up</p></li>
+<li><p><strong>fallback</strong> (<em>str</em>) -- A fallback value if <code class="docutils literal notranslate"><span class="pre">varname</span></code> does not exist</p></li>
 </ul>
 </dd>
 <dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – The variable does not exist and no fallback value
+<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- The variable does not exist and no fallback value
     was set</p>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> – The value of the variable</p>
+<dd class="field-odd"><p><em>str</em> -- The value of the variable</p>
 </dd>
 </dl>
 </dd></dl>
@@ -233,7 +233,7 @@ Dotmanager was started can be accessed.</p>
 <dd><p>Checks if this programm has root priveleges.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>bool</em> – True, if the current process has root priveleges</p>
+<dd class="field-odd"><p><em>bool</em> -- True, if the current process has root priveleges</p>
 </dd>
 </dl>
 </dd></dl>
@@ -241,24 +241,24 @@ Dotmanager was started can be accessed.</p>
 <dl class="function">
 <dt id="utils.import_profile_class">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">import_profile_class</code><span class="sig-paren">(</span><em class="sig-param">class_name</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.import_profile_class" title="Permalink to this definition">¶</a></dt>
-<dd><p>Imports a profile class only by it’s name.</p>
+<dd><p>Imports a profile class only by it's name.</p>
 <p>Searches <code class="docutils literal notranslate"><span class="pre">constants.PROFILE_FILES</span></code> for python modules and imports them
 temporarily. If the module has a class that is the same as <code class="docutils literal notranslate"><span class="pre">class_name</span></code>
 it returns it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>class_name</strong> (<em>str</em>) – The name of the class that will be imported</p>
+<dd class="field-odd"><p><strong>class_name</strong> (<em>str</em>) -- The name of the class that will be imported</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> – One of the modules in contained
-    <code class="docutils literal notranslate"><span class="pre">constants.PROFILE_FILES</span></code> errors or the imported class doesn’t
-    inherit from <code class="docutils literal notranslate"><span class="pre">Profile</span></code></p></li>
-<li><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> – No class with the provided name exists</p></li>
+<li><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> -- One of the modules in <code class="docutils literal notranslate"><span class="pre">constants.PROFILE_FILES</span></code>
+    contained errors or the imported class doesn't inherit
+    from <code class="docutils literal notranslate"><span class="pre">Profile</span></code></p></li>
+<li><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- No class with the provided name exists</p></li>
 </ul>
 </dd>
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>class</em> – The class that was imported</p>
+<dd class="field-odd"><p><em>class</em> -- The class that was imported</p>
 </dd>
 </dl>
 </dd></dl>
@@ -269,10 +269,10 @@ it returns it.</p>
 <dd><p>Returns if a given path is a dynamic file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) – The path to the file</p>
+<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) -- The path to the file</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>bool</em> – True, if given path is a dynamicfile</p>
+<dd class="field-even"><p><em>bool</em> -- True, if given path is a dynamicfile</p>
 </dd>
 </dl>
 </dd></dl>
@@ -285,7 +285,7 @@ it returns it.</p>
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) – The message that will be printed.</p>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The message that will be printed.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -298,7 +298,7 @@ if the user set the <code class="docutils literal notranslate"><span class="pre"
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) – The message that will be printed.</p>
+<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The message that will be printed.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -310,10 +310,10 @@ if the user set the <code class="docutils literal notranslate"><span class="pre"
 and converts it in an absolute path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The path that will be normalized</p>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be normalized</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>str</em> – The normalized path</p>
+<dd class="field-even"><p><em>str</em> -- The normalized path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -326,7 +326,7 @@ found.</p>
 <p>This also takes the .dotignore-file into account.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>(List)</em> – Contains tuples with the directory and the filename of every
+<dd class="field-odd"><p><em>(list)</em> -- Contains tuples with the directory and the filename of every
 found file</p>
 </dd>
 </dl>
@@ -348,21 +348,37 @@ found file</p>
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing suite of Dotmanager</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dynamicfile.html">DynamicFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="errors.html">Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="info.html">Info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="interpreters.html">Interpreters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="profile.html">Profile</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Utils</a></li>
 </ul>
 </li>
 </ul>
-
+</li>
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -401,7 +417,7 @@ found file</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
@@ -409,6 +425,10 @@ found file</p>
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     
