@@ -33,7 +33,7 @@ from dotmanager.utils import find_files
 from dotmanager.utils import get_user_env_var
 from dotmanager.utils import normpath
 
-VERSION = "1.11.1_3"
+VERSION = "1.11.2_3"
 """Version numbers, seperated by underscore.
 
 First part is the version of Dotmanager. The second part (after the underscore)

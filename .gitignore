@@ -4,6 +4,8 @@ __pycache__
 # Build artifacts
 docs/sphinx/build/doctrees
 docs/sphinx/build/html/*
+# Coverage reports
+.coverage*
 
 
 # The config file of the user

@@ -11,6 +11,9 @@ Dotmanager
 .. image:: https://www.codefactor.io/repository/github/rickestricksanchez/dotmanager/badge
     :target: https://www.codefactor.io/repository/github/rickestricksanchez/dotmanager
 
+.. image:: https://codecov.io/gh/RickestRickSanchez/dotmanager/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/RickestRickSanchez/dotmanager
+
 .. image:: https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7-blue.svg
 
 

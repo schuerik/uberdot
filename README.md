@@ -7,6 +7,7 @@
 [![Build Status](https://travis-ci.com/RickestRickSanchez/dotmanager.svg?branch=master)](https://travis-ci.com/RickestRickSanchez/dotmanager)
 [![Latest Release](https://img.shields.io/github/release/RickestRickSanchez/dotmanager.svg)](https://github.com/RickestRickSanchez/dotmanager/releases/latest)
 [![Python version](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7-blue.svg)]()
+[![Regressiontest coverage](https://codecov.io/gh/RickestRickSanchez/dotmanager/branch/master/graph/badge.svg)](https://codecov.io/gh/RickestRickSanchez/dotmanager)
 [![CodeFactor](https://www.codefactor.io/repository/github/rickestricksanchez/dotmanager/badge)](https://www.codefactor.io/repository/github/rickestricksanchez/dotmanager)
 
 ## What is Dotmanager?

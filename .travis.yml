@@ -13,20 +13,36 @@ before_install:
 
 # Install dependencies
 install:
-    - pip3 install autodoc m2r sphinx  # jinja pygit2
+    - pip3 install autodoc m2r sphinx # jinja pygit2
 
-# Exec tests and generate documentation
+# Exec tests
 script:
   - ./test/regressiontest.py
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./test/test-version.sh; fi'
+
+# Generate documentation
+after_success:
   - make -C docs/sphinx html man
 
-# Deployment on master
+# Deployments
 jobs:
   include:
+    # Create code coverage reports and upload
+    - stage: coverage
+      python: 3.7
+      env:
+        - COVERAGE_PROCESS_START=coverage.ini
+      install: pip3 install coverage codecov
+      script: skip
+      after_success: skip
+      after_script:
+        - cd test && coverage run regressiontest.py > /dev/null && coverage combine && coverage report && codecov
+    # Deployment
     - stage: deploy
       python: 3.7
+      script: skip
       deploy:
+        # Upload documentation to github pages
         - provider: pages
           skip-cleanup: true
           github-token: $GITHUB_TOKEN
@@ -34,6 +50,7 @@ jobs:
           local-dir: docs/sphinx/build/html
           on:
             branch: master
+        # Build and commit manpage
         - provider: script
           skip-cleanup: true
           script: ./docs/sphinx/deploy-manpage.sh

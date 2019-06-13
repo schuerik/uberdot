@@ -24,6 +24,7 @@ import sys
 import time
 from abc import abstractmethod
 from shutil import rmtree
+from shutil import get_terminal_size
 from subprocess import PIPE
 from subprocess import Popen
 from typing import Dict
@@ -35,7 +36,7 @@ from typing import Union
 # Constants and helpers
 ###############################################################################
 
-LINEWDTH = 79  # Width of a line
+LINEWDTH = get_terminal_size().columns  # Width of a line
 DIRNAME = os.path.dirname(os.path.abspath(sys.modules[__name__].__file__))
 INSTALLED_FILE = os.path.join(DIRNAME, "../data/installed")
 INSTALLED_FILE = os.path.join(INSTALLED_FILE, "regressiontests.json")
@@ -62,7 +63,7 @@ def init():
     if not os.path.isdir(ENVIRONMENT):
         os.makedirs(ENVIRONMENT)
     cleanup()
-    print(79*"-")
+    print(LINEWDTH*"-")
 
 
 # Test classes

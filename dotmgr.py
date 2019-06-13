@@ -42,6 +42,12 @@ import pwd
 import shutil
 import sys
 import traceback
+
+if os.getenv("COVERAGE_PROCESS_START"):
+    # Restart coverage if spawned as a subprocess
+    import coverage
+    coverage.process_startup()
+
 from dotmanager import constants
 from dotmanager.interpreters import *
 from dotmanager.errors import CustomError
