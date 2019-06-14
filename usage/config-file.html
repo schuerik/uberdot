@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Configuration &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Configuration &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,9 +38,9 @@
 some settings that can't be set via commandline. The configuration file is an <a class="reference external" href="https://en.wikipedia.org/wiki/INI_file">INI-file</a> and can be created at the following locations:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><strong>/etc/dotmanager/dotmanager.ini</strong> for system-wide configuration</p></li>
-<li><p><strong>/home/username/.config/dotmanager/dotmanager.ini</strong> for only a specific user</p></li>
-<li><p><strong>dotmanager-repository/dotmanager.ini</strong> for portable installations</p></li>
+<li><p><strong>/etc/uberdot/uberdot.ini</strong> for system-wide configuration</p></li>
+<li><p><strong>/home/username/.config/uberdot/uberdot.ini</strong> for only a specific user</p></li>
+<li><p><strong>uberdot-repository/uberdot.ini</strong> for portable installations</p></li>
 </ul>
 </div></blockquote>
 <p>You can copy an example for the configuration file from <code class="docutils literal notranslate"><span class="pre">docs/config-example.ini</span></code>.</p>
@@ -69,7 +69,7 @@ some settings that can't be set via commandline. The configuration file is an <a
 <tbody>
 <tr class="row-even"><td><p>askroot</p></td>
 <td><p>True, False (Default is True)</p></td>
-<td><p>Shall Dotmanager ask for root permission if required</p></td>
+<td><p>Shall uberdot ask for root permission if required</p></td>
 </tr>
 <tr class="row-odd"><td><p>backupExtension</p></td>
 <td><p>String (Default is &quot;bak&quot;)</p></td>
@@ -207,7 +207,7 @@ your desktop like this:</p>
 <span class="na">directory</span> <span class="o">=</span> <span class="s">/home/username/Desktop</span>
 </pre></div>
 </div>
-<p>This overwrites the section &quot;Defaults&quot; for all calls of dotmanager that have <code class="docutils literal notranslate"><span class="pre">--save</span> <span class="pre">test</span></code> set.
+<p>This overwrites the section &quot;Defaults&quot; for all calls of uberdot that have <code class="docutils literal notranslate"><span class="pre">--save</span> <span class="pre">test</span></code> set.
 You can do this for any section with the following naming schema: &quot;Installed.&lt;installed-file name&gt;.&lt;section name&gt;&quot;</p>
 </div>
 </div>
@@ -219,7 +219,12 @@ You can do this for any section with the following naming schema: &quot;Installe
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -227,7 +232,7 @@ You can do this for any section with the following naming schema: &quot;Installe
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -237,7 +242,7 @@ You can do this for any section with the following naming schema: &quot;Installe
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">uberdot usage</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commandline-interface.html">Commandline Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
@@ -264,7 +269,7 @@ You can do this for any section with the following naming schema: &quot;Installe
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Dotmanager Usage</a><ul>
+  <li><a href="index.html">uberdot usage</a><ul>
       <li>Previous: <a href="info-module.html" title="previous chapter">Info module</a></li>
       <li>Next: <a href="dotignore.html" title="next chapter">.dotignore</a></li>
   </ul></li>
@@ -306,7 +311,7 @@ You can do this for any section with the following naming schema: &quot;Installe
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

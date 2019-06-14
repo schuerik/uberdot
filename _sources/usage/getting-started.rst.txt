@@ -19,7 +19,7 @@ dotfiles are named uniquely.
 Step 1: Installation
 --------------------
 In near future there will be packages for AUR and pip available, as well as a
-portable binary. But for now you will have to set up Dotmanager by yourself.
+portable binary. But for now you will have to set up uberdot by yourself.
 
 Step 1a: Manual set up
 ======================
@@ -27,7 +27,7 @@ First clone the repository:
 
 .. code:: bash
 
-    $ git clone https://github.com/RickestRickSanchez/dotmanager.git
+    $ git clone https://github.com/schuerik/uberdot.git
 
 Then install dependencies:
 
@@ -41,24 +41,24 @@ You can run
 
 .. code:: bash
 
-    $ ./dotmanager/test/regressiontest.py
+    $ ./uberdot/test/regressiontest.py
 
-to verify that Dotmanager runs correctly on your system.
+to verify that uberdot runs correctly on your system.
 
 
 ---------------------
 Step 2: Configuration
 ---------------------
-There are a lot of things that you can configure in Dotmanager but for most of
+There are a lot of things that you can configure in uberdot but for most of
 them the defaults are enough. If you are interested in further configuration,
 take a look at :doc:`config-file`. For the beginning you just have to set the
 directory for your dotfiles and for your profiles. To do so, either create a new
-file called ``dotmanager.ini`` or copy the example from ``docs/config-example.ini``.
+file called ``uberdot.ini`` or copy the example from ``docs/config-example.ini``.
 
 You can store the configuration file at one of the following places:
-    - dotmanager/data/dotmanager.ini
-    - ~/.config/dotmanager/dotmanager.ini
-    - /etc/dotmanager/dotmanager.ini
+    - uberdot/data/uberdot.ini
+    - ~/.config/uberdot/uberdot.ini
+    - /etc/uberdot/uberdot.ini
 
 Then set the values ``targetFiles`` and ``profileFiles`` in the "Settings" section:
 
@@ -80,7 +80,7 @@ your dotfile directory:
 
 .. code:: python
 
-    from dotmanager.profile import profile
+    from uberdot.profile import profile
 
     class Test1(Profile):
         def generate():
@@ -90,7 +90,7 @@ Now installing this profile is easy:
 
 .. code:: bash
 
-    $ ./dotmgr.py -i Test1
+    $ ./udot.py -i Test1
     [Test1]: Installing new profile
     [Test1]: /home/user/<filename> was created and links to /path/to/your/dotfiles/<filename>
     Finished succesfully.
@@ -102,7 +102,7 @@ Ok, lets modify this a little bit and add some more links:
 
 .. code:: python
 
-    from dotmanager.profile import profile
+    from uberdot.profile import profile
 
     class Test1(Profile):
         def generate():
@@ -119,7 +119,7 @@ will create links in ``~/.config``.
 
 .. code:: bash
 
-    $ ./dotmgr.py -i Test1
+    $ ./udot.py -i Test1
     [Test1]: Profile updated
     [Test1]: /home/user/<filename> was moved to /home/user/.<filename>
     [Test1]: /home/user/.config/<filename2> was created and links to /path/to/your/dotfiles/<filename2>
@@ -134,13 +134,13 @@ the effect of the options ``prefix`` and ``name`` that we passed to ``link()``.
 Step 4: Going further
 ---------------------
 
-I want to show you two more commands, that provide key techniques of Dotmanager.
+I want to show you two more commands, that provide key techniques of uberdot.
 To make profiles more reusable you can use the ``subprof()`` command:
 
 
 .. code:: python
 
-    from dotmanager.profile import profile
+    from uberdot.profile import profile
 
     class Vim(Profile):
         def generate():
@@ -162,7 +162,7 @@ subprofile:
 
 .. code:: python
 
-    from dotmanager.profile import profile
+    from uberdot.profile import profile
 
     class Test1(Profile):
         def generate():
@@ -174,7 +174,7 @@ Installing ``Test1`` again, results in the following output:
 
 .. code:: bash
 
-    $ ./dotmgr.py -i Test1
+    $ ./udot.py -i Test1
     [Test1]: Profile updated
     [Test1]: /home/user/.<filename> was moved to /home/user/<filename>
     [Test1]: /home/user/.config/<filename2> was removed from the system.
@@ -234,14 +234,14 @@ This would create an inconsistency because first a profile can't be installed tw
 same time and second two profiles define contradicting configurations (one profile wants to
 create a link to "plugins.vim" whereas the other profile wants to create the same link to
 "minmal%plugins.vim").
-Dotmanager detects such inconsistencies and tells you how to avoid them. I can now uninstall
+uberdot detects such inconsistencies and tells you how to avoid them. I can now uninstall
 just ``Vim``, but this would result in a similar error, because ``Shell`` is also subprofile
 of ``Pi`` and ``Test1``. The better and most intuitive solution is to uninstall ``Test1``.
 This removes the full configuration (and therefore also both subprofiles):
 
 .. code:: bash
 
-    $ ./dotmgr.py -u Test1
+    $ ./udot.py -u Test1
     [Vim]: /home/user/.gvimrc was removed from the system.
     [Vim]: /home/user/.vimrc was removed from the system.
     [Vim]: /home/user/.vim/keybindings.vim was removed from the system.
@@ -262,7 +262,7 @@ Now we can finally install ``Pi``:
 
 .. code:: bash
 
-    $ ./dotmgr.py -i Pi
+    $ ./udot.py -i Pi
     [Pi]: Installing new Profile
     [Vim]: Installing new profile as subprofile of Pi
     [Vim]: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
@@ -285,13 +285,13 @@ you create profiles for all kind of programs that you want to configure
 and create configuration files with different tags that describe properties of the
 system they are for, so that in the end you can quickly create a new profile
 for a new device, by just picking the programs that are installed and telling
-Dotmanager what tags will be applied for the device.
+uberdot what tags will be applied for the device.
 
 Of course that is just one way to work with tags and just one way to alternate
 versions of a dotfile.
 
 For further configuration you should take a look at the other
-`commands and options <https://rickestricksanchez.github.io/dotmanager/usage/commands.html>`_.
+`commands and options <https://schuerik.github.io/uberdot/usage/commands.html>`_.
 You probably won't need all of them, but they can solve a lot of
 common problems and will shorten your profiles. The documentation also covers a
 lot of topics that will help you understanding what is going on under the hud, as

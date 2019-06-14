@@ -2,7 +2,7 @@
 Encryption
 **********
 
-Dotmanager can decrypt dotfiles using OpenPGP.
+uberdot can decrypt dotfiles using OpenPGP.
 
 
 Decryption used in a profile

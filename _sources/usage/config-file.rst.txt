@@ -6,9 +6,9 @@ Configuration
 Configuration files allow you to override defaults for commandline arguments, defaults for command options and even set
 some settings that can't be set via commandline. The configuration file is an `INI-file`_ and can be created at the following locations:
 
-    * **/etc/dotmanager/dotmanager.ini** for system-wide configuration
-    * **/home/username/.config/dotmanager/dotmanager.ini** for only a specific user
-    * **dotmanager-repository/dotmanager.ini** for portable installations
+    * **/etc/uberdot/uberdot.ini** for system-wide configuration
+    * **/home/username/.config/uberdot/uberdot.ini** for only a specific user
+    * **uberdot-repository/uberdot.ini** for portable installations
 
 You can copy an example for the configuration file from ``docs/config-example.ini``.
 
@@ -29,7 +29,7 @@ The following settings are available:
 +-----------------+---------------------------------------------------+-------------------------------------------------------+
 | Name            | Values                                            | Description                                           |
 +=================+===================================================+=======================================================+
-| askroot         | True, False (Default is True)                     | Shall Dotmanager ask for root permission if required  |
+| askroot         | True, False (Default is True)                     | Shall uberdot ask for root permission if required     |
 +-----------------+---------------------------------------------------+-------------------------------------------------------+
 | backupExtension | String (Default is "bak")                         | The extension that is used to create backup files     |
 +-----------------+---------------------------------------------------+-------------------------------------------------------+
@@ -109,7 +109,7 @@ your desktop like this:
     [Installed.test.Defaults]
     directory = /home/username/Desktop
 
-This overwrites the section "Defaults" for all calls of dotmanager that have ``--save test`` set.
+This overwrites the section "Defaults" for all calls of uberdot that have ``--save test`` set.
 You can do this for any section with the following naming schema: "Installed.<installed-file name>.<section name>"
 
 

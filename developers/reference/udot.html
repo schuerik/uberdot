@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>DotManager &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>udot &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -32,25 +32,39 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-dotmgr">
-<span id="dotmanager"></span><h1>DotManager<a class="headerlink" href="#module-dotmgr" title="Permalink to this headline">¶</a></h1>
-<p>This is the main module. It implements the DotManager class and a short
+  <div class="section" id="module-udot">
+<span id="udot"></span><h1>udot<a class="headerlink" href="#module-udot" title="Permalink to this headline">¶</a></h1>
+<p>This is the main module. It implements the UberDot class and a short
 startup script.</p>
 <p>You can run this directly from the CLI with</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ./dotmgr.py &lt;arguments&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python ./udot.py &lt;arguments&gt;
 </pre></div>
 </div>
-<p>or you can import DotManager for debugging and testing purposes.</p>
+<p>or you can import UberDot for debugging and testing purposes.</p>
 <dl class="class">
-<dt id="dotmgr.DotManager">
-<em class="property">class </em><code class="sig-prename descclassname">dotmgr.</code><code class="sig-name descname">DotManager</code><a class="headerlink" href="#dotmgr.DotManager" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.StoreDictKeyPair">
+<em class="property">class </em><code class="sig-prename descclassname">udot.</code><code class="sig-name descname">StoreDictKeyPair</code><span class="sig-paren">(</span><em class="sig-param">option_strings</em>, <em class="sig-param">dest</em>, <em class="sig-param">nargs=None</em>, <em class="sig-param">const=None</em>, <em class="sig-param">default=None</em>, <em class="sig-param">type=None</em>, <em class="sig-param">choices=None</em>, <em class="sig-param">required=False</em>, <em class="sig-param">help=None</em>, <em class="sig-param">metavar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.StoreDictKeyPair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.Action</span></code></p>
+<p>Custom argparse.Action to parse an option dictionary from commandline</p>
+<dl class="method">
+<dt id="udot.StoreDictKeyPair.__call__">
+<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">parser</em>, <em class="sig-param">namespace</em>, <em class="sig-param">values</em>, <em class="sig-param">option_string=None</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.StoreDictKeyPair.__call__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits a commandline argument at &quot;=&quot; and writes the splitted
+values into a dictionary.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="udot.UberDot">
+<em class="property">class </em><code class="sig-prename descclassname">udot.</code><code class="sig-name descname">UberDot</code><a class="headerlink" href="#udot.UberDot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Bundles all functionality of Dotmanager.</p>
+<p>Bundles all functionality of uberdot.</p>
 <p>This includes things like parsing arguments, loading installed-files,
 printing information and executing profiles.</p>
 <dl class="attribute">
-<dt id="dotmgr.DotManager.installed">
-<code class="sig-name descname">installed</code><a class="headerlink" href="#dotmgr.DotManager.installed" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.installed">
+<code class="sig-name descname">installed</code><a class="headerlink" href="#udot.UberDot.installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>The installed-file that is used as a reference</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -60,8 +74,8 @@ printing information and executing profiles.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dotmgr.DotManager.args">
-<code class="sig-name descname">args</code><a class="headerlink" href="#dotmgr.DotManager.args" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.args">
+<code class="sig-name descname">args</code><a class="headerlink" href="#udot.UberDot.args" title="Permalink to this definition">¶</a></dt>
 <dd><p>The parsed arguments</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
@@ -71,9 +85,9 @@ printing information and executing profiles.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dotmgr.DotManager.owd">
-<code class="sig-name descname">owd</code><a class="headerlink" href="#dotmgr.DotManager.owd" title="Permalink to this definition">¶</a></dt>
-<dd><p>The old working directory Dotmanager was started from</p>
+<dt id="udot.UberDot.owd">
+<code class="sig-name descname">owd</code><a class="headerlink" href="#udot.UberDot.owd" title="Permalink to this definition">¶</a></dt>
+<dd><p>The old working directory uberdot was started from</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type</dt>
 <dd class="field-odd"><p>str</p>
@@ -82,16 +96,16 @@ printing information and executing profiles.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dotmgr.DotManager.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.__init__" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.__init__">
+<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor</p>
 <p>Initializes attributes and changes the working directory to the
 directory where this module is stored.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dotmgr.DotManager.dryrun">
-<code class="sig-name descname">dryrun</code><span class="sig-paren">(</span><em class="sig-param">difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.dryrun" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.dryrun">
+<code class="sig-name descname">dryrun</code><span class="sig-paren">(</span><em class="sig-param">difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.dryrun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Like <cite>run()</cite> but instead of resolving it it will be just printed out</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -105,27 +119,27 @@ directory where this module is stored.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dotmgr.DotManager.execute_arguments">
-<code class="sig-name descname">execute_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.execute_arguments" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.execute_arguments">
+<code class="sig-name descname">execute_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.execute_arguments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Executes whatever was specified via commandline arguments.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dotmgr.DotManager.load_installed">
-<code class="sig-name descname">load_installed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.load_installed" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.load_installed">
+<code class="sig-name descname">load_installed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.load_installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the installed-file and parses it's content into
 <code class="docutils literal notranslate"><span class="pre">self.installed</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- Dotmanager and installed-file aren't
+<dd class="field-odd"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- uberdot and installed-file aren't
     version compatible.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="method">
-<dt id="dotmgr.DotManager.parse_arguments">
-<code class="sig-name descname">parse_arguments</code><span class="sig-paren">(</span><em class="sig-param">arguments=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.parse_arguments" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.parse_arguments">
+<code class="sig-name descname">parse_arguments</code><span class="sig-paren">(</span><em class="sig-param">arguments=None</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.parse_arguments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Parses the commandline arguments. This function can parse a custom
 list of arguments, instead of <code class="docutils literal notranslate"><span class="pre">sys.args</span></code>.</p>
 <dl class="field-list simple">
@@ -141,16 +155,16 @@ of sys.args</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dotmgr.DotManager.print_debuginfo">
-<code class="sig-name descname">print_debuginfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_debuginfo" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.print_debuginfo">
+<code class="sig-name descname">print_debuginfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.print_debuginfo" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print out internal values.</p>
 <p>This includes search paths of configs, loaded configs,
 parsed commandline arguments and settings.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dotmgr.DotManager.print_installed">
-<code class="sig-name descname">print_installed</code><span class="sig-paren">(</span><em class="sig-param">profile</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_installed" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.print_installed">
+<code class="sig-name descname">print_installed</code><span class="sig-paren">(</span><em class="sig-param">profile</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.print_installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints a single installed profile.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -160,19 +174,19 @@ parsed commandline arguments and settings.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dotmgr.DotManager.print_installed_profiles">
-<code class="sig-name descname">print_installed_profiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.print_installed_profiles" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.print_installed_profiles">
+<code class="sig-name descname">print_installed_profiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.print_installed_profiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print out the installed-file in a readable format.</p>
 <p>Prints only the profiles specified in the commandline arguments. If
 none are specified it prints all profiles of the installed-file.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dotmgr.DotManager.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.DotManager.run" title="Permalink to this definition">¶</a></dt>
+<dt id="udot.UberDot.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param">difflog</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs checks on DiffLog and resolves it.</p>
 <p>Furthermore this function handles backups, converts exceptions into
-UnkownErrors and might replace the entire process when Dotmanager was
+UnkownErrors and might replace the entire process when uberdot was
 started with insufficient permissions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -191,20 +205,6 @@ started with insufficient permissions.</p>
 
 </dd></dl>
 
-<dl class="class">
-<dt id="dotmgr.StoreDictKeyPair">
-<em class="property">class </em><code class="sig-prename descclassname">dotmgr.</code><code class="sig-name descname">StoreDictKeyPair</code><span class="sig-paren">(</span><em class="sig-param">option_strings</em>, <em class="sig-param">dest</em>, <em class="sig-param">nargs=None</em>, <em class="sig-param">const=None</em>, <em class="sig-param">default=None</em>, <em class="sig-param">type=None</em>, <em class="sig-param">choices=None</em>, <em class="sig-param">required=False</em>, <em class="sig-param">help=None</em>, <em class="sig-param">metavar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.Action</span></code></p>
-<p>Custom argparse.Action to parse an option dictionary from commandline</p>
-<dl class="method">
-<dt id="dotmgr.StoreDictKeyPair.__call__">
-<code class="sig-name descname">__call__</code><span class="sig-paren">(</span><em class="sig-param">parser</em>, <em class="sig-param">namespace</em>, <em class="sig-param">values</em>, <em class="sig-param">option_string=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dotmgr.StoreDictKeyPair.__call__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits a commandline argument at &quot;=&quot; and writes the splitted
-values into a dictionary.</p>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 
 
@@ -214,7 +214,12 @@ values into a dictionary.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -222,7 +227,7 @@ values into a dictionary.</p>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -232,15 +237,15 @@ values into a dictionary.</p>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">uberdot usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document uberdot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing uberdot</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="constants.html">Constants</a></li>
 <li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">DotManager</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">udot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dynamicfile.html">DynamicFile</a></li>
 <li class="toctree-l3"><a class="reference internal" href="errors.html">Errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="info.html">Info</a></li>
@@ -295,12 +300,12 @@ values into a dictionary.</p>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../../_sources/developers/reference/dotmgr.rst.txt"
+      <a href="../../_sources/developers/reference/udot.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

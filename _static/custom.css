@@ -26,3 +26,14 @@ p code:not(.xref) {
     border-radius: 3px;
     padding: 2px;
 }
+
+/* Align logo nicely */
+.sphinxsidebarwrapper > :not(.logo){
+    padding-left:30px;
+}
+.bodywrapper {
+    margin-top: 30px!important;
+}
+.document {
+    margin-top: 15px!important;
+}

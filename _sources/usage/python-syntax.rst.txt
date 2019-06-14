@@ -6,7 +6,7 @@ Profiles are written in a programming language called python. This
 document is intended to explain the syntax of python as easy as possible
 for people that never ever heard of python. This is not an exhausted
 explanation of python. It will only explain the few rules that you have
-to follow to use Dotmanager.
+to follow to use uberdot.
 
 Example
 =======
@@ -32,7 +32,7 @@ that this class is actually a profile. Everything below this line that is
 indented will belong to this profile. The correct indentation is very important
 in python! The following line ``def generate(self):`` is not that important to
 understand, but it does nothing more than defining a special function which
-will be later executed by Dotmanager. Just put it always directly below the
+will be later executed by uberdot. Just put it always directly below the
 line containing ``class``. Everything below this line needs to be indented
 again. Now you can call the different commands that are explained in
 :doc:`commands`. Important to know is that the parameters in the brackets need to be

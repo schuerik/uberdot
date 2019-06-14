@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Dotmanager Manual &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>uberdot manual &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -30,11 +30,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="dotmanager-manual">
-<h1>Dotmanager Manual<a class="headerlink" href="#dotmanager-manual" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="uberdot-manual">
+<h1>uberdot manual<a class="headerlink" href="#uberdot-manual" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="description">
 <h2>DESCRIPTION<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
-<p>Dotmanager is a program to manage configuration files and symbolic links on both the
+<p>uberdot is a program to manage configuration files and symbolic links on both the
 system and the user level. It is used to set up devices and keep their configuration
 up-to-date.</p>
 </div>
@@ -43,7 +43,7 @@ up-to-date.</p>
 <h1>Commandline Interface<a class="headerlink" href="#commandline-interface" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="synopsis">
 <h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dotmgr</span><span class="o">.</span><span class="n">py</span> <span class="n">MODE</span> <span class="p">[</span><span class="n">OPTIONS</span><span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="n">PROFILES</span><span class="o">...</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">udot</span><span class="o">.</span><span class="n">py</span> <span class="n">MODE</span> <span class="p">[</span><span class="n">OPTIONS</span><span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="n">PROFILES</span><span class="o">...</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -55,7 +55,7 @@ up-to-date.</p>
 <dd><p>Shows a short help message with all options and modes and exits</p>
 </dd>
 <dt><kbd><span class="option">--version</span></kbd></dt>
-<dd><p>Displays the version of dotmanager and exits</p>
+<dd><p>Displays the version of uberdot and exits</p>
 </dd>
 <dt><kbd><span class="option">-i</span>, <span class="option">--install</span></kbd></dt>
 <dd><p>Installs every specified profile. If a profile is already installed
@@ -63,7 +63,7 @@ it will be updated instead of installed.</p>
 </dd>
 <dt><kbd><span class="option">-u</span>, <span class="option">--uninstall</span></kbd></dt>
 <dd><p>Uninstalls every specified profile. If a profile is not installed,
-dotmanager will skip this profile.</p>
+uberdot will skip this profile.</p>
 </dd>
 <dt><kbd><span class="option">-s</span>, <span class="option">--show</span></kbd></dt>
 <dd><p>Shows information about installed profiles and links. If you specify
@@ -82,7 +82,7 @@ Otherwise information about all installed profiles will be shown.</p>
 <dd><p>Overwrite the default directory temporarily</p>
 </dd>
 <dt><kbd><span class="option">-d</span>, <span class="option">--dry-run</span></kbd></dt>
-<dd><p>Just simulate the changes dotmanager would perform</p>
+<dd><p>Just simulate the changes uberdot would perform</p>
 </dd>
 <dt><kbd><span class="option">--dui</span></kbd></dt>
 <dd><p>Use an alternative startegy to install profiles and links. The default
@@ -115,7 +115,7 @@ of <code class="docutils literal notranslate"><span class="pre">PARENT</span></c
 debugging.</p>
 </dd>
 <dt><kbd><span class="option">-p</span>, <span class="option">--pretty-print</span></kbd></dt>
-<dd><p>Prints out the changes that dotmanager would perform if executed without
+<dd><p>Prints out the changes that uberdot would perform if executed without
 this flag. This differs from <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> in that way that it won’t do
 any checks on the profiles or filesystem, so <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> is almost
 always to prefer. The only use-case is if your profiles will raise an
@@ -162,38 +162,38 @@ case-sensitive.</p>
 <ol class="arabic simple">
 <li><p>Uninstall the profile called &quot;Main&quot; and all its subprofiles</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -u Main
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -u Main
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
 <li><p>Install the profiles &quot;Main&quot; and &quot;Main2&quot; and all their subprofiles</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Main Main2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li><p>Just simulate previous installation</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -id Main Main2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -id Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>Perform the same installation like before but set the prefix for all links to &quot;.&quot;</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i --option <span class="nv">prefix</span><span class="o">=</span>. -- Main Main2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i --option <span class="nv">prefix</span><span class="o">=</span>. -- Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
 <li><p>Also set the tags &quot;debian&quot; and &quot;big&quot;</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i --option <span class="nv">prefix</span><span class="o">=</span>. <span class="nv">tags</span><span class="o">=</span>debian,big -- Main Main2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i --option <span class="nv">prefix</span><span class="o">=</span>. <span class="nv">tags</span><span class="o">=</span>debian,big -- Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
 <li><p>Install &quot;Main&quot; and all it's subprofiles, make non-existing directories and
 overwrite existing files</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -imf Main
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -imf Main
 </pre></div>
 </div>
 </div>
@@ -355,7 +355,7 @@ used to find alternate versions of a dotfile. Such a alternate version
 of a dotfile needs to be prefixed with the same tag plus a percent
 sign as a separator. The easiest way to explain this concept is with
 an example. Suppose you created a profile for your bash configuration:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
 <span class="k">class</span> <span class="nc">Bash</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;bashrc&quot;</span><span class="p">,</span> <span class="s2">&quot;inputrc&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
@@ -373,14 +373,14 @@ alternate versions of the files and name them like this:</p>
 </ul>
 <p>Now you could create a profile for every device or distribution as you
 like and set the suitable tag.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
 <span class="k">class</span> <span class="nc">Device1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;debian&quot;</span><span class="p">)</span>
         <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Bash&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
 <span class="k">class</span> <span class="nc">Device2</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;arch&quot;</span><span class="p">)</span>
@@ -456,7 +456,7 @@ reset them with <code class="docutils literal notranslate"><span class="pre">def
 <p>This command takes a single filename and searches for it like <code class="docutils literal notranslate"><span class="pre">link()</span></code>. It
 will decrypt it and return the decrypted file as a dynamicfile which then can
 be used by <code class="docutils literal notranslate"><span class="pre">link()</span></code>. If <code class="docutils literal notranslate"><span class="pre">decryptPwd</span></code> is set in your configfile this will be
-used for every decryption. Otherwise Dotmanager (or more precisely gnupg) will
+used for every decryption. Otherwise uberdot (or more precisely gnupg) will
 ask you for the password. Because all dynamicfiles are regenerated every time a
 profile gets executed, this command has the downside that it actually asks for
 the decryption password even though nothing changed, so I highly recommend setting
@@ -549,7 +549,7 @@ system you are on.</p>
 <div class="section" id="usage">
 <h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
 <p>To use those functions you need to import the info module:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager</span> <span class="kn">import</span> <span class="n">info</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot</span> <span class="kn">import</span> <span class="n">info</span>
 </pre></div>
 </div>
 <p>Then you can use it like this in a profile:</p>
@@ -571,7 +571,7 @@ system you are on.</p>
 <div class="section" id="notes">
 <h2>NOTES<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h2>
 <p>Fur more information take a look at the online documentation at
-<a class="reference external" href="https://rickestricksanchez.github.io/dotmanager/">https://rickestricksanchez.github.io/dotmanager/</a>.</p>
+<a class="reference external" href="https://schuerik.github.io/uberdot/">https://schuerik.github.io/uberdot/</a>.</p>
 </div>
 </div>
 
@@ -582,7 +582,12 @@ system you are on.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -590,7 +595,7 @@ system you are on.</p>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -600,7 +605,7 @@ system you are on.</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">uberdot usage</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developers/index.html">For developers</a></li>
 </ul>
 <div class="relations">
@@ -645,7 +650,7 @@ system you are on.</p>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

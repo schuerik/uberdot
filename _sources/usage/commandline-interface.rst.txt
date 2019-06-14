@@ -8,7 +8,7 @@ Synopsis
 
 ::
 
- dotmgr.py MODE [OPTIONS...] [PROFILES...]
+ udot.py MODE [OPTIONS...] [PROFILES...]
 
 
 Modes
@@ -21,7 +21,7 @@ One - and only one - of the following modes has to be chosen:
     Shows a short help message with all options and modes and exits
 
 --version
-    Displays the version of dotmanager and exits
+    Displays the version of uberdot and exits
 
 -i, --install
     Installs every specified profile. If a profile is already installed
@@ -29,7 +29,7 @@ One - and only one - of the following modes has to be chosen:
 
 -u, --uninstall
     Uninstalls every specified profile. If a profile is not installed,
-    dotmanager will skip this profile.
+    uberdot will skip this profile.
 
 -s, --show
     Shows information about installed profiles and links. If you specify
@@ -50,7 +50,7 @@ Options
 
 
 -d, --dry-run
-     Just simulate the changes dotmanager would perform
+     Just simulate the changes uberdot would perform
 
 
 --dui
@@ -91,7 +91,7 @@ Options
 
 
 -p, --pretty-print
-     Prints out the changes that dotmanager would perform if executed without
+     Prints out the changes that uberdot would perform if executed without
      this flag. This differs from ``--dry-run`` in that way that it won’t do
      any checks on the profiles or filesystem, so ``--dry-run`` is almost
      always to prefer. The only use-case is if your profiles will raise an
@@ -148,35 +148,35 @@ Examples
 
 .. code:: bash
 
-    $ ./dotmgr.py -u Main
+    $ ./udot.py -u Main
 
 2. Install the profiles "Main" and "Main2" and all their subprofiles
 
 .. code:: bash
 
-    $ ./dotmgr.py -i Main Main2
+    $ ./udot.py -i Main Main2
 
 3. Just simulate previous installation
 
 .. code:: bash
 
-    $ ./dotmgr.py -id Main Main2
+    $ ./udot.py -id Main Main2
 
 4. Perform the same installation like before but set the prefix for all links to "."
 
 .. code:: bash
 
-    $ ./dotmgr.py -i --option prefix=. -- Main Main2
+    $ ./udot.py -i --option prefix=. -- Main Main2
 
 5. Also set the tags "debian" and "big"
 
 .. code:: bash
 
-    $ ./dotmgr.py -i --option prefix=. tags=debian,big -- Main Main2
+    $ ./udot.py -i --option prefix=. tags=debian,big -- Main Main2
 
 6. Install "Main" and all it's subprofiles, make non-existing directories and
    overwrite existing files
 
 .. code:: bash
 
-    $ ./dotmgr.py -imf Main
+    $ ./udot.py -imf Main

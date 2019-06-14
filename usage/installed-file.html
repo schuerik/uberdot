@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Installed-files &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Installed-files &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -109,7 +109,7 @@ reserved special keys (but at the moment only the version key exists)
 and all other keys are the names of installed profiles.</p>
 <div class="section" id="version-key">
 <h3>&#64;version key<a class="headerlink" href="#version-key" title="Permalink to this headline">¶</a></h3>
-<p>The version key is important because Dotmanager will compare it to its
+<p>The version key is important because uberdot will compare it to its
 own version and will refuse to read the installed-file if the installed
 file schema version (the number after the underscore) does not match its
 own installed-file schema version.</p>
@@ -145,24 +145,24 @@ each link there is a dictionary storing the following information:</p>
 <h2>Installed-file is corrupted<a class="headerlink" href="#installed-file-is-corrupted" title="Permalink to this headline">¶</a></h2>
 <p>This should actually never happen and if it does please create a bug
 ticket so we can make sure that this won’t happen again. But it is
-possible -in very early versions of Dotmanager this happened a lot- that
+possible -in very early versions of uberdot this happened a lot- that
 an unexpected error occurs during the linking process. For those cases
-Dotmanager creates a backup of the installed-file before modifying it.
+uberdot creates a backup of the installed-file before modifying it.
 You will need to look into the backup and the modified version and
 verify that all removals/additions/updates were really written to the
 filesystem. When you are certain that the current installed-file matches
 the state of your filesystem you can remove the backup file and use
-dotmanager again.</p>
+uberdot again.</p>
 </div>
 <div class="section" id="version-update">
 <h2>Version update<a class="headerlink" href="#version-update" title="Permalink to this headline">¶</a></h2>
-<p>Dotmanager refuses to read the installed-file if the installed-file
+<p>uberdot refuses to read the installed-file if the installed-file
 schema version does not match it’s own version. This can happen when you
-update Dotmanager and have an old installed-file left on your device. To
+update uberdot and have an old installed-file left on your device. To
 circumvent this issue you have two opportunities:</p>
 <ol class="arabic simple">
-<li><p>Revert to an old version of Dotmanager, uninstall all profiles,
-update Dotmanager, install all uninstalled profiles again</p></li>
+<li><p>Revert to an old version of uberdot, uninstall all profiles,
+update uberdot, install all uninstalled profiles again</p></li>
 <li><p>Look into the changes of the installed-file schema, update the
 installed-file manually, increment the version number</p></li>
 </ol>
@@ -176,7 +176,12 @@ installed-file manually, increment the version number</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -184,7 +189,7 @@ installed-file manually, increment the version number</p></li>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -194,7 +199,7 @@ installed-file manually, increment the version number</p></li>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">uberdot usage</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commandline-interface.html">Commandline Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
@@ -220,7 +225,7 @@ installed-file manually, increment the version number</p></li>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Dotmanager Usage</a><ul>
+  <li><a href="index.html">uberdot usage</a><ul>
       <li>Previous: <a href="dynamicfiles.html" title="previous chapter">Dynamicfiles</a></li>
       <li>Next: <a href="example-configuration.html" title="next chapter">Examples</a></li>
   </ul></li>
@@ -262,7 +267,7 @@ installed-file manually, increment the version number</p></li>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

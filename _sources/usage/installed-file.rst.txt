@@ -85,7 +85,7 @@ and all other keys are the names of installed profiles.
 @version key
 ------------
 
-The version key is important because Dotmanager will compare it to its
+The version key is important because uberdot will compare it to its
 own version and will refuse to read the installed-file if the installed
 file schema version (the number after the underscore) does not match its
 own installed-file schema version.
@@ -122,24 +122,24 @@ Installed-file is corrupted
 
 This should actually never happen and if it does please create a bug
 ticket so we can make sure that this won’t happen again. But it is
-possible -in very early versions of Dotmanager this happened a lot- that
+possible -in very early versions of uberdot this happened a lot- that
 an unexpected error occurs during the linking process. For those cases
-Dotmanager creates a backup of the installed-file before modifying it.
+uberdot creates a backup of the installed-file before modifying it.
 You will need to look into the backup and the modified version and
 verify that all removals/additions/updates were really written to the
 filesystem. When you are certain that the current installed-file matches
 the state of your filesystem you can remove the backup file and use
-dotmanager again.
+uberdot again.
 
 Version update
 ==============
 
-Dotmanager refuses to read the installed-file if the installed-file
+uberdot refuses to read the installed-file if the installed-file
 schema version does not match it’s own version. This can happen when you
-update Dotmanager and have an old installed-file left on your device. To
+update uberdot and have an old installed-file left on your device. To
 circumvent this issue you have two opportunities:
 
-1. Revert to an old version of Dotmanager, uninstall all profiles,
-   update Dotmanager, install all uninstalled profiles again
+1. Revert to an old version of uberdot, uninstall all profiles,
+   update uberdot, install all uninstalled profiles again
 2. Look into the changes of the installed-file schema, update the
    installed-file manually, increment the version number

@@ -177,7 +177,7 @@ an example. Suppose you created a profile for your bash configuration:
 
 .. code:: python
 
-   from dotmanager.profile import Profile
+   from uberdot.profile import Profile
    class Bash(Profile):
        def generate(self):
            link("bashrc", "inputrc", prefix=".")
@@ -197,7 +197,7 @@ like and set the suitable tag.
 
 .. code:: python
 
-   from dotmanager.profile import Profile
+   from uberdot.profile import Profile
    class Device1(Profile):
        def generate(self):
            tags("debian")
@@ -205,7 +205,7 @@ like and set the suitable tag.
 
 .. code:: python
 
-   from dotmanager.profile import Profile
+   from uberdot.profile import Profile
    class Device2(Profile):
        def generate(self):
            tags("arch")
@@ -298,7 +298,7 @@ decrypt(Dotfilename)
 This command takes a single filename and searches for it like ``link()``. It
 will decrypt it and return the decrypted file as a dynamicfile which then can
 be used by ``link()``. If ``decryptPwd`` is set in your configfile this will be
-used for every decryption. Otherwise Dotmanager (or more precisely gnupg) will
+used for every decryption. Otherwise uberdot (or more precisely gnupg) will
 ask you for the password. Because all dynamicfiles are regenerated every time a
 profile gets executed, this command has the downside that it actually asks for
 the decryption password even though nothing changed, so I highly recommend setting

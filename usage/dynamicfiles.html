@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Dynamicfiles &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Dynamicfiles &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -36,7 +36,7 @@
 <h1>Dynamicfiles<a class="headerlink" href="#dynamicfiles" title="Permalink to this headline">¶</a></h1>
 <p>Dynamicfiles are used whenever one or more dotfiles need to be altered
 before they are symlinked. Because the original shall not be altered by
-Dotmanager, Dotmanager processes the specified dotfiles and stores the
+uberdot, uberdot processes the specified dotfiles and stores the
 altered version in a subdirectory of <code class="docutils literal notranslate"><span class="pre">data/</span></code>. There are different
 types of dynamicfiles, each one using their own subdirectory:</p>
 <ul class="simple">
@@ -54,12 +54,12 @@ subdirectory.</p>
 <p>Because the generated file that will be linked is now outside of your
 repository, the repository is obviously not able to track changes
 anymore. Also editing a symlink to this file won’t update the original
-dotfile(s) in your repository. To circumvent this disadvantage, Dotmanager
+dotfile(s) in your repository. To circumvent this disadvantage, uberdot
 will track changes that you apply to the symlinked generated file and
 warns you if you would overwrite those changes when you install a
-profile. To do so, Dotmanager appends the md5 hash of the file to its
+profile. To do so, uberdot appends the md5 hash of the file to its
 filename and stores a backup file next to it. That way changes won’t be
-lost and Dotmanager can calculate a diff for you if you like.</p>
+lost and uberdot can calculate a diff for you if you like.</p>
 <div class="section" id="workflow-explained-on-an-example">
 <h2>Workflow explained on an example<a class="headerlink" href="#workflow-explained-on-an-example" title="Permalink to this headline">¶</a></h2>
 <p>Suppose you have the following profile:</p>
@@ -76,12 +76,12 @@ writes the decrypted file to</p>
 <li><p>data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1 and</p></li>
 <li><p>data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1.bak</p></li>
 </ul>
-<p>Dotmanager will later link to
+<p>uberdot will later link to
 “data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1”. Now every
-time this profile is updated or removed, Dotmanager will update the dynamic
+time this profile is updated or removed, uberdot will update the dynamic
 file - which again creates new files with a new hash if the file content
 changed - and checks if the calculated hash differs from the current installed
-hash. If so Dotmanager warns you that you could lose changes and helps you to
+hash. If so uberdot warns you that you could lose changes and helps you to
 write back the changes to the original file by giving you the following options:</p>
 <ul class="simple">
 <li><p><strong>Abort</strong>: Abort the installation/removal process to fix changes manually</p></li>
@@ -97,7 +97,7 @@ updating/removing the link.</p></li>
 </div>
 <div class="section" id="creating-an-instance-of-a-dynamicfile-manually">
 <h2>Creating an instance of a dynamicfile manually<a class="headerlink" href="#creating-an-instance-of-a-dynamicfile-manually" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.dynamicfile</span> <span class="kn">import</span> <span class="n">EncryptedFile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.dynamicfile</span> <span class="kn">import</span> <span class="n">EncryptedFile</span>
 
 <span class="c1"># Create an instance of EncryptedFile with the name &quot;test.txt&quot;</span>
 <span class="n">encrypt</span> <span class="o">=</span> <span class="n">EncryptedFile</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">)</span>
@@ -109,7 +109,7 @@ updating/removing the link.</p></li>
 </div>
 <p>Instead of using the absolute path to the dotfile you could use
 <code class="docutils literal notranslate"><span class="pre">self.find()</span></code> of the profile to find the file automatically.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.dynamicfile</span> <span class="kn">import</span> <span class="n">EncryptedFile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.dynamicfile</span> <span class="kn">import</span> <span class="n">EncryptedFile</span>
 
 <span class="n">encrypt</span> <span class="o">=</span> <span class="n">EncryptedFile</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">)</span>
 <span class="n">encrypt</span><span class="o">.</span><span class="n">add_source</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">))</span>
@@ -126,7 +126,12 @@ updating/removing the link.</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -134,7 +139,7 @@ updating/removing the link.</p></li>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -144,7 +149,7 @@ updating/removing the link.</p></li>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">uberdot usage</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commandline-interface.html">Commandline Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
@@ -169,7 +174,7 @@ updating/removing the link.</p></li>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Dotmanager Usage</a><ul>
+  <li><a href="index.html">uberdot usage</a><ul>
       <li>Previous: <a href="encryption.html" title="previous chapter">Encryption</a></li>
       <li>Next: <a href="installed-file.html" title="next chapter">Installed-files</a></li>
   </ul></li>
@@ -211,7 +216,7 @@ updating/removing the link.</p></li>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

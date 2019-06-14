@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Utils &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Utils &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -132,7 +132,7 @@ result</p></li>
 <dt id="utils.get_current_username">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_current_username</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_current_username" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the current users username.</p>
-<p>Gets the username of the user that started Dotmanager. If the
+<p>Gets the username of the user that started uberdot. If the
 program was started with sudo, it still returns the original
 username and not &quot;root&quot;.</p>
 <dl class="field-list simple">
@@ -176,7 +176,7 @@ directory owner</p>
 <dl class="function">
 <dt id="utils.get_gid">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_gid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_gid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the GID of the user that started dotmanager.</p>
+<dd><p>Get the GID of the user that started uberdot.</p>
 <p>This gets the current users GID. If SUDO_GID is set (this means the process
 was started with sudo) SUDO_GID will be returned instead.</p>
 <dl class="field-list simple">
@@ -189,7 +189,7 @@ was started with sudo) SUDO_GID will be returned instead.</p>
 <dl class="function">
 <dt id="utils.get_uid">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_uid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_uid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the UID of the user that started dotmanager.</p>
+<dd><p>Get the UID of the user that started uberdot.</p>
 <p>This gets the current users UID. If SUDO_UID is set (this means the process
 was started with sudo) SUDO_UID will be returned instead.</p>
 <dl class="field-list simple">
@@ -209,7 +209,7 @@ look up environment variables that are for example set by the user in his
 .bashrc, because they aren't set at the time they will be looked up.
 Otherwise this function will do a standart look up of the users environment
 variables which means that all variables that were set at the time
-Dotmanager was started can be accessed.</p>
+uberdot was started can be accessed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -341,7 +341,12 @@ found file</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -349,7 +354,7 @@ found file</p>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -359,15 +364,15 @@ found file</p>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">uberdot usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document uberdot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing uberdot</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="constants.html">Constants</a></li>
 <li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="udot.html">udot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dynamicfile.html">DynamicFile</a></li>
 <li class="toctree-l3"><a class="reference internal" href="errors.html">Errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="info.html">Info</a></li>
@@ -426,7 +431,7 @@ found file</p>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

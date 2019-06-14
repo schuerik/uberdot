@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Constants &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Constants &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -39,8 +39,8 @@ overwrite defaults for a specific configuration.</p>
 <dl class="data">
 <dt id="constants.ASKROOT">
 <code class="sig-prename descclassname">constants.</code><code class="sig-name descname">ASKROOT</code><em class="property"> = True</em><a class="headerlink" href="#constants.ASKROOT" title="Permalink to this definition">¶</a></dt>
-<dd><p>True, if Dotmanager shall ask for root permission if needed. If False,
-Dotmanager will fail if root permission is needed. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<dd><p>True, if uberdot shall ask for root permission if needed. If False,
+uberdot will fail if root permission is needed. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
@@ -72,13 +72,13 @@ with higher index will be prefered.</p>
 
 <dl class="data">
 <dt id="constants.CONFIG_SEARCH_PATHS">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">CONFIG_SEARCH_PATHS</code><em class="property"> = ['/etc/dotmanager', '/home/travis/.config/dotmanager', '/home/travis/build/RickestRickSanchez/dotmanager/data']</em><a class="headerlink" href="#constants.CONFIG_SEARCH_PATHS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">CONFIG_SEARCH_PATHS</code><em class="property"> = ['/etc/uberdot', '/home/travis/.config/uberdot', '/home/travis/build/schuerik/uberdot/data']</em><a class="headerlink" href="#constants.CONFIG_SEARCH_PATHS" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of paths that will be used to search for configuration files.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.DATA_DIR">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">DATA_DIR</code><em class="property"> = '/home/travis/build/RickestRickSanchez/dotmanager/data'</em><a class="headerlink" href="#constants.DATA_DIR" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">DATA_DIR</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data'</em><a class="headerlink" href="#constants.DATA_DIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The path to the data directory.</p>
 </dd></dl>
 
@@ -126,13 +126,13 @@ with higher index will be prefered.</p>
 
 <dl class="data">
 <dt id="constants.INSTALLED_FILE">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">INSTALLED_FILE</code><em class="property"> = '/home/travis/build/RickestRickSanchez/dotmanager/data/installed/%s.json'</em><a class="headerlink" href="#constants.INSTALLED_FILE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">INSTALLED_FILE</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data/installed/%s.json'</em><a class="headerlink" href="#constants.INSTALLED_FILE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The path to the installed-file that will be used for comparison.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.INSTALLED_FILE_BACKUP">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">INSTALLED_FILE_BACKUP</code><em class="property"> = '/home/travis/build/RickestRickSanchez/dotmanager/data/installed/%s.json.bak'</em><a class="headerlink" href="#constants.INSTALLED_FILE_BACKUP" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">INSTALLED_FILE_BACKUP</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data/installed/%s.json.bak'</em><a class="headerlink" href="#constants.INSTALLED_FILE_BACKUP" title="Permalink to this definition">¶</a></dt>
 <dd><p>The path to the file that will be used as backup of the installed-file.</p>
 </dd></dl>
 
@@ -152,7 +152,7 @@ Needs to be normalized before usage. Default is <code class="docutils literal no
 <dl class="data">
 <dt id="constants.MAKEDIRS">
 <code class="sig-prename descclassname">constants.</code><code class="sig-name descname">MAKEDIRS</code><em class="property"> = False</em><a class="headerlink" href="#constants.MAKEDIRS" title="Permalink to this definition">¶</a></dt>
-<dd><p>True, if Dotmanager shall create directories if they don't exist.
+<dd><p>True, if uberdot shall create directories if they don't exist.
 Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
@@ -184,7 +184,7 @@ Default is <code class="docutils literal notranslate"><span class="pre">False</s
 <dl class="data">
 <dt id="constants.SUPERFORCE">
 <code class="sig-prename descclassname">constants.</code><code class="sig-name descname">SUPERFORCE</code><em class="property"> = False</em><a class="headerlink" href="#constants.SUPERFORCE" title="Permalink to this definition">¶</a></dt>
-<dd><p>True, if Dotmanager shall overwrite files that are blacklisted.
+<dd><p>True, if uberdot shall overwrite files that are blacklisted.
 Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
@@ -202,11 +202,11 @@ Default is <code class="docutils literal notranslate"><span class="pre">False</s
 
 <dl class="data">
 <dt id="constants.VERSION">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">VERSION</code><em class="property"> = '1.11.2_3'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">VERSION</code><em class="property"> = '1.12.0_3'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd><p>Version numbers, seperated by underscore.</p>
-<p>First part is the version of Dotmanager. The second part (after the underscore)
+<p>First part is the version of uberdot. The second part (after the underscore)
 is the version of the installed-file schema. The latter will be used to
-determine compability of the Dotmanager with the installed-file.</p>
+determine compability of the uberdot with the installed-file.</p>
 </dd></dl>
 
 <dl class="data">
@@ -243,7 +243,12 @@ will be loaded</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -251,7 +256,7 @@ will be loaded</p></li>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -261,15 +266,15 @@ will be loaded</p></li>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">Dotmanager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../usage/index.html">uberdot usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../contributing_link.html">Contributing Guide</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing Dotmanager</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../documentation.html">How to document uberdot</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../tests.html">Testing uberdot</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Reference manual</a><ul class="current">
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Constants</a></li>
 <li class="toctree-l3"><a class="reference internal" href="differencesolver.html">Differencesolver</a></li>
-<li class="toctree-l3"><a class="reference internal" href="dotmgr.html">DotManager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="udot.html">udot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="dynamicfile.html">DynamicFile</a></li>
 <li class="toctree-l3"><a class="reference internal" href="errors.html">Errors</a></li>
 <li class="toctree-l3"><a class="reference internal" href="info.html">Info</a></li>
@@ -329,7 +334,7 @@ will be loaded</p></li>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

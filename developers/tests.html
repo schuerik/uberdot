@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Testing Dotmanager &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Testing uberdot &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Reference manual" href="reference/index.html" />
-    <link rel="prev" title="How to document Dotmanager" href="documentation.html" />
+    <link rel="prev" title="How to document uberdot" href="documentation.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -32,21 +32,21 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="testing-dotmanager">
-<h1>Testing Dotmanager<a class="headerlink" href="#testing-dotmanager" title="Permalink to this headline">¶</a></h1>
-<p>To verify that Dotmanager is working correct and behaves the same on all
+  <div class="section" id="testing-uberdot">
+<h1>Testing uberdot<a class="headerlink" href="#testing-uberdot" title="Permalink to this headline">¶</a></h1>
+<p>To verify that uberdot is working correct and behaves the same on all
 platforms, there are regression tests in  <code class="docutils literal notranslate"><span class="pre">test/regressiontest.py</span></code>. At the
 moment they are far away from being complete but will be extended in the
 future.</p>
-<p>For now all regression tests can only check if Dotmanager manipulated a
+<p>For now all regression tests can only check if uberdot manipulated a
 directory tree correctly. Those are <code class="docutils literal notranslate"><span class="pre">DirRegressionTest</span></code>. There is also a base
 class <code class="docutils literal notranslate"><span class="pre">RegressionTest</span></code> that does nothing more than checking a precondition,
-executing Dotmanager with some specific parameters and checking a post
+executing uberdot with some specific parameters and checking a post
 condition. If both conditions are met, the test is successful. The special
 <code class="docutils literal notranslate"><span class="pre">DirRegressionTest</span></code> takes a dictionary as condition that describes the
 expected directory tree.</p>
 <p>All profiles that are used in the tests can be found in <code class="docutils literal notranslate"><span class="pre">test/profiles/</span></code>, all
-dotfiles in <code class="docutils literal notranslate"><span class="pre">test/files</span></code>. Dotmanager will be executed with
+dotfiles in <code class="docutils literal notranslate"><span class="pre">test/files</span></code>. uberdot will be executed with
 <code class="docutils literal notranslate"><span class="pre">test/environment</span></code> as default directory and all profiles must not define
 links outside of this directory. Otherwise the tests could overwrite existing
 setups.</p>
@@ -75,12 +75,12 @@ setups.</p>
 <blockquote>
 <div><ul class="simple">
 <li><p>pre: The precondition is checked</p></li>
-<li><p>run: Dotmanager is executed</p></li>
+<li><p>run: uberdot is executed</p></li>
 <li><p>post: The postcondition is checked</p></li>
 </ul>
 </div></blockquote>
 <p>If a test fails, it fails with a cause. For the &quot;pre&quot; and &quot;post&quot; phase the cause
-is a specific error message. For &quot;run&quot; it is the non-zero exitcode of Dotmanager.</p>
+is a specific error message. For &quot;run&quot; it is the non-zero exitcode of uberdot.</p>
 </div>
 <div class="section" id="pre-and-postcondition-for-dirregressiontest">
 <h2>Pre- and postcondition for DirRegressionTest<a class="headerlink" href="#pre-and-postcondition-for-dirregressiontest" title="Permalink to this headline">¶</a></h2>
@@ -143,7 +143,12 @@ a symbolic link, where as files that are listed in <code class="docutils literal
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -151,7 +156,7 @@ a symbolic link, where as files that are listed in <code class="docutils literal
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -161,11 +166,11 @@ a symbolic link, where as files that are listed in <code class="docutils literal
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">Dotmanager Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage/index.html">uberdot usage</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">For developers</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="contributing_link.html">Contributing Guide</a></li>
-<li class="toctree-l2"><a class="reference internal" href="documentation.html">How to document Dotmanager</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Testing Dotmanager</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="documentation.html">How to document uberdot</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Testing uberdot</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#creating-testcases">Creating testcases</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#phases">Phases</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pre-and-postcondition-for-dirregressiontest">Pre- and postcondition for DirRegressionTest</a></li>
@@ -180,7 +185,7 @@ a symbolic link, where as files that are listed in <code class="docutils literal
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="index.html">For developers</a><ul>
-      <li>Previous: <a href="documentation.html" title="previous chapter">How to document Dotmanager</a></li>
+      <li>Previous: <a href="documentation.html" title="previous chapter">How to document uberdot</a></li>
       <li>Next: <a href="reference/index.html" title="next chapter">Reference manual</a></li>
   </ul></li>
   </ul></li>
@@ -221,7 +226,7 @@ a symbolic link, where as files that are listed in <code class="docutils literal
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

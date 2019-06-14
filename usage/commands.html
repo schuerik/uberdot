@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Commands &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Commands &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -190,7 +190,7 @@ used to find alternate versions of a dotfile. Such a alternate version
 of a dotfile needs to be prefixed with the same tag plus a percent
 sign as a separator. The easiest way to explain this concept is with
 an example. Suppose you created a profile for your bash configuration:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
 <span class="k">class</span> <span class="nc">Bash</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;bashrc&quot;</span><span class="p">,</span> <span class="s2">&quot;inputrc&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
@@ -208,14 +208,14 @@ alternate versions of the files and name them like this:</p>
 </ul>
 <p>Now you could create a profile for every device or distribution as you
 like and set the suitable tag.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
 <span class="k">class</span> <span class="nc">Device1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;debian&quot;</span><span class="p">)</span>
         <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Bash&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
 <span class="k">class</span> <span class="nc">Device2</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;arch&quot;</span><span class="p">)</span>
@@ -291,7 +291,7 @@ reset them with <code class="docutils literal notranslate"><span class="pre">def
 <p>This command takes a single filename and searches for it like <code class="docutils literal notranslate"><span class="pre">link()</span></code>. It
 will decrypt it and return the decrypted file as a dynamicfile which then can
 be used by <code class="docutils literal notranslate"><span class="pre">link()</span></code>. If <code class="docutils literal notranslate"><span class="pre">decryptPwd</span></code> is set in your configfile this will be
-used for every decryption. Otherwise Dotmanager (or more precisely gnupg) will
+used for every decryption. Otherwise uberdot (or more precisely gnupg) will
 ask you for the password. Because all dynamicfiles are regenerated every time a
 profile gets executed, this command has the downside that it actually asks for
 the decryption password even though nothing changed, so I highly recommend setting
@@ -358,7 +358,12 @@ one to twenty with each number on a separate line.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -366,7 +371,7 @@ one to twenty with each number on a separate line.</p>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -376,7 +381,7 @@ one to twenty with each number on a separate line.</p>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">uberdot usage</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commandline-interface.html">Commandline Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
@@ -402,7 +407,7 @@ one to twenty with each number on a separate line.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Dotmanager Usage</a><ul>
+  <li><a href="index.html">uberdot usage</a><ul>
       <li>Previous: <a href="python-syntax.html" title="previous chapter">Python explained</a></li>
       <li>Next: <a href="info-module.html" title="next chapter">Info module</a></li>
   </ul></li>
@@ -444,7 +449,7 @@ one to twenty with each number on a separate line.</p>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

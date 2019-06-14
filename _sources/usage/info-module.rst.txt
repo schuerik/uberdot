@@ -39,7 +39,7 @@ To use those functions you need to import the info module:
 
 .. code:: python
 
-   from dotmanager import info
+   from uberdot import info
 
 Then you can use it like this in a profile:
 

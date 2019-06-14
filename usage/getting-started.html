@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Getting started &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Getting started &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -15,7 +15,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Commandline Interface" href="commandline-interface.html" />
-    <link rel="prev" title="Dotmanager Usage" href="index.html" />
+    <link rel="prev" title="uberdot usage" href="index.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -45,11 +45,11 @@ dotfiles are named uniquely.</p>
 <div class="section" id="step-1-installation">
 <h2>Step 1: Installation<a class="headerlink" href="#step-1-installation" title="Permalink to this headline">¶</a></h2>
 <p>In near future there will be packages for AUR and pip available, as well as a
-portable binary. But for now you will have to set up Dotmanager by yourself.</p>
+portable binary. But for now you will have to set up uberdot by yourself.</p>
 <div class="section" id="step-1a-manual-set-up">
 <h3>Step 1a: Manual set up<a class="headerlink" href="#step-1a-manual-set-up" title="Permalink to this headline">¶</a></h3>
 <p>First clone the repository:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/RickestRickSanchez/dotmanager.git
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/schuerik/uberdot.git
 </pre></div>
 </div>
 <p>Then install dependencies:</p>
@@ -59,24 +59,24 @@ $ sudo apt-get install python3 gnupg
 </pre></div>
 </div>
 <p>You can run</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmanager/test/regressiontest.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./uberdot/test/regressiontest.py
 </pre></div>
 </div>
-<p>to verify that Dotmanager runs correctly on your system.</p>
+<p>to verify that uberdot runs correctly on your system.</p>
 </div>
 </div>
 <div class="section" id="step-2-configuration">
 <h2>Step 2: Configuration<a class="headerlink" href="#step-2-configuration" title="Permalink to this headline">¶</a></h2>
-<p>There are a lot of things that you can configure in Dotmanager but for most of
+<p>There are a lot of things that you can configure in uberdot but for most of
 them the defaults are enough. If you are interested in further configuration,
 take a look at <a class="reference internal" href="config-file.html"><span class="doc">Configuration</span></a>. For the beginning you just have to set the
 directory for your dotfiles and for your profiles. To do so, either create a new
-file called <code class="docutils literal notranslate"><span class="pre">dotmanager.ini</span></code> or copy the example from <code class="docutils literal notranslate"><span class="pre">docs/config-example.ini</span></code>.</p>
+file called <code class="docutils literal notranslate"><span class="pre">uberdot.ini</span></code> or copy the example from <code class="docutils literal notranslate"><span class="pre">docs/config-example.ini</span></code>.</p>
 <dl class="simple">
 <dt>You can store the configuration file at one of the following places:</dt><dd><ul class="simple">
-<li><p>dotmanager/data/dotmanager.ini</p></li>
-<li><p>~/.config/dotmanager/dotmanager.ini</p></li>
-<li><p>/etc/dotmanager/dotmanager.ini</p></li>
+<li><p>uberdot/data/uberdot.ini</p></li>
+<li><p>~/.config/uberdot/uberdot.ini</p></li>
+<li><p>/etc/uberdot/uberdot.ini</p></li>
 </ul>
 </dd>
 </dl>
@@ -94,7 +94,7 @@ in your profile directory. It doesn't matter what you name it, as long it ends
 on &quot;.py&quot;.
 You can copy the following, but replace <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> with a file that exists in
 your dotfile directory:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -102,7 +102,7 @@ your dotfile directory:</p>
 </pre></div>
 </div>
 <p>Now installing this profile is easy:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Test1
 <span class="o">[</span>Test1<span class="o">]</span>: Installing new profile
 <span class="o">[</span>Test1<span class="o">]</span>: /home/user/&lt;filename&gt; was created and links to /path/to/your/dotfiles/&lt;filename&gt;
 Finished succesfully.
@@ -111,7 +111,7 @@ Finished succesfully.
 <p>So <code class="docutils literal notranslate"><span class="pre">link(&quot;&lt;filename&gt;&quot;)</span></code> creates a symlink in your home directory and points
 to the file <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> in your repository.</p>
 <p>Ok, lets modify this a little bit and add some more links:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -126,7 +126,7 @@ to the file <code class="docutils literal notranslate"><span class="pre">&lt;fil
 command let's you switch the directory in which the links will be created. So
 instead of creating links in your home directory, all further calls of <code class="docutils literal notranslate"><span class="pre">link()</span></code>
 will create links in <code class="docutils literal notranslate"><span class="pre">~/.config</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Test1
 <span class="o">[</span>Test1<span class="o">]</span>: Profile updated
 <span class="o">[</span>Test1<span class="o">]</span>: /home/user/&lt;filename&gt; was moved to /home/user/.&lt;filename&gt;
 <span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/&lt;filename2&gt; was created and links to /path/to/your/dotfiles/&lt;filename2&gt;
@@ -140,9 +140,9 @@ the effect of the options <code class="docutils literal notranslate"><span class
 </div>
 <div class="section" id="step-4-going-further">
 <h2>Step 4: Going further<a class="headerlink" href="#step-4-going-further" title="Permalink to this headline">¶</a></h2>
-<p>I want to show you two more commands, that provide key techniques of Dotmanager.
+<p>I want to show you two more commands, that provide key techniques of uberdot.
 To make profiles more reusable you can use the <code class="docutils literal notranslate"><span class="pre">subprof()</span></code> command:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Vim</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -162,7 +162,7 @@ To make profiles more reusable you can use the <code class="docutils literal not
 <p>Here we have two profiles. The first one contains all configuration files for vim,
 the second one for zsh and bash. You can embed them in any other profile as a
 subprofile:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">dotmanager.profile</span> <span class="kn">import</span> <span class="n">profile</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -172,7 +172,7 @@ subprofile:</p>
 </pre></div>
 </div>
 <p>Installing <code class="docutils literal notranslate"><span class="pre">Test1</span></code> again, results in the following output:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Test1
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Test1
 <span class="o">[</span>Test1<span class="o">]</span>: Profile updated
 <span class="o">[</span>Test1<span class="o">]</span>: /home/user/.&lt;filename&gt; was moved to /home/user/&lt;filename&gt;
 <span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/&lt;filename2&gt; was removed from the system.
@@ -227,11 +227,11 @@ This would create an inconsistency because first a profile can't be installed tw
 same time and second two profiles define contradicting configurations (one profile wants to
 create a link to &quot;plugins.vim&quot; whereas the other profile wants to create the same link to
 &quot;minmal%plugins.vim&quot;).
-Dotmanager detects such inconsistencies and tells you how to avoid them. I can now uninstall
+uberdot detects such inconsistencies and tells you how to avoid them. I can now uninstall
 just <code class="docutils literal notranslate"><span class="pre">Vim</span></code>, but this would result in a similar error, because <code class="docutils literal notranslate"><span class="pre">Shell</span></code> is also subprofile
 of <code class="docutils literal notranslate"><span class="pre">Pi</span></code> and <code class="docutils literal notranslate"><span class="pre">Test1</span></code>. The better and most intuitive solution is to uninstall <code class="docutils literal notranslate"><span class="pre">Test1</span></code>.
 This removes the full configuration (and therefore also both subprofiles):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -u Test1
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -u Test1
 <span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was removed from the system.
 <span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was removed from the system.
 <span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was removed from the system.
@@ -250,7 +250,7 @@ Finished succesfully.
 </pre></div>
 </div>
 <p>Now we can finally install <code class="docutils literal notranslate"><span class="pre">Pi</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Pi
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Pi
 <span class="o">[</span>Pi<span class="o">]</span>: Installing new Profile
 <span class="o">[</span>Vim<span class="o">]</span>: Installing new profile as subprofile of Pi
 <span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
@@ -274,11 +274,11 @@ you create profiles for all kind of programs that you want to configure
 and create configuration files with different tags that describe properties of the
 system they are for, so that in the end you can quickly create a new profile
 for a new device, by just picking the programs that are installed and telling
-Dotmanager what tags will be applied for the device.</p>
+uberdot what tags will be applied for the device.</p>
 <p>Of course that is just one way to work with tags and just one way to alternate
 versions of a dotfile.</p>
 <p>For further configuration you should take a look at the other
-<a class="reference external" href="https://rickestricksanchez.github.io/dotmanager/usage/commands.html">commands and options</a>.
+<a class="reference external" href="https://schuerik.github.io/uberdot/usage/commands.html">commands and options</a>.
 You probably won't need all of them, but they can solve a lot of
 common problems and will shorten your profiles. The documentation also covers a
 lot of topics that will help you understanding what is going on under the hud, as
@@ -293,7 +293,12 @@ well as more advanced examples and troubleshooting.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -301,7 +306,7 @@ well as more advanced examples and troubleshooting.</p>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -311,7 +316,7 @@ well as more advanced examples and troubleshooting.</p>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">uberdot usage</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Getting started</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#step-0-put-your-dotfiles-into-version-control-optional">Step 0: Put your dotfiles into version control (optional)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#step-1-installation">Step 1: Installation</a></li>
@@ -339,8 +344,8 @@ well as more advanced examples and troubleshooting.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Dotmanager Usage</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Dotmanager Usage</a></li>
+  <li><a href="index.html">uberdot usage</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">uberdot usage</a></li>
       <li>Next: <a href="commandline-interface.html" title="next chapter">Commandline Interface</a></li>
   </ul></li>
   </ul></li>
@@ -381,7 +386,7 @@ well as more advanced examples and troubleshooting.</p>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

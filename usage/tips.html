@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Tips &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Tips &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -37,18 +37,18 @@
 <div class="section" id="set-decryption-password">
 <h2>Set decryption password<a class="headerlink" href="#set-decryption-password" title="Permalink to this headline">¶</a></h2>
 <p>If you use encrypted dotfiles you should really set the password in your
-<code class="docutils literal notranslate"><span class="pre">dotmanager.ini</span></code> config. Otherwise you will have to type it in
-literally everytime that you execute Dotmanager because Dotmanager will
+<code class="docutils literal notranslate"><span class="pre">uberdot.ini</span></code> config. Otherwise you will have to type it in
+literally everytime that you execute uberdot because uberdot will
 never know if the file changed until it decrypted it.</p>
 </div>
-<div class="section" id="create-aliases-for-dotmanager">
-<h2>Create aliases for Dotmanager<a class="headerlink" href="#create-aliases-for-dotmanager" title="Permalink to this headline">¶</a></h2>
-<p>You should create aliases for Dotmanager in your favourite shell so you
+<div class="section" id="create-aliases-for-uberdot">
+<h2>Create aliases for uberdot<a class="headerlink" href="#create-aliases-for-uberdot" title="Permalink to this headline">¶</a></h2>
+<p>You should create aliases for uberdot in your favourite shell so you
 can access it from everywhere. For example:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">alias</span> <span class="nv">dot</span> <span class="o">=</span> ~/repos/dotmanager/dotmgr.py
-<span class="nb">alias</span> <span class="nv">dup</span> <span class="o">=</span> ~/repos/dotmanager/dotmgr.py -i  <span class="c1"># Update profiles</span>
-<span class="nb">alias</span> <span class="nv">drm</span> <span class="o">=</span> ~/repos/dotmanager/dotmgr.py -u  <span class="c1"># Remove profiles</span>
-<span class="nb">alias</span> <span class="nv">dls</span> <span class="o">=</span> ~/repos/dotmanager/dotmgr.py -s  <span class="c1"># List installed profiles</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">alias</span> <span class="nv">dot</span> <span class="o">=</span> ~/repos/uberdot/udot.py
+<span class="nb">alias</span> <span class="nv">dup</span> <span class="o">=</span> ~/repos/uberdot/udot.py -i  <span class="c1"># Update profiles</span>
+<span class="nb">alias</span> <span class="nv">drm</span> <span class="o">=</span> ~/repos/uberdot/udot.py -u  <span class="c1"># Remove profiles</span>
+<span class="nb">alias</span> <span class="nv">dls</span> <span class="o">=</span> ~/repos/uberdot/udot.py -s  <span class="c1"># List installed profiles</span>
 </pre></div>
 </div>
 </div>
@@ -87,7 +87,12 @@ in a single module but I like it to be a bit more separated.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -95,7 +100,7 @@ in a single module but I like it to be a bit more separated.</p>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -105,7 +110,7 @@ in a single module but I like it to be a bit more separated.</p>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">uberdot usage</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
 <li class="toctree-l2"><a class="reference internal" href="commandline-interface.html">Commandline Interface</a></li>
 <li class="toctree-l2"><a class="reference internal" href="python-syntax.html">Python explained</a></li>
@@ -119,7 +124,7 @@ in a single module but I like it to be a bit more separated.</p>
 <li class="toctree-l2"><a class="reference internal" href="example-configuration.html">Examples</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Tips</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#set-decryption-password">Set decryption password</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#create-aliases-for-dotmanager">Create aliases for Dotmanager</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-aliases-for-uberdot">Create aliases for uberdot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#organizing-profiles">Organizing profiles</a></li>
 </ul>
 </li>
@@ -131,7 +136,7 @@ in a single module but I like it to be a bit more separated.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Dotmanager Usage</a><ul>
+  <li><a href="index.html">uberdot usage</a><ul>
       <li>Previous: <a href="example-configuration.html" title="previous chapter">Examples</a></li>
       <li>Next: <a href="../developers/index.html" title="next chapter">For developers</a></li>
   </ul></li>
@@ -173,7 +178,7 @@ in a single module but I like it to be a bit more separated.</p>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     

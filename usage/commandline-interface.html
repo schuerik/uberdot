@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Commandline Interface &#8212; Dotmanager 1.11.2_3 documentation</title>
+    <title>Commandline Interface &#8212; uberdot 1.12.0_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -36,7 +36,7 @@
 <h1>Commandline Interface<a class="headerlink" href="#commandline-interface" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="synopsis">
 <h2>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dotmgr</span><span class="o">.</span><span class="n">py</span> <span class="n">MODE</span> <span class="p">[</span><span class="n">OPTIONS</span><span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="n">PROFILES</span><span class="o">...</span><span class="p">]</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">udot</span><span class="o">.</span><span class="n">py</span> <span class="n">MODE</span> <span class="p">[</span><span class="n">OPTIONS</span><span class="o">...</span><span class="p">]</span> <span class="p">[</span><span class="n">PROFILES</span><span class="o">...</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -48,7 +48,7 @@
 <dd><p>Shows a short help message with all options and modes and exits</p>
 </dd>
 <dt><kbd><span class="option">--version</span></kbd></dt>
-<dd><p>Displays the version of dotmanager and exits</p>
+<dd><p>Displays the version of uberdot and exits</p>
 </dd>
 <dt><kbd><span class="option">-i</span>, <span class="option">--install</span></kbd></dt>
 <dd><p>Installs every specified profile. If a profile is already installed
@@ -56,7 +56,7 @@ it will be updated instead of installed.</p>
 </dd>
 <dt><kbd><span class="option">-u</span>, <span class="option">--uninstall</span></kbd></dt>
 <dd><p>Uninstalls every specified profile. If a profile is not installed,
-dotmanager will skip this profile.</p>
+uberdot will skip this profile.</p>
 </dd>
 <dt><kbd><span class="option">-s</span>, <span class="option">--show</span></kbd></dt>
 <dd><p>Shows information about installed profiles and links. If you specify
@@ -75,7 +75,7 @@ Otherwise information about all installed profiles will be shown.</p>
 <dd><p>Overwrite the default directory temporarily</p>
 </dd>
 <dt><kbd><span class="option">-d</span>, <span class="option">--dry-run</span></kbd></dt>
-<dd><p>Just simulate the changes dotmanager would perform</p>
+<dd><p>Just simulate the changes uberdot would perform</p>
 </dd>
 <dt><kbd><span class="option">--dui</span></kbd></dt>
 <dd><p>Use an alternative startegy to install profiles and links. The default
@@ -108,7 +108,7 @@ of <code class="docutils literal notranslate"><span class="pre">PARENT</span></c
 debugging.</p>
 </dd>
 <dt><kbd><span class="option">-p</span>, <span class="option">--pretty-print</span></kbd></dt>
-<dd><p>Prints out the changes that dotmanager would perform if executed without
+<dd><p>Prints out the changes that uberdot would perform if executed without
 this flag. This differs from <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> in that way that it won’t do
 any checks on the profiles or filesystem, so <code class="docutils literal notranslate"><span class="pre">--dry-run</span></code> is almost
 always to prefer. The only use-case is if your profiles will raise an
@@ -155,38 +155,38 @@ case-sensitive.</p>
 <ol class="arabic simple">
 <li><p>Uninstall the profile called &quot;Main&quot; and all its subprofiles</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -u Main
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -u Main
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
 <li><p>Install the profiles &quot;Main&quot; and &quot;Main2&quot; and all their subprofiles</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i Main Main2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li><p>Just simulate previous installation</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -id Main Main2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -id Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>Perform the same installation like before but set the prefix for all links to &quot;.&quot;</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i --option <span class="nv">prefix</span><span class="o">=</span>. -- Main Main2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i --option <span class="nv">prefix</span><span class="o">=</span>. -- Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="5">
 <li><p>Also set the tags &quot;debian&quot; and &quot;big&quot;</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -i --option <span class="nv">prefix</span><span class="o">=</span>. <span class="nv">tags</span><span class="o">=</span>debian,big -- Main Main2
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i --option <span class="nv">prefix</span><span class="o">=</span>. <span class="nv">tags</span><span class="o">=</span>debian,big -- Main Main2
 </pre></div>
 </div>
 <ol class="arabic simple" start="6">
 <li><p>Install &quot;Main&quot; and all it's subprofiles, make non-existing directories and
 overwrite existing files</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./dotmgr.py -imf Main
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -imf Main
 </pre></div>
 </div>
 </div>
@@ -199,7 +199,12 @@ overwrite existing files</p></li>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Dotmanager</a></h1>
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.png" alt="Logo"/>
+    
+  </a>
+</p>
 
 
 
@@ -207,7 +212,7 @@ overwrite existing files</p></li>
 
 
 <p>
-<iframe src="https://ghbtns.com/github-btn.html?user=RickestRickSanchez&repo=Dotmanager&type=watch&count=true&size=large&v=2"
+<iframe src="https://ghbtns.com/github-btn.html?user=schuerik&repo=uberdot&type=watch&count=true&size=large&v=2"
   allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
 </p>
 
@@ -217,7 +222,7 @@ overwrite existing files</p></li>
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Dotmanager Usage</a><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">uberdot usage</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="getting-started.html">Getting started</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Commandline Interface</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#synopsis">Synopsis</a></li>
@@ -245,7 +250,7 @@ overwrite existing files</p></li>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="index.html">Dotmanager Usage</a><ul>
+  <li><a href="index.html">uberdot usage</a><ul>
       <li>Previous: <a href="getting-started.html" title="previous chapter">Getting started</a></li>
       <li>Next: <a href="python-syntax.html" title="next chapter">Python explained</a></li>
   </ul></li>
@@ -287,7 +292,7 @@ overwrite existing files</p></li>
     </div>
 
     
-    <a href="https://github.com/RickestRickSanchez/Dotmanager" class="github">
+    <a href="https://github.com/schuerik/uberdot" class="github">
         <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
     </a>
     
