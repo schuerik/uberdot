@@ -1,8 +1,8 @@
 *************
-uberdot usage
+Usage Manuals
 *************
 
-The uberdot usage manual covers all topics on how to use uberdot. All
+The usage manuals cover all topics on how to use uberdot. All
 documents provide extensive examples and advises for best practice.
 
 .. toctree::
