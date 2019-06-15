@@ -1,8 +1,8 @@
-==========================
-How to document Dotmanager
-==========================
+=======================
+How to document uberdot
+=======================
 
-The documentation, reference manual and manpage of Dotmanager are all generated with
+The documentation, reference manual and manpage of uberdot are all generated with
 Sphinx_. It consists of mainly two big parts. First the reference manual, which
 is generated from the source code, and second the user guides which are generated
 from the sphinx source directory.
@@ -59,7 +59,7 @@ The same goes for the man page:
     $ cd docs/sphinx
     $ make man
 
-    $ man -l build/man/dotmanager.1
+    $ man -l build/man/uberdot.1
 
 If you delete or rename file you might want to do a clean up of the build directory:
 

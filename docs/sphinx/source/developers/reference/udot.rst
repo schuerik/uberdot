@@ -1,0 +1,5 @@
+****
+udot
+****
+
+.. automodule:: udot

@@ -3,7 +3,7 @@ Examples
 ********
 
 This is an example of a more complex configuration that tries to show of
-most features of dotmanager and what you could achieve with inheritance.
+most features of uberdot and what you could achieve with inheritance.
 It’s a variation of a setup I’m using for over a half year now. The tags
 that I defined have the following semantics:
 

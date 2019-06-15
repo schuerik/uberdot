@@ -12,7 +12,7 @@ the standart DiffSolver) and their resulting data structure DiffLog.
 #
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,11 +31,11 @@ the standart DiffSolver) and their resulting data structure DiffLog.
 
 
 import copy
-from dotmanager.errors import FatalError
-from dotmanager.interpreters import Interpreter
-from dotmanager.utils import import_profile_class
-from dotmanager.utils import log_warning
-from dotmanager.utils import get_date_time_now
+from uberdot.errors import FatalError
+from uberdot.interpreters import Interpreter
+from uberdot.utils import import_profile_class
+from uberdot.utils import log_warning
+from uberdot.utils import get_date_time_now
 
 
 class DiffLog():

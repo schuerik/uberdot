@@ -1,5 +1,5 @@
 """This module collects all profiles that are used to test commands"""
-from dotmanager.profile import Profile
+from uberdot.profile import Profile
 
 class Links(Profile):
     def generate(self):

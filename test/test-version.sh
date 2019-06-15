@@ -1,11 +1,11 @@
 ### Start this script from the root directory of the repository
-if [ -z $(ls | grep "dotmgr.py") ]; then
+if [ -z $(ls | grep "udot.py") ]; then
     echo "Started from the wrong direcory. Use ./test/test-version.sh"
     exit 69
 fi
 
 # Settings
-master_dir="dotmanager-master"
+master_dir="uberdot-master"
 
 # Helpers
 cleanup() {
@@ -26,15 +26,15 @@ exiterror() {
 
 
 # Get version numbers
-version_pr=$(./dotmgr.py --config test/versiontest.ini --version | cut -d' ' -f2)
+version_pr=$(./udot.py --config test/versiontest.ini --version | cut -d' ' -f2)
 
 echo "Fetching master..."
 # To test/debug this script offline, create a bundle of the repository with:
 #   git bundle create dm.bundle --all
 # and use this git clone instead:
 #   git clone dm.bundle --branch master --single-branch $master_dir &> /dev/null
-git clone https://github.com/RickestRickSanchez/dotmanager.git --branch master --single-branch $master_dir &> /dev/null
-version_master=$($master_dir/dotmgr.py --config test/versiontest.ini --version | cut -d' ' -f2)
+git clone https://github.com/schuerik/uberdot.git --branch master --single-branch $master_dir &> /dev/null
+version_master=$($master_dir/udot.py --config test/versiontest.ini --version | cut -d' ' -f2)
 
 echo "PullRequest version: $version_pr"
 echo "Master version: $version_master"

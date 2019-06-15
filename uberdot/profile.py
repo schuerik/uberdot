@@ -7,7 +7,7 @@
 #
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,19 +30,19 @@ import os
 import re
 import shutil
 from abc import abstractmethod
-from dotmanager import constants
-from dotmanager.dynamicfile import *
-from dotmanager.errors import CustomError
-from dotmanager.errors import GenerationError
-from dotmanager.errors import FatalError
-from dotmanager.utils import expandvars
-from dotmanager.utils import expanduser
-from dotmanager.utils import find_target
-from dotmanager.utils import get_dir_owner
-from dotmanager.utils import import_profile_class
-from dotmanager.utils import log_warning
-from dotmanager.utils import normpath
-from dotmanager.utils import walk_dotfiles
+from uberdot import constants
+from uberdot.dynamicfile import *
+from uberdot.errors import CustomError
+from uberdot.errors import GenerationError
+from uberdot.errors import FatalError
+from uberdot.utils import expandvars
+from uberdot.utils import expanduser
+from uberdot.utils import find_target
+from uberdot.utils import get_dir_owner
+from uberdot.utils import import_profile_class
+from uberdot.utils import log_warning
+from uberdot.utils import normpath
+from uberdot.utils import walk_dotfiles
 
 
 CUSTOM_BUILTINS = [

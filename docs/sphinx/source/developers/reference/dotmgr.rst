@@ -1,5 +1,0 @@
-**********
-DotManager
-**********
-
-.. automodule:: dotmgr

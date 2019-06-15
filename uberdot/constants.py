@@ -5,7 +5,7 @@ overwrite defaults for a specific configuration."""
 #
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,18 +27,18 @@ import configparser
 import csv
 import os
 import sys
-from dotmanager.errors import PreconditionError
-from dotmanager.errors import UserError
-from dotmanager.utils import find_files
-from dotmanager.utils import get_user_env_var
-from dotmanager.utils import normpath
+from uberdot.errors import PreconditionError
+from uberdot.errors import UserError
+from uberdot.utils import find_files
+from uberdot.utils import get_user_env_var
+from uberdot.utils import normpath
 
-VERSION = "1.11.2_3"
+VERSION = "1.12.1_3"
 """Version numbers, seperated by underscore.
 
-First part is the version of Dotmanager. The second part (after the underscore)
+First part is the version of uberdot. The second part (after the underscore)
 is the version of the installed-file schema. The latter will be used to
-determine compability of the Dotmanager with the installed-file."""
+determine compability of the uberdot with the installed-file."""
 
 
 # Setting defaults/fallback values for all constants
@@ -50,7 +50,7 @@ DUISTRATEGY = False
 FORCE = False
 """True, if --force should be set as default. Default is ``False``."""
 MAKEDIRS = False
-"""True, if Dotmanager shall create directories if they don't exist.
+"""True, if uberdot shall create directories if they don't exist.
 Default is ``False``.
 """
 SKIPROOT = False
@@ -58,15 +58,15 @@ SKIPROOT = False
 Default is ``False``.
 """
 SUPERFORCE = False
-"""True, if Dotmanager shall overwrite files that are blacklisted.
+"""True, if uberdot shall overwrite files that are blacklisted.
 Default is ``False``.
 """
 
 
 # Settings
 ASKROOT = True
-"""True, if Dotmanager shall ask for root permission if needed. If False,
-Dotmanager will fail if root permission is needed. Default is ``True``.
+"""True, if uberdot shall ask for root permission if needed. If False,
+uberdot will fail if root permission is needed. Default is ``True``.
 """
 LOGGINGLEVEL = "info"
 """The current logging level. Default is ``info``."""
@@ -135,10 +135,10 @@ in more than one configuration file, the setting from the configuration file
 with higher index will be prefered.
 """
 CONFIG_SEARCH_PATHS = [
-    "/etc/dotmanager",
+    "/etc/uberdot",
     os.path.join(
         get_user_env_var('XDG_CONFIG_HOME', normpath('~/.config')),
-        "dotmanager"
+        "uberdot"
     ),
     DATA_DIR
 ]
@@ -169,7 +169,7 @@ def loadconfig(config_file, installed_filename="default"):
     if config_file:
         CFG_FILES = [config_file]
     else:
-        CFG_FILES = find_files("dotmanager.ini", CONFIG_SEARCH_PATHS)
+        CFG_FILES = find_files("uberdot.ini", CONFIG_SEARCH_PATHS)
     config = configparser.ConfigParser()
     try:
         for cfg in CFG_FILES:

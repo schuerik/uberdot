@@ -6,23 +6,23 @@ Set decryption password
 =======================
 
 If you use encrypted dotfiles you should really set the password in your
-``dotmanager.ini`` config. Otherwise you will have to type it in
-literally everytime that you execute Dotmanager because Dotmanager will
+``uberdot.ini`` config. Otherwise you will have to type it in
+literally everytime that you execute uberdot because uberdot will
 never know if the file changed until it decrypted it.
 
 
-Create aliases for Dotmanager
+Create aliases for uberdot
 =============================
 
-You should create aliases for Dotmanager in your favourite shell so you
+You should create aliases for uberdot in your favourite shell so you
 can access it from everywhere. For example:
 
 .. code:: bash
 
-   alias dot = ~/repos/dotmanager/dotmgr.py
-   alias dup = ~/repos/dotmanager/dotmgr.py -i  # Update profiles
-   alias drm = ~/repos/dotmanager/dotmgr.py -u  # Remove profiles
-   alias dls = ~/repos/dotmanager/dotmgr.py -s  # List installed profiles
+   alias dot = ~/repos/uberdot/udot.py
+   alias dup = ~/repos/uberdot/udot.py -i  # Update profiles
+   alias drm = ~/repos/uberdot/udot.py -u  # Remove profiles
+   alias dls = ~/repos/uberdot/udot.py -s  # List installed profiles
 
 
 Organizing profiles

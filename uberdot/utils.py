@@ -5,7 +5,7 @@ E.g. retrieving a environment variable or fixing file permisions."""
 #
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,10 +30,10 @@ import os
 import pwd
 import re
 import subprocess
-from dotmanager import constants
-from dotmanager.errors import FatalError
-from dotmanager.errors import GenerationError
-from dotmanager.errors import PreconditionError
+from uberdot import constants
+from uberdot.errors import FatalError
+from uberdot.errors import GenerationError
+from uberdot.errors import PreconditionError
 
 
 # Utils for finding targets
@@ -147,7 +147,7 @@ def walk_dotfiles():
 ###############################################################################
 
 def get_uid():
-    """Get the UID of the user that started dotmanager.
+    """Get the UID of the user that started uberdot.
 
     This gets the current users UID. If SUDO_UID is set (this means the process
     was started with sudo) SUDO_UID will be returned instead.
@@ -162,7 +162,7 @@ def get_uid():
 
 
 def get_gid():
-    """Get the GID of the user that started dotmanager.
+    """Get the GID of the user that started uberdot.
 
     This gets the current users GID. If SUDO_GID is set (this means the process
     was started with sudo) SUDO_GID will be returned instead.
@@ -208,7 +208,7 @@ def has_root_priveleges():
 def get_current_username():
     """Gets the current users username.
 
-    Gets the username of the user that started Dotmanager. If the
+    Gets the username of the user that started uberdot. If the
     program was started with sudo, it still returns the original
     username and not "root".
 
@@ -227,7 +227,7 @@ def get_user_env_var(varname, fallback=None):
     .bashrc, because they aren't set at the time they will be looked up.
     Otherwise this function will do a standart look up of the users environment
     variables which means that all variables that were set at the time
-    Dotmanager was started can be accessed.
+    uberdot was started can be accessed.
 
     Args:
         varname (str): Name of the variable to look up
@@ -354,7 +354,7 @@ def import_profile_class(class_name):
     """
     # Import profile (can't be done globally because profile needs to
     # import this module first)
-    from dotmanager.profile import Profile
+    from uberdot.profile import Profile
 
     # Go through all files in the profile directory
     for root, _, files in os.walk(constants.PROFILE_FILES):

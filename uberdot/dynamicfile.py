@@ -17,7 +17,7 @@ be linked instead and makes sure that user-made changes are preserved.
 #
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,8 +42,8 @@ from abc import abstractmethod
 from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
-from dotmanager import constants
-from dotmanager.utils import normpath
+from uberdot import constants
+from uberdot.utils import normpath
 
 
 logger = logging.getLogger("root")
@@ -154,8 +154,8 @@ class EncryptedFile(DynamicFile):
         if constants.DECRYPT_PWD:
             args += ["--batch", "--passphrase", constants.DECRYPT_PWD]
         else:
-            logger.info("Tipp: You can set a password in the dotmanagers " +
-                        "config that will be used for all encrypted files")
+            logger.info("Tipp: You can set a password in uberdots " +
+                        "config that will be used for all encrypted files.")
         args += ["-o", tmp, encryped_file]
         # Use OpenPGP to decrypt the file
         process = Popen(args, stdin=PIPE)

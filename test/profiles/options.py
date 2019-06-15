@@ -1,5 +1,5 @@
 """This module collects all profiles that are used to test the options"""
-from dotmanager.profile import Profile
+from uberdot.profile import Profile
 
 class NoOptions(Profile):
     def generate(self):

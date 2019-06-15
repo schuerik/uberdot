@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""This is the main module. It implements the DotManager class and a short
+"""This is the main module. It implements the UberDot class and a short
 startup script.
 
 You can run this directly from the CLI with
 
 .. code:: bash
 
-    python ./dotmgr.py <arguments>
+    python ./udot.py <arguments>
 
-or you can import DotManager for debugging and testing purposes."""
+or you can import UberDot for debugging and testing purposes."""
 
 ###############################################################################
 #
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -48,25 +48,25 @@ if os.getenv("COVERAGE_PROCESS_START"):
     import coverage
     coverage.process_startup()
 
-from dotmanager import constants
-from dotmanager.interpreters import *
-from dotmanager.errors import CustomError
-from dotmanager.errors import FatalError
-from dotmanager.errors import PreconditionError
-from dotmanager.errors import UnkownError
-from dotmanager.errors import UserError
-from dotmanager.differencesolver import DiffSolver
-from dotmanager.differencesolver import DiffLog
-from dotmanager.utils import has_root_priveleges
-from dotmanager.utils import get_uid
-from dotmanager.utils import get_gid
-from dotmanager.utils import log_success
-from dotmanager.utils import log_warning
-from dotmanager.utils import normpath
+from uberdot import constants
+from uberdot.interpreters import *
+from uberdot.errors import CustomError
+from uberdot.errors import FatalError
+from uberdot.errors import PreconditionError
+from uberdot.errors import UnkownError
+from uberdot.errors import UserError
+from uberdot.differencesolver import DiffSolver
+from uberdot.differencesolver import DiffLog
+from uberdot.utils import has_root_priveleges
+from uberdot.utils import get_uid
+from uberdot.utils import get_gid
+from uberdot.utils import log_success
+from uberdot.utils import log_warning
+from uberdot.utils import normpath
 
 
-class DotManager:
-    """Bundles all functionality of Dotmanager.
+class UberDot:
+    """Bundles all functionality of uberdot.
 
     This includes things like parsing arguments, loading installed-files,
     printing information and executing profiles.
@@ -74,7 +74,7 @@ class DotManager:
     Attributes:
         installed (dict): The installed-file that is used as a reference
         args (argparse): The parsed arguments
-        owd (str): The old working directory Dotmanager was started from
+        owd (str): The old working directory uberdot was started from
     """
 
     def __init__(self):
@@ -95,7 +95,7 @@ class DotManager:
         ``self.installed``.
 
         Raises:
-            PreconditionError: Dotmanager and installed-file aren't
+            PreconditionError: uberdot and installed-file aren't
                 version compatible.
         """
         try:
@@ -159,7 +159,7 @@ class DotManager:
                             help="print the internal DiffLog as plain json",
                             action="store_true")
         parser.add_argument("-p", "--print",
-                            help="print what changes dotmanager will do",
+                            help="print what changes uberdot will do",
                             action="store_true")
         parser.add_argument("-q", "--quiet",
                             help="print nothing but errors",
@@ -446,7 +446,7 @@ class DotManager:
         """Performs checks on DiffLog and resolves it.
 
         Furthermore this function handles backups, converts exceptions into
-        UnkownErrors and might replace the entire process when Dotmanager was
+        UnkownErrors and might replace the entire process when uberdot was
         started with insufficient permissions.
 
         Args:
@@ -555,10 +555,10 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    # Create DotManager instance and parse arguments
-    dotm = DotManager()
+    # Create UberDot instance and parse arguments
+    uber = UberDot()
     try:
-        dotm.parse_arguments()
+        uber.parse_arguments()
     except CustomError as err:
         logger.error(err.message)
         sys.exit(err.EXITCODE)
@@ -572,8 +572,8 @@ if __name__ == "__main__":
             m += "are certain that your installed-file is correct you can"
             m += " remove the backup and start this tool again."
             raise PreconditionError(m)
-        dotm.load_installed()
-        dotm.execute_arguments()
+        uber.load_installed()
+        uber.execute_arguments()
     except CustomError as err:
         # An error occured that we (more or less) expected.
         # Print error, a stacktrace and exit
@@ -594,7 +594,7 @@ if __name__ == "__main__":
         # Write installed-file back to json file
         try:
             with open(constants.INSTALLED_FILE, "w") as file:
-                file.write(json.dumps(dotm.installed, indent=4))
+                file.write(json.dumps(uber.installed, indent=4))
                 file.flush()
             os.chown(constants.INSTALLED_FILE, get_uid(), get_gid())
         except Exception as err:

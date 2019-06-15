@@ -1,14 +1,14 @@
 :orphan:
 
-*****************
-Dotmanager Manual
-*****************
+**************
+uberdot manual
+**************
 
 
 DESCRIPTION
 ===========
 
-Dotmanager is a program to manage configuration files and symbolic links on both the
+uberdot is a program to manage configuration files and symbolic links on both the
 system and the user level. It is used to set up devices and keep their configuration
 up-to-date.
 
@@ -20,4 +20,4 @@ NOTES
 =====
 
 Fur more information take a look at the online documentation at
-https://rickestricksanchez.github.io/dotmanager/.
+https://schuerik.github.io/uberdot/.

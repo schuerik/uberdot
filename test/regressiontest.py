@@ -2,7 +2,7 @@
 
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -74,7 +74,7 @@ class RegressionTest():
     It provides simple start and check functionality"""
     def __init__(self, name, cmd_args, reset):
         self.name = name
-        self.cmd_args = ["python3", os.path.abspath("../dotmgr.py"),
+        self.cmd_args = ["python3", os.path.abspath("../udot.py"),
                          "--config", "regressiontest.ini",
                          "--save", "regressiontests"] + cmd_args
         self.reset = reset
@@ -166,7 +166,7 @@ class RegressionTest():
 
 
 class DirRegressionTest(RegressionTest):
-    """Regression check if Dotmanager makes the expected
+    """Regression check if uberdot makes the expected
     changes to the filesystem"""
     def __init__(self, name, cmd_args, before, after, reset):
         super().__init__(name, cmd_args, reset)

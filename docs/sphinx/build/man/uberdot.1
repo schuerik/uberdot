@@ -1,8 +1,8 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "DOTMANAGER" "1" "Jun 13, 2019" "1.11.2_3" "Dotmanager"
+.TH "UBERDOT" "1" "Jun 15, 2019" "1.12.0_3" "uberdot"
 .SH NAME
-dotmanager \- Dotmanager manpage
+uberdot \- uberdot manpage
 .
 .nr rst2man-indent-level 0
 .
@@ -32,7 +32,7 @@ level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
 ..
 .SH DESCRIPTION
 .sp
-Dotmanager is a program to manage configuration files and symbolic links on both the
+uberdot is a program to manage configuration files and symbolic links on both the
 system and the user level. It is used to set up devices and keep their configuration
 up\-to\-date.
 .SH SYNOPSIS
@@ -41,7 +41,7 @@ up\-to\-date.
 .sp
 .nf
 .ft C
-dotmgr.py MODE [OPTIONS...] [PROFILES...]
+udot.py MODE [OPTIONS...] [PROFILES...]
 .ft P
 .fi
 .UNINDENT
@@ -55,7 +55,7 @@ One \- and only one \- of the following modes has to be chosen:
 Shows a short help message with all options and modes and exits
 .TP
 .B \-\-version
-Displays the version of dotmanager and exits
+Displays the version of uberdot and exits
 .TP
 .B \-i\fP,\fB  \-\-install
 Installs every specified profile. If a profile is already installed
@@ -63,7 +63,7 @@ it will be updated instead of installed.
 .TP
 .B \-u\fP,\fB  \-\-uninstall
 Uninstalls every specified profile. If a profile is not installed,
-dotmanager will skip this profile.
+uberdot will skip this profile.
 .TP
 .B \-s\fP,\fB  \-\-show
 Shows information about installed profiles and links. If you specify
@@ -80,7 +80,7 @@ Use a different config file for this call
 Overwrite the default directory temporarily
 .TP
 .B \-d\fP,\fB  \-\-dry\-run
-Just simulate the changes dotmanager would perform
+Just simulate the changes uberdot would perform
 .TP
 .B \-\-dui
 Use an alternative startegy to install profiles and links. The default
@@ -113,7 +113,7 @@ Prints the \fBDifference Log\fP unformatted and exits. Only useful for
 debugging.
 .TP
 .B \-p\fP,\fB  \-\-pretty\-print
-Prints out the changes that dotmanager would perform if executed without
+Prints out the changes that uberdot would perform if executed without
 this flag. This differs from \fB\-\-dry\-run\fP in that way that it won’t do
 any checks on the profiles or filesystem, so \fB\-\-dry\-run\fP is almost
 always to prefer. The only use\-case is if your profiles will raise an
@@ -162,7 +162,7 @@ Uninstall the profile called "Main" and all its subprofiles
 .sp
 .nf
 .ft C
-$ ./dotmgr.py \-u Main
+$ ./udot.py \-u Main
 .ft P
 .fi
 .UNINDENT
@@ -176,7 +176,7 @@ Install the profiles "Main" and "Main2" and all their subprofiles
 .sp
 .nf
 .ft C
-$ ./dotmgr.py \-i Main Main2
+$ ./udot.py \-i Main Main2
 .ft P
 .fi
 .UNINDENT
@@ -190,7 +190,7 @@ Just simulate previous installation
 .sp
 .nf
 .ft C
-$ ./dotmgr.py \-id Main Main2
+$ ./udot.py \-id Main Main2
 .ft P
 .fi
 .UNINDENT
@@ -204,7 +204,7 @@ Perform the same installation like before but set the prefix for all links to ".
 .sp
 .nf
 .ft C
-$ ./dotmgr.py \-i \-\-option prefix=. \-\- Main Main2
+$ ./udot.py \-i \-\-option prefix=\&. \-\- Main Main2
 .ft P
 .fi
 .UNINDENT
@@ -218,7 +218,7 @@ Also set the tags "debian" and "big"
 .sp
 .nf
 .ft C
-$ ./dotmgr.py \-i \-\-option prefix=. tags=debian,big \-\- Main Main2
+$ ./udot.py \-i \-\-option prefix=\&. tags=debian,big \-\- Main Main2
 .ft P
 .fi
 .UNINDENT
@@ -233,7 +233,7 @@ overwrite existing files
 .sp
 .nf
 .ft C
-$ ./dotmgr.py \-imf Main
+$ ./udot.py \-imf Main
 .ft P
 .fi
 .UNINDENT
@@ -435,7 +435,7 @@ an example. Suppose you created a profile for your bash configuration:
 .sp
 .nf
 .ft C
-from dotmanager.profile import Profile
+from uberdot.profile import Profile
 class Bash(Profile):
     def generate(self):
         link("bashrc", "inputrc", prefix=".")
@@ -466,7 +466,7 @@ like and set the suitable tag.
 .sp
 .nf
 .ft C
-from dotmanager.profile import Profile
+from uberdot.profile import Profile
 class Device1(Profile):
     def generate(self):
         tags("debian")
@@ -480,7 +480,7 @@ class Device1(Profile):
 .sp
 .nf
 .ft C
-from dotmanager.profile import Profile
+from uberdot.profile import Profile
 class Device2(Profile):
     def generate(self):
         tags("arch")
@@ -566,7 +566,7 @@ default("tags")
 This command takes a single filename and searches for it like \fBlink()\fP\&. It
 will decrypt it and return the decrypted file as a dynamicfile which then can
 be used by \fBlink()\fP\&. If \fBdecryptPwd\fP is set in your configfile this will be
-used for every decryption. Otherwise Dotmanager (or more precisely gnupg) will
+used for every decryption. Otherwise uberdot (or more precisely gnupg) will
 ask you for the password. Because all dynamicfiles are regenerated every time a
 profile gets executed, this command has the downside that it actually asks for
 the decryption password even though nothing changed, so I highly recommend setting
@@ -708,7 +708,7 @@ To use those functions you need to import the info module:
 .sp
 .nf
 .ft C
-from dotmanager import info
+from uberdot import info
 .ft P
 .fi
 .UNINDENT
@@ -723,11 +723,11 @@ Then you can use it like this in a profile:
 class Main(Profile):
     def generate(self):
         # Install the profile "Vim" if the package vim is installed
-        if info.pkg_installed("vim"):
+        if info\&.pkg_installed("vim"):
             subprof("Vim")
 
         # Link a .bashrc with aliases for pacman instead of apt\-get if Arch Linux is installed
-        if info.distribution() == "Arch Linux":
+        if info\&.distribution() == "Arch Linux":
             link("bash\-pacman.sh", name=".bashrc")
         else:
             link("bash\-apt\-get.sh", name=".bashrc")
@@ -738,7 +738,7 @@ class Main(Profile):
 .SH NOTES
 .sp
 Fur more information take a look at the online documentation at
-\fI\%https://rickestricksanchez.github.io/dotmanager/\fP\&.
+\fI\%https://schuerik.github.io/uberdot/\fP\&.
 .SH AUTHOR
 Erik Schulz
 .SH COPYRIGHT

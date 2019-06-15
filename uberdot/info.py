@@ -5,7 +5,7 @@ retrieve system information."""
 #
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ import os
 import re
 import shutil
 import platform
-from dotmanager.utils import get_current_username
+from uberdot.utils import get_current_username
 
 
 def distribution():
@@ -87,7 +87,7 @@ def pkg_installed(pkg_name):
 
 
 def username():
-    """Returns the username that executed dotmanager.
+    """Returns the username of the user that executed uberdot.
 
     Returns:
         str: Username of current user

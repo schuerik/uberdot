@@ -35,7 +35,7 @@ DiffLog.
 #
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -64,20 +64,20 @@ from abc import abstractmethod
 from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
-from dotmanager import constants
-from dotmanager.errors import IntegrityError
-from dotmanager.errors import PreconditionError
-from dotmanager.errors import UnkownError
-from dotmanager.errors import UserError
-from dotmanager.errors import UserAbortion
-from dotmanager.errors import FatalError
-from dotmanager.utils import find_files
-from dotmanager.utils import get_date_time_now
-from dotmanager.utils import get_dir_owner
-from dotmanager.utils import get_gid
-from dotmanager.utils import get_uid
-from dotmanager.utils import is_dynamic_file
-from dotmanager.utils import log_warning
+from uberdot import constants
+from uberdot.errors import IntegrityError
+from uberdot.errors import PreconditionError
+from uberdot.errors import UnkownError
+from uberdot.errors import UserError
+from uberdot.errors import UserAbortion
+from uberdot.errors import FatalError
+from uberdot.utils import find_files
+from uberdot.utils import get_date_time_now
+from uberdot.utils import get_dir_owner
+from uberdot.utils import get_gid
+from uberdot.utils import get_uid
+from uberdot.utils import is_dynamic_file
+from uberdot.utils import log_warning
 
 
 logger = logging.getLogger("root")
@@ -407,7 +407,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
 
         The user can choose one of the following options to handle the changes:
 
-            - **A**: Abort and exit Dotmanager
+            - **A**: Abort and exit uberdot
             - **I**: Ignore the changes and do nothing
             - **D**: Show a diff and ask again
             - **P**: Create a patch file and ask again
@@ -1033,7 +1033,7 @@ class ExecuteInterpreter(Interpreter):
 
 
 class DetectRootInterpreter(Interpreter):
-    """DetectDetects if root permission is needed to perform operations. """
+    """Detects if root permission is needed to perform operations. """
 
     def _access(self, path):
         """Checks if we have write access for a given path.
@@ -1119,7 +1119,6 @@ class DetectRootInterpreter(Interpreter):
                 will require root permission
             affected_file (str): The file that the description refers to
         """
-        pass
 
 
 class SkipRootInterpreter(DetectRootInterpreter):
@@ -1219,7 +1218,7 @@ class GainRootInterpreter(RootNeededInterpreter):
     """
     def _op_fin(self, dop):
         """Replace the process if root permission is needed with the same call
-        of Dotmanager, but prepend it with "sudo".
+        of uberdot, but prepend it with "sudo".
 
         Args:
             dop (dict): Unused in this implementation
@@ -1229,5 +1228,5 @@ class GainRootInterpreter(RootNeededInterpreter):
                 args = [sys.executable] + sys.argv
                 os.execvp('sudo', args)
             else:
-                raise UserError("You need to restart Dotmanager using 'sudo'" +
+                raise UserError("You need to restart uberdot using 'sudo'" +
                                 " or using the '--skiproot' option.")

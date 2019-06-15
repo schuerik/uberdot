@@ -4,7 +4,7 @@ Dynamicfiles
 
 Dynamicfiles are used whenever one or more dotfiles need to be altered
 before they are symlinked. Because the original shall not be altered by
-Dotmanager, Dotmanager processes the specified dotfiles and stores the
+uberdot, uberdot processes the specified dotfiles and stores the
 altered version in a subdirectory of ``data/``. There are different
 types of dynamicfiles, each one using their own subdirectory:
 
@@ -23,12 +23,12 @@ subdirectory.
 Because the generated file that will be linked is now outside of your
 repository, the repository is obviously not able to track changes
 anymore. Also editing a symlink to this file won’t update the original
-dotfile(s) in your repository. To circumvent this disadvantage, Dotmanager
+dotfile(s) in your repository. To circumvent this disadvantage, uberdot
 will track changes that you apply to the symlinked generated file and
 warns you if you would overwrite those changes when you install a
-profile. To do so, Dotmanager appends the md5 hash of the file to its
+profile. To do so, uberdot appends the md5 hash of the file to its
 filename and stores a backup file next to it. That way changes won’t be
-lost and Dotmanager can calculate a diff for you if you like.
+lost and uberdot can calculate a diff for you if you like.
 
 
 Workflow explained on an example
@@ -50,12 +50,12 @@ writes the decrypted file to
 - data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1 and
 - data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1.bak
 
-Dotmanager will later link to
+uberdot will later link to
 “data/decrypted/test.txt#bb6a0d9da197de74db91745fb9b433e1”. Now every
-time this profile is updated or removed, Dotmanager will update the dynamic
+time this profile is updated or removed, uberdot will update the dynamic
 file - which again creates new files with a new hash if the file content
 changed - and checks if the calculated hash differs from the current installed
-hash. If so Dotmanager warns you that you could lose changes and helps you to
+hash. If so uberdot warns you that you could lose changes and helps you to
 write back the changes to the original file by giving you the following options:
 
 - **Abort**: Abort the installation/removal process to fix changes manually
@@ -74,7 +74,7 @@ Creating an instance of a dynamicfile manually
 
 .. code:: python
 
-   from dotmanager.dynamicfile import EncryptedFile
+   from uberdot.dynamicfile import EncryptedFile
 
    # Create an instance of EncryptedFile with the name "test.txt"
    encrypt = EncryptedFile("test.txt")
@@ -88,7 +88,7 @@ Instead of using the absolute path to the dotfile you could use
 
 .. code:: python
 
-   from dotmanager.dynamicfile import EncryptedFile
+   from uberdot.dynamicfile import EncryptedFile
 
    encrypt = EncryptedFile("test.txt")
    encrypt.add_source(self.find("test.txt"))

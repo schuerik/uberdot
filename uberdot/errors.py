@@ -17,7 +17,7 @@
 #
 # Copyright 2018 Erik Schulz
 #
-# This file is part of Dotmanager.
+# This file is part of uberdot.
 #
 # Dotmanger is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
 
 
 from abc import abstractmethod
-from dotmanager import constants
+from uberdot import constants
 
 
 class CustomError(Exception):
@@ -186,7 +186,7 @@ class UnkownError(CustomError):
 
 
 class UserAbortion(CustomError):
-    """Used to abort the dotmanager at any given point safely by the user."""
+    """Used to abort uberdot at any given point safely by the user."""
 
     EXITCODE = 106
     """The exitcode for a UserAbortion"""

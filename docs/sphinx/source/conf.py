@@ -14,17 +14,17 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../../'))
-sys.path.insert(0, os.path.abspath('../../../dotmanager'))
+sys.path.insert(0, os.path.abspath('../../../uberdot'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'Dotmanager'
+project = 'uberdot'
 copyright = '2019, Erik Schulz'
 author = 'Erik Schulz'
 
 # Load version
-from dotmanager import constants
+from uberdot import constants
 release = version = constants.VERSION
 
 
@@ -100,8 +100,9 @@ html_theme = 'alabaster'
 # documentation.
 #
 html_theme_options = {
-    "github_user": "RickestRickSanchez",
-    "github_repo": "Dotmanager",
+    "logo": "logo.png",
+    "github_user": "schuerik",
+    "github_repo": "uberdot",
     "github_banner": True,
     "sidebar_width": "300px",
     "page_width": "1100px",
@@ -111,7 +112,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["custom.css"]
+html_static_path = ["_static"]
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -139,5 +140,5 @@ html_sidebars = {
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ("manpage/index", 'dotmanager', 'Dotmanager manpage', [author], 1)
+    ("manpage/index", 'uberdot', 'uberdot manpage', [author], 1)
 ]

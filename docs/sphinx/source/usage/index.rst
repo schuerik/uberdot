@@ -1,8 +1,8 @@
-****************
-Dotmanager Usage
-****************
+*************
+Usage Manuals
+*************
 
-The Dotmanager Usage manual covers all topics on how to use Dotmanager. All
+The usage manuals cover all topics on how to use uberdot. All
 documents provide extensive examples and advises for best practice.
 
 .. toctree::

@@ -1,21 +1,21 @@
-Testing Dotmanager
+Testing uberdot
 ==================
 
-To verify that Dotmanager is working correct and behaves the same on all
+To verify that uberdot is working correct and behaves the same on all
 platforms, there are regression tests in  ``test/regressiontest.py``. At the
 moment they are far away from being complete but will be extended in the
 future.
 
-For now all regression tests can only check if Dotmanager manipulated a
+For now all regression tests can only check if uberdot manipulated a
 directory tree correctly. Those are ``DirRegressionTest``. There is also a base
 class ``RegressionTest`` that does nothing more than checking a precondition,
-executing Dotmanager with some specific parameters and checking a post
+executing uberdot with some specific parameters and checking a post
 condition. If both conditions are met, the test is successful. The special
 ``DirRegressionTest`` takes a dictionary as condition that describes the
 expected directory tree.
 
 All profiles that are used in the tests can be found in ``test/profiles/``, all
-dotfiles in ``test/files``. Dotmanager will be executed with
+dotfiles in ``test/files``. uberdot will be executed with
 ``test/environment`` as default directory and all profiles must not define
 links outside of this directory. Otherwise the tests could overwrite existing
 setups.
@@ -53,11 +53,11 @@ Phases
 There are three phases of a regression test in which the test can fail:
 
     - pre: The precondition is checked
-    - run: Dotmanager is executed
+    - run: uberdot is executed
     - post: The postcondition is checked
 
 If a test fails, it fails with a cause. For the "pre" and "post" phase the cause
-is a specific error message. For "run" it is the non-zero exitcode of Dotmanager.
+is a specific error message. For "run" it is the non-zero exitcode of uberdot.
 
 
 Pre- and postcondition for DirRegressionTest

@@ -1,5 +1,5 @@
 """This module collects all profiles that are used to test conflicts"""
-from dotmanager.profile import Profile
+from uberdot.profile import Profile
 
 class SameProfileConflict(Profile):
     def generate(self):
