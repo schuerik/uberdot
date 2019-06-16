@@ -141,7 +141,8 @@ class EncryptedFile(DynamicFile):
     """Subdirectory used by EncryptedFile"""
 
     def _generate_file(self):
-        """Decrypts the first file in ``self.sources`` using gpg.
+        """Decrypts the first file in :attr:`self.sources<dyanmicfile.sources>`
+        using gpg.
 
         Returns:
             bytearray: The content of the decrypted file
@@ -176,7 +177,7 @@ class FilteredFile(DynamicFile):
     """Subdirectory used by FilteredFile"""
 
     def __init__(self, name, shell_command):
-        """Constructor
+        """Constructor.
 
         Args:
             name (str): Name of the file
@@ -187,8 +188,9 @@ class FilteredFile(DynamicFile):
         self.shell_command = shell_command
 
     def _generate_file(self):
-        """Pipes the content of the first file in ``self.sources`` into the
-        specified shell comand.
+        """Pipes the content of the first file in
+        :attr:`self.sources<dyanmicfile.sources>` into the specified
+        shell comand.
 
         Returns:
             bytearray: The output of the shell command
@@ -208,7 +210,8 @@ class SplittedFile(DynamicFile):
     """Subdirectory used by SplittedFile"""
 
     def _generate_file(self):
-        """Merges all files from ``self.sources`` in order.
+        """Merges all files from ``:class:`~interpreters.self`.sources``
+        in order.
 
         Returns:
             bytearray: The content of all files merged together

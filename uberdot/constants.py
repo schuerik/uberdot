@@ -148,13 +148,13 @@ CONFIG_SEARCH_PATHS = [
 def loadconfig(config_file, installed_filename="default"):
     """Loads constants from the config files.
 
-    This will load all configs from `CFG_FILES` or `config_file` if provided.
-    The name of the installed-file will be used to load installed-file specific
-    values.
+    This will load all configs from :const:`CFG_FILES` or ``config_file``
+    if provided. The name of the installed-file will be used to load
+    installed-file specific values.
 
     Args:
         config_file (str): Absolute path to the config file to use. If None,
-            the configs from `CFG_FILES` will be loaded.
+            the configs from :const:`CFG_FILES` will be loaded.
         installed_filename (str): Name of the installed-file for that values
             will be loaded
     """
@@ -184,7 +184,7 @@ def loadconfig(config_file, installed_filename="default"):
         with a specific getter.
 
         Args:
-            getter (Callable): getter function to perform a single lookup
+            getter (function): getter function to perform a single lookup
             section (str): The section that contains the key
         Returns:
             function: A function that can lookup keys in the config
