@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Interpreters &#8212; uberdot 1.12.1_3 documentation</title>
+    <title>Interpreters &#8212; uberdot 1.12.2_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -937,6 +937,18 @@ point to</p></li>
 </dd></dl>
 
 <dl class="method">
+<dt id="interpreters.ExecuteInterpreter._ExecuteInterpreter__remove_symlink">
+<code class="sig-name descname">_ExecuteInterpreter__remove_symlink</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._ExecuteInterpreter__remove_symlink" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove a symlink. If the directory is empty, it removes the
+directory as well. Does this recursively for all parent directories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path to the symlink, that will be removed</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="interpreters.ExecuteInterpreter.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">installed</em>, <em class="sig-param">force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
@@ -955,11 +967,11 @@ point to</p></li>
 <dt id="interpreters.ExecuteInterpreter._makedirs">
 <em class="property">static </em><code class="sig-name descname">_makedirs</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._makedirs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Custom <code class="docutils literal notranslate"><span class="pre">os.makedirs()</span></code> that keeps the owner of the directory.</p>
-<p>This means that it will create the directory with the same owner as of the
-deepest parent directory that already exists instead of using current
-user as owner. This is needed, because otherwise directories won't be
-accessible by the user, if some links would be created with root
-permissions.</p>
+<p>This means that it will create the directory with the same owner as of
+the deepest parent directory that already exists instead of using
+current user as owner. This is needed, because otherwise directories
+won't be accessible by the user, if some links would be created with
+root permissions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) -- The full path of the file that needs its
@@ -1406,7 +1418,7 @@ a file or a directory</p></li>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
