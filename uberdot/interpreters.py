@@ -952,7 +952,7 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be executed
         """
-        os.unlink(dop["symlink_name"])
+        self.__remove_symlink(dop["symlink_name"])
         for link in self.installed[dop["profile"]]["links"]:
             if link["name"] == dop["symlink_name"]:
                 self.installed[dop["profile"]]["links"].remove(link)
@@ -964,7 +964,7 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be executed
         """
-        os.unlink(dop["symlink1"]["name"])
+        self.__remove_symlink(dop["symlink1"]["name"])
         self.__create_symlink(dop["symlink2"]["name"],
                               dop["symlink2"]["target"],
                               dop["symlink2"]["uid"],
@@ -1002,15 +1002,28 @@ class ExecuteInterpreter(Interpreter):
             raise UnkownError(err, "An unkown error occured when trying to" +
                               " create the link '" + name + "'.")
 
+    def __remove_symlink(self, path):
+        """Remove a symlink. If the directory is empty, it removes the
+        directory as well. Does this recursively for all parent directories.
+
+        Args:
+            path (str): The path to the symlink, that will be removed
+        """
+        os.unlink(path)
+        parent = os.path.dirname(path)
+        while not os.listdir(parent):  # while parent dir is empty
+            os.rmdir(parent)
+            parent = os.path.dirname(parent)
+
     @staticmethod
     def _makedirs(filename):
         """Custom ``os.makedirs()`` that keeps the owner of the directory.
 
-        This means that it will create the directory with the same owner as of the
-        deepest parent directory that already exists instead of using current
-        user as owner. This is needed, because otherwise directories won't be
-        accessible by the user, if some links would be created with root
-        permissions.
+        This means that it will create the directory with the same owner as of
+        the deepest parent directory that already exists instead of using
+        current user as owner. This is needed, because otherwise directories
+        won't be accessible by the user, if some links would be created with
+        root permissions.
 
         Args:
             filename (str): The full path of the file that needs its

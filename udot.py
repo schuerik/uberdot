@@ -276,6 +276,16 @@ class UberDot:
             msg += "are the same."
             raise UserError(msg)
 
+        if not os.path.exists(constants.TARGET_FILES):
+            msg = "The directory for your dotfiles '" + constants.TARGET_FILES
+            msg += "' does not exist on this system."
+            raise UserError(msg)
+
+        if not os.path.exists(constants.PROFILE_FILES):
+            msg = "The directory for your profiles '" + constants.PROFILE_FILES
+            msg += "' does not exist on this system."
+            raise UserError(msg)
+
         # Check if arguments are bad
         def args_depend(msg, *args, need=[], omit=[]):
             """Checks if argument dependencies are fullfilled.
@@ -498,7 +508,7 @@ class UberDot:
             # Convert all exceptions that are not a CustomError in a
             # UnkownError to handle them in the outer pokemon handler
             raise UnkownError(err, msg)
-        logger.debug("Finished succesfully.")
+        log_success("Finished successfully.")
 
     def dryrun(self, difflog):
         """Like `run()` but instead of resolving it it will be just printed out
