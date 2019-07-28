@@ -120,7 +120,8 @@ class DynamicFile:
             str: The full path to the generated file
         """
         # Dynamicfiles are stored with its md5sum in the name to detect chages
-        return os.path.join(self.getdir(), self.name + "#" + self.md5sum)
+        return os.path.join(self.getdir(),
+                            self.name + constants.HASH_SEPARATOR + self.md5sum)
 
     def getdir(self):
         """Gets the path of the directory that is used to store the generated

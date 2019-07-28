@@ -123,6 +123,19 @@ class Profile:
             "profiles": []
         }
 
+    def __setattr__(self, name, value):
+        """Setter for :attr:`self.directory<Profile.directory>`.
+
+        Makes sure that :attr:`self.directory<Profile.directory>` is always
+        expanded and noramlized.
+        """
+        if name == "directory":
+            if hasattr(self, name):
+                value = os.path.join(self.directory, expandpath(value))
+            else:
+                value = normpath(value)
+        super(Profile, self).__setattr__(name, value)
+
     def _make_read_opt(self, kwargs):
         """Creates a function that looks up options but prefers options of
         kwargs.
@@ -336,13 +349,11 @@ class Profile:
                 for this call
         """
         read_opt = self._make_read_opt(kwargs)
-        path = expanduser(expandvars(path))
-        if not os.path.isabs(path):
-            log_warning("'path' should be specified as an absolut path" +
-                        " for extlink(). Relative paths are not forbidden" +
-                        " but can cause undesired side-effects.")
+        path = os.path.join(self.directory, expandpath(path))
         if not read_opt("optional") or os.path.exists(path):
-            self.__create_link_descriptor(os.path.abspath(path), **kwargs)
+            self.__create_link_descriptor(path, **kwargs)
+        self._gen_err("Target path '" + path +
+                      "' does not exist on your filesystem!")
 
     @command
     def links(self, target_pattern, encrypted=False, **kwargs):
@@ -373,8 +384,8 @@ class Profile:
         # them by there name without tag
         for root, name in walk_dotfiles():
             tag, base = (None, os.path.basename(name))
-            if "%" in base:
-                tag, base = base.split("%", 1)
+            if constants.TAG_SEPARATOR in base:
+                tag, base = base.split(constants.TAG_SEPARATOR, 1)
             if re.fullmatch(target_pattern, base) is not None:
                 if base not in target_dir:
                     target_dir[base] = []
@@ -433,56 +444,53 @@ class Profile:
         """
         read_opt = self._make_read_opt(kwargs)
 
-        # Now generate the correct name for the symlink
+        # First generate the correct name for the symlink
         replace = read_opt("replace")
+        name = read_opt("name")
         if replace:  # When using regex pattern, name property is ignored
             replace_pattern = read_opt("replace_pattern")
-            if replace_pattern:
-                if read_opt("name"):
-                    # Usually it makes no sense to set a name when "replace" is
-                    # used, but commands might set this if they got an
-                    # dynamicfile, because otherwise you would have to match
-                    # against the hash too
-                    base = read_opt("name")
-                else:
-                    base = os.path.basename(target)
-                if "%" in base:
-                    base = base.split("%", 1)[1]
-                name = re.sub(replace_pattern, replace, base)
-            else:
+            if not replace_pattern:
                 msg = "You are trying to use 'replace', but no "
                 msg += "'replace_pattern' was set."
                 self._gen_err(msg)
+            if name:
+                # Usually it makes no sense to set a name when "replace" is
+                # used, but commands might set this if they got an
+                # dynamicfile, because otherwise you would have to match
+                # against the hash too
+                base = name
+            else:
+                base = os.path.basename(target)
+            if constants.TAG_SEPARATOR in base:
+                base = base.split(constants.TAG_SEPARATOR, 1)[1]
+            name = re.sub(replace_pattern, replace, base)
+        elif name:
+            name = expandpath(name)
+            # And prevent exceptions in os.symlink()
+            if name[-1:] == "/":
+                self._gen_err("name mustn't represent a directory")
         else:
-            name = expandvars(read_opt("name"))
-        # And prevent exceptions in os.symlink()
-        if name and name[-1:] == "/":
-            self._gen_err("name mustn't represent a directory")
+            # "name" wasn't set by the user,
+            # so fallback to use the target name (but without the tag)
+            name = os.path.basename(
+                target.split(constants.TAG_SEPARATOR, 1)[-1]
+            )
+
+        # Add prefix an suffix to name
+        base, ext = os.path.splitext(os.path.basename(name))
+        name = os.path.join(os.path.dirname(name), read_opt("prefix") +
+                            base + read_opt("suffix") + ext)
+        name = os.path.normpath(name)
 
         # Put together the path of the dir we create the link in
         if not directory:
             directory = self.directory  # Use the current dir
         else:
-            directory = expandvars(directory)
-            if directory[0] != '/':  # Path is realtive, join with current
-                directory = os.path.join(self.directory, directory)
-        directory = expandvars(directory)
+            directory = os.path.join(self.directory, expandpath(directory))
         # Concat directory and name. The users $HOME needs to be set for this
         # when executing as root, otherwise ~ will be expanded to the home
         # directory of the root user (/root)
-        name = expanduser(os.path.join(directory, name))
-
-        # Add prefix an suffix to name
-        base, ext = os.path.splitext(os.path.basename(name))
-        if not base:
-            # If base is empty it means that "name" was never set by the user,
-            # so we fallback to use the target name (but without the tag)
-            base, ext = os.path.splitext(
-                os.path.basename(target.split("%", 1)[-1])
-            )
-        name = os.path.join(os.path.dirname(name), read_opt("prefix") +
-                            base + read_opt("suffix") + ext)
-        name = os.path.normpath(name)
+        name = expandpath(os.path.join(directory, name))
 
         # Get user and group id of owner
         owner = read_opt("owner")
@@ -529,9 +537,7 @@ class Profile:
         Args:
             directory (str): The path to switch to
         """
-        self.directory = os.path.normpath(
-            os.path.join(self.directory, expandvars(directory))
-        )
+        self.directory = directory
 
     @command
     def default(self, *options):

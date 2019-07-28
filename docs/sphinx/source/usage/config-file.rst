@@ -26,21 +26,25 @@ In this section are only settings which can't be set via commandline. Most of th
 
 The following settings are available:
 
-+-----------------+---------------------------------------------------+-------------------------------------------------------+
-| Name            | Values                                            | Description                                           |
-+=================+===================================================+=======================================================+
-| askroot         | True, False (Default is True)                     | Shall uberdot ask for root permission if required     |
-+-----------------+---------------------------------------------------+-------------------------------------------------------+
-| backupExtension | String (Default is "bak")                         | The extension that is used to create backup files     |
-+-----------------+---------------------------------------------------+-------------------------------------------------------+
-| color           | True, False (Default is True)                     | Should the output be colorized                        |
-+-----------------+---------------------------------------------------+-------------------------------------------------------+
-| decryptPwd      | String                                            | Default password to decrypt encrypted dotfiles        |
-+-----------------+---------------------------------------------------+-------------------------------------------------------+
-| profileFiles    | Path (absolute or relatively to the installation) | The directory that contains the profiles              |
-+-----------------+---------------------------------------------------+-------------------------------------------------------+
-| targetFiles     | Path (absolute or relatively to the installation) | The directory that contains the dotfiles              |
-+-----------------+---------------------------------------------------+-------------------------------------------------------+
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| Name            | Values                                            | Description                                                      |
++=================+===================================================+==================================================================+
+| askroot         | True, False (Default is True)                     | Shall uberdot ask for root permission if required                |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| backupExtension | String (Default is "bak")                         | The extension that is used to create backup files                |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| tagSeparator    | String (Default is "%")                           | The symbol that is used as separator for tags in dotfile names   |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| hashSeparator   | String (Default is "#")                           | The symbol that is used as separator for hashes in dynamic files |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| color           | True, False (Default is True)                     | Should the output be colorized                                   |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| decryptPwd      | String                                            | Default password to decrypt encrypted dotfiles                   |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| profileFiles    | Path (absolute or relatively to the installation) | The directory that contains the profiles                         |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| targetFiles     | Path (absolute or relatively to the installation) | The directory that contains the dotfiles                         |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
 
 
 Arguments

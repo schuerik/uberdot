@@ -33,7 +33,7 @@ from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import normpath
 
-VERSION = "1.12.1_3"
+VERSION = "1.12.3_3"
 """Version numbers, seperated by underscore.
 
 First part is the version of uberdot. The second part (after the underscore)
@@ -80,6 +80,10 @@ DECRYPT_PWD = None
 """Contains the decryption password in plain text."""
 BACKUP_EXTENSION = "bak"
 """The extension that will be used for backup files. Default is ``bak``."""
+TAG_SEPARATOR = "%"
+"""The symbol that is used as separator for tags in dotfile names."""
+HASH_SEPARATOR = "#"
+"""The symbol that is used as separator for hashes in dynamic file names."""
 PROFILE_FILES = ""
 """The directory where the profile will be loaded from."""
 TARGET_FILES = ""
@@ -163,7 +167,7 @@ def loadconfig(config_file, installed_filename="default"):
     global SKIPROOT
     global BACKUP_EXTENSION, PROFILE_FILES, TARGET_FILES, INSTALLED_FILE_BACKUP
     global COLOR, INSTALLED_FILE, DEFAULTS, DIR_DEFAULT, LOGFILE, CFG_FILES
-    global ASKROOT
+    global ASKROOT, TAG_SEPARATOR, HASH_SEPARATOR
 
     # Load config files
     if config_file:
@@ -221,6 +225,8 @@ def loadconfig(config_file, installed_filename="default"):
     ASKROOT = getbool("askroot", ASKROOT)
     DECRYPT_PWD = getstr("decryptPwd", DECRYPT_PWD)
     BACKUP_EXTENSION = getstr("backupExtension", BACKUP_EXTENSION)
+    TAG_SEPARATOR = getstr("tagSeparator", TAG_SEPARATOR)
+    HASH_SEPARATOR = getstr("hashSeparator", HASH_SEPARATOR)
     PROFILE_FILES = getstr("profileFiles")
     TARGET_FILES = getstr("targetFiles")
     COLOR = getbool("color", COLOR)
