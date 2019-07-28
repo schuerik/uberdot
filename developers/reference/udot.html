@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>udot &#8212; uberdot 1.12.2_3 documentation</title>
+    <title>udot &#8212; uberdot 1.12.4_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -111,11 +111,9 @@ directory where this module is stored.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) -- The DiffLog that will be checked</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><strong>CustomError</strong></a> -- Executed interpreters can and will raise all kinds of
-    CustomError.</p>
-</dd>
 </dl>
+<p>:raises <a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomError</span></code></a>: Executed interpreters can and will
+    raise all kinds of <a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomError</span></code></a>.</p>
 </dd></dl>
 
 <dl class="method">
@@ -128,13 +126,9 @@ directory where this module is stored.</p>
 <dt id="udot.UberDot.load_installed">
 <code class="sig-name descname">load_installed</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.load_installed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reads the installed-file and parses it's content into
-<code class="docutils literal notranslate"><span class="pre">self.installed</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Raises</dt>
-<dd class="field-odd"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- uberdot and installed-file aren't
-    version compatible.</p>
-</dd>
-</dl>
+<a class="reference internal" href="#udot.UberDot.installed" title="udot.UberDot.installed"><code class="xref py py-attr docutils literal notranslate"><span class="pre">self.installed</span></code></a>.</p>
+<p>:raises <a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">PreconditionError</span></code></a>: uberdot and installed-file
+    aren't version compatible.</p>
 </dd></dl>
 
 <dl class="method">
@@ -145,13 +139,11 @@ list of arguments, instead of <code class="docutils literal notranslate"><span c
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>arguments</strong> (<em>list</em>) -- A list of arguments that will be parsed instead
-of sys.args</p>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.UserError" title="errors.UserError"><strong>UserError</strong></a> -- One ore more arguments are invalid or used in an
-    invalid combination.</p>
+of <code class="docutils literal notranslate"><span class="pre">sys.args</span></code></p>
 </dd>
 </dl>
+<p>:raises <a class="reference internal" href="errors.html#errors.UserError" title="errors.UserError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserError</span></code></a>: One ore more arguments are invalid or
+    used in an invalid combination.</p>
 </dd></dl>
 
 <dl class="method">
@@ -192,15 +184,12 @@ started with insufficient permissions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>difflog</strong> (<a class="reference internal" href="differencesolver.html#differencesolver.DiffLog" title="differencesolver.DiffLog"><em>DiffLog</em></a>) -- The DiffLog that will be resolved.</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="errors.html#errors.UnkownError" title="errors.UnkownError"><strong>UnkownError</strong></a> -- All exceptions that are no CustomError and occured
-    in the critical section will be converted to this error.</p></li>
-<li><p><a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><strong>CustomError</strong></a> -- Executed interpreters can and will raise all kinds of
-    CustomError.</p></li>
-</ul>
-</dd>
 </dl>
+<p>:raises <a class="reference internal" href="errors.html#errors.UnkownError" title="errors.UnkownError"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnkownError</span></code></a>: All exceptions that are no
+    <a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomError</span></code></a> and occured in the critical
+    section will be converted to this error.
+:raises <a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomError</span></code></a>: Executed interpreters can and will
+    raise all kinds of <a class="reference internal" href="errors.html#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">CustomError</span></code></a>.</p>
 </dd></dl>
 
 </dd></dl>

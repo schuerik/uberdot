@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Errors &#8212; uberdot 1.12.2_3 documentation</title>
+    <title>Errors &#8212; uberdot 1.12.4_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -144,7 +144,11 @@ This needs to be implemented by subclasses.</p>
 <em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">GenerationError</code><span class="sig-paren">(</span><em class="sig-param">profile_name</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur during generation.</p>
-<p>Example: The profile has syntax errors or a dotfile can't be found</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p>The profile has syntax errors or a dotfile can't be found.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="errors.GenerationError.EXITCODE">
 <code class="sig-name descname">EXITCODE</code><em class="property"> = 104</em><a class="headerlink" href="#errors.GenerationError.EXITCODE" title="Permalink to this definition">¶</a></dt>
@@ -174,7 +178,11 @@ This needs to be implemented by subclasses.</p>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur because there are logical/
 sematic errors in a profile written by the user.</p>
-<p>Example: A link is defined multiple times with different targets</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p>A link is defined multiple times with different targets.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="errors.IntegrityError.EXITCODE">
 <code class="sig-name descname">EXITCODE</code><em class="property"> = 102</em><a class="headerlink" href="#errors.IntegrityError.EXITCODE" title="Permalink to this definition">¶</a></dt>
@@ -189,8 +197,12 @@ sematic errors in a profile written by the user.</p>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur due to preconditions
 or expectations that are not fullfilled.</p>
-<p>Example: A link that is defined in the installed-file doesn't exist
-on the system</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p>A link that is defined in the installed-file doesn't exist
+on the system.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="errors.PreconditionError.EXITCODE">
 <code class="sig-name descname">EXITCODE</code><em class="property"> = 103</em><a class="headerlink" href="#errors.PreconditionError.EXITCODE" title="Permalink to this definition">¶</a></dt>
@@ -256,7 +268,11 @@ message.</p>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur because the user didn't
 used the program correctly.</p>
-<p>Example: --parent was specified without using -i</p>
+<dl class="field-list simple">
+<dt class="field-odd">Example</dt>
+<dd class="field-odd"><p>--parent was specified without using -i.</p>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="errors.UserError.EXITCODE">
 <code class="sig-name descname">EXITCODE</code><em class="property"> = 101</em><a class="headerlink" href="#errors.UserError.EXITCODE" title="Permalink to this definition">¶</a></dt>

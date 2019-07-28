@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>uberdot manual &#8212; uberdot 1.12.2_3 documentation</title>
+    <title>uberdot manual &#8212; uberdot 1.12.4_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -225,8 +225,8 @@ switched the directory will be linked relative to this directory.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="link-dotfilenames-options">
-<h4>link(*Dotfilenames, **Options)<a class="headerlink" href="#link-dotfilenames-options" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="link-dotfilenames-directory-options">
+<h4>link(*Dotfilenames, directory=&quot;&quot;, **Options)<a class="headerlink" href="#link-dotfilenames-directory-options" title="Permalink to this headline">¶</a></h4>
 <p>This command takes a list of dotfile names and creates a symlink for
 every single one of them in the current directory. It uses the same
 name as the dotfile for the symlink as long you don’t specify another
@@ -310,8 +310,8 @@ to True no error will be raised</p>
 </li>
 </ul>
 </div>
-<div class="section" id="links-pattern-options">
-<h4>links(Pattern, **Options)<a class="headerlink" href="#links-pattern-options" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="links-pattern-encrypted-false-directory-options">
+<h4>links(Pattern, encrypted=False, directory=&quot;&quot;, **Options)<a class="headerlink" href="#links-pattern-encrypted-false-directory-options" title="Permalink to this headline">¶</a></h4>
 <p>This command works like <code class="docutils literal notranslate"><span class="pre">link()</span></code> but instead of a list of filenames
 it receives a regular expression. All dotfiles will be linked that
 match this pattern (tags will be stripped away before matching). This
@@ -334,15 +334,16 @@ decrypt every file that matches link, when set to True.</p>
 </pre></div>
 </div>
 </div>
-<div class="section" id="extlink-path-options">
-<h4>extlink(Path, **Options)<a class="headerlink" href="#extlink-path-options" title="Permalink to this headline">¶</a></h4>
-<p>Creates a link to any file or directory by specifying a path. You can
-use a relative path if you want, but an absolute path is considered
-safer in this case. Otherwise it behaves like the <code class="docutils literal notranslate"><span class="pre">link()</span></code> command.</p>
+<div class="section" id="extlink-path-directory-options">
+<h4>extlink(Path, directory=&quot;&quot;, **Options)<a class="headerlink" href="#extlink-path-directory-options" title="Permalink to this headline">¶</a></h4>
+<p>Creates a link to any file or directory by specifying a path. Relative
+paths will be relatively to the directory the pofile is currently in.
+The links name will be the same as the file or the directory if you don't
+set another. Otherwise it behaves like the <code class="docutils literal notranslate"><span class="pre">link()</span></code> command.</p>
 <p><strong>Example:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a symlink from ~/Documents to ~/owncloud/data/Documents</span>
-<span class="n">extlink</span><span class="p">(</span><span class="s2">&quot;~/owncloud/data/Documents&quot;</span><span class="p">)</span>
-<span class="c1"># Create a symlink from ~/Pictures to ~/owncloud/data/Camera</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a symlink from ~/.wallpapers/wallpaper.png to ~/owncloud/data/pictures/wallpaper.png</span>
+<span class="n">extlink</span><span class="p">(</span><span class="s2">&quot;owncloud/data/pictures/wallpaper.png&quot;</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="s2">&quot;.wallpapers&quot;</span><span class="p">)</span>
+<span class="c1"># Create a symlink from ~/Pictures to ~/owncloud/data/Camera/</span>
 <span class="n">extlink</span><span class="p">(</span><span class="s2">&quot;~/owncloud/data/Camera&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Pictures&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -422,6 +423,14 @@ directory was set <code class="docutils literal notranslate"><span class="pre">M
 </div>
 <div class="section" id="helper-commands">
 <h3>Helper commands<a class="headerlink" href="#helper-commands" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="find-dotfilename">
+<h4>find(Dotfilename)<a class="headerlink" href="#find-dotfilename" title="Permalink to this headline">¶</a></h4>
+<p>Search for a dotfile like <code class="docutils literal notranslate"><span class="pre">link()</span></code> or other commands do. It returns the absolute
+path to the dotfile. If no matching file is found, <code class="docutils literal notranslate"><span class="pre">None</span></code> will be returned.
+If more than one file is found, an error will be raised.
+You can overwrite this function to change the searching behaviour of the entire
+profile.</p>
+</div>
 <div class="section" id="has-tag-tags">
 <h4>has_tag(tags)<a class="headerlink" href="#has-tag-tags" title="Permalink to this headline">¶</a></h4>
 <p>Takes a tag and returns if it is set.</p>

@@ -37,3 +37,13 @@ p code:not(.xref) {
 .document {
     margin-top: 15px!important;
 }
+
+/* Fix colering of function and class references */
+code.xref {
+    background-color: unset!important;
+    border-bottom: unset!important;
+}
+.field-body a.reference {
+    color: black!important;
+    font-weight: bold;
+}

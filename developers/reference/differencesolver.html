@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Differencesolver &#8212; uberdot 1.12.2_3 documentation</title>
+    <title>Differencesolver &#8212; uberdot 1.12.4_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -72,7 +72,7 @@ the operations at the same time.</p>
 <dl class="method">
 <dt id="differencesolver.DiffLog._DiffLog__append_data">
 <code class="sig-name descname">_DiffLog__append_data</code><span class="sig-paren">(</span><em class="sig-param">operation</em>, <em class="sig-param">profilename</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog._DiffLog__append_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Appends a new operation to <code class="docutils literal notranslate"><span class="pre">self.data</span></code>.</p>
+<dd><p>Appends a new operation to <a class="reference internal" href="#differencesolver.DiffLog.data" title="differencesolver.DiffLog.data"><code class="xref py py-attr docutils literal notranslate"><span class="pre">self.data</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -97,7 +97,7 @@ operation</p></li>
 <dd><p>Create an info operation.</p>
 <p>Info operations can be used to print out profile information to the
 user. At the moment this is only evaluated by the
-PrettyPrint-Interpreter to print out a string like:</p>
+<a class="reference internal" href="interpreters.html#interpreters.PrintInterpreter" title="interpreters.PrintInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrintInterpreter</span></code></a> to print out a string like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">profilename</span><span class="p">]:</span> <span class="n">message</span>
 </pre></div>
 </div>
@@ -117,9 +117,9 @@ information</p></li>
 <code class="sig-name descname">add_link</code><span class="sig-paren">(</span><em class="sig-param">symlink</em>, <em class="sig-param">profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.add_link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create an add-link operation.</p>
 <p>Add-link operations indicate that a new link needs to be created.
-This will be - for example - evaluated by the ExecuteInterpreter
-to create the link in the filesystem and create an entry in the
-installed file.</p>
+This will be - for example - evaluated by the
+<a class="reference internal" href="interpreters.html#interpreters.ExecuteInterpreter" title="interpreters.ExecuteInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecuteInterpreter</span></code></a> to create the link in the
+filesystem and create an entry in the installed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -137,7 +137,8 @@ needs to be created</p></li>
 <dd><p>Create an add-profile operation.</p>
 <p>Add-profile operations indicate that a new profile will be
 added/installed. This will be - for example - evalutated by the
-ExecuteInterpreter to create a new empty entry in the installed-file.</p>
+<a class="reference internal" href="interpreters.html#interpreters.ExecuteInterpreter" title="interpreters.ExecuteInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecuteInterpreter</span></code></a> to create a new empty entry
+in the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -155,8 +156,8 @@ ExecuteInterpreter to create a new empty entry in the installed-file.</p>
 <dd><p>Create a remove-link operation.</p>
 <p>Remove-link operations indicate that a certain link needs to be
 removed. This will be - for example - evaluated by the
-ExecuteInterpreter to remove the link from the filesystem and the
-installed file.</p>
+<a class="reference internal" href="interpreters.html#interpreters.ExecuteInterpreter" title="interpreters.ExecuteInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecuteInterpreter</span></code></a> to remove the link from the
+filesystem and the installed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -173,7 +174,8 @@ installed file.</p>
 <dd><p>Create a remove-profile operation.</p>
 <p>Remove-profile operations indicate that a certain profile will be
 removed/uninstalled. This will be - for example - evaluated by the
-ExecuteInterpreter to remove the profile in the installed file.</p>
+<a class="reference internal" href="interpreters.html#interpreters.ExecuteInterpreter" title="interpreters.ExecuteInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecuteInterpreter</span></code></a> to remove the profile in the
+installed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>profilename</strong> (<em>str</em>) -- The name of the to be removed profile</p>
@@ -184,7 +186,7 @@ ExecuteInterpreter to remove the profile in the installed file.</p>
 <dl class="method">
 <dt id="differencesolver.DiffLog.run_interpreter">
 <code class="sig-name descname">run_interpreter</code><span class="sig-paren">(</span><em class="sig-param">*interpreters</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffLog.run_interpreter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Run a list of interpreters for all operations.</p>
+<dd><p>Run a list of <a class="reference internal" href="interpreters.html#module-interpreters" title="interpreters"><code class="xref py py-mod docutils literal notranslate"><span class="pre">interpreters</span></code></a> for all operations.</p>
 <p>This function iterates over all operations and evaluates them by
 feeding them into the given interpreters. Furthermore it initializes
 the interpreters and feeds them additional &quot;start&quot; and &quot;fin&quot;
@@ -203,9 +205,9 @@ interpret the operations</p>
 <dd><p>Create an update-link operation.</p>
 <p>Update-link operations indicate that a certain link needs to be
 replaced by a new link. This will be - for example - evaluated by the
-ExecuteInterpreter to remove the old link from the filesystem, create
-the new link in the filesystem and update the entry of the old link in
-the installed-file.</p>
+<a class="reference internal" href="interpreters.html#interpreters.ExecuteInterpreter" title="interpreters.ExecuteInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecuteInterpreter</span></code></a> to remove the old link from
+the filesystem, create the new link in the filesystem and update the
+entry of the old link in the installed-file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -241,8 +243,8 @@ its parent.</p>
 <dd><p>Create an update-profile operation.</p>
 <p>Update-profile operations indicate that a certain profile will be
 updated. This will be - for example - evaluated by the
-ExecuteInterpreter to update the changed-date of a profile in the
-installed file.</p>
+<a class="reference internal" href="interpreters.html#interpreters.ExecuteInterpreter" title="interpreters.ExecuteInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExecuteInterpreter</span></code></a> to update the changed-date of
+a profile in the installed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>profilename</strong> (<em>str</em>) -- The name of the to be updated profile</p>
@@ -257,8 +259,8 @@ installed file.</p>
 <em class="property">class </em><code class="sig-prename descclassname">differencesolver.</code><code class="sig-name descname">DiffSolver</code><span class="sig-paren">(</span><em class="sig-param">installed</em>, <em class="sig-param">args</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>This solver determines the differences between a list of profiles
-and an installed-file. It is used to generate a DiffLog that stores
-all operations to resolve the differences between those.</p>
+and an installed-file. It is used to generate a <a class="reference internal" href="#differencesolver.DiffLog" title="differencesolver.DiffLog"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiffLog</span></code></a> that
+stores all operations to resolve the differences between those.</p>
 <dl class="attribute">
 <dt id="differencesolver.DiffSolver.profilenames">
 <code class="sig-name descname">profilenames</code><a class="headerlink" href="#differencesolver.DiffSolver.profilenames" title="Permalink to this definition">¶</a></dt>
@@ -360,7 +362,7 @@ profile</p></li>
 <dt id="differencesolver.DiffSolver._DiffSolver__generate_profile_unlink">
 <code class="sig-name descname">_DiffSolver__generate_profile_unlink</code><span class="sig-paren">(</span><em class="sig-param">profile_name</em><span class="sig-paren">)</span><a class="headerlink" href="#differencesolver.DiffSolver._DiffSolver__generate_profile_unlink" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate operations to remove a single installed profile.</p>
-<p>Appends to DiffLog that we want to remove a profile,
+<p>Appends to <a class="reference internal" href="#differencesolver.DiffLog" title="differencesolver.DiffLog"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiffLog</span></code></a> that we want to remove a profile,
 all it's subprofiles and all their links.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>

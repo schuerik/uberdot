@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>DynamicFile &#8212; uberdot 1.12.2_3 documentation</title>
+    <title>DynamicFile &#8212; uberdot 1.12.4_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -189,7 +189,8 @@ encrypted files.</p>
 <dl class="method">
 <dt id="dynamicfile.EncryptedFile._generate_file">
 <code class="sig-name descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.EncryptedFile._generate_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decrypts the first file in <code class="docutils literal notranslate"><span class="pre">self.sources</span></code> using gpg.</p>
+<dd><p>Decrypts the first file in <code class="xref py py-attr docutils literal notranslate"><span class="pre">self.sources</span></code>
+using gpg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><em>bytearray</em> -- The content of the decrypted file</p>
@@ -214,7 +215,7 @@ shell command on a dotfile before linking.</p>
 <dl class="method">
 <dt id="dynamicfile.FilteredFile.__init__">
 <code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">shell_command</em><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructor</p>
+<dd><p>Constructor.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -229,8 +230,9 @@ into</p></li>
 <dl class="method">
 <dt id="dynamicfile.FilteredFile._generate_file">
 <code class="sig-name descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.FilteredFile._generate_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pipes the content of the first file in <code class="docutils literal notranslate"><span class="pre">self.sources</span></code> into the
-specified shell comand.</p>
+<dd><p>Pipes the content of the first file in
+<code class="xref py py-attr docutils literal notranslate"><span class="pre">self.sources</span></code> into the specified
+shell comand.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><em>bytearray</em> -- The output of the shell command</p>
@@ -255,7 +257,8 @@ together to one dotfile.</p>
 <dl class="method">
 <dt id="dynamicfile.SplittedFile._generate_file">
 <code class="sig-name descname">_generate_file</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dynamicfile.SplittedFile._generate_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Merges all files from <code class="docutils literal notranslate"><span class="pre">self.sources</span></code> in order.</p>
+<dd><p>Merges all files from <code class="docutils literal notranslate"><span class="pre">:class:`~interpreters.self`.sources</span></code>
+in order.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><em>bytearray</em> -- The content of all files merged together</p>

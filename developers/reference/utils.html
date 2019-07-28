@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Utils &#8212; uberdot 1.12.2_3 documentation</title>
+    <title>Utils &#8212; uberdot 1.12.4_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -36,10 +36,24 @@
 <p>Provides functionality that is needed in multiple modules.
 E.g. retrieving a environment variable or fixing file permisions.</p>
 <dl class="function">
+<dt id="utils.expandpath">
+<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">expandpath</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandpath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Expands ~ and environment variables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be expanded</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><em>str</em> -- The expanded path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="utils.expanduser">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">expanduser</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the <code class="docutils literal notranslate"><span class="pre">os.path.expanduser()</span></code> but uses
-<code class="docutils literal notranslate"><span class="pre">get_user_env_var()</span></code> to look up the substitution.</p>
+<a class="reference internal" href="#utils.get_user_env_var" title="utils.get_user_env_var"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_user_env_var()</span></code></a> to look up the substitution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be expanded</p>
@@ -54,7 +68,7 @@ E.g. retrieving a environment variable or fixing file permisions.</p>
 <dt id="utils.expandvars">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">expandvars</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandvars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the <code class="docutils literal notranslate"><span class="pre">os.path.expandvars()</span></code> but uses
-<code class="docutils literal notranslate"><span class="pre">get_user_env_var()</span></code> to look up the substitution.</p>
+<a class="reference internal" href="#utils.get_user_env_var" title="utils.get_user_env_var"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_user_env_var()</span></code></a> to look up the substitution.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be expanded</p>
@@ -69,15 +83,15 @@ E.g. retrieving a environment variable or fixing file permisions.</p>
 <dt id="utils.find_exact_target">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">find_exact_target</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_exact_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the exact target in the repository to link to.</p>
-<p>This will search <code class="docutils literal notranslate"><span class="pre">constants.TARGET_FILES</span></code> for files that match
+<p>This will search <a class="reference internal" href="constants.html#constants.TARGET_FILES" title="constants.TARGET_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">TARGET_FILES</span></code></a> for files that match
 <code class="docutils literal notranslate"><span class="pre">target</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>target</strong> (<em>str</em>) -- The filename that will be searched for</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> -- Multiple targets where found</p>
-</dd>
+</dl>
+<p>:raises <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code>: Multiple targets where found</p>
+<dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><em>str</em> -- Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target
 found.</p>
@@ -107,10 +121,10 @@ in <code class="docutils literal notranslate"><span class="pre">paths</span></co
 <dt id="utils.find_target">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">find_target</code><span class="sig-paren">(</span><em class="sig-param">target</em>, <em class="sig-param">tags</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the correct target version in the repository to link to.</p>
-<p>This will search <code class="docutils literal notranslate"><span class="pre">constants.TARGET_FILES</span></code> for files that match the naming
-schema <cite>&lt;any string&gt;%&lt;target&gt;</cite> and returns the file whose <cite>&lt;any string&gt;</cite>
-occurs first in <code class="docutils literal notranslate"><span class="pre">tags</span></code>. If no file is found the return value of
-<code class="docutils literal notranslate"><span class="pre">find_exact_target()</span></code> is returned.</p>
+<p>This will search <a class="reference internal" href="constants.html#constants.TARGET_FILES" title="constants.TARGET_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">TARGET_FILES</span></code></a> for files that match the
+naming schema <cite>&lt;any string&gt;%&lt;target&gt;</cite> and returns the file whose
+<cite>&lt;any string&gt;</cite> occurs first in <code class="docutils literal notranslate"><span class="pre">tags</span></code>. If no file is found the return
+value of <a class="reference internal" href="#utils.find_exact_target" title="utils.find_exact_target"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_exact_target()</span></code></a> is returned.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -217,10 +231,10 @@ uberdot was started can be accessed.</p>
 <li><p><strong>fallback</strong> (<em>str</em>) -- A fallback value if <code class="docutils literal notranslate"><span class="pre">varname</span></code> does not exist</p></li>
 </ul>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- The variable does not exist and no fallback value
-    was set</p>
-</dd>
+</dl>
+<p>:raises <a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">PreconditionError</span></code></a>: The variable does not exist and no
+    fallback value was set</p>
+<dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><em>str</em> -- The value of the variable</p>
 </dd>
@@ -242,21 +256,20 @@ uberdot was started can be accessed.</p>
 <dt id="utils.import_profile_class">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">import_profile_class</code><span class="sig-paren">(</span><em class="sig-param">class_name</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.import_profile_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Imports a profile class only by it's name.</p>
-<p>Searches <code class="docutils literal notranslate"><span class="pre">constants.PROFILE_FILES</span></code> for python modules and imports them
-temporarily. If the module has a class that is the same as <code class="docutils literal notranslate"><span class="pre">class_name</span></code>
-it returns it.</p>
+<p>Searches <a class="reference internal" href="constants.html#constants.PROFILE_FILES" title="constants.PROFILE_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">PROFILE_FILES</span></code></a> for python modules and imports
+them temporarily. If the module has a class that is the same as
+<code class="docutils literal notranslate"><span class="pre">class_name</span></code> it returns it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>class_name</strong> (<em>str</em>) -- The name of the class that will be imported</p>
 </dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><strong>GenerationError</strong></a> -- One of the modules in <code class="docutils literal notranslate"><span class="pre">constants.PROFILE_FILES</span></code>
-    contained errors or the imported class doesn't inherit
-    from <code class="docutils literal notranslate"><span class="pre">Profile</span></code></p></li>
-<li><p><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><strong>PreconditionError</strong></a> -- No class with the provided name exists</p></li>
-</ul>
-</dd>
+</dl>
+<p>:raises <a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenerationError</span></code></a>: One of the modules in
+    <a class="reference internal" href="constants.html#constants.PROFILE_FILES" title="constants.PROFILE_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">PROFILE_FILES</span></code></a> contained errors or the imported
+    class doesn't inherit from <a class="reference internal" href="profile.html#profile.Profile" title="profile.Profile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Profile</span></code></a>
+:raises <a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">PreconditionError</span></code></a>: No class with the provided name
+    exists</p>
+<dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p><em>class</em> -- The class that was imported</p>
 </dd>
@@ -321,7 +334,7 @@ and converts it in an absolute path.</p>
 <dl class="function">
 <dt id="utils.walk_dotfiles">
 <code class="sig-prename descclassname">utils.</code><code class="sig-name descname">walk_dotfiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.walk_dotfiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Walks through the <code class="docutils literal notranslate"><span class="pre">constants.TARGET_FILES</span></code> and returns all files
+<dd><p>Walks through the <a class="reference internal" href="constants.html#constants.TARGET_FILES" title="constants.TARGET_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">TARGET_FILES</span></code></a> and returns all files
 found.</p>
 <p>This also takes the .dotignore-file into account.</p>
 <dl class="field-list simple">
