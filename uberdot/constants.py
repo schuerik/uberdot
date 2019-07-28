@@ -33,7 +33,7 @@ from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import normpath
 
-VERSION = "1.12.3_3"
+VERSION = "1.12.4_3"
 """Version numbers, seperated by underscore.
 
 First part is the version of uberdot. The second part (after the underscore)

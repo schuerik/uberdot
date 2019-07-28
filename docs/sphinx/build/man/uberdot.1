@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "UBERDOT" "1" "Jun 15, 2019" "1.12.0_3" "uberdot"
+.TH "UBERDOT" "1" "Jul 10, 2019" "1.12.2_3" "uberdot"
 .SH NAME
 uberdot \- uberdot manpage
 .
@@ -204,7 +204,7 @@ Perform the same installation like before but set the prefix for all links to ".
 .sp
 .nf
 .ft C
-$ ./udot.py \-i \-\-option prefix=\&. \-\- Main Main2
+$ ./udot.py \-i \-\-option prefix=. \-\- Main Main2
 .ft P
 .fi
 .UNINDENT
@@ -218,7 +218,7 @@ Also set the tags "debian" and "big"
 .sp
 .nf
 .ft C
-$ ./udot.py \-i \-\-option prefix=\&. tags=debian,big \-\- Main Main2
+$ ./udot.py \-i \-\-option prefix=. tags=debian,big \-\- Main Main2
 .ft P
 .fi
 .UNINDENT
@@ -723,11 +723,11 @@ Then you can use it like this in a profile:
 class Main(Profile):
     def generate(self):
         # Install the profile "Vim" if the package vim is installed
-        if info\&.pkg_installed("vim"):
+        if info.pkg_installed("vim"):
             subprof("Vim")
 
         # Link a .bashrc with aliases for pacman instead of apt\-get if Arch Linux is installed
-        if info\&.distribution() == "Arch Linux":
+        if info.distribution() == "Arch Linux":
             link("bash\-pacman.sh", name=".bashrc")
         else:
             link("bash\-apt\-get.sh", name=".bashrc")
