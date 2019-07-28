@@ -92,11 +92,11 @@ class UberDot:
 
     def load_installed(self):
         """Reads the installed-file and parses it's content into
-        ``self.installed``.
+        :attr:`self.installed<UberDot.installed>`.
 
         Raises:
-            PreconditionError: uberdot and installed-file aren't
-                version compatible.
+            :class:`~errors.PreconditionError`: uberdot and installed-file
+                aren't version compatible.
         """
         try:
             self.installed = json.load(open(constants.INSTALLED_FILE))
@@ -117,11 +117,11 @@ class UberDot:
 
         Args:
             arguments (list): A list of arguments that will be parsed instead
-                of sys.args
+                of ``sys.args``
 
         Raises:
-            UserError: One ore more arguments are invalid or used in an
-                invalid combination.
+            :class:`~errors.UserError`: One ore more arguments are invalid or
+                used in an invalid combination.
         """
         global ch, formatter
 
@@ -463,10 +463,11 @@ class UberDot:
             difflog (DiffLog): The DiffLog that will be resolved.
 
         Raises:
-            UnkownError: All exceptions that are no CustomError and occured
-                in the critical section will be converted to this error.
-            CustomError: Executed interpreters can and will raise all kinds of
-                CustomError.
+            :class:`~errors.UnkownError`: All exceptions that are no
+                :class:`~errors.CustomError` and occured in the critical
+                section will be converted to this error.
+            :class:`~errors.CustomError`: Executed interpreters can and will
+                raise all kinds of :class:`~errors.CustomError`.
         """
         # Run integration tests on difflog
         difflog.run_interpreter(
@@ -517,8 +518,8 @@ class UberDot:
             difflog (DiffLog): The DiffLog that will be checked
 
         Raises:
-            CustomError: Executed interpreters can and will raise all kinds of
-                CustomError.
+            :class:`~errors.CustomError`: Executed interpreters can and will
+                raise all kinds of :class:`~errors.CustomError`.
         """
         log_warning("This is just a dry-run! Nothing of this " +
                     "is actually happening.")
@@ -596,7 +597,7 @@ if __name__ == "__main__":
     except Exception:
         # This works because all critical parts will catch also all
         # exceptions and convert them into a CustomError
-        logger.info(traceback.format_exc())
+        logger.error(traceback.format_exc())
         log_warning("The error above was unexpected. But it's fine," +
                     " I haven't done anything yet :)")
         sys.exit(100)

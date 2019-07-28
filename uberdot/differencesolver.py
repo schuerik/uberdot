@@ -56,7 +56,7 @@ class DiffLog():
 
         Info operations can be used to print out profile information to the
         user. At the moment this is only evaluated by the
-        PrettyPrint-Interpreter to print out a string like::
+        :class:`~interpreters.PrintInterpreter` to print out a string like::
 
             [profilename]: message
 
@@ -72,7 +72,8 @@ class DiffLog():
 
         Add-profile operations indicate that a new profile will be
         added/installed. This will be - for example - evalutated by the
-        ExecuteInterpreter to create a new empty entry in the installed-file.
+        :class:`~interpreters.ExecuteInterpreter` to create a new empty entry
+        in the installed-file.
 
         Args:
             profilename (str): The name of the new profile
@@ -86,8 +87,8 @@ class DiffLog():
 
         Update-profile operations indicate that a certain profile will be
         updated. This will be - for example - evaluated by the
-        ExecuteInterpreter to update the changed-date of a profile in the
-        installed file.
+        :class:`~interpreters.ExecuteInterpreter` to update the changed-date of
+        a profile in the installed file.
 
         Args:
             profilename (str): The name of the to be updated profile
@@ -112,7 +113,8 @@ class DiffLog():
 
         Remove-profile operations indicate that a certain profile will be
         removed/uninstalled. This will be - for example - evaluated by the
-        ExecuteInterpreter to remove the profile in the installed file.
+        :class:`~interpreters.ExecuteInterpreter` to remove the profile in the
+        installed file.
 
         Args:
             profilename (str): The name of the to be removed profile
@@ -123,9 +125,9 @@ class DiffLog():
         """Create an add-link operation.
 
         Add-link operations indicate that a new link needs to be created.
-        This will be - for example - evaluated by the ExecuteInterpreter
-        to create the link in the filesystem and create an entry in the
-        installed file.
+        This will be - for example - evaluated by the
+        :class:`~interpreters.ExecuteInterpreter` to create the link in the
+        filesystem and create an entry in the installed file.
 
         Args:
             symlink (dict): A dictionary that describes the symbolic link that
@@ -140,8 +142,8 @@ class DiffLog():
 
         Remove-link operations indicate that a certain link needs to be
         removed. This will be - for example - evaluated by the
-        ExecuteInterpreter to remove the link from the filesystem and the
-        installed file.
+        :class:`~interpreters.ExecuteInterpreter` to remove the link from the
+        filesystem and the installed file.
 
         Args:
             symlink_name (str): The absolute path to the symbolic link
@@ -154,9 +156,9 @@ class DiffLog():
 
         Update-link operations indicate that a certain link needs to be
         replaced by a new link. This will be - for example - evaluated by the
-        ExecuteInterpreter to remove the old link from the filesystem, create
-        the new link in the filesystem and update the entry of the old link in
-        the installed-file.
+        :class:`~interpreters.ExecuteInterpreter` to remove the old link from
+        the filesystem, create the new link in the filesystem and update the
+        entry of the old link in the installed-file.
 
         Args:
             installed_symlink (dict): A dictionary that describes the symbolic
@@ -170,7 +172,7 @@ class DiffLog():
                            symlink2=new_symlink)
 
     def __append_data(self, operation, profilename, **kwargs):
-        """Appends a new operation to ``self.data``.
+        """Appends a new operation to :attr:`self.data<DiffLog.data>`.
 
         Args:
             operation (str): Name of the operation
@@ -183,7 +185,7 @@ class DiffLog():
         )
 
     def run_interpreter(self, *interpreters):
-        """Run a list of interpreters for all operations.
+        """Run a list of :mod:`interpreters` for all operations.
 
         This function iterates over all operations and evaluates them by
         feeding them into the given interpreters. Furthermore it initializes
@@ -212,8 +214,8 @@ class DiffLog():
 
 class DiffSolver():
     """This solver determines the differences between a list of profiles
-    and an installed-file. It is used to generate a DiffLog that stores
-    all operations to resolve the differences between those.
+    and an installed-file. It is used to generate a :class:`DiffLog` that
+    stores all operations to resolve the differences between those.
 
     Attributes:
         profilenames (list): A list of names of all profiles that will be used
@@ -277,7 +279,7 @@ class DiffSolver():
     def __generate_profile_unlink(self, profile_name):
         """Generate operations to remove a single installed profile.
 
-        Appends to DiffLog that we want to remove a profile,
+        Appends to :class:`DiffLog` that we want to remove a profile,
         all it's subprofiles and all their links.
 
         Args:

@@ -42,10 +42,10 @@ from uberdot.errors import PreconditionError
 def find_target(target, tags):
     """Finds the correct target version in the repository to link to.
 
-    This will search ``constants.TARGET_FILES`` for files that match the naming
-    schema `<any string>%<target>` and returns the file whose `<any string>`
-    occurs first in ``tags``. If no file is found the return value of
-    ``find_exact_target()`` is returned.
+    This will search :const:`~constants.TARGET_FILES` for files that match the
+    naming schema `<any string>%<target>` and returns the file whose
+    `<any string>` occurs first in ``tags``. If no file is found the return
+    value of :func:`find_exact_target()` is returned.
 
     Args:
         target (str): The filename that will be searched for
@@ -81,13 +81,13 @@ def find_target(target, tags):
 def find_exact_target(target):
     """Finds the exact target in the repository to link to.
 
-    This will search ``constants.TARGET_FILES`` for files that match
+    This will search :const:`~constants.TARGET_FILES` for files that match
     ``target``.
 
     Args:
         target (str): The filename that will be searched for
     Raises:
-        ValueError: Multiple targets where found
+        :class:`~errors.ValueError`: Multiple targets where found
     Returns:
         str: Relative path of found file. Returns ``None`` if no target
         found.
@@ -111,7 +111,7 @@ def find_exact_target(target):
 
 
 def walk_dotfiles():
-    """Walks through the ``constants.TARGET_FILES`` and returns all files
+    """Walks through the :const:`~constants.TARGET_FILES` and returns all files
     found.
 
     This also takes the .dotignore-file into account.
@@ -233,8 +233,8 @@ def get_user_env_var(varname, fallback=None):
         varname (str): Name of the variable to look up
         fallback (str): A fallback value if ``varname`` does not exist
     Raises:
-        PreconditionError: The variable does not exist and no fallback value
-            was set
+        :class:`~errors.PreconditionError`: The variable does not exist and no
+            fallback value was set
     Returns:
         str: The value of the variable
     """
@@ -271,7 +271,7 @@ def get_user_env_var(varname, fallback=None):
 
 def expandvars(path):
     """Behaves like the ``os.path.expandvars()`` but uses
-    ``get_user_env_var()`` to look up the substitution.
+    :func:`get_user_env_var()` to look up the substitution.
 
     Args:
         path (str): The path that will be expanded
@@ -304,16 +304,30 @@ def expandvars(path):
 
 def expanduser(path):
     """Behaves like the ``os.path.expanduser()`` but uses
-    ``get_user_env_var()`` to look up the substitution.
+    :func:`get_user_env_var()` to look up the substitution.
 
     Args:
         path (str): The path that will be expanded
     Returns:
         str: The expanded path
     """
-    if path[0] == "~":
+    if path and path[0] == "~":
         path = get_user_env_var("HOME") + path[1:]
     return path
+
+
+def expandpath(path):
+    """Expands ~ and environment variables.
+
+    Args:
+        path (str): The path that will be expanded
+    Returns:
+        str: The expanded path
+    """
+    if path is not None:
+        path = expandvars(path)
+        return expanduser(path)
+    return None
 
 
 def normpath(path):
@@ -338,17 +352,18 @@ def normpath(path):
 def import_profile_class(class_name):
     """Imports a profile class only by it's name.
 
-    Searches ``constants.PROFILE_FILES`` for python modules and imports them
-    temporarily. If the module has a class that is the same as ``class_name``
-    it returns it.
+    Searches :const:`~constants.PROFILE_FILES` for python modules and imports
+    them temporarily. If the module has a class that is the same as
+    ``class_name`` it returns it.
 
     Args:
         class_name (str): The name of the class that will be imported
     Raises:
-        GenerationError: One of the modules in ``constants.PROFILE_FILES``
-            contained errors or the imported class doesn't inherit
-            from ``Profile``
-        PreconditionError: No class with the provided name exists
+        :class:`~errors.GenerationError`: One of the modules in
+            :const:`~constants.PROFILE_FILES` contained errors or the imported
+            class doesn't inherit from :class:`~profile.Profile`
+        :class:`~errors.PreconditionError`: No class with the provided name
+            exists
     Returns:
         class: The class that was imported
     """

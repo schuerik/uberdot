@@ -1,4 +1,5 @@
-"""This module implements the superclass for all profiles.
+"""This module implements the superclass for all profiles and contains globals
+and the ``@commands``-Decorator.
 
 |
 """
@@ -35,38 +36,46 @@ from uberdot.dynamicfile import *
 from uberdot.errors import CustomError
 from uberdot.errors import GenerationError
 from uberdot.errors import FatalError
-from uberdot.utils import expandvars
-from uberdot.utils import expanduser
+from uberdot.utils import expandpath
 from uberdot.utils import find_target
 from uberdot.utils import get_dir_owner
 from uberdot.utils import import_profile_class
-from uberdot.utils import log_warning
 from uberdot.utils import normpath
 from uberdot.utils import walk_dotfiles
 
 
-CUSTOM_BUILTINS = [
-    "cd",
-    "decrypt",
-    "default",
-    "extlink",
-    "has_tag",
-    "link",
-    "links",
-    "merge",
-    "opt",
-    "pipe",
-    "rmtags",
-    "subprof",
-    "tags",
-]
-"""A list of custom builtins that the profiles will map its functions to before
-executing ``generate()``.
+custom_builtins = []
+"""A list of custom builtins that the profiles will map its functions to
+before executing :func:`~Profile.generate()`.
 
-This means that, if you want to use a class function in ``generate()`` without
-the need to call it via ``self``, add the function name to this list.
+To add a function here, just add the ``@command`` decorator to it.
 """
 
+
+def command(func):
+    """Adding this decorator to a function will make it available
+    in :func:`generate()` as a builtin.
+
+    Furthermore it adds some documentation to the function.
+
+    Args:
+        func (function): The function that will become a command
+    """
+    # Add function to custom builtins
+    custom_builtins.append(func.__name__)
+
+    # Add documentation to function
+    docs = func.__doc__.split("\n\n")
+    new_doc = docs[0]
+    new_doc += "\n\n        .. note:: "
+    new_doc += "This function is a command. It can be called "
+    new_doc += "without the use of ``self`` within :func:`generate()`."
+    for i in range(1, len(docs)):
+        new_doc += "\n\n" + docs[i]
+    func.__doc__ = new_doc
+
+    # Return modified function
+    return func
 
 
 class Profile:
@@ -77,23 +86,24 @@ class Profile:
         __old_builtins (dict): A backup of the overwritten builtins
         name (str): Identifier/Class name of the profile
         executed (bool): True, if a result was already generated
-        options (dict): Stores options that will be set with ``opt()``
-            as well as the tags. Equals ``constants.DEFAULTS`` if this a
+        options (dict): Stores options that will be set with :func:`opt()`
+            as well as the tags. Equals :const:`constants.DEFAULTS` if this a
             root profile.
         directory (str): The directory that the profile is using as current
-            working directory. Equals ``constants.DIR_DEFAULT`` if this a root
-            profile.
+            working directory. Equals :const:`constants.DIR_DEFAULT` if this
+            a root profile.
         parent (Profile): The parent profile. ``None`` if this a root profile.
-        result (dict): The result of ``generate()``. Contains name, parent,
+        result (dict): The result of :func:`generate()`. Contains name, parent,
             generated links and the result of all subprofiles.
     """
     def __init__(self, options=None, directory=None, parent=None):
         """Constructor.
 
-        Sets ``self.options`` to ``constants.DEFAULTS`` if options is ``None``.
+        Uses :const:`constants.DEFAULTS` as default for
+        :attr:`self.options<Profile.options>` if ``options`` is ``None``.
 
-        Sets ``self.directory`` to ``constants.DIR_DEFAULT`` if directory is
-        ``None``.
+        Uses :const:`constants.DIR_DEFAULT` as default for
+        :attr:`self.directory<Profile.directory>` if ``directory`` is ``None``.
         """
         if options is None:
             options = dict(constants.DEFAULTS)
@@ -113,16 +123,29 @@ class Profile:
             "profiles": []
         }
 
+    def __setattr__(self, name, value):
+        """Setter for :attr:`self.directory<Profile.directory>`.
+
+        Makes sure that :attr:`self.directory<Profile.directory>` is always
+        expanded and noramlized.
+        """
+        if name == "directory":
+            if hasattr(self, name):
+                value = os.path.join(self.directory, expandpath(value))
+            else:
+                value = normpath(value)
+        super(Profile, self).__setattr__(name, value)
+
     def _make_read_opt(self, kwargs):
-        """Create function that can lookup options but prefers options set for
-        a concrete command.
+        """Creates a function that looks up options but prefers options of
+        kwargs.
 
         Args:
             kwargs (dict): kwargs of a command
         Returns:
             function: A function that looks up and returns the value for a key
-            in kwargs. If the key is not in kwargs it uses ``self.options`` for
-            look up.
+            in kwargs. If the key is not in kwargs it uses
+            :attr:`self.options<Profile.options>` for look up.
         """
         def read_opt(opt_name):
             if opt_name in kwargs:
@@ -131,18 +154,19 @@ class Profile:
         return read_opt
 
     def generator(self):
-        """This is the wrapper for ``generate()``. It overwrites the builtins
-        and maps it own commands to them. ``generate()`` must not be called
-        without this wrapper.
+        """This is the wrapper for :func:`generate()`. It overwrites the
+        builtins and maps it own commands to them. :func:`generate()` must not
+        be called without this wrapper.
 
-        `Do NOT call this from within the same profile, only from outside!!`
+        .. warning:: Do NOT call this from within the same profile, only
+            from outside!!
 
         Returns:
-            dict: The result dictionary ``self.result``
+            dict: The result dictionary :attr:`self.result<Profile.result>`
         """
         if self.executed:
             self._gen_err("A profile can be only generated " +
-                           "one time to prevent side-effects!")
+                          "one time to prevent side-effects!")
         self.executed = True
         self.__set_builtins()
         try:
@@ -156,12 +180,12 @@ class Profile:
         return self.result
 
     def __set_builtins(self):
-        """Maps functions from ``CUSTOM_BUILTINS`` to builtins, so commands
-        don't need to be called using ``self`` everytime.
+        """Maps functions from :const:`custom_builtins` to builtins,
+        so commands don't need to be called using ``self`` everytime.
         """
         if self.builtins_overwritten:
             raise FatalError("Builtins are already overwritten")
-        for item in CUSTOM_BUILTINS:
+        for item in custom_builtins:
             if item in builtins.__dict__:
                 self.__old_builtins[item] = builtins.__dict__[item]
             builtins.__dict__[item] = self.__getattribute__(item)
@@ -179,26 +203,30 @@ class Profile:
     def generate(self):
         """Implemeted by users for actual link configuration.
 
-        `Do NOT call this function without its wrapper` ``generator()``.
+        .. warning:: Do NOT call this function without its wrapper
+            :func:`generator()`.
         """
         raise NotImplementedError
 
     def _gen_err(self, msg):
-        """A wrapper to raise a GenerationError with the profilename."""
+        """A wrapper to raise a :class:`~errors.GenerationError` with the
+        profilename.
+        """
         raise GenerationError(self.name, msg)
 
+    @command
     def find(self, target):
-        """Find a dotfile in ``TARGET_DIR``. Depends on the current set tags.
+        """Find a dotfile in :const:`~constants.TARGET_FILES`. Depends on the
+        current set tags.
 
         This can be overwritten to change the searching behaviour of a profile.
-        Furthermore it can be used by the user to just find a dotfile whithout
-        linking it directly. Eventhough, this is not a command at the moment so
-        it need to be called with ``self.find()`` in ``generate()``.
+        Furthermore it can be used by the user to just find a dotfile without
+        linking it directly.
 
         Args:
             target (str): A filename, without preceding tag
         Raises:
-            GenerationError: More than one file was found
+            :class:`~errors.GenerationError`: More than one file was found
         Return:
             str: The full path of the file or ``None`` if no file was found
         """
@@ -207,22 +235,22 @@ class Profile:
         except ValueError as err:
             self._gen_err(err)
 
+    @command
     def decrypt(self, target):
-        """Creates an ``EncryptedFile`` instance from a target, updates and
-        returns it.
+        """Creates an :class:`~dynamicfile.EncryptedFile` instance from a
+        target, updates and returns it.
 
         The target can be either just the name of a file that will be searched
         for or it can be another dynamic file that already provides a generated
         file.
 
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
-
         Args:
-            target(str/DynamicFile): The target file that will be used as
-                source of the ``EncryptedFile``
+            target(str/:class:`~dynamicfile.DynamicFile`): The target file that
+                will be used as source of the
+                :class:`~dynamicfile.EncryptedFile`
         Returns:
-            EncryptedFile: The dynamic file that holds the decrypted target
+            :class:`~dynamicfile.EncryptedFile`: The dynamic file that holds
+            the decrypted target
         """
         if isinstance(target, DynamicFile):
             encrypt = EncryptedFile(target.name)
@@ -233,22 +261,21 @@ class Profile:
         encrypt.update()
         return encrypt
 
+    @command
     def merge(self, name, targets):
-        """Creates a ``SplittedFile`` instance from a list of targets, updates
-        and returns it.
+        """Creates a :class:`~dynamicfile.SplittedFile` instance from a list of
+        targets, updates and returns it.
 
         The target can be either just the name of a file that will be searched
         for or it can be another dynamic file that already provides a generated
         file.
 
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
-
         Args:
             targets(list): The list of targets that will be used as
-                source of the ``SplittedFile``
+                source of the :class:`~dynamicfile.SplittedFile`
         Returns:
-            SplittedFile: The dynamic file that holds the merged target
+            :class:`~dynamicfile.SplittedFile`: The dynamic file that holds the
+            merged target
         """
         if len(targets) < 2:
             self._gen_err("merge() for '" + name + "' needs at least "
@@ -262,21 +289,20 @@ class Profile:
         split.update()
         return split
 
+    @command
     def pipe(self, target, shell_command):
-        """Creates a ``FilteredFile`` instance from a target, updates and
-        returns it.
-
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
+        """Creates a :class:`~dynamicfile.FilteredFile` instance from a target,
+        updates and returns it.
 
         Args:
-            target(str/DynamicFile): The target file that will be used as
-                source of the ``FilteredFile``
+            target(str/:class:`~dynamicfile.DynamicFile`): The target file that
+                will be used as source of the
+                :class:`~dynamicfile.FilteredFile`
             shell_command (str): The shell command that the content of target
                 will be piped into
         Returns:
-            FilteredFile: The dynamic file that holds the output of the shell
-            command
+          :class:`~dynamicfile.FilteredFile`: The dynamic file that holds the
+          output of the shell command
         """
         if isinstance(target, DynamicFile):
             filtered = FilteredFile(target.name, shell_command)
@@ -287,11 +313,9 @@ class Profile:
         filtered.update()
         return filtered
 
+    @command
     def link(self, *targets, **kwargs):
         """Link one ore more targets with current options.
-
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
 
         Args:
             *targets (list): One ore more targets that shall be linked. Targets
@@ -299,7 +323,7 @@ class Profile:
             **kwargs (dict): A set of options that will be overwritten just for
                 this call
         Raises:
-            GenerationError: One of the targets were not found
+            :class:`~errors.GenerationError`: One of the targets were not found
         """
         read_opt = self._make_read_opt(kwargs)
         for target in targets:
@@ -315,11 +339,9 @@ class Profile:
                 msg = "There is no target that matches: '" + target + "'"
                 self._gen_err(msg)
 
+    @command
     def extlink(self, path, **kwargs):
         """Link any file specified by its absolute path.
-
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
 
         Args:
             path (str): The path of the target
@@ -327,22 +349,18 @@ class Profile:
                 for this call
         """
         read_opt = self._make_read_opt(kwargs)
-        path = expanduser(expandvars(path))
-        if not os.path.isabs(path):
-            log_warning("'path' should be specified as an absolut path" +
-                        " for extlink(). Relative paths are not forbidden" +
-                        " but can cause undesired side-effects.")
+        path = os.path.join(self.directory, expandpath(path))
         if not read_opt("optional") or os.path.exists(path):
-            self.__create_link_descriptor(os.path.abspath(path), **kwargs)
+            self.__create_link_descriptor(path, **kwargs)
+        self._gen_err("Target path '" + path +
+                      "' does not exist on your filesystem!")
 
+    @command
     def links(self, target_pattern, encrypted=False, **kwargs):
-        """Calls ``link()`` for all targets matching a pattern.
+        """Calls :func:`link()` for all targets matching a pattern.
 
         Furthermore it allows to ommit the ``replace_pattern`` in favor of the
         ``target_pattern`` and to decrypt matched files first.
-
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
 
         Args:
             target_pattern (str): The regular expression that matches the file
@@ -351,8 +369,8 @@ class Profile:
             **kwargs (dict): A set of options that will be overwritten just for
                 this call
         Raises:
-            GenerationError: No files or multiple file with the same name were
-                found with this pattern
+            :class:`~errors.GenerationError`: No files or multiple file with
+                the same name were found with this pattern
         """
         read_opt = self._make_read_opt(kwargs)
         target_list = []
@@ -366,8 +384,8 @@ class Profile:
         # them by there name without tag
         for root, name in walk_dotfiles():
             tag, base = (None, os.path.basename(name))
-            if "%" in base:
-                tag, base = base.split("%", 1)
+            if constants.TAG_SEPARATOR in base:
+                tag, base = base.split(constants.TAG_SEPARATOR, 1)
             if re.fullmatch(target_pattern, base) is not None:
                 if base not in target_dir:
                     target_dir[base] = []
@@ -400,7 +418,7 @@ class Profile:
         # Now we have all targets and can create links for each one
         if not target_list and not read_opt("optional"):
             self._gen_err("No files found that would match the"
-                           + " pattern: '" + target_pattern + "'")
+                          + " pattern: '" + target_pattern + "'")
         else:
             for target in target_list:
                 if encrypted:
@@ -411,10 +429,10 @@ class Profile:
 
 
     def __create_link_descriptor(self, target, directory="", **kwargs):
-        """Creates an entry in ``result["links"]`` with current options and a
-        given target.
+        """Creates an entry in ``self.result["links"]`` with current options
+        and a given target.
 
-        Furthermore lets you set the directory like ``cd()``.
+        Furthermore lets you set the directory like :func:`cd()`.
 
         Args:
             target (str): Full path to target file
@@ -422,60 +440,57 @@ class Profile:
             kwargs (dict): A set of options that will be overwritten just for
                 this call
         Raises:
-            GenerationError: One or more options were misused
+            :class:`~errors.GenerationError`: One or more options were misused
         """
         read_opt = self._make_read_opt(kwargs)
 
-        # Now generate the correct name for the symlink
+        # First generate the correct name for the symlink
         replace = read_opt("replace")
+        name = read_opt("name")
         if replace:  # When using regex pattern, name property is ignored
             replace_pattern = read_opt("replace_pattern")
-            if replace_pattern:
-                if read_opt("name"):
-                    # Usually it makes no sense to set a name when "replace" is
-                    # used, but commands might set this if they got an
-                    # dynamicfile, because otherwise you would have to match
-                    # against the hash too
-                    base = read_opt("name")
-                else:
-                    base = os.path.basename(target)
-                if "%" in base:
-                    base = base.split("%", 1)[1]
-                name = re.sub(replace_pattern, replace, base)
-            else:
+            if not replace_pattern:
                 msg = "You are trying to use 'replace', but no "
                 msg += "'replace_pattern' was set."
                 self._gen_err(msg)
+            if name:
+                # Usually it makes no sense to set a name when "replace" is
+                # used, but commands might set this if they got an
+                # dynamicfile, because otherwise you would have to match
+                # against the hash too
+                base = name
+            else:
+                base = os.path.basename(target)
+            if constants.TAG_SEPARATOR in base:
+                base = base.split(constants.TAG_SEPARATOR, 1)[1]
+            name = re.sub(replace_pattern, replace, base)
+        elif name:
+            name = expandpath(name)
+            # And prevent exceptions in os.symlink()
+            if name[-1:] == "/":
+                self._gen_err("name mustn't represent a directory")
         else:
-            name = expandvars(read_opt("name"))
-        # And prevent exceptions in os.symlink()
-        if name and name[-1:] == "/":
-            self._gen_err("name mustn't represent a directory")
+            # "name" wasn't set by the user,
+            # so fallback to use the target name (but without the tag)
+            name = os.path.basename(
+                target.split(constants.TAG_SEPARATOR, 1)[-1]
+            )
+
+        # Add prefix an suffix to name
+        base, ext = os.path.splitext(os.path.basename(name))
+        name = os.path.join(os.path.dirname(name), read_opt("prefix") +
+                            base + read_opt("suffix") + ext)
+        name = os.path.normpath(name)
 
         # Put together the path of the dir we create the link in
         if not directory:
             directory = self.directory  # Use the current dir
         else:
-            directory = expandvars(directory)
-            if directory[0] != '/':  # Path is realtive, join with current
-                directory = os.path.join(self.directory, directory)
-        directory = expandvars(directory)
+            directory = os.path.join(self.directory, expandpath(directory))
         # Concat directory and name. The users $HOME needs to be set for this
         # when executing as root, otherwise ~ will be expanded to the home
         # directory of the root user (/root)
-        name = expanduser(os.path.join(directory, name))
-
-        # Add prefix an suffix to name
-        base, ext = os.path.splitext(os.path.basename(name))
-        if not base:
-            # If base is empty it means that "name" was never set by the user,
-            # so we fallback to use the target name (but without the tag)
-            base, ext = os.path.splitext(
-                os.path.basename(target.split("%", 1)[-1])
-            )
-        name = os.path.join(os.path.dirname(name), read_opt("prefix") +
-                            base + read_opt("suffix") + ext)
-        name = os.path.normpath(name)
+        name = expandpath(os.path.join(directory, name))
 
         # Get user and group id of owner
         owner = read_opt("owner")
@@ -512,28 +527,26 @@ class Profile:
         linkdescriptor["permission"] = read_opt("permission")
         self.result["links"].append(linkdescriptor)
 
+    @command
     def cd(self, directory):
-        """Sets ``self.directory``. Unix-like cd.
+        """Sets :attr:`self.directory<Profile.directory>`. Unix-like cd.
 
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
+        The ``directory`` can be an absolute or relative path and it expands
+        environment variables.
 
         Args:
             directory (str): The path to switch to
         """
-        self.directory = os.path.normpath(
-            os.path.join(self.directory, expandvars(directory))
-        )
+        self.directory = directory
 
+    @command
     def default(self, *options):
-        """Resets options back to defaults. If called without arguments,
+        """Resets :attr:`self.options<Profile.options>` back to
+        :const:`constants.DEFAULTS`. If called without arguments,
         it resets all options and tags.
 
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
-
         Args:
-            *options (list): A list of options that will be reseted
+            *options (list): A list of options that will be reset
         """
         self.cd(constants.DIR_DEFAULT)
         if not options:
@@ -542,11 +555,9 @@ class Profile:
             for item in options:
                 self.options[item] = constants.DEFAULTS[item]
 
+    @command
     def rmtags(self, *tags):
         """Removes a list of tags.
-
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
 
         Args:
             tags (list): A list of tags that will be removed
@@ -555,11 +566,9 @@ class Profile:
             if self.has_tag(tag):
                 self.options["tags"].remove(tag)
 
+    @command
     def tags(self, *tags):
         """Adds a list of tags.
-
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
 
         Args:
             tags (list): A list of tags that will be added
@@ -568,11 +577,9 @@ class Profile:
             if tag not in self.options["tags"]:
                 self.options["tags"].append(tag)
 
+    @command
     def has_tag(self, tag):
         """Returns true if a tag is set.
-
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
 
         Args:
             tag (str): A tag that will be checked for
@@ -581,17 +588,17 @@ class Profile:
         """
         return tag in self.options["tags"]
 
+    @command
     def opt(self, **kwargs):
-        """Sets options permanently. Set options will be used in all future
-        calls of commands and subprofiles.
-
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
+        """Sets options permanently. The set options will be used in all future
+        calls of commands and subprofiles as long as the commands don't
+        override them temporarily.
 
         Args:
             **kwargs: A set of options that will be set permanently
         Raises:
-            GenerationError: One of to be set option does not exist
+            :class:`~errors.GenerationError`: One of to be set option does
+                not exist
         """
         for key in kwargs:
             if key in constants.DEFAULTS:
@@ -599,18 +606,17 @@ class Profile:
             else:
                 self._gen_err("There is no option called " + key)
 
+    @command
     def subprof(self, *profilenames, **kwargs):
         """Executes a list of profiles by name.
-
-        This function is a command. It can be called without the use of
-        ``self`` within ``generate()``.
 
         Args:
             *profilenames(list): A list of profilenames that will be executed
             **kwargs (dict): A set of options that will be overwritten just for
                 this call
         Raises:
-            GenerationError: Profile were executed in a cycly or recursively
+            :class:`~errors.GenerationError`: Profile were executed in a
+                cycly or recursively
         """
         def will_create_cycle(subp, profile=self):
             return (profile.parent is not None and

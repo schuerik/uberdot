@@ -97,7 +97,7 @@ class UserError(CustomError):
     """A custom exception for all errors that occur because the user didn't
     used the program correctly.
 
-    Example: --parent was specified without using -i
+    :Example: --parent was specified without using -i.
     """
 
     EXITCODE = 101
@@ -119,7 +119,7 @@ class IntegrityError(CustomError):
     """A custom exception for all errors that occur because there are logical/
     sematic errors in a profile written by the user.
 
-    Example: A link is defined multiple times with different targets
+    :Example: A link is defined multiple times with different targets.
     """
 
     EXITCODE = 102
@@ -130,8 +130,8 @@ class PreconditionError(CustomError):
     """A custom exception for all errors that occur due to preconditions
     or expectations that are not fullfilled.
 
-    Example: A link that is defined in the installed-file doesn't exist
-    on the system
+    :Example: A link that is defined in the installed-file doesn't exist
+        on the system.
     """
 
     EXITCODE = 103
@@ -141,7 +141,7 @@ class PreconditionError(CustomError):
 class GenerationError(CustomError):
     """A custom exception for all errors that occur during generation.
 
-    Example: The profile has syntax errors or a dotfile can't be found
+    :Example: The profile has syntax errors or a dotfile can't be found.
     """
 
     EXITCODE = 104

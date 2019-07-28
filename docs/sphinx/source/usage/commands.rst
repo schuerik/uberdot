@@ -36,8 +36,8 @@ switched the directory will be linked relative to this directory.
    cd("/home/user")
 
 
-link(\*Dotfilenames, \*\*Options)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+link(\*Dotfilenames, directory="", \*\*Options)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This command takes a list of dotfile names and creates a symlink for
 every single one of them in the current directory. It uses the same
@@ -120,8 +120,8 @@ options. This is a list of all options available:
   - e.g.: :python:`opt(optional=True)`
 
 
-links(Pattern, \*\*Options)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+links(Pattern, encrypted=False, directory="", \*\*Options)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This command works like ``link()`` but instead of a list of filenames
 it receives a regular expression. All dotfiles will be linked that
@@ -148,20 +148,21 @@ decrypt every file that matches link, when set to True.
    links("wifi-(.+).gpg", replace=r"\1", encrypted=True)
 
 
-extlink(Path, \*\*Options)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+extlink(Path, directory="", \*\*Options)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Creates a link to any file or directory by specifying a path. You can
-use a relative path if you want, but an absolute path is considered
-safer in this case. Otherwise it behaves like the ``link()`` command.
+Creates a link to any file or directory by specifying a path. Relative
+paths will be relatively to the directory the pofile is currently in.
+The links name will be the same as the file or the directory if you don't
+set another. Otherwise it behaves like the ``link()`` command.
 
 **Example:**
 
 .. code:: python
 
-   # Create a symlink from ~/Documents to ~/owncloud/data/Documents
-   extlink("~/owncloud/data/Documents")
-   # Create a symlink from ~/Pictures to ~/owncloud/data/Camera
+   # Create a symlink from ~/.wallpapers/wallpaper.png to ~/owncloud/data/pictures/wallpaper.png
+   extlink("owncloud/data/pictures/wallpaper.png", directory=".wallpapers")
+   # Create a symlink from ~/Pictures to ~/owncloud/data/Camera/
    extlink("~/owncloud/data/Camera", name="Pictures")
 
 
@@ -251,6 +252,16 @@ directory was set ``Main`` starts in your home-directory. This means
 
 Helper commands
 ---------------
+
+
+find(Dotfilename)
+^^^^^^^^^^^^^^^^^
+
+Search for a dotfile like ``link()`` or other commands do. It returns the absolute
+path to the dotfile. If no matching file is found, ``None`` will be returned.
+If more than one file is found, an error will be raised.
+You can overwrite this function to change the searching behaviour of the entire
+profile.
 
 
 has_tag(tags)
