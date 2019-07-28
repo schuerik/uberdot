@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "UBERDOT" "1" "Jul 10, 2019" "1.12.2_3" "uberdot"
+.TH "UBERDOT" "1" "Jul 28, 2019" "1.12.4_3" "uberdot"
 .SH NAME
 uberdot \- uberdot manpage
 .
@@ -272,7 +272,7 @@ cd("/home/user")
 .fi
 .UNINDENT
 .UNINDENT
-.SS link(*Dotfilenames, **Options)
+.SS link(*Dotfilenames, directory="", **Options)
 .sp
 This command takes a list of dotfile names and creates a symlink for
 every single one of them in the current directory. It uses the same
@@ -371,7 +371,7 @@ to True no error will be raised
 e.g.: \fBopt(optional=True)\fP
 .UNINDENT
 .UNINDENT
-.SS links(Pattern, **Options)
+.SS links(Pattern, encrypted=False, directory="", **Options)
 .sp
 This command works like \fBlink()\fP but instead of a list of filenames
 it receives a regular expression. All dotfiles will be linked that
@@ -402,11 +402,12 @@ links("wifi\-(.+).gpg", replace=r"\e1", encrypted=True)
 .fi
 .UNINDENT
 .UNINDENT
-.SS extlink(Path, **Options)
+.SS extlink(Path, directory="", **Options)
 .sp
-Creates a link to any file or directory by specifying a path. You can
-use a relative path if you want, but an absolute path is considered
-safer in this case. Otherwise it behaves like the \fBlink()\fP command.
+Creates a link to any file or directory by specifying a path. Relative
+paths will be relatively to the directory the pofile is currently in.
+The links name will be the same as the file or the directory if you don\(aqt
+set another. Otherwise it behaves like the \fBlink()\fP command.
 .sp
 \fBExample:\fP
 .INDENT 0.0
@@ -414,9 +415,9 @@ safer in this case. Otherwise it behaves like the \fBlink()\fP command.
 .sp
 .nf
 .ft C
-# Create a symlink from ~/Documents to ~/owncloud/data/Documents
-extlink("~/owncloud/data/Documents")
-# Create a symlink from ~/Pictures to ~/owncloud/data/Camera
+# Create a symlink from ~/.wallpapers/wallpaper.png to ~/owncloud/data/pictures/wallpaper.png
+extlink("owncloud/data/pictures/wallpaper.png", directory=".wallpapers")
+# Create a symlink from ~/Pictures to ~/owncloud/data/Camera/
 extlink("~/owncloud/data/Camera", name="Pictures")
 .ft P
 .fi
@@ -529,6 +530,13 @@ class Main(Profile):
 .UNINDENT
 .UNINDENT
 .SS Helper commands
+.SS find(Dotfilename)
+.sp
+Search for a dotfile like \fBlink()\fP or other commands do. It returns the absolute
+path to the dotfile. If no matching file is found, \fBNone\fP will be returned.
+If more than one file is found, an error will be raised.
+You can overwrite this function to change the searching behaviour of the entire
+profile.
 .SS has_tag(tags)
 .sp
 Takes a tag and returns if it is set.
