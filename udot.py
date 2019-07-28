@@ -587,7 +587,7 @@ if __name__ == "__main__":
     except Exception:
         # This works because all critical parts will catch also all
         # exceptions and convert them into a CustomError
-        logger.info(traceback.format_exc())
+        logger.error(traceback.format_exc())
         log_warning("The error above was unexpected. But it's fine," +
                     " I haven't done anything yet :)")
         sys.exit(100)

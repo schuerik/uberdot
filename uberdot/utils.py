@@ -311,9 +311,23 @@ def expanduser(path):
     Returns:
         str: The expanded path
     """
-    if path[0] == "~":
+    if path and path[0] == "~":
         path = get_user_env_var("HOME") + path[1:]
     return path
+
+
+def expandpath(path):
+    """Expands ~ and environment variables.
+
+    Args:
+        path (str): The path that will be expanded
+    Returns:
+        str: The expanded path
+    """
+    if path is not None:
+        path = expandvars(path)
+        return expanduser(path)
+    return None
 
 
 def normpath(path):

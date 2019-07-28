@@ -35,12 +35,10 @@ from uberdot.dynamicfile import *
 from uberdot.errors import CustomError
 from uberdot.errors import GenerationError
 from uberdot.errors import FatalError
-from uberdot.utils import expandvars
-from uberdot.utils import expanduser
+from uberdot.utils import expandpath
 from uberdot.utils import find_target
 from uberdot.utils import get_dir_owner
 from uberdot.utils import import_profile_class
-from uberdot.utils import log_warning
 from uberdot.utils import normpath
 from uberdot.utils import walk_dotfiles
 
