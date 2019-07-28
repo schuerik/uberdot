@@ -435,6 +435,7 @@ def is_dynamic_file(target):
     """
     return os.path.dirname(os.path.dirname(target)) == normpath("data")
 
+
 def find_files(filename, paths):
     """Finds existing files matching a specific name in a list of paths.
 
