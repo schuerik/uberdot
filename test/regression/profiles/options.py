@@ -38,6 +38,14 @@ class OptionalOption(Profile):
     def generate(self):
         tags("tag1", "tag2")
         links("name[2-4]")
+        extlink("doesnotexist", optional=True)
         link("name10", optional=True)
         tags("tag")
         link("name10", optional=True)
+
+class ReplaceOption(Profile):
+    def generate(self):
+        link("name2", "name3", replace_pattern="name", replace="file")
+        tags("tag1")
+        cd("subdir")
+        link("name2", "name3", replace_pattern="name", replace="file")

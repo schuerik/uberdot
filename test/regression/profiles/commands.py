@@ -62,3 +62,8 @@ class Subprofile2(Profile):
 class Subprofile4(Profile):
     def generate(self):
         links("name[56]")
+
+class ExteranalLink(Profile):
+    def generate(self):
+        extlink("untouched.file", name="test1")
+        extlink("untouched.file", directory="test2")

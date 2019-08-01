@@ -560,60 +560,66 @@ class StoreDictKeyPair(argparse.Action):
         setattr(namespace, self.dest, opt_dict)
 
 
-if __name__ == "__main__":
-    # Init the logger, further configuration is done when we parse the
-    # commandline arguments
-    logger = logging.getLogger("root")
-    logger.setLevel(logging.INFO)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+def run_script(name):
+    """Act like a script if we were invoked like a script.
 
-    # Create UberDot instance and parse arguments
-    uber = UberDot()
-    try:
-        uber.parse_arguments()
-    except CustomError as err:
-        logger.error(err.message)
-        sys.exit(err.EXITCODE)
-    # Add the users profiles to the python path
-    sys.path.append(constants.PROFILE_FILES)
-    # Start everything in an exception handler
-    try:
-        if os.path.isfile(constants.INSTALLED_FILE_BACKUP):
-            m = "I found a backup of your installed-file. It's most likely"
-            m += " that the last execution of this tool failed. If you "
-            m += "are certain that your installed-file is correct you can"
-            m += " remove the backup and start this tool again."
-            raise PreconditionError(m)
-        uber.load_installed()
-        uber.execute_arguments()
-    except CustomError as err:
-        # An error occured that we (more or less) expected.
-        # Print error, a stacktrace and exit
-        logger.debug(traceback.format_exc())
-        if isinstance(err, FatalError):
-            logger.critical(err.message)
-        else:
-            logger.error(err.message)
-        sys.exit(err.EXITCODE)
-    except Exception:
-        # This works because all critical parts will catch also all
-        # exceptions and convert them into a CustomError
-        logger.error(traceback.format_exc())
-        log_warning("The error above was unexpected. But it's fine," +
-                    " I haven't done anything yet :)")
-        sys.exit(100)
-    finally:
-        # Write installed-file back to json file
+    This is needed for coverage."""
+    if name == "__main__":
+        # Init the logger, further configuration is done when we parse the
+        # commandline arguments
+        logger = logging.getLogger("root")
+        logger.setLevel(logging.INFO)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+        # Create UberDot instance and parse arguments
+        uber = UberDot()
         try:
-            with open(constants.INSTALLED_FILE, "w") as file:
-                file.write(json.dumps(uber.installed, indent=4))
-                file.flush()
-            os.chown(constants.INSTALLED_FILE, get_uid(), get_gid())
-        except Exception as err:
-            unkw = UnkownError(err, "An unkown error occured when trying to " +
-                               "write all changes back to the installed-file")
-            logger.error(unkw.message)
+            uber.parse_arguments()
+        except CustomError as err:
+            logger.error(err.message)
+            sys.exit(err.EXITCODE)
+        # Add the users profiles to the python path
+        sys.path.append(constants.PROFILE_FILES)
+        # Start everything in an exception handler
+        try:
+            if os.path.isfile(constants.INSTALLED_FILE_BACKUP):
+                m = "I found a backup of your installed-file. It's most likely"
+                m += " that the last execution of this tool failed. If you "
+                m += "are certain that your installed-file is correct you can"
+                m += " remove the backup and start this tool again."
+                raise PreconditionError(m)
+            uber.load_installed()
+            uber.execute_arguments()
+        except CustomError as err:
+            # An error occured that we (more or less) expected.
+            # Print error, a stacktrace and exit
+            logger.debug(traceback.format_exc())
+            if isinstance(err, FatalError):
+                logger.critical(err.message)
+            else:
+                logger.error(err.message)
+            sys.exit(err.EXITCODE)
+        except Exception:
+            # This works because all critical parts will catch also all
+            # exceptions and convert them into a CustomError
+            logger.error(traceback.format_exc())
+            log_warning("The error above was unexpected. But it's fine," +
+                        " I haven't done anything yet :)")
+            sys.exit(100)
+        finally:
+            # Write installed-file back to json file
+            try:
+                with open(constants.INSTALLED_FILE, "w") as file:
+                    file.write(json.dumps(uber.installed, indent=4))
+                    file.flush()
+                os.chown(constants.INSTALLED_FILE, get_uid(), get_gid())
+            except Exception as err:
+                unkw = UnkownError(err, "An unkown error occured when trying to " +
+                                   "write all changes back to the installed-file")
+                logger.error(unkw.message)
+
+run_script(__name__)

@@ -386,7 +386,7 @@ def import_profile_class(class_name):
             file = os.path.join(root, file)
             # Ignore everything that isn't a python module
             if file[-2:] != "py":
-                break
+                continue
             try:
                 # Import module
                 spec = importlib.util.spec_from_file_location("__name__", file)

@@ -350,10 +350,11 @@ class Profile:
         """
         read_opt = self._make_read_opt(kwargs)
         path = os.path.join(self.directory, expandpath(path))
-        if not read_opt("optional") or os.path.exists(path):
+        if os.path.exists(path):
             self.__create_link_descriptor(path, **kwargs)
-        self._gen_err("Target path '" + path +
-                      "' does not exist on your filesystem!")
+        elif not read_opt("optional"):
+            self._gen_err("Target path '" + path +
+                          "' does not exist on your filesystem!")
 
     @command
     def links(self, target_pattern, encrypted=False, **kwargs):

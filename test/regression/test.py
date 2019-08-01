@@ -74,44 +74,47 @@ def dircheck(environ, dir_tree):
         # Directory owner
         check_owner(dir_name, dir_props)
         # Files
-        for file_props in dir_props["files"]:
-            file_path = os.path.join(dir_name, file_props["name"])
-            # File existance
-            if os.path.islink(file_path) or not os.path.isfile(file_path):
-                raise ValueError((False, file_path + " is a not a file"))
-            # File permission
-            if "permission" in file_props:
-                check_permission(file_path, file_props["permission"])
-            # File owner
-            check_owner(file_path, file_props)
-            # File content
-            md5 = hashlib.md5(open(file_path, "rb").read()).hexdigest()
-            if "content" in file_props and md5 != file_props["content"]:
-                raise ValueError((False, file_path + " has wrong content"))
+
+        if "files" in dir_props:
+            for file_props in dir_props["files"]:
+                file_path = os.path.join(dir_name, file_props["name"])
+                # File existance
+                if os.path.islink(file_path) or not os.path.isfile(file_path):
+                    raise ValueError((False, file_path + " is a not a file"))
+                # File permission
+                if "permission" in file_props:
+                    check_permission(file_path, file_props["permission"])
+                # File owner
+                check_owner(file_path, file_props)
+                # File content
+                md5 = hashlib.md5(open(file_path, "rb").read()).hexdigest()
+                if "content" in file_props and md5 != file_props["content"]:
+                    raise ValueError((False, file_path + " has wrong content"))
         # Links
-        for link_props in dir_props["links"]:
-            link_path = os.path.join(dir_name, link_props["name"])
-            # Link existance
-            if not os.path.islink(link_path):
-                raise ValueError((False, link_path + " is a not a link"))
-            # Link permission
-            if "permission" in link_props:
-                check_permission(link_path, link_props["permission"])
-            # Link owner
-            check_owner(link_path, link_props, True)
-            # Link target
-            target_path = os.path.normpath(
-                os.path.join(dir_name, os.readlink(link_path))
-            )
-            link_props["target"] = os.path.abspath(link_props["target"])
-            if target_path != link_props["target"]:
-                msg = link_path + " should point to " + link_props['target']
-                msg += ", but points to " + target_path
-                raise ValueError((False, msg))
-            # Link target content
-            md5 = hashlib.md5(open(target_path, "rb").read()).hexdigest()
-            if "content" in link_props and md5 != link_props["content"]:
-                raise ValueError((False, link_path + " has wrong content"))
+        if "links" in dir_props:
+            for link_props in dir_props["links"]:
+                link_path = os.path.join(dir_name, link_props["name"])
+                # Link existance
+                if not os.path.islink(link_path):
+                    raise ValueError((False, link_path + " is a not a link"))
+                # Link permission
+                if "permission" in link_props:
+                    check_permission(link_path, link_props["permission"])
+                # Link owner
+                check_owner(link_path, link_props, True)
+                # Link target
+                target_path = os.path.normpath(
+                    os.path.join(dir_name, os.readlink(link_path))
+                )
+                link_props["target"] = os.path.abspath(link_props["target"])
+                if target_path != link_props["target"]:
+                    msg = link_path + " should point to " + link_props['target']
+                    msg += ", but points to " + target_path
+                    raise ValueError((False, msg))
+                # Link target content
+                md5 = hashlib.md5(open(target_path, "rb").read()).hexdigest()
+                if "content" in link_props and md5 != link_props["content"]:
+                    raise ValueError((False, link_path + " has wrong content"))
 
 # Test classes
 ###############################################################################
@@ -183,6 +186,7 @@ class RegressionTest():
         now = time.time()
         result = self.start()
         runtime = str(int((time.time()-now)*1000)) + "ms"
+        print(LINEWDTH*"-")
         print("\033[1m" + self.name + ":", end="")
         if result["success"]:
             print('\033[92m' + " Ok" + '\033[0m', end="")
@@ -195,7 +199,6 @@ class RegressionTest():
             if "msg" in result:
                 print("\033[1mError Message:\033[0m")
                 print(result["msg"].decode("utf-8"))
-        print(LINEWDTH*"-")
         global_result = global_result and result["success"]
         self.cleanup()
         return result["success"]
@@ -207,6 +210,7 @@ class RegressionTest():
         now = time.time()
         result = self.start()
         runtime = str(int((time.time()-now)*1000)) + "ms"
+        print(LINEWDTH*"-")
         print("\033[1m" + self.name + ":", end="")
         if not result["success"]:
             if result["cause"] != cause:
@@ -226,7 +230,6 @@ class RegressionTest():
             print("\033[93m\033[1mExpected error in " + phase + " did not" +
                   " occur!\033[0m")
             print("\033[1mExpected error:\033[0m " + str(cause))
-        print(LINEWDTH*"-")
         global_result = global_result and not result["success"] and result["cause"] == cause
         self.cleanup()
         return not result["success"]
@@ -290,7 +293,6 @@ class OutputRegressionTest(RegressionTest):
 before = {
     ".": {
         "files": [{"name": "untouched.file"}],
-        "links": [],
     }
 }
 
@@ -329,7 +331,6 @@ after_diroptions = {
         ],
     },
     "subdir": {
-        "files": [],
         "links": [
             {
                 "name": "name2",
@@ -338,7 +339,6 @@ after_diroptions = {
         ],
     },
     "subdir/subsubdir": {
-        "files": [],
         "links": [
             {
                 "name": "name3",
@@ -351,7 +351,6 @@ after_diroptions = {
         ],
     },
     "subdir2": {
-        "files": [],
         "links": [
             {
                 "name": "name6",
@@ -376,7 +375,6 @@ after_nameoptions = {
         ],
     },
     "subdir": {
-        "files": [],
         "links": [
             {
                 "name": "name",
@@ -389,7 +387,6 @@ after_nameoptions = {
         ],
     },
     "subdir/subsubdir": {
-        "files": [],
         "links": [
             {
                 "name": "name",
@@ -426,7 +423,6 @@ after_prefixsuffixoptions = {
         ],
     },
     "subdir": {
-        "files": [],
         "links": [
             {
                 "name": "name3",
@@ -435,7 +431,6 @@ after_prefixsuffixoptions = {
         ],
     },
     "name4": {
-        "files": [],
         "links": [
             {
                 "name": "test",
@@ -472,7 +467,6 @@ after_links = {
         ],
     },
     "subdir": {
-        "files": [],
         "links": [
             {
                 "name": "encrypt8",
@@ -591,7 +585,6 @@ after_superprofile = {
         ],
     },
     "subdir": {
-        "files": [],
         "links": [
             {
                 "name": "prefix_name2",
@@ -700,7 +693,6 @@ after_updatediroptions = {
         ],
     },
     "subdir": {
-        "files": [],
         "links": [
             {
                 "name": "name3",
@@ -714,13 +706,61 @@ after_updatediroptions = {
     }
 }
 
+# This dirtree works only with environment-default
+after_extlink = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "test1",
+                "target": "environment-default/untouched.file"
+            }
+        ]
+    },
+    "test2": {
+        "links": [
+            {
+                "name": "untouched.file",
+                "target": "environment-default/untouched.file"
+            }
+        ]
+    }
+}
+
+
+after_replace = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "file2",
+                "target": "files/name2"
+            },
+            {
+                "name": "file3",
+                "target": "files/name3"
+            }
+        ]
+    },
+    "subdir": {
+        "links": [
+            {
+                "name": "file2",
+                "target": "files/tag1%name2"
+            },
+            {
+                "name": "file3",
+                "target": "files/name3"
+            }
+        ]
+    }
+}
 
 # Test execution
 ###############################################################################
 
 owd = os.getcwd()
 os.chdir(DIRNAME)
-print(LINEWDTH*"-")
 
 DirRegressionTest("Simple",
                   ["-i", "NoOptions"],
@@ -755,6 +795,9 @@ DirRegressionTest("Option: prefix suffix extension",
 DirRegressionTest("Option: optional",
                   ["-i", "OptionalOption"],
                   before, after_optional).success()
+DirRegressionTest("Option: replace",
+                  ["-i", "ReplaceOption"],
+                  before, after_replace).success()
 DirRegressionTest("Command: links()",
                   ["-i", "Links"],
                   before, after_links).success()
@@ -776,6 +819,9 @@ DirRegressionTest("Command: subprof()",
 DirRegressionTest("Command: tags()",
                   ["-i", "SuperProfileTags"],
                   before, after_tags).success()
+DirRegressionTest("Command: extlink()",
+                  ["-i", "ExteranalLink"],
+                  before, after_extlink).success()
 DirRegressionTest("Conflict: Same profile linked twice",
                   ["-i", "SameProfileConflict"],
                   before, {}).fail("run", 102)
@@ -794,12 +840,23 @@ DirRegressionTest("Update: Simple",
 DirRegressionTest("Update: Uninstall",
                   ["-u", "DirOption"],
                   after_diroptions, before, "update").success()
+OutputRegressionTest("Output: --plain",
+                     ["-i", "--plain", "NoOptions"],
+                     before).success()
+OutputRegressionTest("Output: --dryrun",
+                     ["-id", "NoOptions"],
+                     before).success()
 OutputRegressionTest("Output: --debuginfo", ["--debuginfo"], before).success()
 # This test needs ticket #42 to be resolved
 # OutputRegressionTest("Output: --show", ["-s"], after_diroptions, "update").success()
 
-os.chdir(owd)
+# Overall result
+print(LINEWDTH*"=")
+print("\033[1mTests " + ("\033[92msuccessful" if global_result else "\033[91mFAILED") + '\033[0m')
 
+
+# Exit
+os.chdir(owd)
 sys.exit(not global_result)
 
 
