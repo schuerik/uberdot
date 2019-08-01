@@ -78,6 +78,7 @@ from uberdot.utils import get_gid
 from uberdot.utils import get_uid
 from uberdot.utils import is_dynamic_file
 from uberdot.utils import log_warning
+from uberdot.utils import normpath
 
 
 logger = logging.getLogger("root")
@@ -695,7 +696,7 @@ class CheckLinkExistsInterpreter(Interpreter):
         """
         if not os.path.lexists(dop["symlink_name"]):
             msg = "'" + dop["symlink_name"] + "' can not be removed because"
-            msg += " removed because it does not exist on your filesystem."
+            msg += " it does not exist on your filesystem."
             msg += " Check your installed file!"
             raise PreconditionError(msg)
         self.removed_links.append(dop["symlink_name"])
@@ -719,14 +720,14 @@ class CheckLinkExistsInterpreter(Interpreter):
             msg += " because it does not exist on your filesystem."
             msg += " Check your installed file!"
             raise PreconditionError(msg)
-        if (dop["symlink1"]["target"] != dop["symlink2"]["target"] and
-                os.path.exists(dop["symlink2"]["target"])):
+        if (normpath(dop["symlink1"]["target"]) != dop["symlink2"]["target"]
+                and os.path.exists(dop["symlink2"]["target"])):
             msg = "'" + dop["symlink1"]["name"] + "' will not be updated"
             msg += " to point to '" + dop["symlink2"]["target"] + "'"
             msg += " because '" + dop["symlink2"]["target"]
             msg += "' does not exist in your filesystem."
             raise PreconditionError(msg)
-        if dop["symlink1"]["name"] != dop["symlink2"]["name"]:
+        if normpath(dop["symlink1"]["name"]) != dop["symlink2"]["name"]:
             if os.path.lexists(dop["symlink2"]["name"]):
                 msg = "'" + dop["symlink1"]["name"] + "' can not be moved to '"
                 msg += dop["symlink2"]["name"] + "' because it already exist"

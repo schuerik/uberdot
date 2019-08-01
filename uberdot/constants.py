@@ -33,7 +33,7 @@ from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import normpath
 
-VERSION = "1.12.4_3"
+VERSION = "1.12.7_3"
 """Version numbers, seperated by underscore.
 
 First part is the version of uberdot. The second part (after the underscore)
@@ -62,7 +62,6 @@ SUPERFORCE = False
 Default is ``False``.
 """
 
-
 # Settings
 ASKROOT = True
 """True, if uberdot shall ask for root permission if needed. If False,
@@ -88,12 +87,14 @@ PROFILE_FILES = ""
 """The directory where the profile will be loaded from."""
 TARGET_FILES = ""
 """The directory where the dotfiles are located."""
-
-# Internal values
 DATA_DIR = os.path.join(
     os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
     "data"
 )
+"""The directory that stores installed-files, dynamic files and
+some static files."""
+
+# Internal values
 """The path to the data directory."""
 INSTALLED_FILE = os.path.join(DATA_DIR, "installed/%s.json")
 """The path to the installed-file that will be used for comparison."""
@@ -102,6 +103,7 @@ INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
 DIR_DEFAULT = "$HOME"
 """The default path that profiles start in."""
 DEFAULTS = {
+    "extension": "",
     "name": "",
     "optional": False,
     "owner": "",
@@ -164,7 +166,7 @@ def loadconfig(config_file, installed_filename="default"):
     """
     global OKGREEN, WARNING, FAIL, ENDC, BOLD, UNDERLINE, NOBOLD
     global DUISTRATEGY, FORCE, LOGGINGLEVEL, MAKEDIRS, DECRYPT_PWD, SUPERFORCE
-    global SKIPROOT
+    global SKIPROOT, DATA_DIR
     global BACKUP_EXTENSION, PROFILE_FILES, TARGET_FILES, INSTALLED_FILE_BACKUP
     global COLOR, INSTALLED_FILE, DEFAULTS, DIR_DEFAULT, LOGFILE, CFG_FILES
     global ASKROOT, TAG_SEPARATOR, HASH_SEPARATOR
@@ -229,9 +231,11 @@ def loadconfig(config_file, installed_filename="default"):
     HASH_SEPARATOR = getstr("hashSeparator", HASH_SEPARATOR)
     PROFILE_FILES = getstr("profileFiles")
     TARGET_FILES = getstr("targetFiles")
+    DATA_DIR = normpath(getstr("dataDir", DATA_DIR))
     COLOR = getbool("color", COLOR)
 
     # Setup internal values
+    INSTALLED_FILE = os.path.join(DATA_DIR, "installed/%s.json")
     INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
     if not COLOR:
         OKGREEN = WARNING = FAIL = ENDC = BOLD = UNDERLINE = NOBOLD = ''
@@ -241,6 +245,7 @@ def loadconfig(config_file, installed_filename="default"):
     getbool = getvalue(config.getboolean, "Defaults")
     getint = getvalue(config.getint, "Defaults")
     DEFAULTS = {
+        "extension": getstr("extension", DEFAULTS["extension"]),
         "name": getstr("name", DEFAULTS["name"]),
         "optional": getbool("optional", DEFAULTS["optional"]),
         "owner": getstr("owner", DEFAULTS["owner"]),

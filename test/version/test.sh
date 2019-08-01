@@ -1,11 +1,13 @@
+# Settings
+master_dir="uberdot-master"
+test_dir="./test/version/"
+
 ### Start this script from the root directory of the repository
 if [ -z $(ls | grep "udot.py") ]; then
-    echo "Started from the wrong direcory. Use ./test/test-version.sh"
+    echo "Started from the wrong direcory. Use $test_dir/$(basename $0)"
     exit 69
 fi
 
-# Settings
-master_dir="uberdot-master"
 
 # Helpers
 cleanup() {
@@ -26,7 +28,7 @@ exiterror() {
 
 
 # Get version numbers
-version_pr=$(./udot.py --config test/versiontest.ini --version | cut -d' ' -f2)
+version_pr=$(./udot.py --config $test_dir/versiontest.ini --version | cut -d' ' -f2)
 
 echo "Fetching master..."
 # To test/debug this script offline, create a bundle of the repository with:
@@ -34,7 +36,7 @@ echo "Fetching master..."
 # and use this git clone instead:
 #   git clone dm.bundle --branch master --single-branch $master_dir &> /dev/null
 git clone https://github.com/schuerik/uberdot.git --branch master --single-branch $master_dir &> /dev/null
-version_master=$($master_dir/udot.py --config test/versiontest.ini --version | cut -d' ' -f2)
+version_master=$($master_dir/udot.py --config $test_dir/versiontest.ini --version | cut -d' ' -f2)
 
 echo "PullRequest version: $version_pr"
 echo "Master version: $version_master"

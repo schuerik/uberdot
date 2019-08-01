@@ -215,7 +215,16 @@ def get_current_username():
     Returns:
         str: The username of the current user
     """
-    return pwd.getpwuid(get_uid()).pw_name
+    return get_username(get_uid())
+
+
+def get_username(uid):
+    """Gets the username of a given uid.
+
+    Returns:
+        str: The username of the uid
+    """
+    return pwd.getpwuid(uid).pw_name
 
 
 def get_user_env_var(varname, fallback=None):
@@ -428,7 +437,7 @@ def log_warning(message):
 
 
 def log_success(message):
-    """Prints text in success color
+    """Prints text in success color.
 
     Using the log functions, the output will also be printed into a logfile
     if the user set the ``--log`` flag.
@@ -436,7 +445,19 @@ def log_success(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.debug(constants.OKGREEN + message + constants.ENDC)
+    logger.info(constants.OKGREEN + message + constants.ENDC)
+
+
+def log_debug(message):
+    """Prints text that is only shown when ``--verbose`` is set.
+
+    Using the log functions, the output will also be printed into a logfile
+    if the user set the ``--log`` flag.
+
+    Args:
+        message (str): The message that will be printed.
+    """
+    logger.debug(message)
 
 
 def is_dynamic_file(target):

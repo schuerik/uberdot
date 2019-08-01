@@ -23,13 +23,16 @@ class NameOption(Profile):
         cd("subdir")
         link("name5", name="../name6", directory="subsubdir")
 
-class PrefixSuffixOption(Profile):
+class PrefixSuffixExtensionOption(Profile):
     def generate(self):
         link("name1", prefix=".")
         link("name2", suffix="bla")
+        link("name5", "name11.file", extension="png")
+        link("name6")
+        # Prefix and suffix should usually not be used like this but this is
+        # the expected behaviour
         link("name3", prefix="subdir/")
         link("name4", suffix="/test")
-        link("name5")
 
 class OptionalOption(Profile):
     def generate(self):

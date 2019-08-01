@@ -130,7 +130,10 @@ class DynamicFile:
         Returns:
             str: The path to the directory
         """
-        return normpath(os.path.join(constants.DATA_DIR, self.SUBDIR))
+        path = normpath(os.path.join(constants.DATA_DIR, self.SUBDIR))
+        if not os.path.isdir(path):
+            os.mkdir(path)  # Create dir if it doesn't exist
+        return path
 
 
 class EncryptedFile(DynamicFile):

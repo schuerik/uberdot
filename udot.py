@@ -310,10 +310,11 @@ class UberDot:
                 raise UserError(msg)
 
         args_depend(
-            "-d/-f/-m/-p/--dui needs to be used with -i or -u",
-            "dryrun", "force", "makedirs", "plain", "dui", "skiproot",
+            "-d/-p/--print need to be used with -i/-u/--debuginfo",
+            "dryrun", "print", "plain",
             need=["install", "uninstall", "debuginfo"]
         )
+
         args_depend(
             "No Profile specified!!",
             "show", "version", "debuginfo",
@@ -390,12 +391,16 @@ class UberDot:
         print_header("Settings")
         print_value("ASKROOT", constants.ASKROOT)
         print_value("BACKUP_EXTENSION", constants.BACKUP_EXTENSION)
+        print_value("DATA_DIR", constants.DATA_DIR)
+        print_value("TAG_SEPARATOR", constants.TAG_SEPARATOR)
+        print_value("HASH_SEPARATOR", constants.HASH_SEPARATOR)
         print_value("COLOR", constants.COLOR)
         print_value("DECRYPT_PWD", constants.DECRYPT_PWD)
         print_value("PROFILE_FILES", constants.PROFILE_FILES)
         print_value("TARGET_FILES", constants.TARGET_FILES)
         print_header("Command options")
         print_value("DEFAULTS['directory']", self.args.directory)
+        print_value("DEFAULTS['extension']", self.args.opt_dict["extension"])
         print_value("DEFAULTS['name']", self.args.opt_dict["name"])
         print_value("DEFAULTS['optional']", self.args.opt_dict["optional"])
         print_value("DEFAULTS['owner']", self.args.opt_dict["owner"])

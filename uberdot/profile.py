@@ -478,9 +478,10 @@ class Profile:
 
         # Add prefix an suffix to name
         base, ext = os.path.splitext(os.path.basename(name))
+        if read_opt("extension"):
+            ext = "." + read_opt("extension")
         name = os.path.join(os.path.dirname(name), read_opt("prefix") +
                             base + read_opt("suffix") + ext)
-        name = os.path.normpath(name)
 
         # Put together the path of the dir we create the link in
         if not directory:
@@ -490,7 +491,7 @@ class Profile:
         # Concat directory and name. The users $HOME needs to be set for this
         # when executing as root, otherwise ~ will be expanded to the home
         # directory of the root user (/root)
-        name = expandpath(os.path.join(directory, name))
+        name = normpath(os.path.join(directory, name))
 
         # Get user and group id of owner
         owner = read_opt("owner")
@@ -499,8 +500,8 @@ class Profile:
             try:
                 user, group = owner.split(":")
             except ValueError:
-                msg = "The owner needs to be specified in the format"
-                self._gen_err(msg + 'user:group')
+                msg = "The owner needs to be specified in the format "
+                self._gen_err(msg + "user:group")
             try:
                 uid = shutil._get_uid(user)
             except LookupError:

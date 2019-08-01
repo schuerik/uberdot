@@ -12,11 +12,11 @@ docs/sphinx/build/html/*
 data/uberdot.ini
 
 # Everything in the subdirectories beside the .gitkeep files
-data/installed/*
+**/data/installed/*
 !data/installed/.gitkeep
-data/decrypted/*
+**/data/decrypted/*
 !data/decrypted/.gitkeep
-data/merged/*
+**/data/merged/*
 !data/merged/.gitkeep
-data/piped/*
+**/data/piped/*
 !data/piped/.gitkeep

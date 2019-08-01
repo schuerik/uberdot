@@ -45,6 +45,10 @@ Options
      Use a different config file for this call
 
 
+--debuginfo
+     Display important internal values and all loaded settings from your config
+
+
 --directory <DIRECTORY>
      Overwrite the default directory temporarily
 
@@ -85,12 +89,12 @@ Options
      of ``PARENT``. This should be only needed to solve certain conflicts.
 
 
---print
+--plain
      Prints the ``Difference Log`` unformatted and exits. Only useful for
      debugging.
 
 
--p, --pretty-print
+-p, --print
      Prints out the changes that uberdot would perform if executed without
      this flag. This differs from ``--dry-run`` in that way that it won’t do
      any checks on the profiles or filesystem, so ``--dry-run`` is almost

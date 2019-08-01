@@ -33,9 +33,10 @@ the standart DiffSolver) and their resulting data structure DiffLog.
 import copy
 from uberdot.errors import FatalError
 from uberdot.interpreters import Interpreter
+from uberdot.utils import get_date_time_now
 from uberdot.utils import import_profile_class
 from uberdot.utils import log_warning
-from uberdot.utils import get_date_time_now
+from uberdot.utils import normpath
 
 
 class DiffLog():
@@ -347,8 +348,14 @@ class DiffSolver():
                 profile
         """
         def symlinks_similar(symlink1, symlink2):
-            return symlink1["name"] == symlink2["name"] or \
-                   symlink1["target"] == symlink2["target"]
+            return normpath(symlink1["name"]) == normpath(symlink2["name"]) or \
+                   normpath(symlink1["target"]) == normpath(symlink2["target"])
+        def symlinks_equal(symlink1, symlink2):
+            return normpath(symlink1["name"]) == normpath(symlink2["name"]) and \
+                   normpath(symlink1["target"]) == normpath(symlink2["target"]) and \
+                   symlink1["uid"] == symlink2["uid"] and \
+                   symlink1["gid"] == symlink2["gid"] and \
+                   symlink1["permission"] == symlink2["permission"]
 
         profile_new = False
         profile_changed = False
@@ -383,7 +390,7 @@ class DiffSolver():
         count = 0
         for installed_link in installed_links[:]:
             for new_link in new_links[:]:
-                if installed_link == new_link:
+                if symlinks_equal(installed_link, new_link):
                     # Link in new profile is the same as a installed one,
                     # so ignore it
                     installed_links.remove(installed_link)
