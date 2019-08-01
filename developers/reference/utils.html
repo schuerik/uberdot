@@ -1,10 +1,12 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Utils &#8212; uberdot 1.12.4_3 documentation</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Utils &#8212; uberdot 1.12.7_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -37,185 +39,214 @@
 E.g. retrieving a environment variable or fixing file permisions.</p>
 <dl class="function">
 <dt id="utils.expandpath">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">expandpath</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandpath" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">expandpath</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Expands ~ and environment variables.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be expanded</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>str</em> -- The expanded path</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) -- The path that will be expanded</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> -- The expanded path</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.expanduser">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">expanduser</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">expanduser</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expanduser" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the <code class="docutils literal notranslate"><span class="pre">os.path.expanduser()</span></code> but uses
 <a class="reference internal" href="#utils.get_user_env_var" title="utils.get_user_env_var"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_user_env_var()</span></code></a> to look up the substitution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be expanded</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>str</em> -- The expanded path</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) -- The path that will be expanded</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> -- The expanded path</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.expandvars">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">expandvars</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandvars" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">expandvars</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.expandvars" title="Permalink to this definition">¶</a></dt>
 <dd><p>Behaves like the <code class="docutils literal notranslate"><span class="pre">os.path.expandvars()</span></code> but uses
 <a class="reference internal" href="#utils.get_user_env_var" title="utils.get_user_env_var"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_user_env_var()</span></code></a> to look up the substitution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be expanded</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>str</em> -- The expanded path</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) -- The path that will be expanded</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> -- The expanded path</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.find_exact_target">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">find_exact_target</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_exact_target" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">find_exact_target</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_exact_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the exact target in the repository to link to.</p>
 <p>This will search <a class="reference internal" href="constants.html#constants.TARGET_FILES" title="constants.TARGET_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">TARGET_FILES</span></code></a> for files that match
 <code class="docutils literal notranslate"><span class="pre">target</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) -- The filename that will be searched for</p>
-</dd>
-</dl>
-<p>:raises <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code>: Multiple targets where found</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> -- Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target
-found.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target</strong> (<em>str</em>) -- The filename that will be searched for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code> -- Multiple targets where found</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> -- Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target
+found.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.find_files">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">find_files</code><span class="sig-paren">(</span><em class="sig-param">filename</em>, <em class="sig-param">paths</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_files" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">find_files</code><span class="sig-paren">(</span><em>filename</em>, <em>paths</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds existing files matching a specific name in a list of paths.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>filename</strong> (<em>str</em>) -- The name of the file that will be searched for
-in <code class="docutils literal notranslate"><span class="pre">paths</span></code></p></li>
-<li><p><strong>paths</strong> (<em>list</em>) -- A list of paths that will be searched for <code class="docutils literal notranslate"><span class="pre">filename</span></code></p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> (<em>str</em>) -- The name of the file that will be searched for
+in <code class="docutils literal notranslate"><span class="pre">paths</span></code></li>
+<li><strong>paths</strong> (<em>list</em>) -- A list of paths that will be searched for <code class="docutils literal notranslate"><span class="pre">filename</span></code></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>list</em> -- A list of file paths that were found</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>list</em> -- A list of file paths that were found</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.find_target">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">find_target</code><span class="sig-paren">(</span><em class="sig-param">target</em>, <em class="sig-param">tags</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_target" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">find_target</code><span class="sig-paren">(</span><em>target</em>, <em>tags</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.find_target" title="Permalink to this definition">¶</a></dt>
 <dd><p>Finds the correct target version in the repository to link to.</p>
 <p>This will search <a class="reference internal" href="constants.html#constants.TARGET_FILES" title="constants.TARGET_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">TARGET_FILES</span></code></a> for files that match the
 naming schema <cite>&lt;any string&gt;%&lt;target&gt;</cite> and returns the file whose
 <cite>&lt;any string&gt;</cite> occurs first in <code class="docutils literal notranslate"><span class="pre">tags</span></code>. If no file is found the return
 value of <a class="reference internal" href="#utils.find_exact_target" title="utils.find_exact_target"><code class="xref py py-func docutils literal notranslate"><span class="pre">find_exact_target()</span></code></a> is returned.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>target</strong> (<em>str</em>) -- The filename that will be searched for</p></li>
-<li><p><strong>tags</strong> (<em>list</em>) -- A list of tags that will be matched against the search
-result</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>target</strong> (<em>str</em>) -- The filename that will be searched for</li>
+<li><strong>tags</strong> (<em>list</em>) -- A list of tags that will be matched against the search
+result</li>
 </ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>ValueError</strong> -- Multiple targets where found</p>
-</dd>
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> -- Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target found.</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ValueError</span></code> -- Multiple targets where found</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>str</em> -- Relative path of found file. Returns <code class="docutils literal notranslate"><span class="pre">None</span></code> if no target found.</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.get_current_username">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_current_username</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_current_username" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">get_current_username</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_current_username" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the current users username.</p>
 <p>Gets the username of the user that started uberdot. If the
 program was started with sudo, it still returns the original
 username and not &quot;root&quot;.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> -- The username of the current user</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> -- The username of the current user</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.get_date_time_now">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_date_time_now</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_date_time_now" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">get_date_time_now</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_date_time_now" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a datetime string for the current moment in the format
 YYYY-MM-DD hh:mm:ss</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> -- The datetime string</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> -- The datetime string</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.get_dir_owner">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_dir_owner</code><span class="sig-paren">(</span><em class="sig-param">filename</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_dir_owner" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">get_dir_owner</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_dir_owner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the owner of the directory of a (non existing) file.</p>
 <p>If the the directory does not exist, this function will goes the directory
 tree up until it finds an existing directory and returns its owner instead.
 This is used to figure out which permission shall have if it is about to be
 created.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) -- (Non existing) absolute path to file</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A tuple containing the UID of the directory owner and the GID of the
-directory owner</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) -- (Non existing) absolute path to file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A tuple containing the UID of the directory owner and the GID of the
+directory owner</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.get_gid">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_gid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_gid" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">get_gid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_gid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the GID of the user that started uberdot.</p>
 <p>This gets the current users GID. If SUDO_GID is set (this means the process
 was started with sudo) SUDO_GID will be returned instead.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>(int)</em> -- GID of the user that started dotmanger</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>(int)</em> -- GID of the user that started dotmanger</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.get_uid">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_uid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_uid" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">get_uid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the UID of the user that started uberdot.</p>
 <p>This gets the current users UID. If SUDO_UID is set (this means the process
 was started with sudo) SUDO_UID will be returned instead.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>(int)</em> -- UID of the user that started dotmanger</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>(int)</em> -- UID of the user that started dotmanger</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.get_user_env_var">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">get_user_env_var</code><span class="sig-paren">(</span><em class="sig-param">varname</em>, <em class="sig-param">fallback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_user_env_var" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">get_user_env_var</code><span class="sig-paren">(</span><em>varname</em>, <em>fallback=None</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_user_env_var" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lookup an environment variable.</p>
 <p>If executed as root, this function will login as the original user
 and look up the variable there. This means that this function will fail to
@@ -224,125 +255,181 @@ look up environment variables that are for example set by the user in his
 Otherwise this function will do a standart look up of the users environment
 variables which means that all variables that were set at the time
 uberdot was started can be accessed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>varname</strong> (<em>str</em>) -- Name of the variable to look up</p></li>
-<li><p><strong>fallback</strong> (<em>str</em>) -- A fallback value if <code class="docutils literal notranslate"><span class="pre">varname</span></code> does not exist</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>varname</strong> (<em>str</em>) -- Name of the variable to look up</li>
+<li><strong>fallback</strong> (<em>str</em>) -- A fallback value if <code class="docutils literal notranslate"><span class="pre">varname</span></code> does not exist</li>
 </ul>
-</dd>
-</dl>
-<p>:raises <a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">PreconditionError</span></code></a>: The variable does not exist and no
-    fallback value was set</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>str</em> -- The value of the variable</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">PreconditionError</span></code></a> -- The variable does not exist and no
+fallback value was set</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>str</em> -- The value of the variable</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.get_username">
+<code class="descclassname">utils.</code><code class="descname">get_username</code><span class="sig-paren">(</span><em>uid</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_username" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the username of a given uid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> -- The username of the uid</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.has_root_priveleges">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">has_root_priveleges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.has_root_priveleges" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">has_root_priveleges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.has_root_priveleges" title="Permalink to this definition">¶</a></dt>
 <dd><p>Checks if this programm has root priveleges.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>bool</em> -- True, if the current process has root priveleges</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>bool</em> -- True, if the current process has root priveleges</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.import_profile_class">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">import_profile_class</code><span class="sig-paren">(</span><em class="sig-param">class_name</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.import_profile_class" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">import_profile_class</code><span class="sig-paren">(</span><em>class_name</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.import_profile_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>Imports a profile class only by it's name.</p>
 <p>Searches <a class="reference internal" href="constants.html#constants.PROFILE_FILES" title="constants.PROFILE_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">PROFILE_FILES</span></code></a> for python modules and imports
 them temporarily. If the module has a class that is the same as
 <code class="docutils literal notranslate"><span class="pre">class_name</span></code> it returns it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>class_name</strong> (<em>str</em>) -- The name of the class that will be imported</p>
-</dd>
-</dl>
-<p>:raises <a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenerationError</span></code></a>: One of the modules in
-    <a class="reference internal" href="constants.html#constants.PROFILE_FILES" title="constants.PROFILE_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">PROFILE_FILES</span></code></a> contained errors or the imported
-    class doesn't inherit from <a class="reference internal" href="profile.html#profile.Profile" title="profile.Profile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Profile</span></code></a>
-:raises <a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">PreconditionError</span></code></a>: No class with the provided name
-    exists</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>class</em> -- The class that was imported</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>class_name</strong> (<em>str</em>) -- The name of the class that will be imported</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first simple">
+<li><a class="reference internal" href="errors.html#errors.GenerationError" title="errors.GenerationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">GenerationError</span></code></a> -- One of the modules in
+<a class="reference internal" href="constants.html#constants.PROFILE_FILES" title="constants.PROFILE_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">PROFILE_FILES</span></code></a> contained errors or the imported
+class doesn't inherit from <a class="reference internal" href="profile.html#profile.Profile" title="profile.Profile"><code class="xref py py-class docutils literal notranslate"><span class="pre">Profile</span></code></a></li>
+<li><a class="reference internal" href="errors.html#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-class docutils literal notranslate"><span class="pre">PreconditionError</span></code></a> -- No class with the provided name
+exists</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><em>class</em> -- The class that was imported</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.is_dynamic_file">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">is_dynamic_file</code><span class="sig-paren">(</span><em class="sig-param">target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.is_dynamic_file" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">is_dynamic_file</code><span class="sig-paren">(</span><em>target</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.is_dynamic_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns if a given path is a dynamic file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>target</strong> (<em>str</em>) -- The path to the file</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>bool</em> -- True, if given path is a dynamicfile</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>target</strong> (<em>str</em>) -- The path to the file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>bool</em> -- True, if given path is a dynamicfile</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.log_debug">
+<code class="descclassname">utils.</code><code class="descname">log_debug</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints text that is only shown when <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> is set.</p>
+<p>Using the log functions, the output will also be printed into a logfile
+if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) -- The message that will be printed.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.log_success">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">log_success</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_success" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints text in success color</p>
+<code class="descclassname">utils.</code><code class="descname">log_success</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_success" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints text in success color.</p>
 <p>Using the log functions, the output will also be printed into a logfile
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The message that will be printed.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) -- The message that will be printed.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.log_warning">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">log_warning</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_warning" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">log_warning</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_warning" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prints text in warning color.</p>
 <p>Using the log functions, the output will also be printed into a logfile
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The message that will be printed.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) -- The message that will be printed.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.normpath">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">normpath</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.normpath" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">normpath</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.normpath" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalizes path, expands ~ and environment vars,
 and converts it in an absolute path.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) -- The path that will be normalized</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><em>str</em> -- The normalized path</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) -- The path that will be normalized</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> -- The normalized path</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="utils.walk_dotfiles">
-<code class="sig-prename descclassname">utils.</code><code class="sig-name descname">walk_dotfiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.walk_dotfiles" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">utils.</code><code class="descname">walk_dotfiles</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.walk_dotfiles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Walks through the <a class="reference internal" href="constants.html#constants.TARGET_FILES" title="constants.TARGET_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">TARGET_FILES</span></code></a> and returns all files
 found.</p>
 <p>This also takes the .dotignore-file into account.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><em>(list)</em> -- Contains tuples with the directory and the filename of every
-found file</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>(list)</em> -- Contains tuples with the directory and the filename of every
+found file</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -410,11 +497,13 @@ found file</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -435,7 +524,7 @@ found file</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

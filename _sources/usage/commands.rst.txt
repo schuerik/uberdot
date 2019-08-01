@@ -85,9 +85,15 @@ options. This is a list of all options available:
 
   - e.g.: :python:`opt(prefix=".")`
 
-- **suffix**: Same as prefix but appends to the symlink name
+- **suffix**: Same as prefix but appends to the symlink name. Note that
+  if the symlink name has an extension, the suffix will be inserted before
+  the extension.
 
-  - e.g.: :python:`opt(suffix=".ini")`
+  - e.g.: :python:`opt(suffix="somestring")`
+
+- **extension**: Add or replace the extension of the symlink name
+
+  - e.g.: :python:`opt(extension="ini")`
 
 - **owner**: Sets the user and group owner of the symlink
 

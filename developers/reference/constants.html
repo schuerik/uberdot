@@ -1,10 +1,12 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Constants &#8212; uberdot 1.12.4_3 documentation</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Constants &#8212; uberdot 1.12.7_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -38,26 +40,26 @@
 overwrite defaults for a specific configuration.</p>
 <dl class="data">
 <dt id="constants.ASKROOT">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">ASKROOT</code><em class="property"> = True</em><a class="headerlink" href="#constants.ASKROOT" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">ASKROOT</code><em class="property"> = True</em><a class="headerlink" href="#constants.ASKROOT" title="Permalink to this definition">¶</a></dt>
 <dd><p>True, if uberdot shall ask for root permission if needed. If False,
 uberdot will fail if root permission is needed. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.BACKUP_EXTENSION">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">BACKUP_EXTENSION</code><em class="property"> = 'bak'</em><a class="headerlink" href="#constants.BACKUP_EXTENSION" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">BACKUP_EXTENSION</code><em class="property"> = 'bak'</em><a class="headerlink" href="#constants.BACKUP_EXTENSION" title="Permalink to this definition">¶</a></dt>
 <dd><p>The extension that will be used for backup files. Default is <code class="docutils literal notranslate"><span class="pre">bak</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.BOLD">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">BOLD</code><em class="property"> = '\x1b[1m'</em><a class="headerlink" href="#constants.BOLD" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">BOLD</code><em class="property"> = '\x1b[1m'</em><a class="headerlink" href="#constants.BOLD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bash color code for bold text.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.CFG_FILES">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">CFG_FILES</code><em class="property"> = []</em><a class="headerlink" href="#constants.CFG_FILES" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">CFG_FILES</code><em class="property"> = []</em><a class="headerlink" href="#constants.CFG_FILES" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list with all configuration files that will be used to set constants. All
 settings of all configuration files will be used. If a specific setting is set
 in more than one configuration file, the setting from the configuration file
@@ -66,155 +68,156 @@ with higher index will be prefered.</p>
 
 <dl class="data">
 <dt id="constants.COLOR">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">COLOR</code><em class="property"> = True</em><a class="headerlink" href="#constants.COLOR" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">COLOR</code><em class="property"> = True</em><a class="headerlink" href="#constants.COLOR" title="Permalink to this definition">¶</a></dt>
 <dd><p>True, if output should be colored. Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.CONFIG_SEARCH_PATHS">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">CONFIG_SEARCH_PATHS</code><em class="property"> = ['/etc/uberdot', '/home/travis/.config/uberdot', '/home/travis/build/schuerik/uberdot/data']</em><a class="headerlink" href="#constants.CONFIG_SEARCH_PATHS" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">CONFIG_SEARCH_PATHS</code><em class="property"> = ['/etc/uberdot', '/home/travis/.config/uberdot', '/home/travis/build/schuerik/uberdot/data']</em><a class="headerlink" href="#constants.CONFIG_SEARCH_PATHS" title="Permalink to this definition">¶</a></dt>
 <dd><p>A list of paths that will be used to search for configuration files.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.DATA_DIR">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">DATA_DIR</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data'</em><a class="headerlink" href="#constants.DATA_DIR" title="Permalink to this definition">¶</a></dt>
-<dd><p>The path to the data directory.</p>
+<code class="descclassname">constants.</code><code class="descname">DATA_DIR</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data'</em><a class="headerlink" href="#constants.DATA_DIR" title="Permalink to this definition">¶</a></dt>
+<dd><p>The directory that stores installed-files, dynamic files and
+some static files.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.DECRYPT_PWD">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">DECRYPT_PWD</code><em class="property"> = None</em><a class="headerlink" href="#constants.DECRYPT_PWD" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">DECRYPT_PWD</code><em class="property"> = None</em><a class="headerlink" href="#constants.DECRYPT_PWD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Contains the decryption password in plain text.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.DEFAULTS">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">DEFAULTS</code><em class="property"> = {'name': '', 'optional': False, 'owner': '', 'permission': 644, 'prefix': '', 'replace': '', 'replace_pattern': '', 'suffix': ''}</em><a class="headerlink" href="#constants.DEFAULTS" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">DEFAULTS</code><em class="property"> = {'extension': '', 'name': '', 'optional': False, 'owner': '', 'permission': 644, 'prefix': '', 'replace': '', 'replace_pattern': '', 'suffix': ''}</em><a class="headerlink" href="#constants.DEFAULTS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Default values for command options.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.DIR_DEFAULT">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">DIR_DEFAULT</code><em class="property"> = '$HOME'</em><a class="headerlink" href="#constants.DIR_DEFAULT" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">DIR_DEFAULT</code><em class="property"> = '$HOME'</em><a class="headerlink" href="#constants.DIR_DEFAULT" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default path that profiles start in.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.DUISTRATEGY">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">DUISTRATEGY</code><em class="property"> = False</em><a class="headerlink" href="#constants.DUISTRATEGY" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">DUISTRATEGY</code><em class="property"> = False</em><a class="headerlink" href="#constants.DUISTRATEGY" title="Permalink to this definition">¶</a></dt>
 <dd><p>True, if --dui should be set as default. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.ENDC">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">ENDC</code><em class="property"> = '\x1b[0m'</em><a class="headerlink" href="#constants.ENDC" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">ENDC</code><em class="property"> = '\x1b[0m'</em><a class="headerlink" href="#constants.ENDC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bash color code to stop formatation of text.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.FAIL">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">FAIL</code><em class="property"> = '\x1b[91m'</em><a class="headerlink" href="#constants.FAIL" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">FAIL</code><em class="property"> = '\x1b[91m'</em><a class="headerlink" href="#constants.FAIL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bash color code for red text.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.FORCE">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">FORCE</code><em class="property"> = False</em><a class="headerlink" href="#constants.FORCE" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">FORCE</code><em class="property"> = False</em><a class="headerlink" href="#constants.FORCE" title="Permalink to this definition">¶</a></dt>
 <dd><p>True, if --force should be set as default. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.HASH_SEPARATOR">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">HASH_SEPARATOR</code><em class="property"> = '#'</em><a class="headerlink" href="#constants.HASH_SEPARATOR" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">HASH_SEPARATOR</code><em class="property"> = '#'</em><a class="headerlink" href="#constants.HASH_SEPARATOR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The symbol that is used as separator for hashes in dynamic file names.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.INSTALLED_FILE">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">INSTALLED_FILE</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data/installed/%s.json'</em><a class="headerlink" href="#constants.INSTALLED_FILE" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">INSTALLED_FILE</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data/installed/%s.json'</em><a class="headerlink" href="#constants.INSTALLED_FILE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The path to the installed-file that will be used for comparison.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.INSTALLED_FILE_BACKUP">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">INSTALLED_FILE_BACKUP</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data/installed/%s.json.bak'</em><a class="headerlink" href="#constants.INSTALLED_FILE_BACKUP" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">INSTALLED_FILE_BACKUP</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data/installed/%s.json.bak'</em><a class="headerlink" href="#constants.INSTALLED_FILE_BACKUP" title="Permalink to this definition">¶</a></dt>
 <dd><p>The path to the file that will be used as backup of the installed-file.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.LOGFILE">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">LOGFILE</code><em class="property"> = ''</em><a class="headerlink" href="#constants.LOGFILE" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">LOGFILE</code><em class="property"> = ''</em><a class="headerlink" href="#constants.LOGFILE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The file that will be used as logfile. Empty if no logfile will be used.
 Needs to be normalized before usage. Default is <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.LOGGINGLEVEL">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">LOGGINGLEVEL</code><em class="property"> = 'info'</em><a class="headerlink" href="#constants.LOGGINGLEVEL" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">LOGGINGLEVEL</code><em class="property"> = 'info'</em><a class="headerlink" href="#constants.LOGGINGLEVEL" title="Permalink to this definition">¶</a></dt>
 <dd><p>The current logging level. Default is <code class="docutils literal notranslate"><span class="pre">info</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.MAKEDIRS">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">MAKEDIRS</code><em class="property"> = False</em><a class="headerlink" href="#constants.MAKEDIRS" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">MAKEDIRS</code><em class="property"> = False</em><a class="headerlink" href="#constants.MAKEDIRS" title="Permalink to this definition">¶</a></dt>
 <dd><p>True, if uberdot shall create directories if they don't exist.
 Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.NOBOLD">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">NOBOLD</code><em class="property"> = '\x1b[22m'</em><a class="headerlink" href="#constants.NOBOLD" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">NOBOLD</code><em class="property"> = '\x1b[22m'</em><a class="headerlink" href="#constants.NOBOLD" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bash color code to stop bold text.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.OKGREEN">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">OKGREEN</code><em class="property"> = '\x1b[92m'</em><a class="headerlink" href="#constants.OKGREEN" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">OKGREEN</code><em class="property"> = '\x1b[92m'</em><a class="headerlink" href="#constants.OKGREEN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bash color code for green text.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.PROFILE_FILES">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">PROFILE_FILES</code><em class="property"> = ''</em><a class="headerlink" href="#constants.PROFILE_FILES" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">PROFILE_FILES</code><em class="property"> = ''</em><a class="headerlink" href="#constants.PROFILE_FILES" title="Permalink to this definition">¶</a></dt>
 <dd><p>The directory where the profile will be loaded from.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.SKIPROOT">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">SKIPROOT</code><em class="property"> = False</em><a class="headerlink" href="#constants.SKIPROOT" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">SKIPROOT</code><em class="property"> = False</em><a class="headerlink" href="#constants.SKIPROOT" title="Permalink to this definition">¶</a></dt>
 <dd><p>True, if all operations that requiere root permission will be omitted.
 Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.SUPERFORCE">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">SUPERFORCE</code><em class="property"> = False</em><a class="headerlink" href="#constants.SUPERFORCE" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">SUPERFORCE</code><em class="property"> = False</em><a class="headerlink" href="#constants.SUPERFORCE" title="Permalink to this definition">¶</a></dt>
 <dd><p>True, if uberdot shall overwrite files that are blacklisted.
 Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.TAG_SEPARATOR">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">TAG_SEPARATOR</code><em class="property"> = '%'</em><a class="headerlink" href="#constants.TAG_SEPARATOR" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">TAG_SEPARATOR</code><em class="property"> = '%'</em><a class="headerlink" href="#constants.TAG_SEPARATOR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The symbol that is used as separator for tags in dotfile names.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.TARGET_FILES">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">TARGET_FILES</code><em class="property"> = ''</em><a class="headerlink" href="#constants.TARGET_FILES" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">TARGET_FILES</code><em class="property"> = ''</em><a class="headerlink" href="#constants.TARGET_FILES" title="Permalink to this definition">¶</a></dt>
 <dd><p>The directory where the dotfiles are located.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.UNDERLINE">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">UNDERLINE</code><em class="property"> = '\x1b[4m'</em><a class="headerlink" href="#constants.UNDERLINE" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">UNDERLINE</code><em class="property"> = '\x1b[4m'</em><a class="headerlink" href="#constants.UNDERLINE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bash color code for underlined text.</p>
 </dd></dl>
 
 <dl class="data">
 <dt id="constants.VERSION">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">VERSION</code><em class="property"> = '1.12.4_3'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">VERSION</code><em class="property"> = '1.12.7_3'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd><p>Version numbers, seperated by underscore.</p>
 <p>First part is the version of uberdot. The second part (after the underscore)
 is the version of the installed-file schema. The latter will be used to
@@ -223,27 +226,31 @@ determine compability of the uberdot with the installed-file.</p>
 
 <dl class="data">
 <dt id="constants.WARNING">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">WARNING</code><em class="property"> = '\x1b[93m'</em><a class="headerlink" href="#constants.WARNING" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">WARNING</code><em class="property"> = '\x1b[93m'</em><a class="headerlink" href="#constants.WARNING" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bash color code for yellow text.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="constants.loadconfig">
-<code class="sig-prename descclassname">constants.</code><code class="sig-name descname">loadconfig</code><span class="sig-paren">(</span><em class="sig-param">config_file</em>, <em class="sig-param">installed_filename='default'</em><span class="sig-paren">)</span><a class="headerlink" href="#constants.loadconfig" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">loadconfig</code><span class="sig-paren">(</span><em>config_file</em>, <em>installed_filename='default'</em><span class="sig-paren">)</span><a class="headerlink" href="#constants.loadconfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Loads constants from the config files.</p>
 <p>This will load all configs from <a class="reference internal" href="#constants.CFG_FILES" title="constants.CFG_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">CFG_FILES</span></code></a> or <code class="docutils literal notranslate"><span class="pre">config_file</span></code>
 if provided. The name of the installed-file will be used to load
 installed-file specific values.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config_file</strong> (<em>str</em>) -- Absolute path to the config file to use. If None,
-the configs from <a class="reference internal" href="#constants.CFG_FILES" title="constants.CFG_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">CFG_FILES</span></code></a> will be loaded.</p></li>
-<li><p><strong>installed_filename</strong> (<em>str</em>) -- Name of the installed-file for that values
-will be loaded</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>config_file</strong> (<em>str</em>) -- Absolute path to the config file to use. If None,
+the configs from <a class="reference internal" href="#constants.CFG_FILES" title="constants.CFG_FILES"><code class="xref py py-const docutils literal notranslate"><span class="pre">CFG_FILES</span></code></a> will be loaded.</li>
+<li><strong>installed_filename</strong> (<em>str</em>) -- Name of the installed-file for that values
+will be loaded</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -312,11 +319,13 @@ will be loaded</p></li>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -337,7 +346,7 @@ will be loaded</p></li>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

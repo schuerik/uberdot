@@ -33,15 +33,18 @@ The following settings are available:
 +-----------------+---------------------------------------------------+------------------------------------------------------------------+
 | backupExtension | String (Default is "bak")                         | The extension that is used to create backup files                |
 +-----------------+---------------------------------------------------+------------------------------------------------------------------+
-| tagSeparator    | String (Default is "%")                           | The symbol that is used as separator for tags in dotfile names   |
-+-----------------+---------------------------------------------------+------------------------------------------------------------------+
-| hashSeparator   | String (Default is "#")                           | The symbol that is used as separator for hashes in dynamic files |
-+-----------------+---------------------------------------------------+------------------------------------------------------------------+
 | color           | True, False (Default is True)                     | Should the output be colorized                                   |
 +-----------------+---------------------------------------------------+------------------------------------------------------------------+
 | decryptPwd      | String                                            | Default password to decrypt encrypted dotfiles                   |
 +-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| hashSeparator   | String (Default is "#")                           | The symbol that is used as separator for hashes in dynamic files |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| dataDir         | String (Default is None)                          | A setting to use a special directory instead of the default data |
+|                 |                                                   | dir. Mainly useful for automated testing.                        |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
 | profileFiles    | Path (absolute or relatively to the installation) | The directory that contains the profiles                         |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| tagSeparator    | String (Default is "%")                           | The symbol that is used as separator for tags in dotfile names   |
 +-----------------+---------------------------------------------------+------------------------------------------------------------------+
 | targetFiles     | Path (absolute or relatively to the installation) | The directory that contains the dotfiles                         |
 +-----------------+---------------------------------------------------+------------------------------------------------------------------+

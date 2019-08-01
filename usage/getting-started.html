@@ -1,10 +1,12 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Getting started &#8212; uberdot 1.12.4_3 documentation</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Getting started &#8212; uberdot 1.12.7_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -49,17 +51,17 @@ portable binary. But for now you will have to set up uberdot by yourself.</p>
 <div class="section" id="step-1a-manual-set-up">
 <h3>Step 1a: Manual set up<a class="headerlink" href="#step-1a-manual-set-up" title="Permalink to this headline">¶</a></h3>
 <p>First clone the repository:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/schuerik/uberdot.git
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/schuerik/uberdot.git
 </pre></div>
 </div>
 <p>Then install dependencies:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install python3
-<span class="c1"># if you want to use encryption features</span>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ sudo apt-get install python3
+# if you want to use encryption features
 $ sudo apt-get install python3 gnupg
 </pre></div>
 </div>
 <p>You can run</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./uberdot/test/regressiontest.py
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./uberdot/test/regressiontest.py
 </pre></div>
 </div>
 <p>to verify that uberdot runs correctly on your system.</p>
@@ -72,18 +74,19 @@ them the defaults are enough. If you are interested in further configuration,
 take a look at <a class="reference internal" href="config-file.html"><span class="doc">Configuration</span></a>. For the beginning you just have to set the
 directory for your dotfiles and for your profiles. To do so, either create a new
 file called <code class="docutils literal notranslate"><span class="pre">uberdot.ini</span></code> or copy the example from <code class="docutils literal notranslate"><span class="pre">docs/config-example.ini</span></code>.</p>
-<dl class="simple">
-<dt>You can store the configuration file at one of the following places:</dt><dd><ul class="simple">
-<li><p>uberdot/data/uberdot.ini</p></li>
-<li><p>~/.config/uberdot/uberdot.ini</p></li>
-<li><p>/etc/uberdot/uberdot.ini</p></li>
+<dl class="docutils">
+<dt>You can store the configuration file at one of the following places:</dt>
+<dd><ul class="first last simple">
+<li>uberdot/data/uberdot.ini</li>
+<li>~/.config/uberdot/uberdot.ini</li>
+<li>/etc/uberdot/uberdot.ini</li>
 </ul>
 </dd>
 </dl>
 <p>Then set the values <code class="docutils literal notranslate"><span class="pre">targetFiles</span></code> and <code class="docutils literal notranslate"><span class="pre">profileFiles</span></code> in the &quot;Settings&quot; section:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[Settings]</span>
-<span class="na">profileFiles</span> <span class="o">=</span> <span class="s">/path/to/your/profiles/</span>
-<span class="na">targetFiles</span>  <span class="o">=</span> <span class="s">/path/to/your/dotfiles/</span>
+<div class="code ini highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Settings</span><span class="p">]</span>
+<span class="n">profileFiles</span> <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">profiles</span><span class="o">/</span>
+<span class="n">targetFiles</span>  <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">dotfiles</span><span class="o">/</span>
 </pre></div>
 </div>
 </div>
@@ -94,7 +97,7 @@ in your profile directory. It doesn't matter what you name it, as long it ends
 on &quot;.py&quot;.
 You can copy the following, but replace <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> with a file that exists in
 your dotfile directory:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -102,16 +105,16 @@ your dotfile directory:</p>
 </pre></div>
 </div>
 <p>Now installing this profile is easy:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Test1
-<span class="o">[</span>Test1<span class="o">]</span>: Installing new profile
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/&lt;filename&gt; was created and links to /path/to/your/dotfiles/&lt;filename&gt;
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Test1
+[Test1]: Installing new profile
+[Test1]: /home/user/&lt;filename&gt; was created and links to /path/to/your/dotfiles/&lt;filename&gt;
 Finished succesfully.
 </pre></div>
 </div>
 <p>So <code class="docutils literal notranslate"><span class="pre">link(&quot;&lt;filename&gt;&quot;)</span></code> creates a symlink in your home directory and points
 to the file <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> in your repository.</p>
 <p>Ok, lets modify this a little bit and add some more links:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -126,11 +129,11 @@ to the file <code class="docutils literal notranslate"><span class="pre">&lt;fil
 command let's you switch the directory in which the links will be created. So
 instead of creating links in your home directory, all further calls of <code class="docutils literal notranslate"><span class="pre">link()</span></code>
 will create links in <code class="docutils literal notranslate"><span class="pre">~/.config</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Test1
-<span class="o">[</span>Test1<span class="o">]</span>: Profile updated
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/&lt;filename&gt; was moved to /home/user/.&lt;filename&gt;
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/&lt;filename2&gt; was created and links to /path/to/your/dotfiles/&lt;filename2&gt;
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/someothername.conf was created and links to /path/to/your/dotfiles/&lt;filename3&gt;
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Test1
+[Test1]: Profile updated
+[Test1]: /home/user/&lt;filename&gt; was moved to /home/user/.&lt;filename&gt;
+[Test1]: /home/user/.config/&lt;filename2&gt; was created and links to /path/to/your/dotfiles/&lt;filename2&gt;
+[Test1]: /home/user/.config/someothername.conf was created and links to /path/to/your/dotfiles/&lt;filename3&gt;
 Finished succesfully.
 </pre></div>
 </div>
@@ -142,7 +145,7 @@ the effect of the options <code class="docutils literal notranslate"><span class
 <h2>Step 4: Going further<a class="headerlink" href="#step-4-going-further" title="Permalink to this headline">¶</a></h2>
 <p>I want to show you two more commands, that provide key techniques of uberdot.
 To make profiles more reusable you can use the <code class="docutils literal notranslate"><span class="pre">subprof()</span></code> command:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Vim</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -162,7 +165,7 @@ To make profiles more reusable you can use the <code class="docutils literal not
 <p>Here we have two profiles. The first one contains all configuration files for vim,
 the second one for zsh and bash. You can embed them in any other profile as a
 subprofile:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -172,23 +175,23 @@ subprofile:</p>
 </pre></div>
 </div>
 <p>Installing <code class="docutils literal notranslate"><span class="pre">Test1</span></code> again, results in the following output:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Test1
-<span class="o">[</span>Test1<span class="o">]</span>: Profile updated
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.&lt;filename&gt; was moved to /home/user/&lt;filename&gt;
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/&lt;filename2&gt; was removed from the system.
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/.config/someothername.conf was removed from the system.
-<span class="o">[</span>Vim<span class="o">]</span>: Installing new profile as subprofile of Test1
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was created and links to /path/to/your/dotfiles/vimrc
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was created and links to /path/to/your/dotfiles/keybindings.vim
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/plugins.vim was created and links to /path/to/your/dotfiles/plugins.vim
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/python.snippets was created and links to /path/to/your/dotfiles/python.snippets
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/html.snippets was created and links to /path/to/your/dotfiles/html.snippets
-<span class="o">[</span>Shell<span class="o">]</span>: Installing new profile as subprofile of Test1
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zshrc was created and links to /path/to/your/dotfiles/zshrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.bashrc was created and links to /path/to/your/dotfiles/bashrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.inputrc was created and links to /path/to/your/dotfiles/inputrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zprofile was created and links to /path/to/your/dotfiles/zsh_profile
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Test1
+[Test1]: Profile updated
+[Test1]: /home/user/.&lt;filename&gt; was moved to /home/user/&lt;filename&gt;
+[Test1]: /home/user/.config/&lt;filename2&gt; was removed from the system.
+[Test1]: /home/user/.config/someothername.conf was removed from the system.
+[Vim]: Installing new profile as subprofile of Test1
+[Vim]: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
+[Vim]: /home/user/.vimrc was created and links to /path/to/your/dotfiles/vimrc
+[Vim]: /home/user/.vim/keybindings.vim was created and links to /path/to/your/dotfiles/keybindings.vim
+[Vim]: /home/user/.vim/plugins.vim was created and links to /path/to/your/dotfiles/plugins.vim
+[Vim]: /home/user/.vim/UltiSnips/python.snippets was created and links to /path/to/your/dotfiles/python.snippets
+[Vim]: /home/user/.vim/UltiSnips/html.snippets was created and links to /path/to/your/dotfiles/html.snippets
+[Shell]: Installing new profile as subprofile of Test1
+[Shell]: /home/user/.zshrc was created and links to /path/to/your/dotfiles/zshrc
+[Shell]: /home/user/.bashrc was created and links to /path/to/your/dotfiles/bashrc
+[Shell]: /home/user/.inputrc was created and links to /path/to/your/dotfiles/inputrc
+[Shell]: /home/user/.zprofile was created and links to /path/to/your/dotfiles/zsh_profile
 Finished succesfully.
 </pre></div>
 </div>
@@ -208,7 +211,7 @@ where &quot;minimal&quot; is the tag and the percent sign is the seperator befor
 original filename.
 Our <code class="docutils literal notranslate"><span class="pre">Test1</span></code> profile will behave the same as before, but let's create a
 new profile that will use the new minimal plugins file:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Pi</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Pi</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;minimal&quot;</span><span class="p">)</span>
         <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Vim&quot;</span><span class="p">,</span> <span class="s2">&quot;Shell&quot;</span><span class="p">)</span>
@@ -219,7 +222,7 @@ future commands will prefer the files that have &quot;minimal&quot; as tag in th
 If you set multiple tags they are prioritized in descending order. So the first
 tag that you add will be prioritized over the second.</p>
 <p>Let's take a look what happens if we install <code class="docutils literal notranslate"><span class="pre">Pi</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>ERROR: Vim is already installed as subprofile of &#39;Test1&#39;. You need to uninstall it first to avoid conflicts!
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span>ERROR: Vim is already installed as subprofile of &#39;Test1&#39;. You need to uninstall it first to avoid conflicts!
 </pre></div>
 </div>
 <p>Oh, I totally forgot that I already have &quot;Vim&quot; installed as a subprofile of <code class="docutils literal notranslate"><span class="pre">Test1</span></code>.
@@ -231,39 +234,39 @@ uberdot detects such inconsistencies and tells you how to avoid them. I can now 
 just <code class="docutils literal notranslate"><span class="pre">Vim</span></code>, but this would result in a similar error, because <code class="docutils literal notranslate"><span class="pre">Shell</span></code> is also subprofile
 of <code class="docutils literal notranslate"><span class="pre">Pi</span></code> and <code class="docutils literal notranslate"><span class="pre">Test1</span></code>. The better and most intuitive solution is to uninstall <code class="docutils literal notranslate"><span class="pre">Test1</span></code>.
 This removes the full configuration (and therefore also both subprofiles):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -u Test1
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was removed from the system.
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was removed from the system.
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was removed from the system.
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/plugins.vim was removed from the system.
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/python.snippets was removed from the system.
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/html.snippets was removed from the system.
-<span class="o">[</span>Vim<span class="o">]</span>: Uninstalled Profile
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zshrc was removed from the system.
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.bashrc was removed from the system.
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.inputrc was removed from the system.
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zprofile was removed from the system.
-<span class="o">[</span>Shell<span class="o">]</span>: Uninstalled profile
-<span class="o">[</span>Test1<span class="o">]</span>: /home/user/&lt;filename&gt; was removed from the system.
-<span class="o">[</span>Test1<span class="o">]</span>: Uninstalled Profile
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -u Test1
+[Vim]: /home/user/.gvimrc was removed from the system.
+[Vim]: /home/user/.vimrc was removed from the system.
+[Vim]: /home/user/.vim/keybindings.vim was removed from the system.
+[Vim]: /home/user/.vim/plugins.vim was removed from the system.
+[Vim]: /home/user/.vim/UltiSnips/python.snippets was removed from the system.
+[Vim]: /home/user/.vim/UltiSnips/html.snippets was removed from the system.
+[Vim]: Uninstalled Profile
+[Shell]: /home/user/.zshrc was removed from the system.
+[Shell]: /home/user/.bashrc was removed from the system.
+[Shell]: /home/user/.inputrc was removed from the system.
+[Shell]: /home/user/.zprofile was removed from the system.
+[Shell]: Uninstalled profile
+[Test1]: /home/user/&lt;filename&gt; was removed from the system.
+[Test1]: Uninstalled Profile
 Finished succesfully.
 </pre></div>
 </div>
 <p>Now we can finally install <code class="docutils literal notranslate"><span class="pre">Pi</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Pi
-<span class="o">[</span>Pi<span class="o">]</span>: Installing new Profile
-<span class="o">[</span>Vim<span class="o">]</span>: Installing new profile as subprofile of Pi
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vimrc was created and links to /path/to/your/dotfiles/vimrc
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/keybindings.vim was created and links to /path/to/your/dotfiles/keybindings.vim
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/plugins.vim was created and links to /path/to/your/dotfiles/minimal%plugins.vim
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/python.snippets was created and links to /path/to/your/dotfiles/python.snippets
-<span class="o">[</span>Vim<span class="o">]</span>: /home/user/.vim/UltiSnips/html.snippets was created and links to /path/to/your/dotfiles/html.snippets
-<span class="o">[</span>Shell<span class="o">]</span>: Installing new profile as subprofile of Pi
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zshrc was created and links to /path/to/your/dotfiles/zshrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.bashrc was created and links to /path/to/your/dotfiles/bashrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.inputrc was created and links to /path/to/your/dotfiles/inputrc
-<span class="o">[</span>Shell<span class="o">]</span>: /home/user/.zprofile was created and links to /path/to/your/dotfiles/zsh_profile
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ ./udot.py -i Pi
+[Pi]: Installing new Profile
+[Vim]: Installing new profile as subprofile of Pi
+[Vim]: /home/user/.gvimrc was created and links to /path/to/your/dotfiles/gvimrc
+[Vim]: /home/user/.vimrc was created and links to /path/to/your/dotfiles/vimrc
+[Vim]: /home/user/.vim/keybindings.vim was created and links to /path/to/your/dotfiles/keybindings.vim
+[Vim]: /home/user/.vim/plugins.vim was created and links to /path/to/your/dotfiles/minimal%plugins.vim
+[Vim]: /home/user/.vim/UltiSnips/python.snippets was created and links to /path/to/your/dotfiles/python.snippets
+[Vim]: /home/user/.vim/UltiSnips/html.snippets was created and links to /path/to/your/dotfiles/html.snippets
+[Shell]: Installing new profile as subprofile of Pi
+[Shell]: /home/user/.zshrc was created and links to /path/to/your/dotfiles/zshrc
+[Shell]: /home/user/.bashrc was created and links to /path/to/your/dotfiles/bashrc
+[Shell]: /home/user/.inputrc was created and links to /path/to/your/dotfiles/inputrc
+[Shell]: /home/user/.zprofile was created and links to /path/to/your/dotfiles/zsh_profile
 Finished succesfully.
 </pre></div>
 </div>
@@ -352,11 +355,13 @@ well as more advanced examples and troubleshooting.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -377,7 +382,7 @@ well as more advanced examples and troubleshooting.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

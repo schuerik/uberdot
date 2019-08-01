@@ -33,11 +33,12 @@ Generating documentation
 ========================
 
 To generate the documentation locally on your device you will need to install Sphinx,
-m2r and the autodoc plugin. To do so, you can use pip:
+m2r and the autodoc plugin. Note, that sphinx needs to be in version 1.8.3 for now,
+because of incompatibility reasons with m2r. To do so, you can use pip:
 
 .. code:: bash
 
-    $ pip install sphinx autodoc m2r
+    $ pip install sphinx==1.8.3 autodoc m2r
 
 Then you can build the documentation with:
 

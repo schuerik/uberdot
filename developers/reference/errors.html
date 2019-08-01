@@ -1,10 +1,12 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Errors &#8212; uberdot 1.12.4_3 documentation</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Errors &#8212; uberdot 1.12.7_3 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -35,157 +37,179 @@
   <div class="section" id="module-errors">
 <span id="errors"></span><h1>Errors<a class="headerlink" href="#module-errors" title="Permalink to this headline">¶</a></h1>
 <p>This module contains all custom errors/exceptions.</p>
-<table class="longtable docutils align-default">
+<table border="1" class="longtable docutils">
 <colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
+<col width="10%" />
+<col width="90%" />
 </colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CustomError</span></code></a></p></td>
-<td><p>A base class for all custom exceptions.</p></td>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CustomError</span></code></a></td>
+<td>A base class for all custom exceptions.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#errors.FatalError" title="errors.FatalError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FatalError</span></code></a></p></td>
-<td><p>A custom exception for all errors that violate expected invariants.</p></td>
+<tr class="row-even"><td><a class="reference internal" href="#errors.FatalError" title="errors.FatalError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FatalError</span></code></a></td>
+<td>A custom exception for all errors that violate expected invariants.</td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#errors.GenerationError" title="errors.GenerationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GenerationError</span></code></a></p></td>
-<td><p>A custom exception for all errors that occur during generation.</p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#errors.GenerationError" title="errors.GenerationError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GenerationError</span></code></a></td>
+<td>A custom exception for all errors that occur during generation.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#errors.IntegrityError" title="errors.IntegrityError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IntegrityError</span></code></a></p></td>
-<td><p>A custom exception for all errors that occur because there are logical/ sematic errors in a profile written by the user.</p></td>
+<tr class="row-even"><td><a class="reference internal" href="#errors.IntegrityError" title="errors.IntegrityError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IntegrityError</span></code></a></td>
+<td>A custom exception for all errors that occur because there are logical/ sematic errors in a profile written by the user.</td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PreconditionError</span></code></a></p></td>
-<td><p>A custom exception for all errors that occur due to preconditions or expectations that are not fullfilled.</p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#errors.PreconditionError" title="errors.PreconditionError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PreconditionError</span></code></a></td>
+<td>A custom exception for all errors that occur due to preconditions or expectations that are not fullfilled.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#errors.UnkownError" title="errors.UnkownError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnkownError</span></code></a></p></td>
-<td><p>A custom exception for all errors that are not expected/unkown.</p></td>
+<tr class="row-even"><td><a class="reference internal" href="#errors.UnkownError" title="errors.UnkownError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UnkownError</span></code></a></td>
+<td>A custom exception for all errors that are not expected/unkown.</td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#errors.UserAbortion" title="errors.UserAbortion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserAbortion</span></code></a></p></td>
-<td><p>Used to abort uberdot at any given point safely by the user.</p></td>
+<tr class="row-odd"><td><a class="reference internal" href="#errors.UserAbortion" title="errors.UserAbortion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserAbortion</span></code></a></td>
+<td>Used to abort uberdot at any given point safely by the user.</td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#errors.UserError" title="errors.UserError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserError</span></code></a></p></td>
-<td><p>A custom exception for all errors that occur because the user didn't used the program correctly.</p></td>
+<tr class="row-even"><td><a class="reference internal" href="#errors.UserError" title="errors.UserError"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserError</span></code></a></td>
+<td>A custom exception for all errors that occur because the user didn't used the program correctly.</td>
 </tr>
 </tbody>
 </table>
 <dl class="exception">
 <dt id="errors.CustomError">
-<em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">CustomError</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">CustomError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 <p>A base class for all custom exceptions.</p>
 <dl class="attribute">
 <dt id="errors.CustomError._message">
-<code class="sig-name descname">_message</code><a class="headerlink" href="#errors.CustomError._message" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_message</code><a class="headerlink" href="#errors.CustomError._message" title="Permalink to this definition">¶</a></dt>
 <dd><p>The original unformated error message</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="errors.CustomError.message">
-<code class="sig-name descname">message</code><a class="headerlink" href="#errors.CustomError.message" title="Permalink to this definition">¶</a></dt>
+<code class="descname">message</code><a class="headerlink" href="#errors.CustomError.message" title="Permalink to this definition">¶</a></dt>
 <dd><p>The formatted colored error message</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type</dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-<dl class="method">
+<dl class="attribute">
 <dt id="errors.CustomError.EXITCODE">
-<em class="property">abstract property </em><code class="sig-name descname">EXITCODE</code><a class="headerlink" href="#errors.CustomError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">EXITCODE</code><a class="headerlink" href="#errors.CustomError.EXITCODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The exitcode that will be returned when this exception is raised.
 This needs to be implemented by subclasses.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="errors.CustomError.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.CustomError.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The error message</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) -- The error message</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="errors.FatalError">
-<em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">FatalError</code><span class="sig-paren">(</span><em class="sig-param">message='Unkown Error'</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">FatalError</code><span class="sig-paren">(</span><em>message='Unkown Error'</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that violate expected invariants.</p>
 <dl class="attribute">
 <dt id="errors.FatalError.EXITCODE">
-<code class="sig-name descname">EXITCODE</code><em class="property"> = 69</em><a class="headerlink" href="#errors.FatalError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">EXITCODE</code><em class="property"> = 69</em><a class="headerlink" href="#errors.FatalError.EXITCODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The exitcode for a FatalError</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="errors.FatalError.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">message='Unkown Error'</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message='Unkown Error'</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.FatalError.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Adds a disclaimer that this error is indeed really bad.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The error message</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) -- The error message</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="errors.GenerationError">
-<em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">GenerationError</code><span class="sig-paren">(</span><em class="sig-param">profile_name</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">GenerationError</code><span class="sig-paren">(</span><em>profile_name</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur during generation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Example</dt>
-<dd class="field-odd"><p>The profile has syntax errors or a dotfile can't be found.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body">The profile has syntax errors or a dotfile can't be found.</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="errors.GenerationError.EXITCODE">
-<code class="sig-name descname">EXITCODE</code><em class="property"> = 104</em><a class="headerlink" href="#errors.GenerationError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">EXITCODE</code><em class="property"> = 104</em><a class="headerlink" href="#errors.GenerationError.EXITCODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The exitcode for a GenerationError</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="errors.GenerationError.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">profile_name</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>profile_name</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.GenerationError.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Adds the name of the profile that triggered the error to the message.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>profile_name</strong> (<em>str</em>) -- Name of the profile that triggered the error</p></li>
-<li><p><strong>message</strong> (<em>str</em>) -- The error message</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profile_name</strong> (<em>str</em>) -- Name of the profile that triggered the error</li>
+<li><strong>message</strong> (<em>str</em>) -- The error message</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="errors.IntegrityError">
-<em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">IntegrityError</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.IntegrityError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">IntegrityError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.IntegrityError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur because there are logical/
 sematic errors in a profile written by the user.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Example</dt>
-<dd class="field-odd"><p>A link is defined multiple times with different targets.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body">A link is defined multiple times with different targets.</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="errors.IntegrityError.EXITCODE">
-<code class="sig-name descname">EXITCODE</code><em class="property"> = 102</em><a class="headerlink" href="#errors.IntegrityError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">EXITCODE</code><em class="property"> = 102</em><a class="headerlink" href="#errors.IntegrityError.EXITCODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The exitcode for a IntegrityError</p>
 </dd></dl>
 
@@ -193,19 +217,22 @@ sematic errors in a profile written by the user.</p>
 
 <dl class="exception">
 <dt id="errors.PreconditionError">
-<em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">PreconditionError</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.PreconditionError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">PreconditionError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.PreconditionError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur due to preconditions
 or expectations that are not fullfilled.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Example</dt>
-<dd class="field-odd"><p>A link that is defined in the installed-file doesn't exist
-on the system.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body">A link that is defined in the installed-file doesn't exist
+on the system.</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="errors.PreconditionError.EXITCODE">
-<code class="sig-name descname">EXITCODE</code><em class="property"> = 103</em><a class="headerlink" href="#errors.PreconditionError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">EXITCODE</code><em class="property"> = 103</em><a class="headerlink" href="#errors.PreconditionError.EXITCODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The exitcode for a PreconditionError</p>
 </dd></dl>
 
@@ -213,49 +240,53 @@ on the system.</p>
 
 <dl class="exception">
 <dt id="errors.UnkownError">
-<em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">UnkownError</code><span class="sig-paren">(</span><em class="sig-param">original_error</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UnkownError</code><span class="sig-paren">(</span><em>original_error</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that are not expected/unkown.</p>
 <p>Used in pokemon handlers of critical sections to convert all unexpected
 errors into CustomException.</p>
 <dl class="attribute">
 <dt id="errors.UnkownError.EXITCODE">
-<code class="sig-name descname">EXITCODE</code><em class="property"> = 105</em><a class="headerlink" href="#errors.UnkownError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">EXITCODE</code><em class="property"> = 105</em><a class="headerlink" href="#errors.UnkownError.EXITCODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The exitcode for a UnkownError</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="errors.UnkownError.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">original_error</em>, <em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>original_error</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UnkownError.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Adds the type and the message of the original error to the error
 message.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>original_error</strong> (<em>Exception</em>) -- The original exception that was catched</p></li>
-<li><p><strong>message</strong> (<em>str</em>) -- An additional message for context</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>original_error</strong> (<em>Exception</em>) -- The original exception that was catched</li>
+<li><strong>message</strong> (<em>str</em>) -- An additional message for context</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="exception">
 <dt id="errors.UserAbortion">
-<em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">UserAbortion</code><a class="headerlink" href="#errors.UserAbortion" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UserAbortion</code><a class="headerlink" href="#errors.UserAbortion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>Used to abort uberdot at any given point safely by the user.</p>
 <dl class="attribute">
 <dt id="errors.UserAbortion.EXITCODE">
-<code class="sig-name descname">EXITCODE</code><em class="property"> = 106</em><a class="headerlink" href="#errors.UserAbortion.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">EXITCODE</code><em class="property"> = 106</em><a class="headerlink" href="#errors.UserAbortion.EXITCODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The exitcode for a UserAbortion</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="errors.UserAbortion.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserAbortion.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserAbortion.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Sets the error message to &quot;Aborted by user&quot;.</p>
 </dd></dl>
@@ -264,31 +295,37 @@ message.</p>
 
 <dl class="exception">
 <dt id="errors.UserError">
-<em class="property">exception </em><code class="sig-prename descclassname">errors.</code><code class="sig-name descname">UserError</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError" title="Permalink to this definition">¶</a></dt>
+<em class="property">exception </em><code class="descclassname">errors.</code><code class="descname">UserError</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#errors.CustomError" title="errors.CustomError"><code class="xref py py-class docutils literal notranslate"><span class="pre">errors.CustomError</span></code></a></p>
 <p>A custom exception for all errors that occur because the user didn't
 used the program correctly.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Example</dt>
-<dd class="field-odd"><p>--parent was specified without using -i.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Example:</th><td class="field-body">--parent was specified without using -i.</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="errors.UserError.EXITCODE">
-<code class="sig-name descname">EXITCODE</code><em class="property"> = 101</em><a class="headerlink" href="#errors.UserError.EXITCODE" title="Permalink to this definition">¶</a></dt>
+<code class="descname">EXITCODE</code><em class="property"> = 101</em><a class="headerlink" href="#errors.UserError.EXITCODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The exitcode for a UserError</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="errors.UserError.__init__">
-<code class="sig-name descname">__init__</code><span class="sig-paren">(</span><em class="sig-param">message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError.__init__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#errors.UserError.__init__" title="Permalink to this definition">¶</a></dt>
 <dd><p>Constructor.</p>
 <p>Adds a hint how to show help.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>message</strong> (<em>str</em>) -- The error message</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) -- The error message</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -359,11 +396,13 @@ used the program correctly.</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -384,7 +423,7 @@ used the program correctly.</p>
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

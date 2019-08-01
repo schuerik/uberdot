@@ -1,10 +1,12 @@
 
-<!DOCTYPE html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <meta charset="utf-8" />
-    <title>Configuration &#8212; uberdot 1.12.4_3 documentation</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Configuration &#8212; uberdot 1.12.7_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -38,9 +40,9 @@
 some settings that can't be set via commandline. The configuration file is an <a class="reference external" href="https://en.wikipedia.org/wiki/INI_file">INI-file</a> and can be created at the following locations:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p><strong>/etc/uberdot/uberdot.ini</strong> for system-wide configuration</p></li>
-<li><p><strong>/home/username/.config/uberdot/uberdot.ini</strong> for only a specific user</p></li>
-<li><p><strong>uberdot-repository/uberdot.ini</strong> for portable installations</p></li>
+<li><strong>/etc/uberdot/uberdot.ini</strong> for system-wide configuration</li>
+<li><strong>/home/username/.config/uberdot/uberdot.ini</strong> for only a specific user</li>
+<li><strong>uberdot-repository/uberdot.ini</strong> for portable installations</li>
 </ul>
 </div></blockquote>
 <p>You can copy an example for the configuration file from <code class="docutils literal notranslate"><span class="pre">docs/config-example.ini</span></code>.</p>
@@ -48,56 +50,61 @@ some settings that can't be set via commandline. The configuration file is an <a
 <h2>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h2>
 <p>In this section are only settings which can't be set via commandline. Most of them have sane defaults, just make sure that <code class="docutils literal notranslate"><span class="pre">profileFiles</span></code> and
 <code class="docutils literal notranslate"><span class="pre">targetFiles</span></code> are set. Those are the only required settings. Example:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[Settings]</span>
-<span class="na">profileFiles</span>    <span class="o">=</span> <span class="s">/path/to/your/profiles/</span>
-<span class="na">targetFiles</span>     <span class="o">=</span> <span class="s">/path/to/your/dotfiles/</span>
+<div class="code ini highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Settings</span><span class="p">]</span>
+<span class="n">profileFiles</span>    <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">profiles</span><span class="o">/</span>
+<span class="n">targetFiles</span>     <span class="o">=</span> <span class="o">/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">your</span><span class="o">/</span><span class="n">dotfiles</span><span class="o">/</span>
 </pre></div>
 </div>
 <p>The following settings are available:</p>
-<table class="docutils align-default">
+<table border="1" class="docutils">
 <colgroup>
-<col style="width: 13%" />
-<col style="width: 38%" />
-<col style="width: 49%" />
+<col width="13%" />
+<col width="38%" />
+<col width="49%" />
 </colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Name</p></th>
-<th class="head"><p>Values</p></th>
-<th class="head"><p>Description</p></th>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Values</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>askroot</p></td>
-<td><p>True, False (Default is True)</p></td>
-<td><p>Shall uberdot ask for root permission if required</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>askroot</td>
+<td>True, False (Default is True)</td>
+<td>Shall uberdot ask for root permission if required</td>
 </tr>
-<tr class="row-odd"><td><p>backupExtension</p></td>
-<td><p>String (Default is &quot;bak&quot;)</p></td>
-<td><p>The extension that is used to create backup files</p></td>
+<tr class="row-odd"><td>backupExtension</td>
+<td>String (Default is &quot;bak&quot;)</td>
+<td>The extension that is used to create backup files</td>
 </tr>
-<tr class="row-even"><td><p>tagSeparator</p></td>
-<td><p>String (Default is &quot;%&quot;)</p></td>
-<td><p>The symbol that is used as separator for tags in dotfile names</p></td>
+<tr class="row-even"><td>color</td>
+<td>True, False (Default is True)</td>
+<td>Should the output be colorized</td>
 </tr>
-<tr class="row-odd"><td><p>hashSeparator</p></td>
-<td><p>String (Default is &quot;#&quot;)</p></td>
-<td><p>The symbol that is used as separator for hashes in dynamic files</p></td>
+<tr class="row-odd"><td>decryptPwd</td>
+<td>String</td>
+<td>Default password to decrypt encrypted dotfiles</td>
 </tr>
-<tr class="row-even"><td><p>color</p></td>
-<td><p>True, False (Default is True)</p></td>
-<td><p>Should the output be colorized</p></td>
+<tr class="row-even"><td>hashSeparator</td>
+<td>String (Default is &quot;#&quot;)</td>
+<td>The symbol that is used as separator for hashes in dynamic files</td>
 </tr>
-<tr class="row-odd"><td><p>decryptPwd</p></td>
-<td><p>String</p></td>
-<td><p>Default password to decrypt encrypted dotfiles</p></td>
+<tr class="row-odd"><td>dataDir</td>
+<td>String (Default is None)</td>
+<td>A setting to use a special directory instead of the default data
+dir. Mainly useful for automated testing.</td>
 </tr>
-<tr class="row-even"><td><p>profileFiles</p></td>
-<td><p>Path (absolute or relatively to the installation)</p></td>
-<td><p>The directory that contains the profiles</p></td>
+<tr class="row-even"><td>profileFiles</td>
+<td>Path (absolute or relatively to the installation)</td>
+<td>The directory that contains the profiles</td>
 </tr>
-<tr class="row-odd"><td><p>targetFiles</p></td>
-<td><p>Path (absolute or relatively to the installation)</p></td>
-<td><p>The directory that contains the dotfiles</p></td>
+<tr class="row-odd"><td>tagSeparator</td>
+<td>String (Default is &quot;%&quot;)</td>
+<td>The symbol that is used as separator for tags in dotfile names</td>
+</tr>
+<tr class="row-even"><td>targetFiles</td>
+<td>Path (absolute or relatively to the installation)</td>
+<td>The directory that contains the dotfiles</td>
 </tr>
 </tbody>
 </table>
@@ -105,46 +112,46 @@ some settings that can't be set via commandline. The configuration file is an <a
 <div class="section" id="arguments">
 <h2>Arguments<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h2>
 <p>The &quot;Argument&quot; section allows you to set defaults for commandline arguments.</p>
-<table class="docutils align-default">
+<table border="1" class="docutils">
 <colgroup>
-<col style="width: 14%" />
-<col style="width: 41%" />
-<col style="width: 45%" />
+<col width="14%" />
+<col width="41%" />
+<col width="45%" />
 </colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Name</p></th>
-<th class="head"><p>Values</p></th>
-<th class="head"><p>Description</p></th>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Values</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>force</p></td>
-<td><p>True, False (Default is False)</p></td>
-<td><p>Equivalent to --force</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>force</td>
+<td>True, False (Default is False)</td>
+<td>Equivalent to --force</td>
 </tr>
-<tr class="row-odd"><td><p>dui</p></td>
-<td><p>True, False (Default is False)</p></td>
-<td><p>Equivalent to --dui</p></td>
+<tr class="row-odd"><td>dui</td>
+<td>True, False (Default is False)</td>
+<td>Equivalent to --dui</td>
 </tr>
-<tr class="row-even"><td><p>logginglevel</p></td>
-<td><p>info, verbose, quiet or silent (Default is info)</p></td>
-<td><p>Equivalent to --verbose, --quiet and --silent</p></td>
+<tr class="row-even"><td>logginglevel</td>
+<td>info, verbose, quiet or silent (Default is info)</td>
+<td>Equivalent to --verbose, --quiet and --silent</td>
 </tr>
-<tr class="row-odd"><td><p>logfile</p></td>
-<td><p>Path</p></td>
-<td><p>Equivalent to --log</p></td>
+<tr class="row-odd"><td>logfile</td>
+<td>Path</td>
+<td>Equivalent to --log</td>
 </tr>
-<tr class="row-even"><td><p>makedirs</p></td>
-<td><p>True, False (Default is False)</p></td>
-<td><p>Equivalent to --makedirs</p></td>
+<tr class="row-even"><td>makedirs</td>
+<td>True, False (Default is False)</td>
+<td>Equivalent to --makedirs</td>
 </tr>
-<tr class="row-odd"><td><p>skiproot</p></td>
-<td><p>True, False (Default is False)</p></td>
-<td><p>Equivalent to --skiproot</p></td>
+<tr class="row-odd"><td>skiproot</td>
+<td>True, False (Default is False)</td>
+<td>Equivalent to --skiproot</td>
 </tr>
-<tr class="row-even"><td><p>superforce</p></td>
-<td><p>True, False (Default is False)</p></td>
-<td><p>Equivalent to --superforce</p></td>
+<tr class="row-even"><td>superforce</td>
+<td>True, False (Default is False)</td>
+<td>Equivalent to --superforce</td>
 </tr>
 </tbody>
 </table>
@@ -153,55 +160,55 @@ some settings that can't be set via commandline. The configuration file is an <a
 <h2>Defaults<a class="headerlink" href="#defaults" title="Permalink to this headline">¶</a></h2>
 <p>The &quot;Default&quot; section allows you to overwrite the default values of a profile. This includes defaults for command options,
 the directory and the tags.</p>
-<table class="docutils align-default">
+<table border="1" class="docutils">
 <colgroup>
-<col style="width: 13%" />
-<col style="width: 40%" />
-<col style="width: 46%" />
+<col width="13%" />
+<col width="40%" />
+<col width="46%" />
 </colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Name</p></th>
-<th class="head"><p>Values</p></th>
-<th class="head"><p>Description</p></th>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Name</th>
+<th class="head">Values</th>
+<th class="head">Description</th>
 </tr>
 </thead>
-<tbody>
-<tr class="row-even"><td><p>directory</p></td>
-<td><p>Absolute or relative path to the repository
-(Default is &quot;$HOME&quot;)</p></td>
-<td><p>The directory a profile starts in</p></td>
+<tbody valign="top">
+<tr class="row-even"><td>directory</td>
+<td>Absolute or relative path to the repository
+(Default is &quot;$HOME&quot;)</td>
+<td>The directory a profile starts in</td>
 </tr>
-<tr class="row-odd"><td><p>name</p></td>
-<td><p>String (Default is &quot;&quot;)</p></td>
-<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<tr class="row-odd"><td>name</td>
+<td>String (Default is &quot;&quot;)</td>
+<td>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">name</span></code></td>
 </tr>
-<tr class="row-even"><td><p>optional</p></td>
-<td><p>True, False (Default is False)</p></td>
-<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">optional</span></code></p></td>
+<tr class="row-even"><td>optional</td>
+<td>True, False (Default is False)</td>
+<td>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">optional</span></code></td>
 </tr>
-<tr class="row-odd"><td><p>owner</p></td>
-<td><p>String (Default is &quot;&quot;)</p></td>
-<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">owner</span></code></p></td>
+<tr class="row-odd"><td>owner</td>
+<td>String (Default is &quot;&quot;)</td>
+<td>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">owner</span></code></td>
 </tr>
-<tr class="row-even"><td><p>permission</p></td>
-<td><p>Integer (Default is 644)</p></td>
-<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">permission</span></code></p></td>
+<tr class="row-even"><td>permission</td>
+<td>Integer (Default is 644)</td>
+<td>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">permission</span></code></td>
 </tr>
-<tr class="row-odd"><td><p>prefix</p></td>
-<td><p>String (Default is &quot;&quot;)</p></td>
-<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">prefix</span></code></p></td>
+<tr class="row-odd"><td>prefix</td>
+<td>String (Default is &quot;&quot;)</td>
+<td>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">prefix</span></code></td>
 </tr>
-<tr class="row-even"><td><p>replace</p></td>
-<td><p>String (Default is &quot;&quot;)</p></td>
-<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">replace</span></code></p></td>
+<tr class="row-even"><td>replace</td>
+<td>String (Default is &quot;&quot;)</td>
+<td>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">replace</span></code></td>
 </tr>
-<tr class="row-odd"><td><p>replace_pattern</p></td>
-<td><p>String (Default is &quot;&quot;)</p></td>
-<td><p>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">replace_pattern</span></code></p></td>
+<tr class="row-odd"><td>replace_pattern</td>
+<td>String (Default is &quot;&quot;)</td>
+<td>Sets default for the command option <code class="docutils literal notranslate"><span class="pre">replace_pattern</span></code></td>
 </tr>
-<tr class="row-even"><td><p>tags</p></td>
-<td><p>Comma-seperated list (Default is &quot;&quot;)</p></td>
-<td><p>Sets default tags</p></td>
+<tr class="row-even"><td>tags</td>
+<td>Comma-seperated list (Default is &quot;&quot;)</td>
+<td>Sets default tags</td>
 </tr>
 </tbody>
 </table>
@@ -211,8 +218,8 @@ the directory and the tags.</p>
 <p>You can overwrite your own defaults when you use multiple installed file.
 For example if you create an installed file called &quot;test&quot; with <code class="docutils literal notranslate"><span class="pre">--save</span> <span class="pre">test</span></code>, you could set the default starting directory to
 your desktop like this:</p>
-<div class="highlight-ini notranslate"><div class="highlight"><pre><span></span><span class="k">[Installed.test.Defaults]</span>
-<span class="na">directory</span> <span class="o">=</span> <span class="s">/home/username/Desktop</span>
+<div class="code ini highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">Installed</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">Defaults</span><span class="p">]</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">username</span><span class="o">/</span><span class="n">Desktop</span>
 </pre></div>
 </div>
 <p>This overwrites the section &quot;Defaults&quot; for all calls of uberdot that have <code class="docutils literal notranslate"><span class="pre">--save</span> <span class="pre">test</span></code> set.
@@ -285,11 +292,13 @@ You can do this for any section with the following naming schema: &quot;Installe
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
+  <h3>Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
@@ -310,7 +319,7 @@ You can do this for any section with the following naming schema: &quot;Installe
       &copy;2019, Erik Schulz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.3</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
