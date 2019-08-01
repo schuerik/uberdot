@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "UBERDOT" "1" "Jul 29, 2019" "1.12.6_3" "uberdot"
+.TH "UBERDOT" "1" "Aug 01, 2019" "1.12.7_3" "uberdot"
 .SH NAME
 uberdot \- uberdot manpage
 .
@@ -76,6 +76,9 @@ Otherwise information about all installed profiles will be shown.
 .BI \-\-config \ <CONFIG>
 Use a different config file for this call
 .TP
+.B \-\-debuginfo
+Display important internal values and all loaded settings from your config
+.TP
 .BI \-\-directory \ <DIRECTORY>
 Overwrite the default directory temporarily
 .TP
@@ -108,11 +111,11 @@ Sets/Overwrites one or more keys of the option section of the config file.
 Forces the profiles that you install/update to be installed as subprofile
 of \fBPARENT\fP\&. This should be only needed to solve certain conflicts.
 .TP
-.B \-\-print
+.B \-\-plain
 Prints the \fBDifference Log\fP unformatted and exits. Only useful for
 debugging.
 .TP
-.B \-p\fP,\fB  \-\-pretty\-print
+.B \-p\fP,\fB  \-\-print
 Prints out the changes that uberdot would perform if executed without
 this flag. This differs from \fB\-\-dry\-run\fP in that way that it won’t do
 any checks on the profiles or filesystem, so \fB\-\-dry\-run\fP is almost
