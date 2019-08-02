@@ -341,9 +341,9 @@ class DUIStrategyInterpreter(Interpreter):
         Args:
             dop (dict): Unused in this implementation
         """
-        merged_list = self.profile_deletes + self.profile_updates
-        merged_list += self.profile_adds + self.link_deletes
-        merged_list += self.link_updates + self.link_adds
+        merged_list = self.link_deletes + self.profile_deletes
+        merged_list += self.profile_updates + self.link_updates
+        merged_list += self.profile_adds + self.link_adds
         self.data.clear()
         for item in merged_list:
             self.data.append(item)
@@ -488,7 +488,8 @@ class CheckLinksInterpreter(Interpreter):
         for key, profile in installed.items():
             if key[0] != "@":  # Ignore special entrys like @version
                 for link in profile["links"]:
-                    self.linklist.append((link["name"], profile["name"], True))
+                    link_name = normpath(link["name"])
+                    self.linklist.append((link_name, profile["name"], True))
 
     def _op_add_l(self, dop):
         """Checks if the to be added link already occurs in ``linklist``.
@@ -512,7 +513,8 @@ class CheckLinksInterpreter(Interpreter):
                     msg = " defined "
                 msg = "The link '" + name + "' is already" + msg + "by '"
                 msg += item[1] + "' and would be overwritten by '"
-                msg += dop["profile"] + "'."
+                msg += dop["profile"] + "'. In some cases this error can"
+                msg += "fixed by setting the --dui flag."
                 raise IntegrityError(msg)
         self.linklist.append((name, dop["profile"], False))
 
@@ -529,7 +531,7 @@ class CheckLinksInterpreter(Interpreter):
         """
         count = 0
         for item in self.linklist:
-            if item[0] == dop["symlink_name"]:
+            if item[0] == normpath(dop["symlink_name"]):
                 break
             count += 1
         if count == len(self.linklist):
@@ -556,7 +558,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         super().__init__()
         self.superforce = superforce
         self.blacklist = []
-        for blfile in find_files("black.list", constants.CONFIG_SEARCH_PATHS):
+        for blfile in find_files("black.list", [constants.DATA_DIR]):
             with open(blfile, "r") as file:
                 for line in file.readlines():
                     self.blacklist.append(line)
@@ -699,7 +701,7 @@ class CheckLinkExistsInterpreter(Interpreter):
             msg += " it does not exist on your filesystem."
             msg += " Check your installed file!"
             raise PreconditionError(msg)
-        self.removed_links.append(dop["symlink_name"])
+        self.removed_links.append(normpath(dop["symlink_name"]))
 
     def _op_update_l(self, dop):
         """Checks if the old and the new link already exist.
@@ -744,7 +746,7 @@ class CheckLinkExistsInterpreter(Interpreter):
             PreconditionError: The new link already exists or its target does
                 not exist
         """
-        if (not dop["symlink"]["name"] in self.removed_links and
+        if (not normpath(dop["symlink"]["name"]) in self.removed_links and
                 not self.force and os.path.lexists(dop["symlink"]["name"])):
             msg = "'" + dop["symlink"]["name"] + "' already exists and"
             msg += " would be overwritten. You can force to overwrite the"

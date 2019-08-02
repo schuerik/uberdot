@@ -25,6 +25,21 @@ class Pipe(Profile):
     def generate(self):
         link(pipe("file", "grep line"))
 
+class Default(Profile):
+    def generate(self):
+        opt(prefix=".", suffix="test")
+        tags("tag1")
+        link("name1")
+        default("prefix")
+        link("name2")
+        default()
+        link("name6")
+
+class IgnoreFiles(Profile):
+    def generate(self):
+        link("ignored.file", ".dotignore", optional=True)
+        link("name1")
+
 class NestedDynamicFile(Profile):
     def generate(self):
         link(merge("merge1", [decrypt("name_encrypt8"), "name2"]))

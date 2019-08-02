@@ -41,6 +41,7 @@ def dircheck(environ, dir_tree):
     """Checks if dir_tree matches the actual directory
     tree in the filesystem"""
 
+    # Helper functions
     def check_owner(path, props, is_link=False):
         """For owner permissions we only look up if its a normal
         user or the root user because we can't create other
@@ -62,6 +63,13 @@ def dircheck(environ, dir_tree):
         if perm_real != str(permission):
             raise ValueError((False, path + " has permission " + perm_real))
 
+    # Collect all files/links in environment
+    file_list = []
+    for root, _, files in os.walk(environ):
+        for file in files:
+            file_list.append(os.path.abspath(os.path.join(root, file)))
+
+    # Compare dir_tree against actual directory tree in environment
     for dir_name, dir_props in dir_tree.items():
         # Add environment to directory
         dir_name = os.path.normpath(os.path.join(environ, dir_name))
@@ -90,6 +98,7 @@ def dircheck(environ, dir_tree):
                 md5 = hashlib.md5(open(file_path, "rb").read()).hexdigest()
                 if "content" in file_props and md5 != file_props["content"]:
                     raise ValueError((False, file_path + " has wrong content"))
+                file_list.remove(file_path)
         # Links
         if "links" in dir_props:
             for link_props in dir_props["links"]:
@@ -115,6 +124,14 @@ def dircheck(environ, dir_tree):
                 md5 = hashlib.md5(open(target_path, "rb").read()).hexdigest()
                 if "content" in link_props and md5 != link_props["content"]:
                     raise ValueError((False, link_path + " has wrong content"))
+                file_list.remove(link_path)
+
+    # Check if there are files left, that wasn't described by the dir_tree
+    if file_list:
+        msg = "Test created unexpected files:\n"
+        for file in file_list:
+            msg += "  " +  file + "\n"
+        raise ValueError((False, msg))
 
 # Test classes
 ###############################################################################
@@ -193,8 +210,10 @@ class RegressionTest():
             print(runtime.rjust(LINEWDTH-len(self.name)-4))
         else:
             print('\033[91m\033[1m' + " FAILED" + '\033[0m'
-                  + " in " + str(result["phase"]), end="")
-            print(runtime.rjust(LINEWDTH-len(self.name)-15))
+                  + " in " + result["phase"], end="")
+            print(runtime.rjust(
+                LINEWDTH-len(self.name)-len(result["phase"])-12
+            ))
             print("\033[1mCause: \033[0m" + str(result["cause"]))
             if "msg" in result:
                 print("\033[1mError Message:\033[0m")
@@ -756,6 +775,92 @@ after_replace = {
     }
 }
 
+
+after_default = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": ".name1test",
+                "target": "files/name1"
+            },
+            {
+                "name": "name2test",
+                "target": "files/tag1%name2"
+            },
+            {
+                "name": "name6",
+                "target": "files/name6"
+            }
+        ]
+    }
+}
+
+after_ignorefiles = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1"
+            }
+        ]
+    }
+}
+
+after_options = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "file",
+                "target": "files/tag1%name2"
+            },
+            {
+                "name": "file2",
+                "target": "files/name6"
+            },
+            {
+                "name": "testfile",
+                "target": "files/name1"
+            }
+        ]
+    },
+}
+
+after_updatedui = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1",
+            },
+            {
+                "name": "name2",
+                "target": "files/name2",
+            },
+            {
+                "name": "name3",
+                "target": "files/tag2%name3",
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+            },
+            {
+                "name": "name5",
+                "target": "files/name5",
+            },
+            {
+                "name": "name6",
+                "target": "files/tag1%name6",
+            }
+        ],
+    }
+}
+
+
 # Test execution
 ###############################################################################
 
@@ -783,6 +888,11 @@ DirRegressionTest("Arguments: No sudo",
 DirRegressionTest("Arguments: --skiproot",
                   ["-i", "--skiproot", "NeedsRootConflict"],
                   before, after_skiproot).success()
+DirRegressionTest("Arguments: --option",
+                  [
+                      "-i", "--option", "name=file", "prefix=test",
+                      "tags=tag1,notag", "--", "OptionArgument"
+                  ], before, after_options).success()
 DirRegressionTest("Option: name",
                   ["-i", "NameOption"],
                   before, after_nameoptions).success()
@@ -810,9 +920,6 @@ DirRegressionTest("Command: merge()",
 DirRegressionTest("Command: pipe()",
                   ["-i", "Pipe"],
                   before, after_pipe).success()
-DirRegressionTest("Command: Nested dynamicfiles",
-                  ["-i", "NestedDynamicFile"],
-                  before, after_nesteddynamic).success()
 DirRegressionTest("Command: subprof()",
                   ["-i", "SuperProfile"],
                   before, after_superprofile).success()
@@ -822,6 +929,15 @@ DirRegressionTest("Command: tags()",
 DirRegressionTest("Command: extlink()",
                   ["-i", "ExteranalLink"],
                   before, after_extlink).success()
+DirRegressionTest("Command: default()",
+                  ["-i", "Default"],
+                  before, after_default).success()
+DirRegressionTest("Command: Nested dynamicfiles",
+                  ["-i", "NestedDynamicFile"],
+                  before, after_nesteddynamic).success()
+DirRegressionTest("Command: .dotignore",
+                  ["-i", "IgnoreFiles"],
+                  before, after_ignorefiles).success()
 DirRegressionTest("Conflict: Same profile linked twice",
                   ["-i", "SameProfileConflict"],
                   before, {}).fail("run", 102)
@@ -840,6 +956,12 @@ DirRegressionTest("Update: Simple",
 DirRegressionTest("Update: Uninstall",
                   ["-u", "DirOption"],
                   after_diroptions, before, "update").success()
+DirRegressionTest("Update: --dui",
+                  ["-i", "--dui", "SuperProfileTags"],
+                  after_tags, after_updatedui, "nested").success()
+OutputRegressionTest("Output: --print",
+                     ["-i", "--print", "NoOptions"],
+                     before).success()
 OutputRegressionTest("Output: --plain",
                      ["-i", "--plain", "NoOptions"],
                      before).success()
@@ -847,6 +969,24 @@ OutputRegressionTest("Output: --dryrun",
                      ["-id", "NoOptions"],
                      before).success()
 OutputRegressionTest("Output: --debuginfo", ["--debuginfo"], before).success()
+DirRegressionTest("Fail: Not a profile",
+                  ["-i", "NotAProfileFail"],
+                  before, {}).fail("run", 104)
+DirRegressionTest("Fail: Profile does not exist",
+                  ["-i", "ThisDoesNotExist"],
+                  before, {}).fail("run", 103)
+DirRegressionTest("Fail: Overwrite blacklisted file",
+                  ["-if", "OverwriteBlacklisted"],
+                  before, {}).fail("run", 102)
+DirRegressionTest("Fail: Recursive profile",
+                  ["-i", "RecursiveProfile"],
+                  before, {}).fail("run", 104)
+DirRegressionTest("Fail: Cycle in profile",
+                  ["-i", "CycleProfile1"],
+                  before, {}).fail("run", 104)
+DirRegressionTest("Fail: Link moved between profiles",
+                  ["-i", "SuperProfileTags"],
+                  after_tags, {}, "nested").fail("run", 102)
 # This test needs ticket #42 to be resolved
 # OutputRegressionTest("Output: --show", ["-s"], after_diroptions, "update").success()
 
@@ -866,8 +1006,5 @@ sys.exit(not global_result)
 ## option owner
 ## option replace and replace_pattern
 ## option permission
-## extlink()
 ## env var substitution
 ## various conflicts
-## blacklist
-## .dotignore

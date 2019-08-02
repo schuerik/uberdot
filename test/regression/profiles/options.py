@@ -49,3 +49,11 @@ class ReplaceOption(Profile):
         tags("tag1")
         cd("subdir")
         link("name2", "name3", replace_pattern="name", replace="file")
+
+class OptionArgument(Profile):
+    def generate(self):
+        link("name1")
+        default("prefix")
+        link("name2")
+        rmtags("tag1")
+        link("name6", name="file2")

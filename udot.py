@@ -287,7 +287,7 @@ class UberDot:
             raise UserError(msg)
 
         # Check if arguments are bad
-        def args_depend(msg, *args, need=[], omit=[]):
+        def args_depend(msg, *args, need=[], omit=[], xor=False):
             """Checks if argument dependencies are fullfilled.
 
             Args:
@@ -297,13 +297,18 @@ class UberDot:
                     is set
                 omit (list): All of this need to be set if none of the
                     arguments are set
+                xor (bool): Only one of the args is allowed to be set
             Raises:
                 UserError: The dependencies aren't fullfilled
             """
-            # If at least one of the arguments is set, we verify that at least
-            # one argument of need is set
-            if [1 for arg in args if self.args.__dict__[arg]]:
+            # If at least one of the arguments is set
+            set_args = [1 for arg in args if self.args.__dict__[arg]]
+            if set_args:
+                # we verify that at least one argument of need is set
                 if need and not [1 for arg in need if self.args.__dict__[arg]]:
+                    raise UserError(msg)
+                # or else only one is set if xor is set
+                elif xor and len(set_args) > 1:
                     raise UserError(msg)
             # No argument is set, so all args from "omit" need to be set
             elif omit and [x for x in omit if self.args.__dict__[x]] != omit:
@@ -314,7 +319,11 @@ class UberDot:
             "dryrun", "print", "plain",
             need=["install", "uninstall", "debuginfo"]
         )
-
+        args_depend(
+            "-d, --plain and --print can't be used together",
+            "dryrun", "plain", "print",
+            xor=True
+        )
         args_depend(
             "No Profile specified!!",
             "show", "version", "debuginfo",

@@ -24,6 +24,12 @@ script:
 after_success:
   - make -C docs/sphinx html man
 
+# Tag commit before deployment
+before_deploy:
+  script: ./deploy/autotagging.sh
+  on:
+    branch: master
+
 # Deployments
 jobs:
   include:
@@ -53,4 +59,4 @@ jobs:
         # Build and commit manpage
         - provider: script
           skip-cleanup: true
-          script: ./docs/sphinx/deploy-manpage.sh
+          script: ./deploy/update-manpage.sh

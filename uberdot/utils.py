@@ -127,6 +127,7 @@ def walk_dotfiles():
         with open(ignorelist_path, "r") as file:
             ignorelist = file.readlines()
         ignorelist = [entry.strip() for entry in ignorelist]
+    ignorelist.append(".dotignore")
 
     # walk through dotfile directory
     result = []
@@ -403,7 +404,7 @@ def import_profile_class(class_name):
                 if issubclass(tmp_class, Profile):
                     return module.__dict__[class_name]
                 msg = "The class '" + class_name + "' does not inherit from"
-                msg += "Profile and therefore can't be imported."
+                msg += " Profile and therefore can't be imported."
                 raise GenerationError(class_name, msg)
     raise PreconditionError("The profile '" + class_name +
                             "' could not be found in any module. Aborting.")

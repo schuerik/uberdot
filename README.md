@@ -52,4 +52,4 @@ More features are coming:
 
 
 ## Installation Instructions / Documentation / Wiki / Examples
-Information about how to install and use uberdot, as well as some tutorials and examples can be found in the [documentation](https://schuerik.github.io/uberdot/).
+Instructions on how to install and use uberdot, as well as some tutorials and examples can be found in the [documentation](https://schuerik.github.io/uberdot/).
