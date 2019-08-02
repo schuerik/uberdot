@@ -45,7 +45,7 @@ of all your configuration files and profiles to it's limit.
 uberdot is intended to give you maximal flexibility while checking the integrity of all operations that you
 configured/programmed to prevent that you accidentally break your systems. To achieve this, profiles aren't static configuration
 files but python classes to really give you all power you need.
-If you don't know python don't worry, you won't need to know it to use Dotmanger, but if you do you can really go nuts with this.
+If you don't know python don't worry, you won't need to know it to use uberdot, but if you do you can really go nuts with this.
 
 Already working features:
 

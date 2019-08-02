@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Testing uberdot &#8212; uberdot 1.12.8_3 documentation</title>
+    <title>Testing uberdot &#8212; uberdot 1.12.9_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -37,21 +37,73 @@
   <div class="section" id="testing-uberdot">
 <h1>Testing uberdot<a class="headerlink" href="#testing-uberdot" title="Permalink to this headline">¶</a></h1>
 <p>To verify that uberdot is working correct and behaves the same on all
-platforms, there are regression tests in  <code class="docutils literal notranslate"><span class="pre">test/regressiontest.py</span></code>. At the
-moment they are far away from being complete but will be extended in the
-future.</p>
+platforms, there are regression tests in  <cite>test/regression/test.py</cite>. At the
+moment some features can't be tested but the testing suit will be extended in the
+future eventually.</p>
 <p>For now all regression tests can only check if uberdot manipulated a
 directory tree correctly. Those are <code class="docutils literal notranslate"><span class="pre">DirRegressionTest</span></code>. There is also a base
 class <code class="docutils literal notranslate"><span class="pre">RegressionTest</span></code> that does nothing more than checking a precondition,
 executing uberdot with some specific parameters and checking a post
-condition. If both conditions are met, the test is successful. The special
-<code class="docutils literal notranslate"><span class="pre">DirRegressionTest</span></code> takes a dictionary as condition that describes the
-expected directory tree.</p>
-<p>All profiles that are used in the tests can be found in <code class="docutils literal notranslate"><span class="pre">test/profiles/</span></code>, all
-dotfiles in <code class="docutils literal notranslate"><span class="pre">test/files</span></code>. uberdot will be executed with
-<code class="docutils literal notranslate"><span class="pre">test/environment</span></code> as default directory and all profiles must not define
-links outside of this directory. Otherwise the tests could overwrite existing
-setups.</p>
+condition. If both conditions are met and uberdot exited with exitcode, the test
+is successful. The special <code class="docutils literal notranslate"><span class="pre">DirRegressionTest</span></code> takes a dictionary as condition
+that describes the expected directory tree. There is also <code class="docutils literal notranslate"><span class="pre">OutputRegressionTest</span></code>
+which checks a directory tree as precondition, suppresses the output of uberdot
+and ignores the postcondition. Those are used to simply test if features like
+<code class="docutils literal notranslate"><span class="pre">--debuginfo</span></code> raise errors.</p>
+<div class="section" id="environments">
+<h2>Environments<a class="headerlink" href="#environments" title="Permalink to this headline">¶</a></h2>
+<p>Regression tests can use different environments as starting directory instead of
+$HOME, depending on their save file. E.g. A regression test with <code class="docutils literal notranslate"><span class="pre">--save</span> <span class="pre">update</span></code>
+will use <cite>test/regression/environment-update</cite> instead of
+<cite>test/regression/environment-default</cite> as starting directory and
+<cite>test/regression/profile_update</cite> instead of <cite>test/regression/profile</cite> as source
+directory for profiles. The environment will be reset before and after every test
+using git.</p>
+<dl class="docutils">
+<dt>Current environments are:</dt>
+<dd><ul class="first last simple">
+<li><strong>environment-default</strong>: No profile is installed. Contains only one file
+that shall be untouched by uberdot.</li>
+<li><strong>environment-update</strong>: <code class="docutils literal notranslate"><span class="pre">DirOption</span></code> is pre-installed. Also contains one
+file that shall be untouched.</li>
+<li><strong>environment-nested</strong>: <code class="docutils literal notranslate"><span class="pre">SuperProfileTags</span></code> and its subprofiles are
+installed. Also contains one file that shall be untouched.</li>
+</ul>
+</dd>
+</dl>
+<div class="section" id="creating-testenvironment">
+<h3>Creating testenvironment<a class="headerlink" href="#creating-testenvironment" title="Permalink to this headline">¶</a></h3>
+<ol class="arabic">
+<li><p class="first">Create a new directory called <cite>environment-&lt;name&gt;</cite> in <cite>test/regression/</cite></p>
+</li>
+<li><p class="first">Set <code class="docutils literal notranslate"><span class="pre">directory</span></code> and <code class="docutils literal notranslate"><span class="pre">profileFiles</span></code> in <cite>test/regression/regressiontest.ini</cite>
+for your new environment</p>
+</li>
+<li><p class="first">Install one or multiple profiles into the environment using <cite>regressiontest.ini</cite>
+as config and <code class="docutils literal notranslate"><span class="pre">--save</span> <span class="pre">&lt;name&gt;</span></code>. Also set <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> because the config will
+suppress the output of uberdot:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd test/regression
+$ ../../udot.py -vi --config regressiontest.ini --save update ProfileName
+</pre></div>
+</div>
+</li>
+<li><p class="first">Because uberdot stores only absolute paths in the installed-file, you will have
+to modify <cite>test/regression/data/installed/&lt;name&gt;.json</cite> manually, replacing all
+absolute paths with relative paths</p>
+</li>
+<li><p class="first">To match the installed-file, all symlinks in the environment also need to be
+modified by you to use relative paths:</p>
+<div class="code bash highlight-default notranslate"><div class="highlight"><pre><span></span>$ cd environment-update
+$ ln -sf ../files/name1 name1
+</pre></div>
+</div>
+</li>
+<li><p class="first">Remember to commit everything before executing a test on the new or modified
+environment because otherwise all changes will be reset</p>
+</li>
+</ol>
+</div>
+</div>
 <div class="section" id="creating-testcases">
 <h2>Creating testcases<a class="headerlink" href="#creating-testcases" title="Permalink to this headline">¶</a></h2>
 <p>Create a new test case with:</p>
@@ -59,7 +111,7 @@ setups.</p>
                             <span class="n">additional_cli_arguments</span><span class="p">,</span>
                             <span class="n">precondition</span><span class="p">,</span>
                             <span class="n">postcondition</span><span class="p">,</span>
-                            <span class="n">clean_environment</span><span class="p">)</span>
+                            <span class="n">environment</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>And either expect it to be successful:</p>
@@ -70,9 +122,8 @@ setups.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">newtest</span><span class="o">.</span><span class="n">fail</span><span class="p">(</span><span class="n">phase</span><span class="p">,</span> <span class="n">cause</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
 <div class="section" id="phases">
-<h2>Phases<a class="headerlink" href="#phases" title="Permalink to this headline">¶</a></h2>
+<h3>Phases<a class="headerlink" href="#phases" title="Permalink to this headline">¶</a></h3>
 <p>There are three phases of a regression test in which the test can fail:</p>
 <blockquote>
 <div><ul class="simple">
@@ -85,11 +136,11 @@ setups.</p>
 is a specific error message. For &quot;run&quot; it is the non-zero exitcode of uberdot.</p>
 </div>
 <div class="section" id="pre-and-postcondition-for-dirregressiontest">
-<h2>Pre- and postcondition for DirRegressionTest<a class="headerlink" href="#pre-and-postcondition-for-dirregressiontest" title="Permalink to this headline">¶</a></h2>
-<p>DirRegressionTests take two dictionaries that describe the directory tree of <code class="docutils literal notranslate"><span class="pre">test/</span></code>.
-The dictionary looks like this:</p>
+<h3>Pre- and postcondition for DirRegressionTest<a class="headerlink" href="#pre-and-postcondition-for-dirregressiontest" title="Permalink to this headline">¶</a></h3>
+<p>DirRegressionTests take two dictionaries that describe the directory tree of
+<cite>test/regression/environment-&lt;name&gt;</cite>. The dictionary looks like this:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s2">&quot;environment&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s2">&quot;.&quot;</span><span class="p">:</span> <span class="p">{</span>
         <span class="s2">&quot;files&quot;</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name.bla&quot;</span><span class="p">,</span>
@@ -120,21 +171,37 @@ The dictionary looks like this:</p>
         <span class="s2">&quot;rootuser&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
         <span class="s2">&quot;rootgroup&quot;</span><span class="p">:</span> <span class="kc">True</span>
     <span class="p">},</span>
-    <span class="s2">&quot;environment/b&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
-    <span class="s2">&quot;environment/b/c&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
+    <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
+    <span class="s2">&quot;b/c&quot;</span><span class="p">:</span> <span class="p">{</span><span class="o">...</span><span class="p">},</span>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The keys of the top dictionary are the relative paths from <code class="docutils literal notranslate"><span class="pre">test/</span></code> for any
-subdirectory that you want to verify. For every subdirectory there are the keys <code class="docutils literal notranslate"><span class="pre">files</span></code>, <code class="docutils literal notranslate"><span class="pre">links</span></code>, <code class="docutils literal notranslate"><span class="pre">permission</span></code>, <code class="docutils literal notranslate"><span class="pre">rootuser</span></code>
-and <code class="docutils literal notranslate"><span class="pre">rootgroup</span></code>. The last three describe the subdirectory itself. Because we can't create new users/groups
-just for the sake of this test, we only distinguish between normal and root users/groups.
-<code class="docutils literal notranslate"><span class="pre">files</span></code> and <code class="docutils literal notranslate"><span class="pre">links</span></code> are both lists of dictionaries that we use to describe all files in the subdirectory.
-Both have the keys <code class="docutils literal notranslate"><span class="pre">name</span></code> (which is the name of the file/symlink), <code class="docutils literal notranslate"><span class="pre">permission</span></code>, <code class="docutils literal notranslate"><span class="pre">rootuser</span></code> and <code class="docutils literal notranslate"><span class="pre">rootgroup</span></code>.
-There is also the optional key <code class="docutils literal notranslate"><span class="pre">content</span></code> which hold the md5 hash of the files content.
-The difference between those two lists is, that <code class="docutils literal notranslate"><span class="pre">links</span></code> has dictionaries with an additional <code class="docutils literal notranslate"><span class="pre">target</span></code> key that
-specifies a links target relatively to <code class="docutils literal notranslate"><span class="pre">test/</span></code>. Also all files that are listed in <code class="docutils literal notranslate"><span class="pre">links</span></code> will be verified to be
-a symbolic link, where as files that are listed in <code class="docutils literal notranslate"><span class="pre">files</span></code> must not be a symbolic link.</p>
+<p>The keys of the top dictionary are the relative paths from
+<cite>test/regression/environment-&lt;name&gt;</cite> for any subdirectory that you want to
+verify. For every subdirectory there are the keys <code class="docutils literal notranslate"><span class="pre">files</span></code>, <code class="docutils literal notranslate"><span class="pre">links</span></code>,
+<code class="docutils literal notranslate"><span class="pre">permission</span></code>, <code class="docutils literal notranslate"><span class="pre">rootuser</span></code> and <code class="docutils literal notranslate"><span class="pre">rootgroup</span></code>. The last three describe the
+subdirectory itself. All of those keys are optional. Because we can't create
+new users/groups just for the sake of this test, we only distinguish between
+normal and root users/groups. <code class="docutils literal notranslate"><span class="pre">files</span></code> and <code class="docutils literal notranslate"><span class="pre">links</span></code> are both lists of
+dictionaries that we use to describe all files in the subdirectory. Both have
+the keys <code class="docutils literal notranslate"><span class="pre">name</span></code> (which is the name of the file/symlink), <code class="docutils literal notranslate"><span class="pre">permission</span></code>,
+<code class="docutils literal notranslate"><span class="pre">rootuser</span></code> and <code class="docutils literal notranslate"><span class="pre">rootgroup</span></code>. There is also the optional key <code class="docutils literal notranslate"><span class="pre">content</span></code>
+which hold the md5 hash of the files content. The difference between those two
+lists is, that <code class="docutils literal notranslate"><span class="pre">links</span></code> has dictionaries with an additional <code class="docutils literal notranslate"><span class="pre">target</span></code> key
+that specifies a links target relatively to <cite>test/regression/</cite>. Also all files
+that are listed in <code class="docutils literal notranslate"><span class="pre">links</span></code> will be verified to be a symbolic link, where as
+files that are listed in <code class="docutils literal notranslate"><span class="pre">files</span></code> must not be a symbolic link.</p>
+<dl class="docutils">
+<dt>Defaults:</dt>
+<dd><ul class="first last simple">
+<li><strong>permission</strong>: Won't be tested</li>
+<li><strong>rootuser</strong>: False</li>
+<li><strong>rootgroup</strong>: False</li>
+<li><strong>content</strong>: Won't be tested</li>
+</ul>
+</dd>
+</dl>
+</div>
 </div>
 </div>
 
@@ -173,9 +240,8 @@ a symbolic link, where as files that are listed in <code class="docutils literal
 <li class="toctree-l2"><a class="reference internal" href="contributing_link.html">Contributing Guide</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation.html">How to document uberdot</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Testing uberdot</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#environments">Environments</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#creating-testcases">Creating testcases</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#phases">Phases</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pre-and-postcondition-for-dirregressiontest">Pre- and postcondition for DirRegressionTest</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="reference/index.html">Reference manual</a></li>
