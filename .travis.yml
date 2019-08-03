@@ -46,8 +46,7 @@ jobs:
     - stage: deploy
       python: 3.7
       script: skip
-      on:
-        branch: master
+      if: branch = master
       deploy:
         # Upload documentation to github pages
         - provider: pages

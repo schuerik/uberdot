@@ -33,7 +33,7 @@ from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import normpath
 
-VERSION = "1.12.9_3"
+VERSION = "1.12.10_3"
 """Version numbers, seperated by underscore.
 
 First part is the version of uberdot. The second part (after the underscore)
@@ -180,6 +180,22 @@ def loadconfig(config_file, installed_filename="default"):
     try:
         for cfg in CFG_FILES:
             config.read(cfg)
+            # We need to normalize all paths here, relatively to
+            # the config file which it defined
+            path_keys = [
+                "directory", "profilefiles", "targetfiles",
+                "logfile", "datadir"
+            ]
+            for section in config.sections():
+                for item in config.items(section):
+                    key = item[0]
+                    if key in path_keys:
+                        config[section][key] = os.path.join(
+                            os.path.dirname(cfg), config[section][key]
+                        )
+                        config[section][key] = os.path.normpath(
+                            config[section][key]
+                        )
     except configparser.Error as err:
         msg = "Can't parse config at '" + cfg + "'. " + err.message
         raise PreconditionError(msg)
@@ -268,8 +284,3 @@ def loadconfig(config_file, installed_filename="default"):
         raise UserError("No directory for your dotfiles specified.")
     if not PROFILE_FILES or PROFILE_FILES == "</path/to/your/profiles/>":
         raise UserError("No directory for your profiles specified.")
-
-    # Normalize paths
-    DIR_DEFAULT = normpath(DIR_DEFAULT)
-    TARGET_FILES = normpath(TARGET_FILES)
-    PROFILE_FILES = normpath(PROFILE_FILES)

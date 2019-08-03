@@ -1,6 +1,6 @@
 # Settings
 master_dir="uberdot-master"
-test_dir="./test/version/"
+test_dir="test/version/"
 
 ### Start this script from the root directory of the repository
 if [ -z $(ls | grep "udot.py") ]; then
@@ -36,7 +36,7 @@ echo "Fetching master..."
 # and use this git clone instead:
 #   git clone dm.bundle --branch master --single-branch $master_dir &> /dev/null
 git clone https://github.com/schuerik/uberdot.git --branch master --single-branch $master_dir &> /dev/null
-version_master=$($master_dir/udot.py --config $test_dir/versiontest.ini --version | cut -d' ' -f2)
+version_master=$($master_dir/udot.py --config $master_dir/$test_dir/versiontest.ini --version | cut -d' ' -f2)
 
 echo "PullRequest version: $version_pr"
 echo "Master version: $version_master"

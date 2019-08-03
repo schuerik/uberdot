@@ -875,7 +875,7 @@ DirRegressionTest("Arguments: Incompatible modes",
                   before, after_nooptions).fail("run", 2)
 DirRegressionTest("Arguments: No mode",
                   ["NoOptions"],
-                  before, {}).fail("run", 2)
+                  before, before).fail("run", 2)
 DirRegressionTest("Arguments: Wrong mode",
                   ["--parent", "NameOption", "-u", "NoOptions"],
                   before, None).fail("run", 101)
@@ -940,16 +940,16 @@ DirRegressionTest("Command: .dotignore",
                   before, after_ignorefiles).success()
 DirRegressionTest("Conflict: Same profile linked twice",
                   ["-i", "SameProfileConflict"],
-                  before, {}).fail("run", 102)
+                  before, before).fail("run", 102)
 DirRegressionTest("Conflict: Same profile linked twice in subprofile",
                   ["-i", "SameProfileConflict2"],
-                  before, {}).fail("run", 102)
+                  before, before).fail("run", 102)
 DirRegressionTest("Conflict: Same link created twice",
                   ["-i", "SameLinkConflict"],
-                  before, {}).fail("run", 102)
+                  before, before).fail("run", 102)
 DirRegressionTest("Conflict: Link has multiple targets",
                   ["-i", "MultipleTargetsConflict"],
-                  before, {}).fail("run", 102)
+                  before, before).fail("run", 102)
 DirRegressionTest("Update: Simple",
                   ["-i", "DirOption"],
                   after_diroptions, after_updatediroptions, "update").success()
@@ -971,22 +971,22 @@ OutputRegressionTest("Output: --dryrun",
 OutputRegressionTest("Output: --debuginfo", ["--debuginfo"], before).success()
 DirRegressionTest("Fail: Not a profile",
                   ["-i", "NotAProfileFail"],
-                  before, {}).fail("run", 104)
+                  before, before).fail("run", 104)
 DirRegressionTest("Fail: Profile does not exist",
                   ["-i", "ThisDoesNotExist"],
-                  before, {}).fail("run", 103)
+                  before, before).fail("run", 103)
 DirRegressionTest("Fail: Overwrite blacklisted file",
                   ["-if", "OverwriteBlacklisted"],
-                  before, {}).fail("run", 102)
+                  before, before).fail("run", 102)
 DirRegressionTest("Fail: Recursive profile",
                   ["-i", "RecursiveProfile"],
-                  before, {}).fail("run", 104)
+                  before, before).fail("run", 104)
 DirRegressionTest("Fail: Cycle in profile",
                   ["-i", "CycleProfile1"],
-                  before, {}).fail("run", 104)
+                  before, before).fail("run", 104)
 DirRegressionTest("Fail: Link moved between profiles",
                   ["-i", "SuperProfileTags"],
-                  after_tags, {}, "nested").fail("run", 102)
+                  after_tags, before, "nested").fail("run", 102)
 # This test needs ticket #42 to be resolved
 # OutputRegressionTest("Output: --show", ["-s"], after_diroptions, "update").success()
 
