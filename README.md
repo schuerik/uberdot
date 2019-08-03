@@ -5,7 +5,7 @@
 
 
 [![Build Status](https://travis-ci.com/schuerik/uberdot.svg?branch=master)](https://travis-ci.com/schuerik/uberdot)
-[![Latest Release](https://img.shields.io/github/release/schuerik/uberdot.svg)](https://github.com/schuerik/uberdot/releases/latest)
+[![Latest release](https://img.shields.io/github/tag/schuerik/uberdot?label=release)](https://github.com/schuerik/uberdot/releases)
 [![Python version](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7-blue.svg)]()
 [![Regressiontest coverage](https://codecov.io/gh/schuerik/uberdot/branch/master/graph/badge.svg)](https://codecov.io/gh/schuerik/uberdot)
 [![CodeFactor](https://www.codefactor.io/repository/github/schuerik/uberdot/badge)](https://www.codefactor.io/repository/github/schuerik/uberdot)

@@ -5,8 +5,8 @@ uberdot
 .. image:: https://travis-ci.com/schuerik/uberdot.svg?branch=master
     :target: https://travis-ci.com/schuerik/uberdot
 
-.. image:: https://img.shields.io/github/release/schuerik/uberdot.svg
-    :target: https://github.com/schuerik/uberdot/releases/latest
+.. image:: https://img.shields.io/github/tag/schuerik/uberdot?label=release
+    :target: https://github.com/schuerik/uberdot/releases
 
 .. image:: https://www.codefactor.io/repository/github/schuerik/uberdot/badge
     :target: https://www.codefactor.io/repository/github/schuerik/uberdot

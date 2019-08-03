@@ -5,6 +5,10 @@ python:
   - 3.5
   - 3.6
   - 3.7
+branches:
+  except:
+    # Dont build tags, master is build anyway
+    - /^v\d+\.\d+\.\d+_\d+$/
 
 # Set up github deploy key
 before_install:
@@ -24,11 +28,6 @@ script:
 after_success:
   - make -C docs/sphinx html man
 
-# Tag commit before deployment
-before_deploy:
-  script: ./deploy/autotagging.sh
-  on:
-    branch: master
 
 # Deployments
 jobs:
@@ -52,10 +51,14 @@ jobs:
       deploy:
         # Upload documentation to github pages
         - provider: pages
-          skip-cleanup: true
           github-token: $GITHUB_TOKEN
           keep-history: true
+          skip-cleanup: true
           local-dir: docs/sphinx/build/html
+        # Autotagging commits
+        - provider: script
+          skip-cleanup: true
+          script: ./deploy/autotagging.sh
         # Build and commit manpage
         - provider: script
           skip-cleanup: true
