@@ -1,10 +1,10 @@
 # Set up build environment
 language: python
-dist: xenial
 python:
   - 3.5
   - 3.6
   - 3.7
+  - 3.8
 branches:
   except:
     # Dont build tags, master is build anyway

@@ -14,7 +14,7 @@ uberdot
 .. image:: https://codecov.io/gh/schuerik/uberdot/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/schuerik/uberdot
 
-.. image:: https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7-blue.svg
+.. image:: https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8-blue.svg
 
 
 uberdot is a tool to manage different versions of dotfiles/configs on different hosts. You can define little profiles
