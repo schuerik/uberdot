@@ -730,11 +730,27 @@ class CheckLinkExistsInterpreter(Interpreter):
             msg += "' does not exist in your filesystem."
             raise PreconditionError(msg)
         if normpath(dop["symlink1"]["name"]) != dop["symlink2"]["name"]:
-            if os.path.lexists(dop["symlink2"]["name"]) and not self.force:
-                msg = "'" + dop["symlink1"]["name"] + "' can not be moved to '"
-                msg += dop["symlink2"]["name"] + "' because it already exist"
-                msg += " on your filesystem and would be overwritten."
-                raise PreconditionError(msg)
+            if os.path.lexists(dop["symlink2"]["name"]):
+                if os.path.isdir(dop["symlink2"]["name"]):
+                    if not self.force:
+                        msg = "'" + dop["symlink1"]["name"] + "' can not be "
+                        msg += "moved to '" + dop["symlink2"]["name"] + "' "
+                        msg += "because it is a directory and would be "
+                        msg += "overwritten. You can force to overwrite empty"
+                        msg += " directories by setting the --force flag."
+                        raise PreconditionError(msg)
+                    if os.listdir(dop["symlink2"]["name"]):
+                        msg = "'" + dop["symlink1"]["name"] + "' can not be "
+                        msg += "moved to '" + dop["symlink2"]["name"] + "' "
+                        msg += "because it is a directory and contains files"
+                        msg += " that would be overwritten. Please empty the"
+                        msg += " directory or remove it entirely."
+                        raise PreconditionError(msg)
+                elif not self.force:
+                    msg = "'" + dop["symlink1"]["name"] + "' can not be moved to '"
+                    msg += dop["symlink2"]["name"] + "' because it already exists"
+                    msg += " on your filesystem and would be overwritten."
+                    raise PreconditionError(msg)
             self.removed_links.append(dop["symlink1"]["name"])
 
     def _op_add_l(self, dop):
@@ -746,14 +762,26 @@ class CheckLinkExistsInterpreter(Interpreter):
             PreconditionError: The new link already exists or its target does
                 not exist
         """
-        if (not normpath(dop["symlink"]["name"]) in self.removed_links and
-                not self.force and os.path.lexists(dop["symlink"]["name"])):
-            msg = "'" + dop["symlink"]["name"] + "' already exists and"
-            msg += " would be overwritten. You can force to overwrite the"
-            msg += " original file by setting the --force flag."
-            raise PreconditionError(msg)
+        name = dop["symlink"]["name"]
+        if not normpath(name) in self.removed_links and os.path.lexists(name):
+            if os.path.isdir(name):
+                if not self.force:
+                    msg = "'" + name + "' is a directory and would be"
+                    msg += " overwritten. You can force to overwrite empty"
+                    msg += " directories by setting the --force flag."
+                    raise PreconditionError(msg)
+                if os.listdir(name):
+                    msg = "'" + name + "' is a directory and contains files"
+                    msg += " that would be overwritten. Please empty the"
+                    msg += " directory or remove it entirely."
+                    raise PreconditionError(msg)
+            elif not self.force:
+                msg = "'" + name + "' already exists and would be"
+                msg += " overwritten. You can force to overwrite the"
+                msg += " original file by setting the --force flag."
+                raise PreconditionError(msg)
         if not os.path.exists(dop["symlink"]["target"]):
-            msg = "'" + dop["symlink"]["name"] + "' will not be created"
+            msg = "'" + name + "' will not be created"
             msg += " because it points to '" + dop["symlink"]["target"]
             msg += "' which does not exist in your filesystem."
             raise PreconditionError(msg)
@@ -994,7 +1022,12 @@ class ExecuteInterpreter(Interpreter):
         try:
             # Remove existing symlink
             if self.force and os.path.lexists(name):
-                os.unlink(name)
+                if os.path.isdir(name):
+                    # Overwriting empty dirs is also possible. CheckLinkExists
+                    # will make sure that the directory is empty
+                    os.rmdir(name)
+                else:
+                    os.unlink(name)
             # Create new symlink
             os.symlink(target, name)
             # Set owner and permission
