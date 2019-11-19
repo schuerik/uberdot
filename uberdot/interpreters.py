@@ -723,14 +723,14 @@ class CheckLinkExistsInterpreter(Interpreter):
             msg += " Check your installed file!"
             raise PreconditionError(msg)
         if (normpath(dop["symlink1"]["target"]) != dop["symlink2"]["target"]
-                and os.path.exists(dop["symlink2"]["target"])):
+                and not os.path.exists(dop["symlink2"]["target"])):
             msg = "'" + dop["symlink1"]["name"] + "' will not be updated"
             msg += " to point to '" + dop["symlink2"]["target"] + "'"
             msg += " because '" + dop["symlink2"]["target"]
             msg += "' does not exist in your filesystem."
             raise PreconditionError(msg)
         if normpath(dop["symlink1"]["name"]) != dop["symlink2"]["name"]:
-            if os.path.lexists(dop["symlink2"]["name"]):
+            if os.path.lexists(dop["symlink2"]["name"]) and not self.force:
                 msg = "'" + dop["symlink1"]["name"] + "' can not be moved to '"
                 msg += dop["symlink2"]["name"] + "' because it already exist"
                 msg += " on your filesystem and would be overwritten."
