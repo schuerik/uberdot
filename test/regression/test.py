@@ -4,18 +4,18 @@
 #
 # This file is part of uberdot.
 #
-# Dotmanger is free software: you can redistribute it and/or modify
+# uberdot is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Dotmanger is distributed in the hope that it will be useful,
+# uberdot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
+# along with uberdot.  If not, see <http://www.gnu.org/licenses/>.
 
 
 import hashlib
@@ -872,10 +872,10 @@ DirRegressionTest("Simple",
                   before, after_nooptions).success()
 DirRegressionTest("Arguments: Incompatible modes",
                   ["-ui", "NoOptions"],
-                  before, after_nooptions).fail("run", 2)
+                  before, after_nooptions).fail("run", 101)
 DirRegressionTest("Arguments: No mode",
                   ["NoOptions"],
-                  before, before).fail("run", 2)
+                  before, before).fail("run", 101)
 DirRegressionTest("Arguments: Wrong mode",
                   ["--parent", "NameOption", "-u", "NoOptions"],
                   before, None).fail("run", 101)

@@ -7,18 +7,18 @@ overwrite defaults for a specific configuration."""
 #
 # This file is part of uberdot.
 #
-# Dotmanger is free software: you can redistribute it and/or modify
+# uberdot is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Dotmanger is distributed in the hope that it will be useful,
+# uberdot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
+# along with uberdot.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
 
@@ -33,7 +33,7 @@ from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import normpath
 
-VERSION = "1.12.13_3"
+VERSION = "1.12.14_3"
 """Version numbers, seperated by underscore.
 
 First part is the version of uberdot. The second part (after the underscore)

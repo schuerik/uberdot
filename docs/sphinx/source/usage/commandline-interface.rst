@@ -71,6 +71,10 @@ Options
      Allows overwrites of files that already exists in your filesystem
 
 
+--info
+     Print all log messages but debug messages and stacktraces (Default)
+
+
 --log <LOGFILE>
      Log everything into a logfile (this also adds timestamps to the log messages)
 

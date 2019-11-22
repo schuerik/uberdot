@@ -7,18 +7,18 @@ E.g. retrieving a environment variable or fixing file permisions."""
 #
 # This file is part of uberdot.
 #
-# Dotmanger is free software: you can redistribute it and/or modify
+# uberdot is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Dotmanger is distributed in the hope that it will be useful,
+# uberdot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
+# along with uberdot.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
 
@@ -154,7 +154,7 @@ def get_uid():
     was started with sudo) SUDO_UID will be returned instead.
 
     Returns:
-        (int): UID of the user that started dotmanger
+        (int): UID of the user that started uberdot
     """
     sudo_uid = os.environ.get('SUDO_UID')
     if sudo_uid:
@@ -169,7 +169,7 @@ def get_gid():
     was started with sudo) SUDO_GID will be returned instead.
 
     Returns:
-        (int): GID of the user that started dotmanger
+        (int): GID of the user that started uberdot
     """
     sudo_gid = os.environ.get('SUDO_GID')
     if sudo_gid:

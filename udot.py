@@ -17,18 +17,18 @@ or you can import UberDot for debugging and testing purposes."""
 #
 # This file is part of uberdot.
 #
-# Dotmanger is free software: you can redistribute it and/or modify
+# uberdot is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# Dotmanger is distributed in the hope that it will be useful,
+# uberdot is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Dotmanger.  If not, see <http://www.gnu.org/licenses/>.
+# along with uberdot.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
 
@@ -128,7 +128,7 @@ class UberDot:
         if arguments is None:
             arguments = sys.argv[1:]
         # Setup parser
-        parser = argparse.ArgumentParser(add_help=False)
+        parser = CustomParser(add_help=False)
         # Options
         parser.add_argument("--config",
                             help="specify another config-file to use")
@@ -141,6 +141,9 @@ class UberDot:
                             action="store_true")
         parser.add_argument("-f", "--force",
                             help="overwrite existing files with links",
+                            action="store_true")
+        parser.add_argument("--info",
+                            help="print everything but debug messages",
                             action="store_true")
         parser.add_argument("--log",
                             help="specify a file to log to")
@@ -251,6 +254,8 @@ class UberDot:
             constants.LOGGINGLEVEL = "SILENT"
         if self.args.quiet:
             constants.LOGGINGLEVEL = "QUIET"
+        if self.args.info:
+            constants.LOGGINGLEVEL = "INFO"
         if self.args.verbose:
             constants.LOGGINGLEVEL = "VERBOSE"
         logging_level_mapping = {
@@ -262,7 +267,8 @@ class UberDot:
         try:
             logger.setLevel(logging_level_mapping[constants.LOGGINGLEVEL])
         except KeyError:
-            logger.setLevel(logging.INFO)
+            msg = "Unkown logginglevel '" + constants.LOGGINGLEVEL + "'"
+            raise UserError(msg)
         if self.args.log:
             ch = logging.FileHandler(os.path.join(self.owd, self.args.log))
             ch.setLevel(logging.DEBUG)
@@ -287,50 +293,64 @@ class UberDot:
             raise UserError(msg)
 
         # Check if arguments are bad
-        def args_depend(msg, *args, need=[], omit=[], xor=False):
+        def args_depend(*args, need=[], omit=[], xor=False, msg=None):
             """Checks if argument dependencies are fullfilled.
 
             Args:
-                msg (str): An error message if dependecies aren't fullfilled
                 *args (list): The argument names that depend on other arguments
                 need (list): One of this need to be set if one of the arguments
                     is set
                 omit (list): All of this need to be set if none of the
                     arguments are set
                 xor (bool): Only one of the args is allowed to be set
+                msg (str): An error message if dependecies aren't fullfilled. If
+                    ommitted, it will be generated automatically
             Raises:
                 UserError: The dependencies aren't fullfilled
             """
+            def gen_msg():
+                nonlocal msg
+                if msg is not None:
+                    return msg
+                if need:
+                    msg = "--" + "/--".join(args) + " need to be used with "
+                    msg += "--" + "/--".join(need)
+                if xor:
+                    msg = "--" + "/--".join(args) + " can't be used together"
+                if omit:
+                    msg = "--" + ", --".join(omit) + " need to be specified "
+                return msg
             # If at least one of the arguments is set
             set_args = [1 for arg in args if self.args.__dict__[arg]]
             if set_args:
                 # we verify that at least one argument of need is set
                 if need and not [1 for arg in need if self.args.__dict__[arg]]:
-                    raise UserError(msg)
+                    raise UserError(gen_msg())
                 # or else only one is set if xor is set
                 elif xor and len(set_args) > 1:
-                    raise UserError(msg)
+                    raise UserError(gen_msg())
             # No argument is set, so all args from "omit" need to be set
             elif omit and [x for x in omit if self.args.__dict__[x]] != omit:
-                raise UserError(msg)
+                raise UserError(gen_msg())
 
         args_depend(
-            "-d/-p/--print need to be used with -i/-u/--debuginfo",
             "dryrun", "print", "plain",
             need=["install", "uninstall", "debuginfo"]
         )
         args_depend(
-            "-d, --plain and --print can't be used together",
             "dryrun", "plain", "print",
             xor=True
         )
         args_depend(
-            "No Profile specified!!",
+            "silent", "quiet", "info", "verbose",
+            xor=True
+        )
+        args_depend(
             "show", "version", "debuginfo",
+            msg = "No Profile specified!!",
             omit=["profiles"]
         )
         args_depend(
-            "--parent needs to be used with -i",
             "parent", need=["install", "debuginfo"]
         )
 
@@ -567,6 +587,13 @@ class StoreDictKeyPair(argparse.Action):
                                 " but only found one.")
             opt_dict[key] = val
         setattr(namespace, self.dest, opt_dict)
+
+
+class CustomParser(argparse.ArgumentParser):
+    """Custom argument parser that raises an UserError instead of writing
+    the error to stderr and exiting by itself."""
+    def error(self, message):
+        raise UserError(message)
 
 
 def run_script(name):
