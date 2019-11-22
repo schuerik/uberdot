@@ -47,3 +47,12 @@ code.xref {
     color: black!important;
     font-weight: bold;
 }
+
+/* Fix table rows in option tables */
+.option-list td{
+    border:none!important;
+}
+
+.option-list td.option-group, .option-list td.option-group + td{
+    border-top: 1px solid #888 !important;
+}
