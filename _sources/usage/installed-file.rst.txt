@@ -2,7 +2,7 @@
 Installed-files
 ***************
 
-The installed-files store what links were created by Dotmanger. This
+The installed-files store what links were created by uberdot. This
 document explains how they are structured and how you can fix those files if
 a critical unexpected error occurs.
 
@@ -12,7 +12,7 @@ Structure
 
 Installed-files are JSON files that are stored in ``data/installed/``.
 If you use the ``--save`` flag you can set the name of the installed
-file that Dotmanger should use otherwise ``default.json`` is used.
+file that uberdot should use otherwise ``default.json`` is used.
 
 This is a example of such a installed-file.
 
