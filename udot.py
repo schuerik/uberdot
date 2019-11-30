@@ -600,6 +600,16 @@ def run_script(name):
     """Act like a script if we were invoked like a script.
 
     This is needed for coverage."""
+    def handle_customerror():
+        # An error occured that we (more or less) expected.
+        # Print error, a stacktrace and exit
+        logger.debug(traceback.format_exc())
+        if isinstance(err, FatalError):
+            logger.critical(err.message)
+        else:
+            logger.error(err.message)
+        sys.exit(err.EXITCODE)
+
     if name == "__main__":
         # Init the logger, further configuration is done when we parse the
         # commandline arguments
@@ -616,8 +626,7 @@ def run_script(name):
         try:
             uber.parse_arguments()
         except CustomError as err:
-            logger.error(err.message)
-            sys.exit(err.EXITCODE)
+            handle_customerror()
         # Add the users profiles to the python path
         sys.path.append(constants.PROFILE_FILES)
         # Start everything in an exception handler
@@ -631,14 +640,7 @@ def run_script(name):
             uber.load_installed()
             uber.execute_arguments()
         except CustomError as err:
-            # An error occured that we (more or less) expected.
-            # Print error, a stacktrace and exit
-            logger.debug(traceback.format_exc())
-            if isinstance(err, FatalError):
-                logger.critical(err.message)
-            else:
-                logger.error(err.message)
-            sys.exit(err.EXITCODE)
+            handle_customerror()
         except Exception:
             # This works because all critical parts will catch also all
             # exceptions and convert them into a CustomError
