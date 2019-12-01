@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Getting started &#8212; uberdot 1.12.15_3 documentation</title>
+    <title>Getting started &#8212; uberdot 1.12.16_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -97,7 +97,7 @@ in your profile directory. It doesn't matter what you name it, as long it ends
 on &quot;.py&quot;.
 You can copy the following, but replace <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> with a file that exists in
 your dotfile directory:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -114,7 +114,7 @@ Finished succesfully.
 <p>So <code class="docutils literal notranslate"><span class="pre">link(&quot;&lt;filename&gt;&quot;)</span></code> creates a symlink in your home directory and points
 to the file <code class="docutils literal notranslate"><span class="pre">&lt;filename&gt;</span></code> in your repository.</p>
 <p>Ok, lets modify this a little bit and add some more links:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -145,7 +145,7 @@ the effect of the options <code class="docutils literal notranslate"><span class
 <h2>Step 4: Going further<a class="headerlink" href="#step-4-going-further" title="Permalink to this headline">¶</a></h2>
 <p>I want to show you two more commands, that provide key techniques of uberdot.
 To make profiles more reusable you can use the <code class="docutils literal notranslate"><span class="pre">subprof()</span></code> command:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Vim</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>
@@ -165,7 +165,7 @@ To make profiles more reusable you can use the <code class="docutils literal not
 <p>Here we have two profiles. The first one contains all configuration files for vim,
 the second one for zsh and bash. You can embed them in any other profile as a
 subprofile:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">profile</span>
 
 <span class="k">class</span> <span class="nc">Test1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">():</span>

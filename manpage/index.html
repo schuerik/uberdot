@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>uberdot manual &#8212; uberdot 1.12.15_3 documentation</title>
+    <title>uberdot manual &#8212; uberdot 1.12.16_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -325,7 +325,7 @@ example</li>
 </li>
 <li><strong>optional</strong>: If no correct version of a file is found and this is set
 to True no error will be raised<ul>
-<li>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">optional</span></span><span class="operator"><span class="pre">=</span></span><span class="name builtin pseudo"><span class="pre">True</span></span><span class="punctuation"><span class="pre">)</span></span></code></li>
+<li>e.g.: <code class="code python docutils literal notranslate"><span class="name"><span class="pre">opt</span></span><span class="punctuation"><span class="pre">(</span></span><span class="name"><span class="pre">optional</span></span><span class="operator"><span class="pre">=</span></span><span class="keyword constant"><span class="pre">True</span></span><span class="punctuation"><span class="pre">)</span></span></code></li>
 </ul>
 </li>
 </ul>
@@ -376,7 +376,7 @@ used to find alternate versions of a dotfile. Such a alternate version
 of a dotfile needs to be prefixed with the same tag plus a percent
 sign as a separator. The easiest way to explain this concept is with
 an example. Suppose you created a profile for your bash configuration:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">Profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
 <span class="k">class</span> <span class="nc">Bash</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">link</span><span class="p">(</span><span class="s2">&quot;bashrc&quot;</span><span class="p">,</span> <span class="s2">&quot;inputrc&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
@@ -394,14 +394,14 @@ alternate versions of the files and name them like this:</p>
 </ul>
 <p>Now you could create a profile for every device or distribution as you
 like and set the suitable tag.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">Profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
 <span class="k">class</span> <span class="nc">Device1</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;debian&quot;</span><span class="p">)</span>
         <span class="n">subprof</span><span class="p">(</span><span class="s2">&quot;Bash&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="k">import</span> <span class="n">Profile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.profile</span> <span class="kn">import</span> <span class="n">Profile</span>
 <span class="k">class</span> <span class="nc">Device2</span><span class="p">(</span><span class="n">Profile</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">tags</span><span class="p">(</span><span class="s2">&quot;arch&quot;</span><span class="p">)</span>
@@ -572,7 +572,7 @@ system you are on.</p>
 <div class="section" id="usage">
 <h3>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h3>
 <p>To use those functions you need to import the info module:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot</span> <span class="k">import</span> <span class="n">info</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot</span> <span class="kn">import</span> <span class="n">info</span>
 </pre></div>
 </div>
 <p>Then you can use it like this in a profile:</p>

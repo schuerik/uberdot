@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Dynamicfiles &#8212; uberdot 1.12.15_3 documentation</title>
+    <title>Dynamicfiles &#8212; uberdot 1.12.16_3 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -99,7 +99,7 @@ updating/removing the link.</li>
 </div>
 <div class="section" id="creating-an-instance-of-a-dynamicfile-manually">
 <h2>Creating an instance of a dynamicfile manually<a class="headerlink" href="#creating-an-instance-of-a-dynamicfile-manually" title="Permalink to this headline">¶</a></h2>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.dynamicfile</span> <span class="k">import</span> <span class="n">EncryptedFile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.dynamicfile</span> <span class="kn">import</span> <span class="n">EncryptedFile</span>
 
 <span class="c1"># Create an instance of EncryptedFile with the name &quot;test.txt&quot;</span>
 <span class="n">encrypt</span> <span class="o">=</span> <span class="n">EncryptedFile</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">)</span>
@@ -111,7 +111,7 @@ updating/removing the link.</li>
 </div>
 <p>Instead of using the absolute path to the dotfile you could use
 <code class="docutils literal notranslate"><span class="pre">self.find()</span></code> of the profile to find the file automatically.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.dynamicfile</span> <span class="k">import</span> <span class="n">EncryptedFile</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">uberdot.dynamicfile</span> <span class="kn">import</span> <span class="n">EncryptedFile</span>
 
 <span class="n">encrypt</span> <span class="o">=</span> <span class="n">EncryptedFile</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">)</span>
 <span class="n">encrypt</span><span class="o">.</span><span class="n">add_source</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">))</span>
