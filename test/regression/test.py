@@ -868,124 +868,124 @@ owd = os.getcwd()
 os.chdir(DIRNAME)
 
 DirRegressionTest("Simple",
-                  ["-i", "NoOptions"],
+                  ["update", "NoOptions"],
                   before, after_nooptions).success()
 DirRegressionTest("Arguments: Incompatible modes",
-                  ["-ui", "NoOptions"],
+                  ["remove", "update", "NoOptions"],
                   before, after_nooptions).fail("run", 101)
 DirRegressionTest("Arguments: No mode",
                   ["NoOptions"],
                   before, before).fail("run", 101)
 DirRegressionTest("Arguments: Wrong mode",
-                  ["--parent", "NameOption", "-u", "NoOptions"],
+                  ["remove", "--parent", "NameOption", "NoOptions"],
                   before, None).fail("run", 101)
 DirRegressionTest("Arguments: No profiles",
-                  ["-i"],
+                  ["update"],
                   before, None).fail("run", 101)
 DirRegressionTest("Arguments: No sudo",
-                  ["-i", "NeedsRootConflict"],
+                  ["update", "NeedsRootConflict"],
                   before, None).fail("run", 101)
 DirRegressionTest("Arguments: --skiproot",
-                  ["-i", "--skiproot", "NeedsRootConflict"],
+                  ["update", "--skiproot", "NeedsRootConflict"],
                   before, after_skiproot).success()
 DirRegressionTest("Arguments: --option",
                   [
-                      "-i", "--option", "name=file", "prefix=test",
+                      "update", "--option", "name=file", "prefix=test",
                       "tags=tag1,notag", "--", "OptionArgument"
                   ], before, after_options).success()
 DirRegressionTest("Option: name",
-                  ["-i", "NameOption"],
+                  ["update", "NameOption"],
                   before, after_nameoptions).success()
 DirRegressionTest("Option: directory",
-                  ["-i", "DirOption"],
+                  ["update", "DirOption"],
                   before, after_diroptions).success()
 DirRegressionTest("Option: prefix suffix extension",
-                  ["-i", "PrefixSuffixExtensionOption"],
+                  ["update", "PrefixSuffixExtensionOption"],
                   before, after_prefixsuffixoptions).success()
 DirRegressionTest("Option: optional",
-                  ["-i", "OptionalOption"],
+                  ["update", "OptionalOption"],
                   before, after_optional).success()
 DirRegressionTest("Option: replace",
-                  ["-i", "ReplaceOption"],
+                  ["update", "ReplaceOption"],
                   before, after_replace).success()
 DirRegressionTest("Command: links()",
-                  ["-i", "Links"],
+                  ["update", "Links"],
                   before, after_links).success()
 DirRegressionTest("Command: decrypt()",
-                  ["-i", "Decrypt"],
+                  ["update", "Decrypt"],
                   before, after_decrypt).success()
 DirRegressionTest("Command: merge()",
-                  ["-i", "Merge"],
+                  ["update", "Merge"],
                   before, after_merge).success()
 DirRegressionTest("Command: pipe()",
-                  ["-i", "Pipe"],
+                  ["update", "Pipe"],
                   before, after_pipe).success()
 DirRegressionTest("Command: subprof()",
-                  ["-i", "SuperProfile"],
+                  ["update", "SuperProfile"],
                   before, after_superprofile).success()
 DirRegressionTest("Command: tags()",
-                  ["-i", "SuperProfileTags"],
+                  ["update", "SuperProfileTags"],
                   before, after_tags).success()
 DirRegressionTest("Command: extlink()",
-                  ["-i", "ExteranalLink"],
+                  ["update", "ExteranalLink"],
                   before, after_extlink).success()
 DirRegressionTest("Command: default()",
-                  ["-i", "Default"],
+                  ["update", "Default"],
                   before, after_default).success()
 DirRegressionTest("Command: Nested dynamicfiles",
-                  ["-i", "NestedDynamicFile"],
+                  ["update", "NestedDynamicFile"],
                   before, after_nesteddynamic).success()
 DirRegressionTest("Command: .dotignore",
-                  ["-i", "IgnoreFiles"],
+                  ["update", "IgnoreFiles"],
                   before, after_ignorefiles).success()
 DirRegressionTest("Conflict: Same profile linked twice",
-                  ["-i", "SameProfileConflict"],
+                  ["update", "SameProfileConflict"],
                   before, before).fail("run", 102)
 DirRegressionTest("Conflict: Same profile linked twice in subprofile",
-                  ["-i", "SameProfileConflict2"],
+                  ["update", "SameProfileConflict2"],
                   before, before).fail("run", 102)
 DirRegressionTest("Conflict: Same link created twice",
-                  ["-i", "SameLinkConflict"],
+                  ["update", "SameLinkConflict"],
                   before, before).fail("run", 102)
 DirRegressionTest("Conflict: Link has multiple targets",
-                  ["-i", "MultipleTargetsConflict"],
+                  ["update", "MultipleTargetsConflict"],
                   before, before).fail("run", 102)
 DirRegressionTest("Update: Simple",
-                  ["-i", "DirOption"],
+                  ["update", "DirOption"],
                   after_diroptions, after_updatediroptions, "update").success()
 DirRegressionTest("Update: Uninstall",
-                  ["-u", "DirOption"],
+                  ["remove", "DirOption"],
                   after_diroptions, before, "update").success()
 DirRegressionTest("Update: --dui",
-                  ["-i", "--dui", "SuperProfileTags"],
+                  ["update", "--dui", "SuperProfileTags"],
                   after_tags, after_updatedui, "nested").success()
 OutputRegressionTest("Output: --print",
-                     ["-i", "--print", "NoOptions"],
+                     ["update", "--print", "NoOptions"],
                      before).success()
 OutputRegressionTest("Output: --plain",
-                     ["-i", "--plain", "NoOptions"],
+                     ["update", "--plain", "NoOptions"],
                      before).success()
 OutputRegressionTest("Output: --dryrun",
-                     ["-id", "NoOptions"],
+                     ["updated", "NoOptions"],
                      before).success()
 OutputRegressionTest("Output: --debuginfo", ["--debuginfo"], before).success()
 DirRegressionTest("Fail: Not a profile",
-                  ["-i", "NotAProfileFail"],
+                  ["update", "NotAProfileFail"],
                   before, before).fail("run", 104)
 DirRegressionTest("Fail: Profile does not exist",
-                  ["-i", "ThisDoesNotExist"],
+                  ["update", "ThisDoesNotExist"],
                   before, before).fail("run", 103)
 DirRegressionTest("Fail: Overwrite blacklisted file",
-                  ["-if", "OverwriteBlacklisted"],
+                  ["update", "-f", "OverwriteBlacklisted"],
                   before, before).fail("run", 102)
 DirRegressionTest("Fail: Recursive profile",
-                  ["-i", "RecursiveProfile"],
+                  ["update", "RecursiveProfile"],
                   before, before).fail("run", 104)
 DirRegressionTest("Fail: Cycle in profile",
-                  ["-i", "CycleProfile1"],
+                  ["update", "CycleProfile1"],
                   before, before).fail("run", 104)
 DirRegressionTest("Fail: Link moved between profiles",
-                  ["-i", "SuperProfileTags"],
+                  ["update", "SuperProfileTags"],
                   after_tags, before, "nested").fail("run", 102)
 # This test needs ticket #42 to be resolved
 # OutputRegressionTest("Output: --show", ["-s"], after_diroptions, "update").success()

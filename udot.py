@@ -123,89 +123,122 @@ class UberDot:
             :class:`~errors.UserError`: One ore more arguments are invalid or
                 used in an invalid combination.
         """
-        global ch, formatter
-
         if arguments is None:
             arguments = sys.argv[1:]
         # Setup parser
         parser = CustomParser()
-        # Options
+        subparsers = parser.add_subparsers(
+            parser_class=CustomParser,
+            dest="mode"
+        )
+        parser_profiles = CustomParser(add_help=False)
+        parser_profiles.add_argument("profiles",
+                                     help="do this only for this list of root profiles",
+                                     nargs="*")
+        # Setup top level arguments
         parser.add_argument("--config",
                             help="specify another config-file to use")
-        parser.add_argument("--directory", help="set the default directory")
-        parser.add_argument("-d", "--dryrun",
-                            help="just simulate what would happen",
+        group_log_level = parser.add_mutually_exclusive_group()
+        group_log_level.add_argument("-v", "--verbose",
+                            help="print debug messages and tracebacks",
                             action="store_true")
-        parser.add_argument("--dui",
-                            help="use the DUI strategy for updating links",
-                            action="store_true")
-        parser.add_argument("-f", "--force",
-                            help="overwrite existing files with links",
-                            action="store_true")
-        parser.add_argument("--info",
+        group_log_level.add_argument("--info",
                             help="print everything but debug messages",
+                            action="store_true")
+        group_log_level.add_argument("-q", "--quiet",
+                            help="print nothing but errors",
+                            action="store_true")
+        group_log_level.add_argument("--silent",
+                            help="print absolute nothing",
                             action="store_true")
         parser.add_argument("--log",
                             help="specify a file to log to")
-        parser.add_argument("-m", "--makedirs",
-                            help="create directories automatically if needed",
-                            action="store_true")
-        parser.add_argument("--option",
-                            help="set options for profiles",
-                            dest="opt_dict",
-                            action=StoreDictKeyPair,
-                            nargs="+",
-                            metavar="KEY=VAL")
-        parser.add_argument("--parent",
-                            help="set the parent of the profiles you install")
-        parser.add_argument("--plain",
-                            help="print the internal DiffLog as plain json",
-                            action="store_true")
-        parser.add_argument("-p", "--print",
-                            help="print what changes uberdot will do",
-                            action="store_true")
-        parser.add_argument("-q", "--quiet",
-                            help="print nothing but errors",
-                            action="store_true")
         parser.add_argument("--save",
                             help="specify another install-file to use",
                             default="default")
-        parser.add_argument("--silent",
-                            help="print absolute nothing",
-                            action="store_true")
-        parser.add_argument("--skiproot",
-                            help="do nothing that requires root permissions",
-                            action="store_true")
-        parser.add_argument("--superforce",
-                            help="overwrite blacklisted/protected files",
-                            action="store_true")
-        parser.add_argument("-v", "--verbose",
-                            help="print stacktrace in case of error",
-                            action="store_true")
-        # Modes
-        modes = parser.add_mutually_exclusive_group(required=True)
-        modes.add_argument("-h", "--help",
-                           help="show this help message and exit",
-                           action="help")
-        modes.add_argument("-i", "--install",
-                           help="install and update (sub)profiles",
-                           action="store_true")
-        modes.add_argument("--debuginfo",
-                           help="display internal values",
-                           action="store_true")
-        modes.add_argument("-u", "--uninstall",
-                           help="uninstall (sub)profiles",
-                           action="store_true")
-        modes.add_argument("-s", "--show",
-                           help="show infos about installed profiles",
-                           action="store_true")
-        modes.add_argument("--version",
-                           help="print version number",
-                           action="store_true")
-        # Profile list
-        parser.add_argument("profiles",
-                            help="list of root profiles",
-                            nargs="*")
+        # Setup mode show arguments
+        help_text = "display various information about installed profiles"
+        parser_show = subparsers.add_parser(
+            "show",
+            parents=[parser_profiles],
+            description=help_text,
+            help=help_text
+        )
+        parser_show.add_argument("-l", "--links",
+                                 help="show installed links",
+                                 action="store_true")
+        parser_show.add_argument("-p", "--profiles",
+                                 help="show installed profiles",
+                                 action="store_true")
+        parser_show.add_argument("-m", "--meta",
+                                 help="display meta information about profiles and/or links",
+                                 action="store_true")
+        # Setup arguments that are used in both update and remove
+        parser_run = CustomParser(add_help=False)
+        group_run_mode = parser_run.add_mutually_exclusive_group()
+        group_run_mode.add_argument("-d", "--dryrun",
+                                    help="just simulate what would happen",
+                                    action="store_true")
+        group_run_mode.add_argument("--plain",
+                                    help="print the internal DiffLog as plain json",
+                                    action="store_true")
+        group_run_mode.add_argument("-p", "--print",
+                                    help="print what changes uberdot will do",
+                                    action="store_true")
+        parser_run.add_argument("-f", "--force",
+                                help="overwrite existing files",
+                                action="store_true")
+        parser_run.add_argument("--skiproot",
+                                help="do nothing that requires root permissions",
+                                action="store_true")
+        parser_run.add_argument("--superforce",
+                                help="overwrite blacklisted/protected files",
+                                action="store_true")
+        # Setup mode update arguments
+        help_text="install new or update already installed profiles"
+        parser_update = subparsers.add_parser(
+            "update",
+            parents=[parser_run, parser_profiles],
+            description=help_text,
+            help=help_text
+        )
+        parser_update.add_argument("--dui",
+                                   help="use the DUI strategy for updating links",
+                                   action="store_true")
+        parser_update.add_argument("--directory", help="set the default directory")
+        parser_update.add_argument("-m", "--makedirs",
+                                   help="create directories automatically if needed",
+                                   action="store_true")
+        parser_update.add_argument("--option",
+                                   help="set options for profiles",
+                                   dest="opt_dict",
+                                   action=StoreDictKeyPair,
+                                   nargs="+",
+                                   metavar="KEY=VAL")
+        parser_update.add_argument("--parent",
+                                   help="set the parent of the profiles you install")
+        # Setup mode remove arguments
+        help_text="remove already installed profiles"
+        parser_remove = subparsers.add_parser(
+            "remove",
+            parents=[parser_run, parser_profiles],
+            description=help_text,
+            help=help_text
+        )
+        # Setup mode find arguments
+        help_text="helpers to search profiles and dotfiles manually"
+        parser_find = subparsers.add_parser(
+            "find",
+            description=help_text,
+            help=help_text
+        )
+        # Setup mode version arguments
+        help_text="show version number"
+        parser_version = subparsers.add_parser(
+            "version",
+            description=help_text,
+            help=help_text
+        )
 
         # Read arguments
         try:
@@ -291,68 +324,6 @@ class UberDot:
             msg = "The directory for your profiles '" + constants.PROFILE_FILES
             msg += "' does not exist on this system."
             raise UserError(msg)
-
-        # Check if arguments are bad
-        def args_depend(*args, need=[], omit=[], xor=False, msg=None):
-            """Checks if argument dependencies are fullfilled.
-
-            Args:
-                *args (list): The argument names that depend on other arguments
-                need (list): One of this need to be set if one of the arguments
-                    is set
-                omit (list): All of this need to be set if none of the
-                    arguments are set
-                xor (bool): Only one of the args is allowed to be set
-                msg (str): An error message if dependecies aren't fullfilled. If
-                    ommitted, it will be generated automatically
-            Raises:
-                UserError: The dependencies aren't fullfilled
-            """
-            def gen_msg():
-                nonlocal msg
-                if msg is not None:
-                    return msg
-                if need:
-                    msg = "--" + "/--".join(args) + " need to be used with "
-                    msg += "--" + "/--".join(need)
-                if xor:
-                    msg = "--" + "/--".join(args) + " can't be used together"
-                if omit:
-                    msg = "--" + ", --".join(omit) + " need to be specified "
-                return msg
-            # If at least one of the arguments is set
-            set_args = [1 for arg in args if self.args.__dict__[arg]]
-            if set_args:
-                # we verify that at least one argument of need is set
-                if need and not [1 for arg in need if self.args.__dict__[arg]]:
-                    raise UserError(gen_msg())
-                # or else only one is set if xor is set
-                elif xor and len(set_args) > 1:
-                    raise UserError(gen_msg())
-            # No argument is set, so all args from "omit" need to be set
-            elif omit and [x for x in omit if self.args.__dict__[x]] != omit:
-                raise UserError(gen_msg())
-
-        args_depend(
-            "dryrun", "print", "plain",
-            need=["install", "uninstall", "debuginfo"]
-        )
-        args_depend(
-            "dryrun", "plain", "print",
-            xor=True
-        )
-        args_depend(
-            "silent", "quiet", "info", "verbose",
-            xor=True
-        )
-        args_depend(
-            "show", "version", "debuginfo",
-            msg = "No Profile specified!!",
-            omit=["profiles"]
-        )
-        args_depend(
-            "parent", need=["install", "debuginfo"]
-        )
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
@@ -595,7 +566,10 @@ class CustomParser(argparse.ArgumentParser):
     the error to stderr and exiting by itself."""
 
     def __init__(self, **kwargs):
-        super().__init__(add_help=False, **kwargs)
+        if "help" in kwargs:
+            print(kwargs["help"])
+            kwargs["description"] = kwargs["help"]
+        super().__init__(**kwargs)
 
     def error(self, message):
         raise UserError(message)
