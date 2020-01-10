@@ -1,6 +1,6 @@
 .\" Man page generated from reStructuredText.
 .
-.TH "UBERDOT" "1" "Dec 01, 2019" "1.12.16_3" "uberdot"
+.TH "UBERDOT" "1" "Jan 10, 2020" "1.12.17_4" "uberdot"
 .SH NAME
 uberdot \- uberdot manpage
 .
@@ -383,6 +383,14 @@ to True no error will be raised
 .INDENT 2.0
 .IP \(bu 2
 e.g.: \fBopt(optional=True)\fP
+.UNINDENT
+.IP \(bu 2
+\fBsecure\fP: If set to True the symlink target will be chown to match the
+owner of the symlink. Otherwise the target will be chown to the user that
+started uberdot. Defaults to True.
+.INDENT 2.0
+.IP \(bu 2
+e.g.: \fBopt(secure=False)\fP
 .UNINDENT
 .UNINDENT
 .SS links(Pattern, encrypted=False, directory="", **Options)
