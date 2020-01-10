@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Interpreters &#8212; uberdot 1.12.16_3 documentation</title>
+    <title>Interpreters &#8212; uberdot 1.12.17_4 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -1086,7 +1086,7 @@ will require root permission</li>
 
 <dl class="method">
 <dt id="interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink">
-<code class="descname">_ExecuteInterpreter__create_symlink</code><span class="sig-paren">(</span><em>name</em>, <em>target</em>, <em>uid</em>, <em>gid</em>, <em>permission</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink" title="Permalink to this definition">¶</a></dt>
+<code class="descname">_ExecuteInterpreter__create_symlink</code><span class="sig-paren">(</span><em>name</em>, <em>target</em>, <em>uid</em>, <em>gid</em>, <em>permission</em>, <em>secure</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._ExecuteInterpreter__create_symlink" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a symlink in the filesystem.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1099,6 +1099,7 @@ point to</li>
 <li><strong>uid</strong> (<em>int</em>) -- The UID of the owner of the link</li>
 <li><strong>gid</strong> (<em>int</em>) -- The GID of the owner of the link</li>
 <li><strong>permission</strong> (<em>int</em>) -- The permissions of the target</li>
+<li><strong>secure</strong> (<em>bool</em>) -- Wether target should have same owner as name</li>
 </ul>
 </td>
 </tr>

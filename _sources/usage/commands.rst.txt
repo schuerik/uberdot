@@ -125,6 +125,12 @@ options. This is a list of all options available:
 
   - e.g.: :python:`opt(optional=True)`
 
+- **secure**: If set to True the symlink target will be chown to match the
+  owner of the symlink. Otherwise the target will be chown to the user that
+  started uberdot. Defaults to True.
+
+  - e.g.: :python:`opt(secure=False)`
+
 
 links(Pattern, encrypted=False, directory="", \*\*Options)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
