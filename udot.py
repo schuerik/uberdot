@@ -128,7 +128,7 @@ class UberDot:
         if arguments is None:
             arguments = sys.argv[1:]
         # Setup parser
-        parser = CustomParser(add_help=False)
+        parser = CustomParser()
         # Options
         parser.add_argument("--config",
                             help="specify another config-file to use")
@@ -420,12 +420,12 @@ class UberDot:
         print_header("Settings")
         print_value("ASKROOT", constants.ASKROOT)
         print_value("BACKUP_EXTENSION", constants.BACKUP_EXTENSION)
-        print_value("DATA_DIR", constants.DATA_DIR)
-        print_value("TAG_SEPARATOR", constants.TAG_SEPARATOR)
-        print_value("HASH_SEPARATOR", constants.HASH_SEPARATOR)
         print_value("COLOR", constants.COLOR)
+        print_value("DATA_DIR", constants.DATA_DIR)
         print_value("DECRYPT_PWD", constants.DECRYPT_PWD)
+        print_value("HASH_SEPARATOR", constants.HASH_SEPARATOR)
         print_value("PROFILE_FILES", constants.PROFILE_FILES)
+        print_value("TAG_SEPARATOR", constants.TAG_SEPARATOR)
         print_value("TARGET_FILES", constants.TARGET_FILES)
         print_header("Command options")
         print_value("DEFAULTS['directory']", self.args.directory)
@@ -438,6 +438,7 @@ class UberDot:
         print_value("DEFAULTS['replace']", self.args.opt_dict["replace"])
         print_value("DEFAULTS['replace_pattern']",
                     self.args.opt_dict["replace_pattern"])
+        print_value("DEFAULTS['secure']", self.args.opt_dict["secure"])
         print_value("DEFAULTS['suffix']", self.args.opt_dict["suffix"])
         print_value("DEFAULTS['tags']", self.args.opt_dict["tags"])
         print_header("Internal values")
@@ -592,6 +593,10 @@ class StoreDictKeyPair(argparse.Action):
 class CustomParser(argparse.ArgumentParser):
     """Custom argument parser that raises an UserError instead of writing
     the error to stderr and exiting by itself."""
+
+    def __init__(self, **kwargs):
+        super().__init__(add_help=False, **kwargs)
+
     def error(self, message):
         raise UserError(message)
 

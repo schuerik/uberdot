@@ -527,6 +527,7 @@ class Profile:
         linkdescriptor["uid"] = uid
         linkdescriptor["gid"] = gid
         linkdescriptor["permission"] = read_opt("permission")
+        linkdescriptor["secure"] = read_opt("secure")
         self.result["links"].append(linkdescriptor)
 
     @command

@@ -1,5 +1,5 @@
 {
-    "@version": "1.12.6_3",
+    "@version": "1.12.17_4",
     "DirOption": {
         "name": "DirOption",
         "links": [
@@ -9,7 +9,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-07-29 15:30:04"
+                "date": "2019-07-29 15:30:04",
+                "secure": true
             },
             {
                 "target": "test/regression/files/name2",
@@ -17,7 +18,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-07-29 15:30:04"
+                "date": "2019-07-29 15:30:04",
+                "secure": true
             },
             {
                 "target": "test/regression/files/name3",
@@ -25,7 +27,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-07-29 15:30:04"
+                "date": "2019-07-29 15:30:04",
+                "secure": true
             },
             {
                 "target": "test/regression/files/name4",
@@ -33,7 +36,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-07-29 15:30:04"
+                "date": "2019-07-29 15:30:04",
+                "secure": true
             },
             {
                 "target": "test/regression/files/name5",
@@ -41,7 +45,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-07-29 15:30:04"
+                "date": "2019-07-29 15:30:04",
+                "secure": true
             },
             {
                 "target": "test/regression/files/name6",
@@ -49,7 +54,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-07-29 15:30:04"
+                "date": "2019-07-29 15:30:04",
+                "secure": true
             },
             {
                 "target": "test/regression/files/name7",
@@ -57,7 +63,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-07-29 15:30:04"
+                "date": "2019-07-29 15:30:04",
+                "secure": true
             }
         ],
         "installed": "2019-07-29 13:37:05",

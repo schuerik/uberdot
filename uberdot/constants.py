@@ -33,7 +33,7 @@ from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import normpath
 
-VERSION = "1.12.16_3"
+VERSION = "1.12.17_4"
 """Version numbers, seperated by underscore.
 
 First part is the version of uberdot. The second part (after the underscore)
@@ -111,6 +111,7 @@ DEFAULTS = {
     "prefix": "",
     "replace": "",
     "replace_pattern": "",
+    "secure": True,
     "suffix": ""
 }
 """Default values for command options."""
@@ -271,6 +272,7 @@ def loadconfig(config_file, installed_filename="default"):
         "replace_pattern": getstr("replace_pattern",
                                   DEFAULTS["replace_pattern"]),
         "suffix": getstr("suffix", DEFAULTS["suffix"]),
+        "secure": getbool("secure", DEFAULTS["secure"]),
         "tags": next(csv.reader([getstr("tags", "")]))
     }
     DIR_DEFAULT = getstr("directory", DIR_DEFAULT)

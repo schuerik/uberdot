@@ -24,6 +24,7 @@ E.g. retrieving a environment variable or fixing file permisions."""
 
 
 import datetime
+import grp
 import importlib.util
 import logging
 import os
@@ -226,6 +227,15 @@ def get_username(uid):
         str: The username of the uid
     """
     return pwd.getpwuid(uid).pw_name
+
+
+def get_groupname(gid):
+    """Gets the groupname of a given gid.
+
+    Returns:
+        str: The groupname of the gid
+    """
+    return grp.getgrgid(gid).gr_name
 
 
 def get_user_env_var(varname, fallback=None):

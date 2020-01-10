@@ -1,5 +1,5 @@
 {
-    "@version": "1.12.9_3",
+    "@version": "1.12.17_4",
     "SuperProfileTags": {
         "name": "SuperProfileTags",
         "links": [
@@ -9,7 +9,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-08-02 15:01:42"
+                "date": "2019-08-02 15:01:42",
+                "secure": true
             }
         ],
         "installed": "2019-08-02 15:01:42",
@@ -24,7 +25,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-08-02 15:01:42"
+                "date": "2019-08-02 15:01:42",
+                "secure": true
             },
             {
                 "target": "test/regression/files/tag2%name3",
@@ -32,7 +34,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-08-02 15:01:42"
+                "date": "2019-08-02 15:01:42",
+                "secure": true
             },
             {
                 "target": "test/regression/files/name4",
@@ -40,7 +43,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-08-02 15:01:42"
+                "date": "2019-08-02 15:01:42",
+                "secure": true
             }
         ],
         "installed": "2019-08-02 15:01:42",
@@ -56,7 +60,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-08-02 15:46:46"
+                "date": "2019-08-02 15:46:46",
+                "secure": true
             },
             {
                 "target": "test/regression/files/tag3%name5",
@@ -64,7 +69,8 @@
                 "uid": 1000,
                 "gid": 985,
                 "permission": 644,
-                "date": "2019-08-02 15:46:46"
+                "date": "2019-08-02 15:46:46",
+                "secure": true
             }
         ],
         "installed": "2019-08-02 15:46:46",

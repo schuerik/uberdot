@@ -75,7 +75,9 @@ from uberdot.utils import find_files
 from uberdot.utils import get_date_time_now
 from uberdot.utils import get_dir_owner
 from uberdot.utils import get_gid
+from uberdot.utils import get_groupname
 from uberdot.utils import get_uid
+from uberdot.utils import get_username
 from uberdot.utils import is_dynamic_file
 from uberdot.utils import log_warning
 from uberdot.utils import normpath
@@ -253,7 +255,8 @@ class PrintInterpreter(Interpreter):
                 msg += "permission from " + str(dop["symlink1"]["permssion"])
                 msg += " to " + str(dop["symlink2"]["permssion"])
                 self._log_operation(dop, msg)
-            elif dop["symlink2"]["uid"] != dop["symlink1"]["uid"] or \
+            msg = dop["symlink1"]["name"] + " has changed "
+            if dop["symlink2"]["uid"] != dop["symlink1"]["uid"] or \
                     dop["symlink2"]["gid"] != dop["symlink1"]["gid"]:
                 user = pwd.getpwuid(dop["symlink1"]["uid"])[0]
                 group = grp.getgrgid(dop["symlink1"]["gid"])[0]
@@ -261,6 +264,13 @@ class PrintInterpreter(Interpreter):
                 user = pwd.getpwuid(dop["symlink2"]["uid"])
                 group = grp.getgrgid(dop["symlink2"]["gid"])
                 msg += " to " + user + ":" + group
+                self._log_operation(dop, msg)
+            msg = dop["symlink1"]["name"] + " has changed "
+            if dop["symlink2"]["secure"] != dop["symlink1"]["secure"]:
+                msg += "secure feature from "
+                msg += "enabled" if dop["symlink1"]["secure"] else "disabled"
+                msg += " to "
+                msg += "enabled" if dop["symlink2"]["secure"] else "disabled"
                 self._log_operation(dop, msg)
 
 
@@ -973,7 +983,8 @@ class ExecuteInterpreter(Interpreter):
                               dop["symlink"]["target"],
                               dop["symlink"]["uid"],
                               dop["symlink"]["gid"],
-                              dop["symlink"]["permission"])
+                              dop["symlink"]["permission"],
+                              dop["symlink"]["secure"])
         self.installed[dop["profile"]]["links"].append(dop["symlink"])
 
     def _op_remove_l(self, dop):
@@ -996,15 +1007,16 @@ class ExecuteInterpreter(Interpreter):
             dop (dict): The update-operation that will be executed
         """
         self.__remove_symlink(dop["symlink1"]["name"])
+        self.installed[dop["profile"]]["links"].remove(dop["symlink1"])
         self.__create_symlink(dop["symlink2"]["name"],
                               dop["symlink2"]["target"],
                               dop["symlink2"]["uid"],
                               dop["symlink2"]["gid"],
-                              dop["symlink2"]["permission"])
-        self.installed[dop["profile"]]["links"].remove(dop["symlink1"])
+                              dop["symlink2"]["permission"],
+                              dop["symlink2"]["secure"])
         self.installed[dop["profile"]]["links"].append(dop["symlink2"])
 
-    def __create_symlink(self, name, target, uid, gid, permission):
+    def __create_symlink(self, name, target, uid, gid, permission, secure):
         """Create a symlink in the filesystem.
 
         Args:
@@ -1014,6 +1026,7 @@ class ExecuteInterpreter(Interpreter):
             uid (int): The UID of the owner of the link
             gid (int): The GID of the owner of the link
             permission (int): The permissions of the target
+            secure (bool): Wether target should have same owner as name
         Raises:
             UnkownError: The link could not be created
         """
@@ -1034,6 +1047,11 @@ class ExecuteInterpreter(Interpreter):
             os.lchown(name, uid, gid)
             if permission != 644:
                 os.chmod(name, int(str(permission), 8))
+            # Set owner of target
+            if secure:
+                os.chown(target, uid, gid)
+            else:
+                os.chown(target, get_uid(), get_gid())
         except OSError as err:
             raise UnkownError(err, "An unkown error occured when trying to" +
                               " create the link '" + name + "'.")
@@ -1156,6 +1174,11 @@ class DetectRootInterpreter(Interpreter):
         if dop["symlink1"]["target"] != dop["symlink2"]["target"]:
             if not self._access(dop["symlink2"]["name"]):
                 self._root_detected(dop, "change target of", name)
+        if dop["symlink1"]["secure"] != dop["symlink2"]["secure"]:
+            if not self._access(dop["symlink2"]["name"]):
+                self._root_detected(dop,
+                                    "change owner of",
+                                    dop["symlink2"]["target"])
 
     @abstractmethod
     def _root_detected(self, dop, description, affected_file):

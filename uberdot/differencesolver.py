@@ -355,7 +355,9 @@ class DiffSolver():
                    normpath(symlink1["target"]) == normpath(symlink2["target"]) and \
                    symlink1["uid"] == symlink2["uid"] and \
                    symlink1["gid"] == symlink2["gid"] and \
-                   symlink1["permission"] == symlink2["permission"]
+                   symlink1["permission"] == symlink2["permission"] and\
+                   symlink1["secure"] == symlink2["secure"]
+
 
         profile_new = False
         profile_changed = False
@@ -420,7 +422,7 @@ class DiffSolver():
             add = True
             for installed_link in installed_links[:]:
                 if symlinks_similar(installed_link, new_link):
-                    # Update links that changed in only one or two properties
+                    # Update links that changed in only a few properties
                     profile_changed = True
                     self.difflog.update_link(installed_link, new_link,
                                              profile_name)
