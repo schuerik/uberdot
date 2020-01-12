@@ -33,256 +33,173 @@ from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import normpath
 
-VERSION = "1.12.17_4"
-"""Version numbers, seperated by underscore.
+# TODO: remove all old references on this module
+# TODO: doc
 
-First part is the version of uberdot. The second part (after the underscore)
-is the version of the installed-file schema. The latter will be used to
-determine compability of the uberdot with the installed-file."""
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            return cls._instances[cls]
 
+class Const(metaclass=Singleton):
+    def __init__(self, owd):
+        data_dir = os.path.join(
+            os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
+            "data"
+        )
+        installed = os.path.join(data_dir, "installed/%s.json")
+        searchpaths = [
+            "/etc/uberdot",
+            os.path.join(
+                get_user_env_var('XDG_CONFIG_HOME', normpath('~/.config')),
+                "uberdot"
+            ),
+            data_dir
+        ]
+        self.values = {
+            # name: (value, was_overwritten, configsection, type, manipulation function)
+            "cfg_files"       : ([],          False, None,        "list", None),
+            "cfg_search_paths": (searchpaths, False, None,        "list", None),
+            "col_bold"        : ('\033[1m',   False, None,        "str",  None),
+            "col_endc"        : ('\033[0m',   False, None,        "str",  None),
+            "col_fail"        : ('\033[91m',  False, None,        "str",  None),
+            "col_nobold"      : ('\033[22m',  False, None,        "str",  None),
+            "col_ok"          : ('\033[92m',  False, None,        "str",  None),
+            "col_warning"     : ('\033[93m',  False, None,        "str",  None),
+            "data_dir"        : (data_dir,    False, None,        "str",  None),
+            "installed_file"  : (installed,   False, None,        "str",  None),
+            "installed_backup": ("",          False, None,        "str",  None),
+            "mode"            : ("",          False, None,        "str",  None),
+            "owd"             : (owd,         False, None,        "str",  None),
+            "version"         : ("1.12.17_4", False, None,        "str",  None),
+            "dui"             : (False,       False, "Arguments", "bool", None),
+            "force"           : (False,       False, "Arguments", "bool", None),
+            "logfile"         : ("",          False, "Arguments", "path", None),
+            "logginglevel"    : ("INFO",      False, "Arguments", "str",  str.upper),
+            "makedirs"        : (False,       False, "Arguments", "bool", None),
+            "profiles"        : ([],          False, "Arguments", "list", None),
+            "save"            : ("default",   False, "Arguments", "str",  str.lower),
+            "skiproot"        : (False,       False, "Arguments", "bool", None),
+            "superforce"      : (False,       False, "Arguments", "bool", None),
+            "askroot"         : (True,        False, "Settings",  "bool", None),
+            "backup_extension": ("bak",       False, "Settings",  "str",  None),
+            "color"           : (True,        False, "Settings",  "bool", None),
+            "decrypt_pwd"     : (None,        False, "Settings",  "str",  None),
+            "hash_separator"  : ("#",         False, "Settings",  "str",  None),
+            "profile_files"   : ("",          False, "Settings",  "path", None),
+            "tag_separator"   : ("%",         False, "Settings",  "str",  None),
+            "target_files"    : ("",          False, "Settings",  "path", None),
+            "directory"       : ("$HOME",     False, "Defaults",  "path", None),
+            "extension"       : ("",          False, "Defaults",  "str",  None),
+            "name"            : ("",          False, "Defaults",  "str",  None),
+            "optional"        : (False,       False, "Defaults",  "bool", None),
+            "owner"           : ("",          False, "Defaults",  "str",  None),
+            "permission"      : (644,         False, "Defaults",  "int",  None),
+            "prefix"          : ("",          False, "Defaults",  "str",  None),
+            "replace"         : ("",          False, "Defaults",  "str",  None),
+            "replace_pattern" : ("",          False, "Defaults",  "str",  None),
+            "secure"          : (True,        False, "Defaults",  "bool", None),
+            "suffix"          : ("",          False, "Defaults",  "str",  None),
+            "tags"            : ([],          False, "Defaults",  "list", None),
+        }
+        self.defaults = dict(self.values)
 
-# Setting defaults/fallback values for all constants
-###############################################################################
+    def reset(self):
+        self.values = dict(self.defaults)
 
-# Arguments
-DUISTRATEGY = False
-"""True, if --dui should be set as default. Default is ``False``."""
-FORCE = False
-"""True, if --force should be set as default. Default is ``False``."""
-MAKEDIRS = False
-"""True, if uberdot shall create directories if they don't exist.
-Default is ``False``.
-"""
-SKIPROOT = False
-"""True, if all operations that requiere root permission will be omitted.
-Default is ``False``.
-"""
-SUPERFORCE = False
-"""True, if uberdot shall overwrite files that are blacklisted.
-Default is ``False``.
-"""
+    def set(self, name, value):
+        val_props = self.values[name]
+        value = val_props[4](value)
+        self.values[name] = value, True, val_props[2], val_props[3], val_props[4]
 
-# Settings
-ASKROOT = True
-"""True, if uberdot shall ask for root permission if needed. If False,
-uberdot will fail if root permission is needed. Default is ``True``.
-"""
-LOGGINGLEVEL = "info"
-"""The current logging level. Default is ``info``."""
-LOGFILE = ""
-"""The file that will be used as logfile. Empty if no logfile will be used.
-Needs to be normalized before usage. Default is ``""``.
-"""
-COLOR = True
-"""True, if output should be colored. Default is ``True``."""
-DECRYPT_PWD = None
-"""Contains the decryption password in plain text."""
-BACKUP_EXTENSION = "bak"
-"""The extension that will be used for backup files. Default is ``bak``."""
-TAG_SEPARATOR = "%"
-"""The symbol that is used as separator for tags in dotfile names."""
-HASH_SEPARATOR = "#"
-"""The symbol that is used as separator for hashes in dynamic file names."""
-PROFILE_FILES = ""
-"""The directory where the profile will be loaded from."""
-TARGET_FILES = ""
-"""The directory where the dotfiles are located."""
-DATA_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
-    "data"
-)
-"""The directory that stores installed-files, dynamic files and
-some static files."""
+    def get(self, name):
+        return self.values[name][0]
 
-# Internal values
-"""The path to the data directory."""
-INSTALLED_FILE = os.path.join(DATA_DIR, "installed/%s.json")
-"""The path to the installed-file that will be used for comparison."""
-INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
-"""The path to the file that will be used as backup of the installed-file."""
-DIR_DEFAULT = "$HOME"
-"""The default path that profiles start in."""
-DEFAULTS = {
-    "extension": "",
-    "name": "",
-    "optional": False,
-    "owner": "",
-    "permission": 644,
-    "prefix": "",
-    "replace": "",
-    "replace_pattern": "",
-    "secure": True,
-    "suffix": ""
-}
-"""Default values for command options."""
-OKGREEN = '\033[92m'
-"""Bash color code for green text."""
-WARNING = '\033[93m'
-"""Bash color code for yellow text."""
-FAIL = '\033[91m'
-"""Bash color code for red text."""
-ENDC = '\033[0m'
-"""Bash color code to stop formatation of text."""
-BOLD = '\033[1m'
-"""Bash color code for bold text."""
-UNDERLINE = '\033[4m'
-"""Bash color code for underlined text."""
-NOBOLD = '\033[22m'
-"""Bash color code to stop bold text."""
+    def vals(self):
+        return zip([item[2] for item in list(self.values.values())], list(self.values.keys()))
 
-
-# Loaders for config and installed-section
-###############################################################################
-
-# Search paths for config files
-CFG_FILES = []
-"""A list with all configuration files that will be used to set constants. All
-settings of all configuration files will be used. If a specific setting is set
-in more than one configuration file, the setting from the configuration file
-with higher index will be prefered.
-"""
-CONFIG_SEARCH_PATHS = [
-    "/etc/uberdot",
-    os.path.join(
-        get_user_env_var('XDG_CONFIG_HOME', normpath('~/.config')),
-        "uberdot"
-    ),
-    DATA_DIR
-]
-"""A list of paths that will be used to search for configuration files. """
-
-
-def loadconfig(config_file, installed_filename="default"):
-    """Loads constants from the config files.
-
-    This will load all configs from :const:`CFG_FILES` or ``config_file``
-    if provided. The name of the installed-file will be used to load
-    installed-file specific values.
-
-    Args:
-        config_file (str): Absolute path to the config file to use. If None,
-            the configs from :const:`CFG_FILES` will be loaded.
-        installed_filename (str): Name of the installed-file for that values
-            will be loaded
-    """
-    global OKGREEN, WARNING, FAIL, ENDC, BOLD, UNDERLINE, NOBOLD
-    global DUISTRATEGY, FORCE, LOGGINGLEVEL, MAKEDIRS, DECRYPT_PWD, SUPERFORCE
-    global SKIPROOT, DATA_DIR
-    global BACKUP_EXTENSION, PROFILE_FILES, TARGET_FILES, INSTALLED_FILE_BACKUP
-    global COLOR, INSTALLED_FILE, DEFAULTS, DIR_DEFAULT, LOGFILE, CFG_FILES
-    global ASKROOT, TAG_SEPARATOR, HASH_SEPARATOR
-
-    # Load config files
-    if config_file:
-        CFG_FILES = [config_file]
-    else:
-        CFG_FILES = find_files("uberdot.ini", CONFIG_SEARCH_PATHS)
-    config = configparser.ConfigParser()
-    try:
-        for cfg in CFG_FILES:
-            config.read(cfg)
-            # We need to normalize all paths here, relatively to
-            # the config file which it defined
-            path_keys = [
-                "directory", "profilefiles", "targetfiles",
-                "logfile", "datadir"
-            ]
-            for section in config.sections():
-                for item in config.items(section):
-                    key = item[0]
-                    if key in path_keys:
-                        config[section][key] = os.path.join(
-                            os.path.dirname(cfg), config[section][key]
-                        )
-                        config[section][key] = os.path.normpath(
-                            config[section][key]
-                        )
-    except configparser.Error as err:
-        msg = "Can't parse config at '" + cfg + "'. " + err.message
-        raise PreconditionError(msg)
-
-    # Setup special lookup function for getting values
-    def getvalue(getter, section):
-        """Creates function to lookup a specific value in a specific section
-        with a specific getter.
-
-        Args:
-            getter (function): getter function to perform a single lookup
-            section (str): The section that contains the key
-        Returns:
-            function: A function that can lookup keys in the config
-        """
-        def lookup(key, fallback=None):
-            """Looks up a value in a specific section for a specific type.
-
-            Args:
-                key (str): The name of the value that will be looked up
-                fallback: A fallback value
-            Returns:
-                The value of the key
-            """
-            installedfile_section = "Installed." + installed_filename
-            installedfile_section += "." + section
-            value = getter(section, key, fallback=fallback)
-            return getter(installedfile_section, key, fallback=value)
-        return lookup
-
-    # Get arguments
-    getstr = getvalue(config.get, "Arguments")
-    getbool = getvalue(config.getboolean, "Arguments")
-    DUISTRATEGY = getbool("dui", DUISTRATEGY)
-    FORCE = getbool("force", FORCE)
-    MAKEDIRS = getbool("makedirs", MAKEDIRS)
-    SKIPROOT = getbool("skiproot", SKIPROOT)
-    SUPERFORCE = getbool("superforce", SUPERFORCE)
-    LOGGINGLEVEL = getstr("logginglevel", LOGGINGLEVEL).upper()
-    LOGFILE = getstr("logfile", LOGFILE)
-
-    # Get settings
-    getstr = getvalue(config.get, "Settings")
-    getbool = getvalue(config.getboolean, "Settings")
-    ASKROOT = getbool("askroot", ASKROOT)
-    DECRYPT_PWD = getstr("decryptPwd", DECRYPT_PWD)
-    BACKUP_EXTENSION = getstr("backupExtension", BACKUP_EXTENSION)
-    TAG_SEPARATOR = getstr("tagSeparator", TAG_SEPARATOR)
-    HASH_SEPARATOR = getstr("hashSeparator", HASH_SEPARATOR)
-    PROFILE_FILES = getstr("profileFiles")
-    TARGET_FILES = getstr("targetFiles")
-    DATA_DIR = normpath(getstr("dataDir", DATA_DIR))
-    COLOR = getbool("color", COLOR)
-
-    # Setup internal values
-    INSTALLED_FILE = os.path.join(DATA_DIR, "installed/%s.json")
-    INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
-    if not COLOR:
-        OKGREEN = WARNING = FAIL = ENDC = BOLD = UNDERLINE = NOBOLD = ''
-
-    # Get command options
-    getstr = getvalue(config.get, "Defaults")
-    getbool = getvalue(config.getboolean, "Defaults")
-    getint = getvalue(config.getint, "Defaults")
-    DEFAULTS = {
-        "extension": getstr("extension", DEFAULTS["extension"]),
-        "name": getstr("name", DEFAULTS["name"]),
-        "optional": getbool("optional", DEFAULTS["optional"]),
-        "owner": getstr("owner", DEFAULTS["owner"]),
-        "permission": getint("permission", DEFAULTS["permission"]),
-        "prefix": getstr("prefix", DEFAULTS["prefix"]),
-        "replace": getstr("replace", DEFAULTS["replace"]),
-        "replace_pattern": getstr("replace_pattern",
-                                  DEFAULTS["replace_pattern"]),
-        "suffix": getstr("suffix", DEFAULTS["suffix"]),
-        "secure": getbool("secure", DEFAULTS["secure"]),
-        "tags": next(csv.reader([getstr("tags", "")]))
-    }
-    DIR_DEFAULT = getstr("directory", DIR_DEFAULT)
-
-    # Insert installed-file into constants
-    INSTALLED_FILE = INSTALLED_FILE % installed_filename
-    INSTALLED_FILE_BACKUP = INSTALLED_FILE_BACKUP % installed_filename
-
-    # Check if TARGET_FILES and PROFILE_FILES were set by the user
-    if not TARGET_FILES or TARGET_FILES == "</path/to/your/dotfiles/>":
-        raise UserError("No directory for your dotfiles specified.")
-    if not PROFILE_FILES or PROFILE_FILES == "</path/to/your/profiles/>":
-        raise UserError("No directory for your profiles specified.")
+    def load(self, args):
+        # Write arguments
+        for arg, value in vars(args).items():
+            name = arg
+            # Parse tags and set values for --options
+            if arg == "opt_dict":
+                if "tags" in arg:
+                    value["tags"] = next(csv.reader([value["tags"]]))
+                for key, val in value.items():
+                    self.set(key, val)
+                continue
+            # Relative paths need to be absolute
+            if arg in ["directory", "config", "log"]:
+                value = os.path.join(self.get(owd), value)
+            # Little fixes for arguments where the names don't match up
+            # with the configuration file argument
+            if arg == "log":
+                name = "logfile"
+            elif arg in ["verbose", "info", "quiet", "silent"]:
+                name = logginglevel
+                value = arg
+            elif arg == "config":
+                name = "cfg_files"
+                value = [value]
+            # Set argument
+            self.set(name, value)
+        # Update internal values
+        cfgs = find_files("uberdot.ini", self.get("cfg_search_paths"))
+        cfgs += self.get("cfg_files")
+        self.set("cfg_files", cfgs)
+        # Load config
+        config = configparser.ConfigParser()
+        try:
+            for cfg in cfgs:
+                config.read(cfg)
+                # We need to normalize all paths here, relatively to
+                # the config file which it defined
+                path_values = [
+                    "directory", "profilefiles", "targetfiles",
+                    "logfile"
+                ]
+                for section in config.sections():
+                    for name, value in config.items(section):
+                        if name in path_values:
+                            config[section][name] = os.path.normpath(
+                                os.path.join(os.path.dirname(cfg), value)
+                            )
+        except configparser.Error as err:
+            msg = "Can't parse config at '" + cfg + "'. " + err.message
+            raise PreconditionError(msg)
+        # Write all values from config
+        for name, props in self.values.items():
+            # Skip all values that are already overwritten by commandline
+            # or don't belong to any section in the config file
+            if props[1] or props[2] is None:
+                continue
+            # Set getter for config depending on value type
+            getter = config.get
+            if props[3] == "int":
+                getter = config.getint
+            elif props[3] == "bool":
+                getter = config.getboolean
+            # Get value from config. Prefer values from special installed section
+            section = "Installed." + self.get("save") + "." + props[2]
+            if config.has_section(section) and config.has_option(section, name):
+                value = getter(section, name)
+            elif config.has_section(props[2]) and config.has_option(props[2], name):
+                value = getter(section, props[2])
+            else:
+                # Value is not in config, skipping
+                continue
+            # Fix values depending on value type
+            if props[3] == "list":
+                value = next(csv.reader([value]))
+            self.set(name, value)
+        # Update internal values that depend on a loaded config
+        installed_file = self.get("installed_file") % self.get("save")
+        installed_backup = installed_file + "." + self.get("backup_extension")
+        self.set("installed_file", installed_file)
+        self.set("installed_backup", installed_backup)
+        # Make values easy accessible
+        for name, props in self.values.items():
+            self.__dict__[name] = props[0]

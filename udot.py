@@ -48,7 +48,7 @@ if os.getenv("COVERAGE_PROCESS_START"):
     import coverage
     coverage.process_startup()
 
-from uberdot import constants
+from uberdot.constants import Const
 from uberdot.interpreters import *
 from uberdot.errors import CustomError
 from uberdot.errors import FatalError
@@ -64,6 +64,8 @@ from uberdot.utils import log_success
 from uberdot.utils import log_warning
 from uberdot.utils import normpath
 
+
+const = None
 
 class UberDot:
     """Bundles all functionality of uberdot.
@@ -83,10 +85,8 @@ class UberDot:
         Initializes attributes and changes the working directory to the
         directory where this module is stored."""
         # Initialise fields
-        self.installed = {"@version": constants.VERSION}
-        self.args = None
+        self.installed = {"@version": const.version}
         # Change current working directory to the directory of this module
-        self.owd = os.getcwd()
         newdir = os.path.abspath(sys.modules[__name__].__file__)
         os.chdir(os.path.dirname(newdir))
 
@@ -99,12 +99,12 @@ class UberDot:
                 aren't version compatible.
         """
         try:
-            self.installed = json.load(open(constants.INSTALLED_FILE))
+            self.installed = json.load(open(const.installed_file))
         except FileNotFoundError:
             logger.debug("No installed profiles found.")
         # Check installed-file version
         if (int(self.installed["@version"].split("_")[1]) !=
-                int(constants.VERSION.split("_")[1])):
+                int(const.version.split("_")[1])):
             msg = "There was a change of the installed-file schema "
             msg += "with the last update. Please revert to version "
             msg += self.installed["@version"] + " and uninstall "
@@ -138,6 +138,8 @@ class UberDot:
         # Setup top level arguments
         parser.add_argument("--config",
                             help="specify another config-file to use")
+        parser.add_argument("--debuginfo",
+                            help="show loaded settings and internal values")
         group_log_level = parser.add_mutually_exclusive_group()
         group_log_level.add_argument("-v", "--verbose",
                             help="print debug messages and tracebacks",
@@ -167,6 +169,7 @@ class UberDot:
         parser_show.add_argument("-l", "--links",
                                  help="show installed links",
                                  action="store_true")
+        # TODO: profiles can not be there twice
         parser_show.add_argument("-p", "--profiles",
                                  help="show installed profiles",
                                  action="store_true")
@@ -239,58 +242,26 @@ class UberDot:
             description=help_text,
             help=help_text
         )
+        # TODO: finish parser
+        # TODO: add new args to const
 
         # Read arguments
         try:
-            self.args = parser.parse_args(arguments)
+            args = parser.parse_args(arguments)
         except argparse.ArgumentError as err:
             raise UserError(err.message)
 
-        # Options need some extra parsing for tags
-        if self.args.opt_dict and "tags" in self.args.opt_dict:
-            reader = csv.reader([self.args.opt_dict["tags"]])
-            self.args.opt_dict["tags"] = next(reader)
-        # And the directory was specified relative to the old working directory
-        if self.args.directory:
-            self.args.directory = os.path.join(self.owd, self.args.directory)
-        # Like the path to the config file
-        if self.args.config:
-            self.args.config = os.path.join(self.owd, self.args.config)
+        # Load args and configs into const
+        const.load(args)
 
-        # Load constants for this installed-file
-        constants.loadconfig(self.args.config, self.args.save)
-        # Write back defaults from config for arguments that weren't set
-        if not self.args.dui:
-            self.args.dui = constants.DUISTRATEGY
-        if not self.args.force:
-            self.args.force = constants.FORCE
-        if not self.args.makedirs:
-            self.args.makedirs = constants.MAKEDIRS
-        if not self.args.skiproot:
-            self.args.skiproot = constants.SKIPROOT
-        if not self.args.superforce:
-            self.args.superforce = constants.SUPERFORCE
-        if not self.args.directory:
-            self.args.directory = constants.DIR_DEFAULT
-        if not self.args.opt_dict:
-            self.args.opt_dict = constants.DEFAULTS
-        if not self.args.log and constants.LOGFILE:
-            self.args.log = normpath(constants.LOGFILE)
-        else:
-            # Merge options provided by commandline with loaded defaults
-            tmptags = self.args.opt_dict["tags"] + constants.DEFAULTS["tags"]
-            self.args.opt_dict = {**constants.DEFAULTS, **self.args.opt_dict}
-            self.args.opt_dict["tags"] = tmptags
+        if args.debuginfo:
+            # At this point everything is loaded, so we print debuginfo
+            # immediatly so no exception that might occurs later due to
+            # inproper configuration won't "shadow" this
+            self.print_debuginfo()
+            sys.exit(0)
 
         # Configure logger
-        if self.args.silent:
-            constants.LOGGINGLEVEL = "SILENT"
-        if self.args.quiet:
-            constants.LOGGINGLEVEL = "QUIET"
-        if self.args.info:
-            constants.LOGGINGLEVEL = "INFO"
-        if self.args.verbose:
-            constants.LOGGINGLEVEL = "VERBOSE"
         logging_level_mapping = {
             "SILENT": logging.CRITICAL,
             "QUIET": logging.WARNING,
@@ -298,40 +269,43 @@ class UberDot:
             "VERBOSE": logging.DEBUG
         }
         try:
-            logger.setLevel(logging_level_mapping[constants.LOGGINGLEVEL])
+            logger.setLevel(logging_level_mapping[const.logginglevel])
         except KeyError:
-            msg = "Unkown logginglevel '" + constants.LOGGINGLEVEL + "'"
+            msg = "Unkown logginglevel '" + const.logginglevel + "'"
             raise UserError(msg)
-        if self.args.log:
-            ch = logging.FileHandler(os.path.join(self.owd, self.args.log))
+        if const.logfile:
+            ch = logging.FileHandler(const.logfile)
             ch.setLevel(logging.DEBUG)
             formatter = logging.Formatter('[%(asctime)s] %(message)s')
             ch.setFormatter(formatter)
             logger.addHandler(ch)
 
         # Check if settings are bad
-        if constants.TARGET_FILES == constants.PROFILE_FILES:
+        if not const.target_files:
+            raise UserError("You need to set target_files in your config")
+        if not const.profile_files:
+            raise UserError("You need to set profile_files in your config")
+        if const.target_files == const.profile_files:
             msg = "The directories for your profiles and for your dotfiles "
             msg += "are the same."
             raise UserError(msg)
-
-        if not os.path.exists(constants.TARGET_FILES):
-            msg = "The directory for your dotfiles '" + constants.TARGET_FILES
+        if not os.path.exists(const.target_files):
+            msg = "The directory for your dotfiles '" + const.target_files
             msg += "' does not exist on this system."
             raise UserError(msg)
-
-        if not os.path.exists(constants.PROFILE_FILES):
-            msg = "The directory for your profiles '" + constants.PROFILE_FILES
+        if not os.path.exists(const.profile_files):
+            msg = "The directory for your profiles '" + const.profile_files
             msg += "' does not exist on this system."
             raise UserError(msg)
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
+        # TODO: remove the use of self.args
         if self.args.show:
             self.print_installed_profiles()
         elif self.args.version:
-            print(constants.BOLD + "Version: " + constants.ENDC +
-                  constants.VERSION)
+            print(const.col_bold + "Version: " + const.col_endc +
+                  const.version)
         elif self.args.debuginfo:
             self.print_debuginfo()
         else:
@@ -357,64 +331,14 @@ class UberDot:
         parsed commandline arguments and settings.
         """
 
-        def print_header(header):
-            """Prints out a headline.
-
-            Args:
-                header (str): The header that will be printed
-            """
-            print(constants.BOLD + header + ":" + constants.ENDC)
-
-        def print_value(name, val):
-            """Prints out a value.
-
-            Args:
-                name (str): The name of the value that will be printed
-                val (str): The value that will be printed
-            """
+        old_section = ""
+        for section, name in const.vals():
+            if section is None:
+                section = "Internal"
+            if old_section != section:
+                print(const.col_bold + header + ":" + const.col_endc)
+                old_section = section
             print(str("   " + name + ": ").ljust(32) + str(val))
-
-        print_header("Config search paths")
-        for cfg in constants.CONFIG_SEARCH_PATHS:
-            print("   " + cfg)
-        print_header("Loaded configs")
-        for cfg in constants.CFG_FILES:
-            print("   " + cfg)
-        print_header("Arguments")
-        print_value("DUISTRATEGY", self.args.dui)
-        print_value("FORCE", self.args.force)
-        print_value("LOGFILE", self.args.log)
-        print_value("LOGGINGLEVEL", constants.LOGGINGLEVEL)
-        print_value("MAKEDIRS", self.args.makedirs)
-        print_value("SKIPROOT", self.args.skiproot)
-        print_value("SUPERFORCE", self.args.superforce)
-        print_header("Settings")
-        print_value("ASKROOT", constants.ASKROOT)
-        print_value("BACKUP_EXTENSION", constants.BACKUP_EXTENSION)
-        print_value("COLOR", constants.COLOR)
-        print_value("DATA_DIR", constants.DATA_DIR)
-        print_value("DECRYPT_PWD", constants.DECRYPT_PWD)
-        print_value("HASH_SEPARATOR", constants.HASH_SEPARATOR)
-        print_value("PROFILE_FILES", constants.PROFILE_FILES)
-        print_value("TAG_SEPARATOR", constants.TAG_SEPARATOR)
-        print_value("TARGET_FILES", constants.TARGET_FILES)
-        print_header("Command options")
-        print_value("DEFAULTS['directory']", self.args.directory)
-        print_value("DEFAULTS['extension']", self.args.opt_dict["extension"])
-        print_value("DEFAULTS['name']", self.args.opt_dict["name"])
-        print_value("DEFAULTS['optional']", self.args.opt_dict["optional"])
-        print_value("DEFAULTS['owner']", self.args.opt_dict["owner"])
-        print_value("DEFAULTS['permission']", self.args.opt_dict["permission"])
-        print_value("DEFAULTS['prefix']", self.args.opt_dict["prefix"])
-        print_value("DEFAULTS['replace']", self.args.opt_dict["replace"])
-        print_value("DEFAULTS['replace_pattern']",
-                    self.args.opt_dict["replace_pattern"])
-        print_value("DEFAULTS['secure']", self.args.opt_dict["secure"])
-        print_value("DEFAULTS['suffix']", self.args.opt_dict["suffix"])
-        print_value("DEFAULTS['tags']", self.args.opt_dict["tags"])
-        print_header("Internal values")
-        print_value("INSTALLED_FILE", constants.INSTALLED_FILE)
-        print_value("INSTALLED_FILE_BACKUP", constants.INSTALLED_FILE_BACKUP)
 
     def print_installed_profiles(self):
         """Print out the installed-file in a readable format.
@@ -439,7 +363,7 @@ class UberDot:
         Args:
             profile (dict): The profile that will be printed
         """
-        print(constants.BOLD + profile["name"] + ":" + constants.ENDC)
+        print(const.col_bold + profile["name"] + ":" + const.col_endc)
         print("  Installed: " + profile["installed"])
         print("  Updated: " + profile["updated"])
         if "parent" in profile:
@@ -496,15 +420,15 @@ class UberDot:
         try:
             # Create Backup in case something wents wrong,
             # so the user can fix the mess we caused
-            if os.path.isfile(constants.INSTALLED_FILE):
-                shutil.copyfile(constants.INSTALLED_FILE,
-                                constants.INSTALLED_FILE_BACKUP)
+            if os.path.isfile(const.installed_file):
+                shutil.copyfile(const.installed_file,
+                                const.installed_backup)
             # Execute all operations of the difflog and print them
             difflog.run_interpreter(ExecuteInterpreter(self.installed, self.args.force),
                                     PrintInterpreter())
             # Remove Backup
-            if os.path.isfile(constants.INSTALLED_FILE_BACKUP):
-                os.remove(constants.INSTALLED_FILE_BACKUP)
+            if os.path.isfile(const.installed_backup):
+                os.remove(const.installed_backup)
         except CustomError:
             raise
         except Exception as err:
@@ -567,7 +491,7 @@ class CustomParser(argparse.ArgumentParser):
 
     def __init__(self, **kwargs):
         if "help" in kwargs:
-            print(kwargs["help"])
+            # print(kwargs["help"])
             kwargs["description"] = kwargs["help"]
         super().__init__(**kwargs)
 
@@ -589,7 +513,9 @@ def run_script(name):
             logger.error(err.message)
         sys.exit(err.EXITCODE)
 
+    global const
     if name == "__main__":
+        const = Const(os.getcwd())
         # Init the logger, further configuration is done when we parse the
         # commandline arguments
         logger = logging.getLogger("root")
@@ -607,10 +533,10 @@ def run_script(name):
         except CustomError as err:
             handle_customerror()
         # Add the users profiles to the python path
-        sys.path.append(constants.PROFILE_FILES)
+        sys.path.append(const.profile_files)
         # Start everything in an exception handler
         try:
-            if os.path.isfile(constants.INSTALLED_FILE_BACKUP):
+            if os.path.isfile(const.installed_backup):
                 m = "I found a backup of your installed-file. It's most likely"
                 m += " that the last execution of this tool failed. If you "
                 m += "are certain that your installed-file is correct you can"
@@ -630,10 +556,10 @@ def run_script(name):
         finally:
             # Write installed-file back to json file
             try:
-                with open(constants.INSTALLED_FILE, "w") as file:
+                with open(const.installed_file, "w") as file:
                     file.write(json.dumps(uber.installed, indent=4))
                     file.flush()
-                os.chown(constants.INSTALLED_FILE, get_uid(), get_gid())
+                os.chown(const.installed_file, get_uid(), get_gid())
             except Exception as err:
                 unkw = UnkownError(err, "An unkown error occured when trying to " +
                                    "write all changes back to the installed-file")
