@@ -33,7 +33,6 @@ from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import normpath
 
-# TODO: remove all old references on this module
 # TODO: doc
 
 class Singleton(type):
@@ -58,51 +57,59 @@ class Const(metaclass=Singleton):
             ),
             data_dir
         ]
+        f = False  # I just want to get some space in the datastructure below
         self.values = {
             # name: (value, was_overwritten, configsection, type, manipulation function)
-            "cfg_files"       : ([],          False, None,        "list", None),
-            "cfg_search_paths": (searchpaths, False, None,        "list", None),
-            "col_bold"        : ('\033[1m',   False, None,        "str",  None),
-            "col_endc"        : ('\033[0m',   False, None,        "str",  None),
-            "col_fail"        : ('\033[91m',  False, None,        "str",  None),
-            "col_nobold"      : ('\033[22m',  False, None,        "str",  None),
-            "col_ok"          : ('\033[92m',  False, None,        "str",  None),
-            "col_warning"     : ('\033[93m',  False, None,        "str",  None),
-            "data_dir"        : (data_dir,    False, None,        "str",  None),
-            "installed_file"  : (installed,   False, None,        "str",  None),
-            "installed_backup": ("",          False, None,        "str",  None),
-            "mode"            : ("",          False, None,        "str",  None),
-            "owd"             : (owd,         False, None,        "str",  None),
-            "version"         : ("1.12.17_4", False, None,        "str",  None),
-            "dui"             : (False,       False, "Arguments", "bool", None),
-            "force"           : (False,       False, "Arguments", "bool", None),
-            "logfile"         : ("",          False, "Arguments", "path", None),
-            "logginglevel"    : ("INFO",      False, "Arguments", "str",  str.upper),
-            "makedirs"        : (False,       False, "Arguments", "bool", None),
-            "profiles"        : ([],          False, "Arguments", "list", None),
-            "save"            : ("default",   False, "Arguments", "str",  str.lower),
-            "skiproot"        : (False,       False, "Arguments", "bool", None),
-            "superforce"      : (False,       False, "Arguments", "bool", None),
-            "askroot"         : (True,        False, "Settings",  "bool", None),
-            "backup_extension": ("bak",       False, "Settings",  "str",  None),
-            "color"           : (True,        False, "Settings",  "bool", None),
-            "decrypt_pwd"     : (None,        False, "Settings",  "str",  None),
-            "hash_separator"  : ("#",         False, "Settings",  "str",  None),
-            "profile_files"   : ("",          False, "Settings",  "path", None),
-            "tag_separator"   : ("%",         False, "Settings",  "str",  None),
-            "target_files"    : ("",          False, "Settings",  "path", None),
-            "directory"       : ("$HOME",     False, "Defaults",  "path", None),
-            "extension"       : ("",          False, "Defaults",  "str",  None),
-            "name"            : ("",          False, "Defaults",  "str",  None),
-            "optional"        : (False,       False, "Defaults",  "bool", None),
-            "owner"           : ("",          False, "Defaults",  "str",  None),
-            "permission"      : (644,         False, "Defaults",  "int",  None),
-            "prefix"          : ("",          False, "Defaults",  "str",  None),
-            "replace"         : ("",          False, "Defaults",  "str",  None),
-            "replace_pattern" : ("",          False, "Defaults",  "str",  None),
-            "secure"          : (True,        False, "Defaults",  "bool", None),
-            "suffix"          : ("",          False, "Defaults",  "str",  None),
-            "tags"            : ([],          False, "Defaults",  "list", None),
+            "cfg_files"       : ([],                     f, None,        "list", None),
+            "cfg_search_paths": (searchpaths,            f, None,        "list", None),
+            "col_bold"        : ('\033[1m',              f, None,        "str",  None),
+            "col_endc"        : ('\033[0m',              f, None,        "str",  None),
+            "col_fail"        : ('\033[91m',             f, None,        "str",  None),
+            "col_nobold"      : ('\033[22m',             f, None,        "str",  None),
+            "col_ok"          : ('\033[92m',             f, None,        "str",  None),
+            "col_warning"     : ('\033[93m',             f, None,        "str",  None),
+            "installed_file"  : (installed,              f, None,        "str",  None),
+            "installed_backup": ("",                     f, None,        "str",  None),
+            "mode"            : ("",                     f, None,        "str",  None),
+            "owd"             : (owd,                    f, None,        "str",  None),
+            "version"         : ("1.12.17_4",            f, None,        "str",  None),
+            "dui"             : (False,                  f, "Arguments", "bool", None),
+            "force"           : (False,                  f, "Arguments", "bool", None),
+            "logfile"         : ("",                     f, "Arguments", "path", None),
+            "logginglevel"    : ("INFO",                 f, "Arguments", "str",  str.upper),
+            "makedirs"        : (False,                  f, "Arguments", "bool", None),
+            "profiles"        : ([],                     f, "Arguments", "list", None),
+            "save"            : ("default",              f, "Arguments", "str",  str.lower),
+            "skiproot"        : (False,                  f, "Arguments", "bool", None),
+            "skipevents"      : (False,                  f, "Arguments", "bool", None),
+            "skipafter"       : (False,                  f, "Arguments", "bool", None),
+            "skipbefore"      : (False,                  f, "Arguments", "bool", None),
+            "superforce"      : (False,                  f, "Arguments", "bool", None),
+            "askroot"         : (True,                   f, "Settings",  "bool", None),
+            "backup_extension": ("bak",                  f, "Settings",  "str",  None),
+            "color"           : (True,                   f, "Settings",  "bool", None),
+            "data_dir"        : (data_dir,               f, "Settings",  "str",  None),
+            "decrypt_pwd"     : (None,                   f, "Settings",  "str",  None),
+            "hash_separator"  : ("#",                    f, "Settings",  "str",  None),
+            "profile_files"   : ("",                     f, "Settings",  "path", None),
+            "shell"           : ("/bin/bash",            f, "Settings",  "path", None),
+            "shell_args"      : ("-e -O expand_aliases", f, "Settings",  "str",  None),
+            "shell_timeout"   : (60,                     f, "Settings",  "int",  None),
+            "smart_cd"        : (True,                   f, "Settings",  "bool", None),
+            "tag_separator"   : ("%",                    f, "Settings",  "str",  None),
+            "target_files"    : ("",                     f, "Settings",  "path", None),
+            "directory"       : ("$HOME",                f, "Defaults",  "path", None),
+            "extension"       : ("",                     f, "Defaults",  "str",  None),
+            "name"            : ("",                     f, "Defaults",  "str",  None),
+            "optional"        : (False,                  f, "Defaults",  "bool", None),
+            "owner"           : ("",                     f, "Defaults",  "str",  None),
+            "permission"      : (644,                    f, "Defaults",  "int",  None),
+            "prefix"          : ("",                     f, "Defaults",  "str",  None),
+            "replace"         : ("",                     f, "Defaults",  "str",  None),
+            "replace_pattern" : ("",                     f, "Defaults",  "str",  None),
+            "secure"          : (True,                   f, "Defaults",  "bool", None),
+            "suffix"          : ("",                     f, "Defaults",  "str",  None),
+            "tags"            : ([],                     f, "Defaults",  "list", None),
         }
         self.defaults = dict(self.values)
 
@@ -133,13 +140,13 @@ class Const(metaclass=Singleton):
                 continue
             # Relative paths need to be absolute
             if arg in ["directory", "config", "log"]:
-                value = os.path.join(self.get(owd), value)
+                value = os.path.join(self.get("owd"), value)
             # Little fixes for arguments where the names don't match up
             # with the configuration file argument
             if arg == "log":
                 name = "logfile"
             elif arg in ["verbose", "info", "quiet", "silent"]:
-                name = logginglevel
+                name = "logginglevel"
                 value = arg
             elif arg == "config":
                 name = "cfg_files"

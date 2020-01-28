@@ -35,7 +35,6 @@ be linked instead and makes sure that user-made changes are preserved.
 ###############################################################################
 
 
-import hashlib
 import logging
 import os
 from abc import abstractmethod
@@ -43,7 +42,10 @@ from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
 from uberdot import constants
+from uberdot.utils import md5
 from uberdot.utils import normpath
+from uberdot.utils import log
+from uberdot.utils import log_debug
 
 
 logger = logging.getLogger("root")
@@ -87,7 +89,6 @@ class DynamicFile:
         Returns:
             bytearray: The raw generated content
         """
-        pass
 
     def add_source(self, target):
         """Adds a source path and normalizes it.
@@ -102,10 +103,11 @@ class DynamicFile:
         if it is not in its subdir yet."""
         # Generate file and calc checksum
         file_bytes = self._generate_file()
-        self.md5sum = hashlib.md5(file_bytes).hexdigest()
+        self.md5sum = md5(file_bytes)
         # If this version of the file (with same checksum) doesn't exist,
         # write it to the correct location
         if not os.path.isfile(self.getpath()):
+            log_debug("Writing dynamic file '" + self.getpath() + "'.")
             file = open(self.getpath(), "wb")
             file.write(file_bytes)
             file.flush()
@@ -131,8 +133,10 @@ class DynamicFile:
             str: The path to the directory
         """
         path = normpath(os.path.join(constants.DATA_DIR, self.SUBDIR))
+        # Create dir if it doesn't exist
         if not os.path.isdir(path):
-            os.mkdir(path)  # Create dir if it doesn't exist
+            log_debug("Creating directory '" + path + "'")
+            os.mkdir(path)
         return path
 
 
@@ -156,12 +160,17 @@ class EncryptedFile(DynamicFile):
         tmp = os.path.join(self.getdir(), self.name)
         # Set arguments for OpenPGP
         args = ["gpg", "-q", "-d", "--yes"]
+        strargs = " ".join(args)
         if constants.DECRYPT_PWD:
             args += ["--batch", "--passphrase", constants.DECRYPT_PWD]
+            strargs += " " + " ".join(args[-3:-1]) + " "
+            strargs += "*" * len(constants.DECRYPT_PWD)
         else:
-            logger.info("Tipp: You can set a password in uberdots " +
-                        "config that will be used for all encrypted files.")
+            log("Tipp: You can set a password in uberdots " +
+                "config that will be used for all encrypted files.")
         args += ["-o", tmp, encryped_file]
+        strargs += " " + " ".join(args[-3:])
+        log_debug("Invoking OpenPGP with '" + strargs + "'")
         # Use OpenPGP to decrypt the file
         process = Popen(args, stdin=PIPE)
         process.communicate()

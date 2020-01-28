@@ -19,15 +19,13 @@ before_install:
 install:
     - pip3 install autodoc m2r sphinx==1.8.3 # jinja pygit2
 
-# Exec tests
+# Main build phase
 script:
+  # Exec tests
   - ./test/regression/test.py
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./test/version/test.sh; fi'
-
-# Generate documentation
-after_success:
+  # Generate documentation
   - make -C docs/sphinx html man
-
 
 # Deployments
 jobs:

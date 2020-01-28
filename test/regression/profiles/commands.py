@@ -78,6 +78,57 @@ class Subprofile4(Profile):
     def generate(self):
         links("name[56]")
 
+class SuperProfileEvent(Profile):
+    prepare_script = """
+        alias s='echo "Hello" >> '
+        function t(){
+            echo "$2" >> $1
+        }
+    """
+    beforeInstall = """
+        t test.file "I come first"
+    """
+    def generate(self):
+        link("name1")
+        subprof("SubprofileEvent")
+
+class FailProfileEvent(Profile):
+    foo = "syntax error"
+    beforeInstall = "exit 1"
+    def afterInstall(self):
+        return self.foo
+    def generate(self):
+        link("name1")
+
+class ConflictProfileEvent(Profile):
+    beforeInstall = "touch name1"
+    def generate(self):
+        link("name1")
+
+class TimeoutProfileEvent(Profile):
+    beforeInstall = "sleep 2"
+    def generate(self):
+        link("name1")
+
+class SubprofileEvent(Profile):
+    beforeInstall = """
+        # Just a comment
+        s test.file
+    """
+    beforeUpdate = "t test.file update"
+    beforeUninstall = "rm test.file"
+    afterInstall = "cp name2 name4"
+    afterUpdate = "t test.file $(cat name4)"
+    afterUninstall = """
+        if [[ -e name2 ]]; then
+            exit 1;
+        else
+            rm name4;
+        fi
+    """
+    def generate(self):
+        links("name[23]")
+
 class ExteranalLink(Profile):
     def generate(self):
         extlink("untouched.file", name="test1")

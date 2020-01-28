@@ -20,3 +20,5 @@ data/installed/*
 !data/merged/.gitkeep
 **/data/piped/*
 !data/piped/.gitkeep
+**/data/scripts/*
+!data/scripts/.gitkeep
