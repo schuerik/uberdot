@@ -34,7 +34,9 @@ from subprocess import Popen
 LINEWDTH = get_terminal_size().columns  # Width of a line
 DIRNAME = os.path.dirname(os.path.abspath(sys.modules[__name__].__file__))
 # Global used to store success of all tests
-global_result = True
+global_fails = 0
+# Global to count all tests
+test_nr = 0
 
 
 def dircheck(environ, dir_tree):
@@ -97,7 +99,9 @@ def dircheck(environ, dir_tree):
                 # File content
                 md5 = hashlib.md5(open(file_path, "rb").read()).hexdigest()
                 if "content" in file_props and md5 != file_props["content"]:
-                    raise ValueError((False, file_path + " has wrong content"))
+                    msg = file_path + " has wrong content:\n"
+                    msg += open(file_path, "rb").read().decode()
+                    raise ValueError((False, msg))
                 file_list.remove(file_path)
         # Links
         if "links" in dir_props:
@@ -123,14 +127,16 @@ def dircheck(environ, dir_tree):
                 # Link target content
                 md5 = hashlib.md5(open(target_path, "rb").read()).hexdigest()
                 if "content" in link_props and md5 != link_props["content"]:
-                    raise ValueError((False, link_path + " has wrong content"))
+                    msg = link_path + " has wrong content:\n"
+                    msg += open(target_path, "rb").read().decode()
+                    raise ValueError((False, msg))
                 file_list.remove(link_path)
 
     # Check if there are files left, that wasn't described by the dir_tree
     if file_list:
         msg = "Test created unexpected files:\n"
         for file in file_list:
-            msg += "  " +  file + "\n"
+            msg += "  " + file + "\n"
         raise ValueError((False, msg))
 
 # Test classes
@@ -140,12 +146,24 @@ class RegressionTest():
     """This is the abstract base class for all regression tests.
     It provides simple start and check functionality"""
     def __init__(self, name, cmd_args, save="default"):
+        global test_nr
+        self.nr = str(test_nr).rjust(2, "0")
+        test_nr += 1
+        if len(sys.argv) > 1 and self.nr not in sys.argv[1:]:
+            # if specific test was set by commandline and this is
+            # not the correct test, do nothing
+            self.success = self.dummy
+            self.fail = self.dummy
+        verbose = ["-v"] if len(sys.argv) > 1 else []
         self.name = name
         self.cmd_args = ["python3", "../../udot.py",
                          "--config", "regressiontest.ini",
-                         "--save", save] + cmd_args
+                         "--save", save] + verbose + cmd_args
         self.save = save
         self.environ = os.path.join(DIRNAME, "environment-" + self.save)
+
+    def dummy(self, *args):
+        """Do nothing"""
 
     def start(self):
         """Starts the test and runs all checks"""
@@ -163,9 +181,11 @@ class RegressionTest():
     def run(self):
         """Runs the test. In this standart implementation a test is considered
         successful if uberdot terminates with exitcode 0."""
-        process = Popen(self.cmd_args, stderr=PIPE)
-        _, error_msg = process.communicate()
+        process = Popen(self.cmd_args, stdout=PIPE, stderr=PIPE)
+        output, error_msg = process.communicate()
         exitcode = process.returncode
+        if len(sys.argv) > 1:
+            print(output.decode(), end="")
         return not exitcode, exitcode, error_msg
 
     def cleanup(self):
@@ -180,7 +200,7 @@ class RegressionTest():
             print(error_msg)
             raise ValueError("git-checkout failed")
         process = Popen(["git", "clean", "-fdq", "--", self.environ,
-                         DIRNAME + "/installed"], stderr=PIPE)
+                         DIRNAME + "/data/installed"], stderr=PIPE)
         _, error_msg = process.communicate()
         if process.returncode:  # Exitcode is > 0, so git failed
             print(error_msg)
@@ -198,43 +218,43 @@ class RegressionTest():
 
     def success(self):
         """Execute this test. Expect it to be successful"""
-        global global_result
+        global global_fails
         self.cleanup()
         now = time.time()
         result = self.start()
         runtime = str(int((time.time()-now)*1000)) + "ms"
         print(LINEWDTH*"-")
-        print("\033[1m" + self.name + ":", end="")
+        print("\033[1m[" + self.nr + "] " + self.name + ":", end="")
         if result["success"]:
             print('\033[92m' + " Ok" + '\033[0m', end="")
-            print(runtime.rjust(LINEWDTH-len(self.name)-4))
+            print(runtime.rjust(LINEWDTH-len(self.name)-7-len(self.nr)))
         else:
             print('\033[91m\033[1m' + " FAILED" + '\033[0m'
                   + " in " + result["phase"], end="")
             print(runtime.rjust(
-                LINEWDTH-len(self.name)-len(result["phase"])-12
+                LINEWDTH-len(self.name)-len(result["phase"])-15-len(self.nr)
             ))
             print("\033[1mCause: \033[0m" + str(result["cause"]))
             if "msg" in result:
                 print("\033[1mError Message:\033[0m")
                 print(result["msg"].decode("utf-8"))
-        global_result = global_result and result["success"]
+        global_fails += int(not result["success"])
         self.cleanup()
         return result["success"]
 
     def fail(self, phase, cause):
         """Execute this test. Expect a certain error"""
-        global global_result
+        global global_fails
         self.cleanup()
         now = time.time()
         result = self.start()
         runtime = str(int((time.time()-now)*1000)) + "ms"
         print(LINEWDTH*"-")
-        print("\033[1m" + self.name + ":", end="")
+        print("\033[1m[" + self.nr + "] " + self.name + ":", end="")
         if not result["success"]:
             if result["cause"] != cause:
                 print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
-                print(runtime.rjust(LINEWDTH-len(self.name)-8))
+                print(runtime.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
                 print("\033[1mExpected error: \033[0m" + str(cause))
                 print("\033[1mActual error: \033[0m" + str(result["cause"]))
                 if "msg" in result:
@@ -242,14 +262,15 @@ class RegressionTest():
                     print(result["msg"].decode("utf-8"))
             else:
                 print('\033[92m' + " Ok" + '\033[0m', end="")
-                print(runtime.rjust(LINEWDTH-len(self.name)-4))
+                print(runtime.rjust(LINEWDTH-len(self.name)-7-len(self.nr)))
         else:
             print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
-            print(runtime.rjust(LINEWDTH-len(self.name)-8))
+            print(runtime.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
             print("\033[93m\033[1mExpected error in " + phase + " did not" +
                   " occur!\033[0m")
             print("\033[1mExpected error:\033[0m " + str(cause))
-        global_result = global_result and not result["success"] and result["cause"] == cause
+        if result["success"] or result["cause"] != cause:
+            global_fails += 1
         self.cleanup()
         return not result["success"]
 
@@ -569,6 +590,141 @@ after_nesteddynamic = {
                 "target": "data/piped/merge2#0281651775d0a19e648acf333cabac2f",
                 "content": "0281651775d0a19e648acf333cabac2f"
             }
+        ],
+    }
+}
+
+after_event = {
+    ".": {
+        "files": [
+            {"name": "untouched.file"},
+            {
+                "name": "test.file",
+                "content": "456dc30f21eb07c88257f4aabb0d946f"
+            },
+            {
+                "name": "name4",
+                "content": "26ab0db90d72e28ad0ba1e22ee510510"
+            },
+        ],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1",
+            },
+            {
+                "name": "name2",
+                "target": "files/name2",
+            },
+            {
+                "name": "name3",
+                "target": "files/name3",
+            }
+        ],
+    }
+}
+
+after_event_update = {
+    ".": {
+        "files": [
+            {"name": "untouched.file"},
+            {
+                "name": "test.file",
+                "content": "d798c3f454568f2eb88073ae85c3aa8d"
+            }
+        ],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1",
+            },
+            {
+                "name": "name2",
+                "target": "files/name2",
+            },
+            {
+                "name": "name3",
+                "target": "files/name3",
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+                "content": "48a24b70a0b376535542b996af517398"
+            }
+        ],
+    }
+}
+
+after_event_no_before = {
+    ".": {
+        "files": [
+            {"name": "untouched.file"},
+            {
+                "name": "name4",
+                "content": "26ab0db90d72e28ad0ba1e22ee510510"
+            },
+        ],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1",
+            },
+            {
+                "name": "name2",
+                "target": "files/name2",
+            },
+            {
+                "name": "name3",
+                "target": "files/name3",
+            }
+        ],
+    }
+}
+
+after_event_no_after = {
+    ".": {
+        "files": [
+            {"name": "untouched.file"},
+            {
+                "name": "test.file",
+                "content": "ceadf84074351d4a23c89ab94832995d"
+            },
+        ],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1",
+            },
+            {
+                "name": "name2",
+                "target": "files/name2",
+            },
+            {
+                "name": "name3",
+                "target": "files/name3",
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+                "content": "48a24b70a0b376535542b996af517398"
+            },
+        ],
+    }
+}
+
+after_event_no_event = {
+    ".": {
+        "files": [
+            {"name": "untouched.file"},
+            {
+                "name": "test.file",
+                "content": "456dc30f21eb07c88257f4aabb0d946f"
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+                "content": "26ab0db90d72e28ad0ba1e22ee510510"
+            },
         ],
     }
 }
@@ -950,6 +1106,36 @@ DirRegressionTest("Conflict: Same link created twice",
 DirRegressionTest("Conflict: Link has multiple targets",
                   ["-i", "MultipleTargetsConflict"],
                   before, before).fail("run", 102)
+DirRegressionTest("Event: On Install",
+                  ["-i", "SuperProfileEvent"],
+                  before, after_event).success()
+DirRegressionTest("Event: On Update",
+                  ["-if", "SuperProfileEvent"],
+                  after_event, after_event_update, "event").success()
+DirRegressionTest("Event: On Uninstall",
+                  ["-u", "SuperProfileEvent"],
+                  after_event, before, "event").success()
+DirRegressionTest("Event: --skipbefore",
+                  ["-i", "--skipbefore", "SuperProfileEvent"],
+                  before, after_event_no_before).success()
+DirRegressionTest("Event: --skipafter",
+                  ["-if", "--skipafter", "SuperProfileEvent"],
+                  after_event, after_event_no_after, "event").success()
+DirRegressionTest("Event: --skipevents",
+                  ["-u", "--skipevents", "SuperProfileEvent"],
+                  after_event, after_event_no_event, "event").success()
+DirRegressionTest("Event: Conflicts with linking",
+                  ["-i", "ConflictProfileEvent"],
+                  before, before).fail("run", 103)
+DirRegressionTest("Event: Fail on purpose",
+                  ["-i", "FailProfileEvent"],
+                  before, before).fail("run", 107)
+DirRegressionTest("Event: Fail on error",
+                  ["-i", "--skipbefore", "FailProfileEvent"],
+                  before, after_ignorefiles).fail("run", 107)
+DirRegressionTest("Event: Fail on timeout",
+                  ["-i", "TimeoutProfileEvent"],
+                  before, before).fail("run", 107)
 DirRegressionTest("Update: Simple",
                   ["-i", "DirOption"],
                   after_diroptions, after_updatediroptions, "update").success()
@@ -992,12 +1178,15 @@ DirRegressionTest("Fail: Link moved between profiles",
 
 # Overall result
 print(LINEWDTH*"=")
-print("\033[1mTests " + ("\033[92msuccessful" if global_result else "\033[91mFAILED") + '\033[0m')
+if global_fails:
+    print(str(global_fails) + " \033[1mTests \033[91mFAILED\033[0m")
+else:
+    print("\033[1mTests \033[92msuccessful\033[0m")
 
 
 # Exit
 os.chdir(owd)
-sys.exit(not global_result)
+sys.exit(global_fails)
 
 
 

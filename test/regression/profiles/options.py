@@ -29,7 +29,7 @@ class PrefixSuffixExtensionOption(Profile):
         link("name2", suffix="bla")
         link("name5", "name11.file", extension="png")
         link("name6")
-        # Prefix and suffix should usually not be used like this but this is
+        # Prefix and suffix usually should not be used like this but thats
         # the expected behaviour
         link("name3", prefix="subdir/")
         link("name4", suffix="/test")

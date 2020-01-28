@@ -65,7 +65,7 @@ class CustomError(Exception):
 
     @property
     def message(self):
-        msg = constants.FAIL + constants.BOLD + "ERROR: " + constants.NOBOLD
+        msg = constants.C_FAIL + constants.BOLD + "ERROR: " + constants.NOBOLD
         msg += self._message + constants.ENDC
         return msg
 
@@ -85,11 +85,11 @@ class FatalError(CustomError):
             message (str): The error message
         """
         msg = message
-        msg += "\n" + constants.WARNING + "That error should have "
+        msg += "\n" + constants.C_WARNING + "This error should "
         msg += constants.BOLD + "NEVER EVER" + constants.NOBOLD + " "
         msg += "occur!! The developer fucked this up really hard! Please "
         msg += "make sure to resolve this issue before using this "
-        msg += "tool at all!" + constants.ENDC
+        msg += "tool again!" + constants.ENDC
         super().__init__(msg)
 
 
@@ -181,7 +181,9 @@ class UnkownError(CustomError):
             message (str): An additional message for context
         """
         message += "\nThe unkown error was:\n  "
-        message += type(original_error).__name__ + ": " + str(original_error)
+        message += type(original_error).__name__
+        if str(original_error):
+            message += ": " + str(original_error)
         super().__init__(message)
 
 
@@ -197,3 +199,10 @@ class UserAbortion(CustomError):
         Sets the error message to "Aborted by user".
         """
         super().__init__("Aborted by user")
+
+
+class SystemAbortion(CustomError):
+    """Used to abort uberdot by the system."""
+
+    EXITCODE = 107
+    """The exitcode for a SystemAbortion"""

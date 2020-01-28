@@ -24,13 +24,16 @@ E.g. retrieving a environment variable or fixing file permisions."""
 
 
 import datetime
+import hashlib
 import grp
 import importlib.util
 import logging
+import math
 import os
 import pwd
 import re
 import subprocess
+import time
 from uberdot import constants
 from uberdot.errors import FatalError
 from uberdot.errors import GenerationError
@@ -425,6 +428,14 @@ def import_profile_class(class_name):
 
 logger = logging.getLogger("root")
 
+def get_timestamp_now():
+    """Returns a timestamp string for the current moment
+
+    Returns:
+        str: The timestamp
+    """
+    return str(math.floor(time.time()))
+
 def get_date_time_now():
     """Returns a datetime string for the current moment in the format
     YYYY-MM-DD hh:mm:ss
@@ -435,8 +446,33 @@ def get_date_time_now():
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
+def log(message):
+    """Alias for logger.info() but creates a newline.
+
+    Using the log functions, the output will also be printed into a logfile
+    if the user set the ``--log`` flag.
+
+    Args:
+        message: The message that will be logged
+    """
+    logger.info(message + "\n")
+
+def log_operation(profile_name, message):
+    """Logs/Prints out a message for a profile.
+
+    Using the log functions, the output will also be printed into a logfile
+    if the user set the ``--log`` flag.
+
+    Args:
+        profile_name (str): The name of the profile that triggered the operation.
+        message (str): The message that will be logged
+    """
+    logger.info(constants.BOLD + "[" + profile_name + "]: " +
+                constants.NOBOLD + message + "\n")
+
+
 def log_warning(message):
-    """Prints text in warning color.
+    """Alias for logger.warning() but creates a newline and colorizes output.
 
     Using the log functions, the output will also be printed into a logfile
     if the user set the ``--log`` flag.
@@ -444,11 +480,11 @@ def log_warning(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.warning(constants.WARNING + message + constants.ENDC)
+    logger.warning(constants.C_WARNING + message + constants.ENDC + "\n")
 
 
 def log_success(message):
-    """Prints text in success color.
+    """Alias for logger.info() but creates a newline and colorizes output.
 
     Using the log functions, the output will also be printed into a logfile
     if the user set the ``--log`` flag.
@@ -456,11 +492,11 @@ def log_success(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.info(constants.OKGREEN + message + constants.ENDC)
+    logger.info(constants.C_OK + message + constants.ENDC + "\n")
 
 
 def log_debug(message):
-    """Prints text that is only shown when ``--verbose`` is set.
+    """Alias for logger.debug() but creates a newline and colorizes output.
 
     Using the log functions, the output will also be printed into a logfile
     if the user set the ``--log`` flag.
@@ -468,7 +504,19 @@ def log_debug(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.debug(message)
+    logger.debug(constants.C_DEBUG + message + constants.ENDC + "\n")
+
+
+def log_error(message):
+    """Alias for logger.error() but creates a newline.
+
+    Using the log functions, the output will also be printed into a logfile
+    if the user set the ``--log`` flag.
+
+    Args:
+        message (str): The message that will be printed.
+    """
+    logger.error(message + "\n")
 
 
 def is_dynamic_file(target):
@@ -494,3 +542,17 @@ def find_files(filename, paths):
     """
     return [os.path.join(path, filename) for path in paths
             if os.path.isfile(os.path.join(path, filename))]
+
+
+def md5(string):
+    """Calculate the md5 hash for a given string or bytearray.
+
+    Args:
+        string: A string or bytearray that the md5 hash will be
+            calculated for. Strings will be encoded before hashing.
+    Returns:
+        The hexadecimal representation of the md5 hash
+    """
+    if isinstance(string, str):
+        string = string.encode()
+    return hashlib.md5(string).hexdigest()

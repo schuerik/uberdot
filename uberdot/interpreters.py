@@ -22,6 +22,9 @@ DiffLog.
     CheckProfilesInterpreter
     DUIStrategyInterpreter
     DetectRootInterpreter
+    EventExecInterpreter
+    EventInterpreter
+    EventPrintInterpreter
     ExecuteInterpreter
     GainRootInterpreter
     Interpreter
@@ -60,27 +63,18 @@ import os
 import pwd
 import re
 import sys
+import time
 from abc import abstractmethod
+from inspect import getsource
+from queue import Queue
 from shutil import copyfile
 from subprocess import PIPE
+from subprocess import STDOUT
 from subprocess import Popen
+from threading import Thread
 from uberdot import constants
-from uberdot.errors import IntegrityError
-from uberdot.errors import PreconditionError
-from uberdot.errors import UnkownError
-from uberdot.errors import UserError
-from uberdot.errors import UserAbortion
-from uberdot.errors import FatalError
-from uberdot.utils import find_files
-from uberdot.utils import get_date_time_now
-from uberdot.utils import get_dir_owner
-from uberdot.utils import get_gid
-from uberdot.utils import get_groupname
-from uberdot.utils import get_uid
-from uberdot.utils import get_username
-from uberdot.utils import is_dynamic_file
-from uberdot.utils import log_warning
-from uberdot.utils import normpath
+from uberdot.errors import *
+from uberdot.utils import *
 
 
 logger = logging.getLogger("root")
@@ -152,17 +146,6 @@ class PlainPrintInterpreter(Interpreter):
 
 class PrintInterpreter(Interpreter):
     """Pretty-prints log messages and what a operation is going to do."""
-    @staticmethod
-    def _log_operation(dop, message):
-        """Logs/Prints out a message for an operation.
-
-        Args:
-            dop (dict): The operation that is logged. Used to include the
-                profile name in the log message that triggered the operation.
-            message (str): The message that will be logged
-        """
-        logger.info(constants.BOLD + "[" + dop["profile"] + "]: " +
-                    constants.NOBOLD + message)
 
     def _op_start(self, dop):
         """Logs/Prints out the start of the linking process.
@@ -170,7 +153,7 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): Unused in this implementation
         """
-        logger.debug("Starting linking process now.")
+        log_debug("Starting linking process now.")
 
     def _op_info(self, dop):
         """Logs/Prints out an info-operation.
@@ -178,7 +161,7 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The info-operation that will be logged
         """
-        self._log_operation(dop, dop["message"])
+        log_operation(dop["profile"], dop["message"])
 
     def _op_add_p(self, dop):
         """Logs/Prints out that a profile was added.
@@ -187,10 +170,10 @@ class PrintInterpreter(Interpreter):
             dop (dict): The add-operation that will be logged
         """
         if dop["parent"] is not None:
-            self._log_operation(dop, "Installing new profile as" +
-                                " subprofile of " + dop["parent"])
+            log_operation(dop["profile"], "Installing new profile as" +
+                          " subprofile of " + dop["parent"])
         else:
-            self._log_operation(dop, "Installing new profile")
+            log_operation(dop["profile"], "Installing new profile")
 
     def _op_remove_p(self, dop):
         """Logs/Prints out that a profile was removed.
@@ -198,7 +181,7 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be logged
         """
-        self._log_operation(dop, "Uninstalled profile")
+        log_operation(dop["profile"], "Uninstalled profile")
 
     def _op_update_p(self, dop):
         """Logs/Prints out that a profile was updated.
@@ -208,12 +191,12 @@ class PrintInterpreter(Interpreter):
         """
         if "parent" in dop:
             if dop["parent"] is not None:
-                self._log_operation(dop, "Changed parent to '" +
-                                    dop["parent"] + "'")
+                log_operation(dop["profile"], "Changed parent to '" +
+                              dop["parent"] + "'")
             else:
-                self._log_operation(dop, "Detached from parent." +
-                                    " This is a root profile now.")
-        self._log_operation(dop, "Profile updated")
+                log_operation(dop["profile"], "Detached from parent." +
+                              " This is a root profile now.")
+        log_operation(dop["profile"], "Profile updated")
 
     def _op_add_l(self, dop):
         """Logs/Prints out that a link was added.
@@ -221,9 +204,9 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation that will be logged
         """
-        self._log_operation(dop, dop["symlink"]["name"] +
-                            " was created and links to " +
-                            dop["symlink"]["target"])
+        log_operation(dop["profile"], dop["symlink"]["name"] +
+                      " was created and links to " +
+                      dop["symlink"]["target"])
 
     def _op_remove_l(self, dop):
         """Logs/Prints out that a link was removed.
@@ -231,8 +214,8 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be logged
         """
-        self._log_operation(dop, dop["symlink_name"] +
-                            " was removed from the system.")
+        log_operation(dop["profile"], dop["symlink_name"] +
+                      " was removed from the system.")
 
     def _op_update_l(self, dop):
         """Logs/Prints out that a link was updated.
@@ -243,35 +226,34 @@ class PrintInterpreter(Interpreter):
             dop (dict): The update-operation that will be logged
         """
         if dop["symlink1"]["name"] != dop["symlink2"]["name"]:
-            self._log_operation(dop, dop["symlink1"]["name"] +
-                                " was moved to " + dop["symlink2"]["name"])
+            log_operation(dop["profile"], dop["symlink1"]["name"] +
+                          " was moved to " + dop["symlink2"]["name"])
         elif dop["symlink2"]["target"] != dop["symlink1"]["target"]:
-            self._log_operation(dop, dop["symlink1"]["name"] +
-                                " points now to " +
-                                dop["symlink2"]["target"])
+            log_operation(dop["profile"], dop["symlink1"]["name"] +
+                          " points now to " + dop["symlink2"]["target"])
         else:
-            msg = dop["symlink1"]["name"] + " has changed "
+            msg_start = dop["symlink1"]["name"] + " has changed "
             if dop["symlink2"]["permission"] != dop["symlink1"]["permission"]:
-                msg += "permission from " + str(dop["symlink1"]["permssion"])
+                msg = msg_start + "permission from "
+                msg += str(dop["symlink1"]["permssion"])
                 msg += " to " + str(dop["symlink2"]["permssion"])
-                self._log_operation(dop, msg)
-            msg = dop["symlink1"]["name"] + " has changed "
+                log_operation(dop["profile"], msg)
             if dop["symlink2"]["uid"] != dop["symlink1"]["uid"] or \
                     dop["symlink2"]["gid"] != dop["symlink1"]["gid"]:
                 user = pwd.getpwuid(dop["symlink1"]["uid"])[0]
                 group = grp.getgrgid(dop["symlink1"]["gid"])[0]
-                msg += "owner from " + user + ":" + group
+                msg = msg_start + "owner from " + user + ":" + group
                 user = pwd.getpwuid(dop["symlink2"]["uid"])
                 group = grp.getgrgid(dop["symlink2"]["gid"])
                 msg += " to " + user + ":" + group
-                self._log_operation(dop, msg)
-            msg = dop["symlink1"]["name"] + " has changed "
+                log_operation(dop["profile"], msg)
             if dop["symlink2"]["secure"] != dop["symlink1"]["secure"]:
-                msg += "secure feature from "
+                msg = msg_start + "secure feature from "
                 msg += "enabled" if dop["symlink1"]["secure"] else "disabled"
                 msg += " to "
                 msg += "enabled" if dop["symlink2"]["secure"] else "disabled"
-                self._log_operation(dop, msg)
+                log_operation(dop["profile"], msg)
+
 
 
 class DUIStrategyInterpreter(Interpreter):
@@ -357,6 +339,7 @@ class DUIStrategyInterpreter(Interpreter):
         self.data.clear()
         for item in merged_list:
             self.data.append(item)
+        log_debug("Reordered operations to do DUI")
 
 
 class CheckDynamicFilesInterpreter(Interpreter):
@@ -399,14 +382,14 @@ class CheckDynamicFilesInterpreter(Interpreter):
         Args:
             target (str): The full path to the file that will be checked
         """
-        if not target.startswith(constants.DATA_DIR):
+        if not is_dynamic_file(target):
             # This is not a dynamic file
             return
         # Calculate new hash and get old has of file
         md5_calc = hashlib.md5(open(target, "rb").read()).hexdigest()
         md5_old = os.path.basename(target)[-32:]
         # Check for changes
-        if is_dynamic_file(target) and md5_calc != md5_old:
+        if md5_calc != md5_old:
             log_warning("You made changes to '" + target + "'. Those changes" +
                         " will be lost, if you don't write them back to" +
                         " the original file.")
@@ -523,7 +506,7 @@ class CheckLinksInterpreter(Interpreter):
                     msg = " defined "
                 msg = "The link '" + name + "' is already" + msg + "by '"
                 msg += item[1] + "' and would be overwritten by '"
-                msg += dop["profile"] + "'. In some cases this error can"
+                msg += dop["profile"] + "'. In most cases this error can be "
                 msg += "fixed by setting the --dui flag."
                 raise IntegrityError(msg)
         self.linklist.append((name, dop["profile"], False))
@@ -787,7 +770,8 @@ class CheckLinkExistsInterpreter(Interpreter):
                     raise PreconditionError(msg)
             elif not self.force:
                 msg = "'" + name + "' already exists and would be"
-                msg += " overwritten. You can force to overwrite the"
+                msg += " overwritten by '" + dop["symlink"]["target"]
+                msg += " '. You can force to overwrite the"
                 msg += " original file by setting the --force flag."
                 raise PreconditionError(msg)
         if not os.path.exists(dop["symlink"]["target"]):
@@ -914,6 +898,299 @@ class CheckProfilesInterpreter(Interpreter):
                                  dop["parent"] + "', but parent is the same!")
 
 
+class EventInterpreter(Interpreter):
+    """This interpreter is the abstract base class for interpreters that
+    work with profile events. Implements _op_* depending on self.event_type.
+
+    Attributes:
+        profiles (list): A list of profiles **after** their execution.
+        installed (dict): A copy of the old installed-file that is used to
+            lookup if a profile had Uninstall-events set
+        event_type (str): A specific type ("after" or "before") that determines
+            which events this interpreter shall look for
+    """
+
+    def __init__(self, profiles, installed, event_type):
+        """Constructor.
+
+        Sets _op_add_p and _op_update_p depending on event_type.
+
+        Args:
+            profiles (list): A list of profiles **after** their execution.
+            installed (dict): A copy of the old installed-file that is used to
+                lookup if a profile had Uninstall-events set
+            event_type (str): A specific type ("after" or "before") that
+                determines which events this interpreter shall look for
+        """
+        self.event_type = event_type
+        self.profiles = profiles
+        self.installed = installed
+        self._op_add_p = self.event_handler(self.event_type + "Install")
+        self._op_update_p = self.event_handler(self.event_type + "Update")
+
+    def get_profile(self, profilename):
+        """Gets a profile from :attr:`self.profiles<EventInterpreter.profiles>`
+        by it's name.
+
+        Args:
+            profilename (str): Name of the profile that will be searched for.
+        Returns:
+            Profile: The corresponding profile
+        """
+        def get_subprofile(parent, profilename):
+            for sub in parent.subprofiles:
+                if sub.name == profilename:
+                    return sub
+                subsub = get_subprofile(sub, profilename)
+                if subsub is not None:
+                    return subsub
+            return None
+
+        for profile in self.profiles:
+            if profile.name == profilename:
+                return profile
+            result = get_subprofile(profile, profilename)
+            if result is not None:
+                return result
+        raise FatalError("Couldn't find profile '" + profilename + "'")
+
+    def run_script(self, script_path, profilename):
+        """Used to handle script execution of an event. Depending on the
+        subclass this might execute or just print out the script.
+
+        Args:
+            script_path (str): The path of the script that was generated
+                for an event
+            profilename (str): The name of the profile whose event is
+                executed
+        """
+        raise NotImplementedError
+
+    def start_event(self, profile_name, event_name):
+        """Finds the generated script for a specific profile and event.
+        Calls run_script() for the found script.
+
+        Args:
+            profile_name (str): The name of the profile for which the
+                generated script is searched
+            event_name (str): The name of the event for which the
+                generated script is searched
+        """
+        log_operation(profile_name, "Running event " + event_name)
+        script_dir = os.path.join(constants.DATA_DIR, "scripts") + "/"
+        script_path = script_dir + profile_name + "_" + event_name
+        if not os.path.exists(script_path):
+            raise FatalError("Generated script couldn't be found")
+        self.run_script(script_path, profile_name)
+
+    def event_handler(self, event_name):
+        """Returns a function that can be used to interprete add_p- and
+        update_p-operations.
+
+        The returned function checks for a given operation, if the profile
+        has an event set that matches event_type and event_name. If so,
+        it calls start_event().
+
+        Args:
+            event_name (str): Name of the event that shall be interpreted
+                by the returned function
+        """
+        def start(dop):
+            profile = self.get_profile(dop["profile"])
+            if profile.result[event_name]:
+                self.start_event(dop["profile"], event_name)
+        return start
+
+    def _op_remove_p(self, dop):
+        """Checks if a profile has an uninstall-event set, that matches
+        event_type. If so, it calls start_event().
+
+        Args:
+            dop (dict): The remove-operation that triggers the event
+        """
+        profile = self.installed[dop["profile"]]
+        event_name = self.event_type+"Uninstall"
+        if event_name in profile and profile[event_name]:
+            self.start_event(dop["profile"], event_name)
+
+
+class EventPrintInterpreter(EventInterpreter):
+    """This interpreter is used to print out what an event will do.
+
+    More precisly this prints out the generated shell script that would be
+    executed by an event line by line.
+    """
+
+    def run_script(self, script_path, profilename):
+        """Print the script line by line for an event of a given profile. """
+        for line in open(script_path, "r").readlines():
+            line = line.strip()
+            # Skip empty lines
+            if not line or line.startswith("#"):
+                continue
+            log("> " + line)
+
+
+class EventExecInterpreter(EventInterpreter):
+    """This interpreter is used to execute the event scripts of a profile.
+
+    Attributes:
+        shell (Process): The shell process used to execute all event callbacks
+        queue_out (Queue): Used to push the output of the shell back in realtime
+        queue_err (Queue): Used to push exceptions during execution back to
+            the main process
+        ticks_without_feedback (int): Counter that stores the time in
+            milliseconds that the main thread is already waiting for the shell
+            script without capturing any output.
+        failures (int): Counter that stores how many scripts executed with errors.
+    """
+
+    def __init__(self, profiles, installed, event_type):
+        """Constructor.
+
+        Creates a thread and queues for listening on the shells stdout and
+        stderr.
+        """
+        super().__init__(profiles, installed, event_type)
+        self.shell = None
+        self.ticks_without_feedback = 0
+        self.queue_out = Queue()
+        self.queue_err = Queue()
+        self.failures = 0
+
+
+    def run_script(self, script_path, profilename):
+        """Execute script for the given profile.
+
+        Args:
+            script_name (str): The name of the script that was generated
+                for an event
+            profilename (str): The name of the profile that triggered the
+                event
+        """
+        thread_out = Thread(target=self.listen_for_script_output)
+        thread_out.deamon = True
+
+        def stop_execution(msg):
+            log_debug(msg)
+            log_debug("Terminating shell.")
+            self.shell.terminate()
+            log_debug("Closing pipes to shell.")
+            self.shell.stdout.close()
+            log_debug("Waiting for stdout/stderr-listener to terminate...")
+            thread_out.join()
+
+        def handle_error():
+            # Handle raised exceptions of listener threads
+            if not self.queue_err.empty():
+                stop_execution("Error detected!")
+                raise self.queue_err.get()
+
+        def demote(uid, gid):
+            # Changes the current user to original one that started this program
+            def result():
+                os.setgid(gid)
+                os.setuid(uid)
+            return result
+
+        # Now the critical part start
+        try:
+            # Start the shell and start thread to listen to stdout and stderr
+            cmd = [constants.SHELL] + constants.SHELL_ARGS.split() + [script_path]
+            log_debug(" ".join(cmd))
+            self.shell = Popen(
+                cmd, stdout=PIPE, stderr=STDOUT,
+                preexec_fn=demote(get_uid(), get_gid())
+            )
+            thread_out.start()
+
+            # Wait for the shell to finish
+            self.ticks_without_feedback = 0
+            while self.shell.poll() is None:
+                self.ticks_without_feedback += 1
+                if (self.ticks_without_feedback > constants.SHELL_TIMEOUT * 1000 \
+                        and constants.SHELL_TIMEOUT > 0):
+                    stop_execution("Timeout reached!")
+                    msg = "Script timed out after "
+                    msg += str(constants.SHELL_TIMEOUT) + " seconds"
+                    raise GenerationError(profilename, msg)
+                # Just wait a tick
+                time.sleep(.001)
+                # Check for exceptions
+                handle_error()
+
+            # Shell is done, wait for the last bit of output to arrive
+            thread_out.join()
+            handle_error()
+
+            # Check if script was successful
+            exitcode = self.shell.poll()
+            if exitcode:
+                raise GenerationError(profilename,
+                                      "Script failed with error code: " +
+                                      str(exitcode))
+        except CustomError as err:
+            msg = "The script '" + script_path + "' could not be executed"
+            msg += " successfully. Please take a look at it yourself."
+            log_error(err._message + "\n" + msg)
+            self.failures += 1
+        except KeyboardInterrupt:
+            msg = "The script '" + script_path + "' was interrupted during"
+            msg += " execution. Please take a look at it yourself."
+            log_error(err._message + "\n" + msg)
+            raise UserAbortion()
+        except Exception as err:
+            msg = "An unkown error occured during event execution. A "
+            msg += "backup of the generated shell script is stored at '"
+            msg += script_path + "'. You can try to execute it manually."
+            # Convert all exceptions that are not a CustomError in a
+            # UnkownError to handle them in the outer pokemon handler
+            raise UnkownError(err, msg)
+
+    def listen_for_script_output(self):
+        """Runnable of ``thread_out``. Waits for the shell to push something
+        to stdout or stderr and prints it. All catched exceptions will be
+        stored in ``queue_err`` to handle on the main thread.
+        Also resets ``ticks_without_feedback``.
+        """
+        try:
+            last_char = None
+            oldbyte = b""
+            for byte in iter(lambda: self.shell.stdout.read(1), b""):
+                # Reset timeout
+                self.ticks_without_feedback = 0
+                # Decode byte (with a little bit of black magic involved)
+                try:
+                    if oldbyte:
+                        byte = oldbyte + byte
+                    byte = byte.decode()
+                except UnicodeDecodeError:
+                    # We need to use the next byte for decoding as well
+                    oldbyte = byte
+                    continue
+                oldbyte = b""
+                # Print byte
+                logger.info(byte)
+                # Make sure it is printed immediately
+                sys.stdout.flush()
+                last_char = byte
+            # Make sure the script output ends with a new line
+            if last_char is not None and last_char != "\n":
+                logger.info("\n")
+                sys.stdout.flush()
+        except Exception as err:
+            self.queue_err.put(err)
+
+    def _op_fin(self, dop):
+        """Logs a summary of the executed scripts. If one or more scripts
+        failed, it aborts the program"""
+        if self.failures:
+            msg = str(self.failures) + " script(s) failed to execute"
+            raise SystemAbortion(msg)
+        if self.shell is not None:
+            log_success("Events executed successfully.")
+
+
 class ExecuteInterpreter(Interpreter):
     """This interpreter actually executes the operations from the DiffLog.
 
@@ -936,6 +1213,14 @@ class ExecuteInterpreter(Interpreter):
         self.installed = installed
         self.installed["@version"] = constants.VERSION  # Update version number
         self.force = force
+
+    def _op_update_s(self, dop):
+        """Updates the script_path of the onUninstall-script for a profile.
+
+        Args:
+            dop (dict): The update-operation that will be executed
+        """
+        self.installed[dop["profile"]][dop["event"]] = dop["enabled"]
 
     def _op_add_p(self, dop):
         """Adds a profile entry of the installed-file.
@@ -1040,6 +1325,10 @@ class ExecuteInterpreter(Interpreter):
                     # will make sure that the directory is empty
                     os.rmdir(name)
                 else:
+                    filetype = "symlink" if os.path.islink(name) else "file"
+                    msg = "Removing already existing " + filetype
+                    msg += " '" + name + "'."
+                    log_debug(msg)
                     os.unlink(name)
             # Create new symlink
             os.symlink(target, name)
@@ -1066,6 +1355,7 @@ class ExecuteInterpreter(Interpreter):
         os.unlink(path)
         parent = os.path.dirname(path)
         while not os.listdir(parent):  # while parent dir is empty
+            log_debug("Removing directory '" + parent + "'.")
             os.rmdir(parent)
             parent = os.path.dirname(parent)
 
@@ -1092,6 +1382,7 @@ class ExecuteInterpreter(Interpreter):
         top_dir = dirname
         # Then create directories
         dirname = os.path.dirname(filename)
+        log_debug("Creating directory '" + dirname + "'.")
         os.makedirs(dirname)
         # And change owner of all created directories to the remembered owner
         while dirname != top_dir:
@@ -1298,6 +1589,8 @@ class GainRootInterpreter(RootNeededInterpreter):
         if self.logged:
             if constants.ASKROOT:
                 args = [sys.executable] + sys.argv
+                call_msg = "'sudo " + " ".join(args) + "'"
+                log_debug("Replacing process with " + call_msg + ".")
                 os.execvp('sudo', args)
             else:
                 raise UserError("You need to restart uberdot using 'sudo'" +

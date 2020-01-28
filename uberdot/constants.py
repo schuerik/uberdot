@@ -33,7 +33,8 @@ from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import normpath
 
-VERSION = "1.12.17_4"
+VERSION = "1.13.0_4"
+
 """Version numbers, seperated by underscore.
 
 First part is the version of uberdot. The second part (after the underscore)
@@ -53,8 +54,20 @@ MAKEDIRS = False
 """True, if uberdot shall create directories if they don't exist.
 Default is ``False``.
 """
+SKIPAFTER = False
+"""True, if all operations shall be ignored by EventAfterInterpreters.
+Default is ``False``.
+"""
+SKIPBEFORE = False
+"""True, if all operations shall be ignored by EventBeforeInterpreters.
+Default is ``False``.
+"""
+SKIPEVENTS = False
+"""True, if all operations shall be ignored by EventInterpreters.
+Default is ``False``.
+"""
 SKIPROOT = False
-"""True, if all operations that requiere root permission will be omitted.
+"""True, if all operations that requiere root permission shall be omitted.
 Default is ``False``.
 """
 SUPERFORCE = False
@@ -73,6 +86,13 @@ LOGFILE = ""
 """The file that will be used as logfile. Empty if no logfile will be used.
 Needs to be normalized before usage. Default is ``""``.
 """
+SHELL = "/bin/bash"
+"""The shell that is used to execute event callbacks."""
+SHELL_ARGS = "-e -O expand_aliases"
+"""The arguments that will be passed to the shell."""
+SHELL_TIMEOUT = 60
+"""Time in seconds that a shell command is allowed to run without
+printing something out."""
 COLOR = True
 """True, if output should be colored. Default is ``True``."""
 DECRYPT_PWD = None
@@ -93,6 +113,9 @@ DATA_DIR = os.path.join(
 )
 """The directory that stores installed-files, dynamic files and
 some static files."""
+SMART_CD = True
+"""True, if event shell scripts shall automatically change the directory
+to the directory of the profile that triggered the event."""
 
 # Internal values
 """The path to the data directory."""
@@ -115,18 +138,20 @@ DEFAULTS = {
     "suffix": ""
 }
 """Default values for command options."""
-OKGREEN = '\033[92m'
-"""Bash color code for green text."""
-WARNING = '\033[93m'
-"""Bash color code for yellow text."""
-FAIL = '\033[91m'
-"""Bash color code for red text."""
+C_OK = '\033[92m'
+"""Bash color code for successful output (green)."""
+C_WARNING = '\033[93m'
+"""Bash color code for warning output (yellow)."""
+C_FAIL = '\033[91m'
+"""Bash color code for error output (red)."""
+C_HIGHLIGHT = '\033[34m'
+"""Bash color code for highlighting normal output (blue)."""
+C_DEBUG = '\033[90m'
+"""Bash color code for debugging output (gray)."""
 ENDC = '\033[0m'
 """Bash color code to stop formatation of text."""
 BOLD = '\033[1m'
 """Bash color code for bold text."""
-UNDERLINE = '\033[4m'
-"""Bash color code for underlined text."""
 NOBOLD = '\033[22m'
 """Bash color code to stop bold text."""
 
@@ -165,12 +190,13 @@ def loadconfig(config_file, installed_filename="default"):
         installed_filename (str): Name of the installed-file for that values
             will be loaded
     """
-    global OKGREEN, WARNING, FAIL, ENDC, BOLD, UNDERLINE, NOBOLD
+    global C_OK, C_WARNING, C_FAIL, ENDC, BOLD, C_HIGHLIGHT, NOBOLD, C_DEBUG
     global DUISTRATEGY, FORCE, LOGGINGLEVEL, MAKEDIRS, DECRYPT_PWD, SUPERFORCE
-    global SKIPROOT, DATA_DIR
+    global SKIPROOT, DATA_DIR, SHELL, SHELL_TIMEOUT, SMART_CD, SKIPEVENTS
     global BACKUP_EXTENSION, PROFILE_FILES, TARGET_FILES, INSTALLED_FILE_BACKUP
     global COLOR, INSTALLED_FILE, DEFAULTS, DIR_DEFAULT, LOGFILE, CFG_FILES
-    global ASKROOT, TAG_SEPARATOR, HASH_SEPARATOR
+    global ASKROOT, TAG_SEPARATOR, HASH_SEPARATOR, SKIPAFTER, SKIPBEFORE
+    global SHELL_ARGS
 
     # Load config files
     if config_file:
@@ -233,6 +259,9 @@ def loadconfig(config_file, installed_filename="default"):
     DUISTRATEGY = getbool("dui", DUISTRATEGY)
     FORCE = getbool("force", FORCE)
     MAKEDIRS = getbool("makedirs", MAKEDIRS)
+    SKIPAFTER = getbool("skipafter", SKIPAFTER)
+    SKIPBEFORE = getbool("skipbefore", SKIPBEFORE)
+    SKIPEVENTS = getbool("skipevents", SKIPEVENTS)
     SKIPROOT = getbool("skiproot", SKIPROOT)
     SUPERFORCE = getbool("superforce", SUPERFORCE)
     LOGGINGLEVEL = getstr("logginglevel", LOGGINGLEVEL).upper()
@@ -241,7 +270,11 @@ def loadconfig(config_file, installed_filename="default"):
     # Get settings
     getstr = getvalue(config.get, "Settings")
     getbool = getvalue(config.getboolean, "Settings")
+    getint = getvalue(config.getint, "Settings")
     ASKROOT = getbool("askroot", ASKROOT)
+    SHELL = getstr("shell", SHELL)
+    SHELL_ARGS = getstr("shellArgs", SHELL_ARGS)
+    SHELL_TIMEOUT = getint("shellTimeout", SHELL_TIMEOUT)
     DECRYPT_PWD = getstr("decryptPwd", DECRYPT_PWD)
     BACKUP_EXTENSION = getstr("backupExtension", BACKUP_EXTENSION)
     TAG_SEPARATOR = getstr("tagSeparator", TAG_SEPARATOR)
@@ -250,12 +283,14 @@ def loadconfig(config_file, installed_filename="default"):
     TARGET_FILES = getstr("targetFiles")
     DATA_DIR = normpath(getstr("dataDir", DATA_DIR))
     COLOR = getbool("color", COLOR)
+    SMART_CD = getbool("smartShellCWD", SMART_CD)
 
     # Setup internal values
     INSTALLED_FILE = os.path.join(DATA_DIR, "installed/%s.json")
     INSTALLED_FILE_BACKUP = INSTALLED_FILE + "." + BACKUP_EXTENSION
     if not COLOR:
-        OKGREEN = WARNING = FAIL = ENDC = BOLD = UNDERLINE = NOBOLD = ''
+        C_OK = C_WARNING = C_FAIL = ENDC = BOLD = C_HIGHLIGHT = NOBOLD = ''
+        C_DEBUG = ''
 
     # Get command options
     getstr = getvalue(config.get, "Defaults")

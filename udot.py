@@ -32,6 +32,27 @@ or you can import UberDot for debugging and testing purposes."""
 #
 ###############################################################################
 
+from uberdot import constants
+from uberdot.interpreters import *
+from uberdot.errors import CustomError
+from uberdot.errors import FatalError
+from uberdot.errors import PreconditionError
+from uberdot.errors import UnkownError
+from uberdot.errors import UserError
+from uberdot.differencesolver import UpdateDiffSolver
+from uberdot.differencesolver import UninstallDiffSolver
+from uberdot.differencesolver import DiffLog
+from uberdot.utils import has_root_priveleges
+from uberdot.utils import get_uid
+from uberdot.utils import get_gid
+from uberdot.utils import import_profile_class
+from uberdot.utils import log_debug
+from uberdot.utils import log_error
+from uberdot.utils import log_success
+from uberdot.utils import log_warning
+from uberdot.utils import normpath
+
+
 import argparse
 import csv
 import grp
@@ -48,22 +69,6 @@ if os.getenv("COVERAGE_PROCESS_START"):
     import coverage
     coverage.process_startup()
 
-from uberdot import constants
-from uberdot.interpreters import *
-from uberdot.errors import CustomError
-from uberdot.errors import FatalError
-from uberdot.errors import PreconditionError
-from uberdot.errors import UnkownError
-from uberdot.errors import UserError
-from uberdot.differencesolver import DiffSolver
-from uberdot.differencesolver import DiffLog
-from uberdot.utils import has_root_priveleges
-from uberdot.utils import get_uid
-from uberdot.utils import get_gid
-from uberdot.utils import log_success
-from uberdot.utils import log_warning
-from uberdot.utils import normpath
-
 
 class UberDot:
     """Bundles all functionality of uberdot.
@@ -73,18 +78,20 @@ class UberDot:
 
     Attributes:
         installed (dict): The installed-file that is used as a reference
+        profiles (list): A list of the to be installed/updated profiles
         args (argparse): The parsed arguments
         owd (str): The old working directory uberdot was started from
     """
 
     def __init__(self):
-        """Constructor
+        """Constructor.
 
         Initializes attributes and changes the working directory to the
         directory where this module is stored."""
         # Initialise fields
         self.installed = {"@version": constants.VERSION}
         self.args = None
+        self.profiles = []
         # Change current working directory to the directory of this module
         self.owd = os.getcwd()
         newdir = os.path.abspath(sys.modules[__name__].__file__)
@@ -101,7 +108,7 @@ class UberDot:
         try:
             self.installed = json.load(open(constants.INSTALLED_FILE))
         except FileNotFoundError:
-            logger.debug("No installed profiles found.")
+            log_debug("No installed profiles found.")
         # Check installed-file version
         if (int(self.installed["@version"].split("_")[1]) !=
                 int(constants.VERSION.split("_")[1])):
@@ -123,8 +130,6 @@ class UberDot:
             :class:`~errors.UserError`: One ore more arguments are invalid or
                 used in an invalid combination.
         """
-        global ch, formatter
-
         if arguments is None:
             arguments = sys.argv[1:]
         # Setup parser
@@ -172,6 +177,15 @@ class UberDot:
                             default="default")
         parser.add_argument("--silent",
                             help="print absolute nothing",
+                            action="store_true")
+        parser.add_argument("--skipafter",
+                            help="do not execute events after linking",
+                            action="store_true")
+        parser.add_argument("--skipbefore",
+                            help="do not execute events before linking",
+                            action="store_true")
+        parser.add_argument("--skipevents",
+                            help="do not execute any events",
                             action="store_true")
         parser.add_argument("--skiproot",
                             help="do nothing that requires root permissions",
@@ -233,6 +247,12 @@ class UberDot:
             self.args.force = constants.FORCE
         if not self.args.makedirs:
             self.args.makedirs = constants.MAKEDIRS
+        if not self.args.skipafter:
+            self.args.skipafter = constants.SKIPAFTER
+        if not self.args.skipbefore:
+            self.args.skipbefore = constants.SKIPBEFORE
+        if not self.args.skipevents:
+            self.args.skipevents = constants.SKIPEVENTS
         if not self.args.skiproot:
             self.args.skiproot = constants.SKIPROOT
         if not self.args.superforce:
@@ -272,10 +292,14 @@ class UberDot:
         if self.args.log:
             ch = logging.FileHandler(os.path.join(self.owd, self.args.log))
             ch.setLevel(logging.DEBUG)
-            formatter = logging.Formatter('[%(asctime)s] %(message)s')
+            form = '[%(asctime)s] - %(levelname)s - %(message)s'
+            formatter = logging.Formatter(form)
             ch.setFormatter(formatter)
             logger.addHandler(ch)
 
+    def check_arguments(self):
+        """Checks if parsed arguments/settings are bad or incompatible to
+        each other. If not, it raises an UserError."""
         # Check if settings are bad
         if constants.TARGET_FILES == constants.PROFILE_FILES:
             msg = "The directories for your profiles and for your dotfiles "
@@ -327,8 +351,8 @@ class UberDot:
                 if need and not [1 for arg in need if self.args.__dict__[arg]]:
                     raise UserError(gen_msg())
                 # or else only one is set if xor is set
-                elif xor and len(set_args) > 1:
-                    raise UserError(gen_msg())
+                if xor and len(set_args) > 1:
+                    raise UserError(msg)
             # No argument is set, so all args from "omit" need to be set
             elif omit and [x for x in omit if self.args.__dict__[x]] != omit:
                 raise UserError(gen_msg())
@@ -356,6 +380,7 @@ class UberDot:
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
+        # Check which mode, then run it
         if self.args.show:
             self.print_installed_profiles()
         elif self.args.version:
@@ -364,12 +389,32 @@ class UberDot:
         elif self.args.debuginfo:
             self.print_debuginfo()
         else:
-            dfs = DiffSolver(self.installed, self.args)
-            dfl = dfs.solve(self.args.install)
+            # The above are modes that just print stuff, but here we
+            # have to actually do something:
+            # 1. Decide how to solve the differences
+            if self.args.uninstall:
+                dfs = UninstallDiffSolver(self.installed, self.args.profiles)
+            elif self.args.install:
+                self.execute_profiles()
+                profile_results = [p.result for p in self.profiles]
+                dfs = UpdateDiffSolver(self.installed,
+                                       profile_results,
+                                       self.args.parent)
+            # elif TODO history resolve...
+            else:
+                raise FatalError("None of the expected modes were set")
+            # 2. Solve differences
+            log_debug("Calculate operations for linking process.")
+            dfl = dfs.solve()
+            # 3. Eventually manipulate the result
             if self.args.dui:
+                log_debug("Reordering operations according to --dui.")
                 dfl.run_interpreter(DUIStrategyInterpreter())
             if self.args.skiproot:
+                log_debug("Removing operations that require root.")
                 dfl.run_interpreter(SkipRootInterpreter())
+            # 4. Simmulate a run, print the result or actually resolve the
+            # differences
             if self.args.dryrun:
                 self.dryrun(dfl)
             elif self.args.plain:
@@ -378,6 +423,39 @@ class UberDot:
                 dfl.run_interpreter(PrintInterpreter())
             else:
                 self.run(dfl)
+
+    def execute_profiles(self, profiles=None, options=None, directory=None):
+        """Imports profiles by name and executes them.
+
+        Args:
+            profiles (list): A list of names of profiles that will be executed.
+                If this is None, it will be set to what the user set via cli.
+            options (dict): A dictionary of default options for root profiles.
+                If this is None, it will be set to what the user set via cli.
+            directory (str): A default path in which root profiles start.
+                If this is None, it will be set to what the user set via cli.
+        """
+        # Use user arguments as default (can be overwritten for debugging)
+        if profiles is None:
+            profiles = self.args.profiles
+        if options is None:
+            options = self.args.opt_dict
+        if directory is None:
+            directory = self.args.directory
+
+        # Setting arguments for root profiles
+        pargs = {}
+        pargs["options"] = options
+        pargs["directory"] = directory
+
+        # Import and create profiles
+        for profilename in profiles:
+            self.profiles.append(
+                import_profile_class(profilename)(**pargs)
+            )
+        # And execute them
+        for profile in self.profiles:
+            profile.generator()
 
     def print_debuginfo(self):
         """Print out internal values.
@@ -415,6 +493,9 @@ class UberDot:
         print_value("LOGFILE", self.args.log)
         print_value("LOGGINGLEVEL", constants.LOGGINGLEVEL)
         print_value("MAKEDIRS", self.args.makedirs)
+        print_value("SKIPEVENTS", self.args.skipevents)
+        print_value("SKIPBEFORE", self.args.skipbefore)
+        print_value("SKIPAFTER", self.args.skipafter)
         print_value("SKIPROOT", self.args.skiproot)
         print_value("SUPERFORCE", self.args.superforce)
         print_header("Settings")
@@ -425,6 +506,9 @@ class UberDot:
         print_value("DECRYPT_PWD", constants.DECRYPT_PWD)
         print_value("HASH_SEPARATOR", constants.HASH_SEPARATOR)
         print_value("PROFILE_FILES", constants.PROFILE_FILES)
+        print_value("SHELL", constants.SHELL)
+        print_value("SHELL_TIMEOUT", constants.SHELL_TIMEOUT)
+        print_value("SMART_CD", constants.SMART_CD)
         print_value("TAG_SEPARATOR", constants.TAG_SEPARATOR)
         print_value("TARGET_FILES", constants.TARGET_FILES)
         print_header("Command options")
@@ -505,6 +589,7 @@ class UberDot:
                 raise all kinds of :class:`~errors.CustomError`.
         """
         # Run integration tests on difflog
+        log_debug("Checking operations for errors and conflicts.")
         difflog.run_interpreter(
             CheckProfilesInterpreter(self.installed, self.args.parent)
         )
@@ -517,23 +602,61 @@ class UberDot:
         difflog.run_interpreter(*tests)
         # Gain root if needed
         if not has_root_priveleges():
+            log_debug("Checking if root is needed")
             difflog.run_interpreter(GainRootInterpreter())
+        else:
+            log_debug("uberdot was started with root priveleges")
         # Check blacklist not until now, because the user would need confirm it
         # twice if the programm is restarted with sudo
         difflog.run_interpreter(CheckLinkBlacklistInterpreter(self.args.superforce))
-        # Now the critical part starts
+        # Now the critical part begins, devided into three main tasks:
+        # 1. running events before, 2. linking, 3. running events after
+        # Each part is surrounded with a try-catch block that wraps every
+        # exception which isn't a CustomError into UnkownError and reraises them
+        # to handle them in the outer pokemon handler
+        old_installed = dict(self.installed)
+        # Execute all events before linking and print them
+        try:
+            if not self.args.skipevents and not self.args.skipbefore:
+                difflog.run_interpreter(
+                    EventExecInterpreter(
+                        self.profiles, old_installed, "before"
+                    )
+                )
+                try:
+                    # We need to run those tests again because the executed event
+                    # might have fucked with some links or dynamic files
+                    difflog.run_interpreter(
+                        CheckLinkExistsInterpreter(self.args.force),
+                        CheckDynamicFilesInterpreter(False)
+                    )
+                except CustomError as err:
+                    # We add some additional information to the raised errors
+                    err._message += "This error occured because at least one of "
+                    err._message += "the previously executed events interfered "
+                    err._message += "with files that are defined by a profile."
+                    raise err
+        except CustomError:
+            raise
+        except Exception as err:
+            msg = "An unkown error occured during before_event execution."
+            raise UnkownError(err, msg)
+        # Execute operations from difflog
         try:
             # Create Backup in case something wents wrong,
             # so the user can fix the mess we caused
             if os.path.isfile(constants.INSTALLED_FILE):
                 shutil.copyfile(constants.INSTALLED_FILE,
                                 constants.INSTALLED_FILE_BACKUP)
-            # Execute all operations of the difflog and print them
-            difflog.run_interpreter(ExecuteInterpreter(self.installed, self.args.force),
-                                    PrintInterpreter())
+            # Apply difflog operations and print them simultaneously
+            difflog.run_interpreter(
+                ExecuteInterpreter(self.installed, self.args.force),
+                PrintInterpreter()
+            )
             # Remove Backup
             if os.path.isfile(constants.INSTALLED_FILE_BACKUP):
                 os.remove(constants.INSTALLED_FILE_BACKUP)
+            log_success("Updated links successfully.")
         except CustomError:
             raise
         except Exception as err:
@@ -541,10 +664,20 @@ class UberDot:
             msg += "links or your installed-file may be corrupted! Check the "
             msg += "backup of your installed-file to resolve all possible "
             msg += "issues before you proceed to use this tool!"
-            # Convert all exceptions that are not a CustomError in a
-            # UnkownError to handle them in the outer pokemon handler
             raise UnkownError(err, msg)
-        log_success("Finished successfully.")
+        # Execute all events after linking and print them
+        try:
+            if not self.args.skipevents and not self.args.skipafter:
+                difflog.run_interpreter(
+                    EventExecInterpreter(
+                        self.profiles, old_installed, "after"
+                    )
+                )
+        except CustomError:
+            raise
+        except Exception as err:
+            msg = "An unkown error occured during after_event execution."
+            raise UnkownError(err, msg)
 
     def dryrun(self, difflog):
         """Like `run()` but instead of resolving it it will be just printed out
@@ -556,8 +689,10 @@ class UberDot:
             :class:`~errors.CustomError`: Executed interpreters can and will
                 raise all kinds of :class:`~errors.CustomError`.
         """
-        log_warning("This is just a dry-run! Nothing of this " +
+        log_warning("This is just a dry-run! Nothing of the following " +
                     "is actually happening.")
+        # Run tests
+        log_debug("Checking operations for errors and conflicts.")
         difflog.run_interpreter(
             CheckProfilesInterpreter(self.installed, self.args.parent)
         )
@@ -569,8 +704,24 @@ class UberDot:
             CheckDynamicFilesInterpreter(True)
         ]
         difflog.run_interpreter(*tests)
+        log_debug("Checking if root would be needed")
         difflog.run_interpreter(RootNeededInterpreter())
+        # Simulate events before
+        if not self.args.skipevents and not self.args.skipbefore:
+            difflog.run_interpreter(
+                EventPrintInterpreter(
+                    self.profiles, self.installed, "before"
+                )
+            )
+        # Simulate execution
         difflog.run_interpreter(PrintInterpreter())
+        # Simulate events after
+        if not self.args.skipevents and not self.args.skipafter:
+            difflog.run_interpreter(
+                EventPrintInterpreter(
+                    self.profiles, self.installed, "after"
+                )
+            )
 
 
 class StoreDictKeyPair(argparse.Action):
@@ -601,18 +752,31 @@ class CustomParser(argparse.ArgumentParser):
         raise UserError(message)
 
 
-def run_script(name):
-    """Act like a script if we were invoked like a script.
+class StdoutFilter(logging.Filter):
+    """Custom logging filter that filters all error messages from a stream.
+    Used to filter stdout, because otherwise every error would be pushed to
+    stdout AND stderr."""
 
-    This is needed for coverage."""
-    def handle_customerror():
+    def filter(self, record):
+        """Returns True for all records that have a logging level of
+        WARNING or less."""
+        return record.levelno <= logging.WARNING
+
+
+def run_script(name):
+    """Act like a script if this was invoked like a script.
+    This is needed, because otherwise everything below couldn't
+    be traced by coverage."""
+
+    def handle_custom_error(err):
         # An error occured that we (more or less) expected.
         # Print error, a stacktrace and exit
-        logger.debug(traceback.format_exc())
         if isinstance(err, FatalError):
-            logger.critical(err.message)
+            logger.critical(traceback.format_exc())
+            logger.critical(err.message + "\n")
         else:
-            logger.error(err.message)
+            log_debug(traceback.format_exc())
+            log_error(err.message)
         sys.exit(err.EXITCODE)
 
     if name == "__main__":
@@ -620,18 +784,28 @@ def run_script(name):
         # commandline arguments
         logger = logging.getLogger("root")
         logger.setLevel(logging.INFO)
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
+        ch_out = logging.StreamHandler(stream=sys.stdout)
+        ch_out.terminator = ""
+        ch_out.setLevel(logging.DEBUG)
         formatter = logging.Formatter('%(message)s')
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
+        ch_out.setFormatter(formatter)
+        ch_out.addFilter(StdoutFilter())
+        # We set up two streamhandlers, so we can log errors automatically
+        # to stderr and everything else to stdout
+        ch_err = logging.StreamHandler(stream=sys.stderr)
+        ch_err.terminator = ""
+        ch_err.setLevel(logging.ERROR)
+        ch_err.setFormatter(formatter)
+        logger.addHandler(ch_out)
+        logger.addHandler(ch_err)
 
         # Create UberDot instance and parse arguments
         uber = UberDot()
         try:
             uber.parse_arguments()
+            uber.check_arguments()
         except CustomError as err:
-            handle_customerror()
+            handle_custom_error(err)
         # Add the users profiles to the python path
         sys.path.append(constants.PROFILE_FILES)
         # Start everything in an exception handler
@@ -645,13 +819,13 @@ def run_script(name):
             uber.load_installed()
             uber.execute_arguments()
         except CustomError as err:
-            handle_customerror()
+            handle_custom_error(err)
         except Exception:
             # This works because all critical parts will catch also all
             # exceptions and convert them into a CustomError
-            logger.error(traceback.format_exc())
+            log_error(traceback.format_exc())
             log_warning("The error above was unexpected. But it's fine," +
-                        " I haven't done anything yet :)")
+                        " I did nothing critical at the time :)")
             sys.exit(100)
         finally:
             # Write installed-file back to json file
@@ -661,8 +835,10 @@ def run_script(name):
                     file.flush()
                 os.chown(constants.INSTALLED_FILE, get_uid(), get_gid())
             except Exception as err:
-                unkw = UnkownError(err, "An unkown error occured when trying to " +
-                                   "write all changes back to the installed-file")
-                logger.error(unkw.message)
+                msg = "An unkown error occured when trying to "
+                msg += "write all changes back to the installed-file"
+                unkw = UnkownError(err, msg)
+                log_error(unkw.message)
+
 
 run_script(__name__)

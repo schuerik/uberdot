@@ -40,6 +40,7 @@ from uberdot.utils import expandpath
 from uberdot.utils import find_target
 from uberdot.utils import get_dir_owner
 from uberdot.utils import import_profile_class
+from uberdot.utils import log_debug
 from uberdot.utils import normpath
 from uberdot.utils import walk_dotfiles
 
@@ -48,7 +49,8 @@ custom_builtins = []
 """A list of custom builtins that the profiles will map its functions to
 before executing :func:`~Profile.generate()`.
 
-To add a function here, just add the ``@command`` decorator to it.
+Don't add functions here, just apply the ``@command`` decorator to functions
+that shall become a custom builtin.
 """
 
 
@@ -56,7 +58,7 @@ def command(func):
     """Adding this decorator to a function will make it available
     in :func:`generate()` as a builtin.
 
-    Furthermore it adds some documentation to the function.
+    Furthermore this adds some documentation to the function.
 
     Args:
         func (function): The function that will become a command
@@ -93,6 +95,7 @@ class Profile:
             working directory. Equals :const:`constants.DIR_DEFAULT` if this
             a root profile.
         parent (Profile): The parent profile. ``None`` if this a root profile.
+        subprofiles (list): A list of all subprofiles
         result (dict): The result of :func:`generate()`. Contains name, parent,
             generated links and the result of all subprofiles.
     """
@@ -116,11 +119,18 @@ class Profile:
         self.options = options
         self.directory = directory
         self.parent = parent
+        self.subprofiles = []
         self.result = {
             "name": self.name,
             "parent": self.parent,
             "links": [],
-            "profiles": []
+            "profiles": [],
+            "beforeUpdate": None,
+            "beforeInstall": None,
+            "beforeUninstall": None,
+            "afterInstall": None,
+            "afterUpdate": None,
+            "afterUninstall": None
         }
 
     def __setattr__(self, name, value):
@@ -153,6 +163,160 @@ class Profile:
             return self.options[opt_name]
         return read_opt
 
+    beforeInstall = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed before the profile gets installed for the first time.
+    """
+
+    beforeUpdate = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed before the profile gets updated and only if the profile was
+    already installed.
+    """
+
+    beforeUninstall = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed before the profile gets uninstalled.
+    """
+
+    afterInstall = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed after the profile gets installed for the first time.
+    """
+
+    afterUpdate = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed after the profile gets updated and only if the profile was
+    already installed.
+    """
+
+    afterUninstall = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed after the profile gets uninstalled.
+    """
+
+    prepare_script = None
+    """This field can be set by the user. This has to be a string and will be
+    prepended to the event scripts of this profile or any of its subprofiles.
+    """
+
+    def __generate_scripts(self):
+        """Generates event scripts from attributes. Stores them as shell scripts
+        if they changed.
+
+        Raises
+            :class:`~errors.GenerationError`: One of the attributes isn't a
+                string nor a function that returned a string
+        """
+        def gen_script(event_name, script):
+            def get_prepare_scripts(profile=self, profilename=self.name):
+                result = ""
+                # First check if prepare_script is available and is a string
+                if profile.prepare_script is not None:
+                    if isinstance(profile.prepare_script, str):
+                        # Save prepare_script as result
+                        result = profile.prepare_script
+                    else:
+                        self._gen_err("prepare_script of " + profilename +
+                                      " needs to be a string.")
+                # Prepend prepare_scripts of parents to result
+                if profile.parent is not None:
+                    result = get_prepare_scripts(profile.parent, profilename
+                    ) + result
+                return result
+
+            # Change dir automatically if enabled and the main script doesn't
+            # start with a cd command
+            if constants.SMART_CD:
+                if not script.strip().startswith("cd "):
+                    script = "\ncd " + self.directory + "\n" + script
+            # Prepend prepare_scripts
+            script = get_prepare_scripts() + "\n" + script
+            # Prettify script a little bit
+            pretty_script = ""
+            start = 0
+            end = 0
+            i = 0
+            for line in script.splitlines():
+                line = line.strip()
+                if line:
+                    if start == 0:
+                        start = i
+                    end = i
+                pretty_script += line + "\n"
+                i +=1
+            # Remove empty lines at beginning and end of script
+            pretty_script = "\n".join(pretty_script.splitlines()[start:end+1])
+            # Build path where the script will be stored
+            script_dir = os.path.join(constants.DATA_DIR, "scripts")
+            if not os.path.exists(script_dir):
+                os.mkdir(script_dir)
+            script_name =  self.name + "_" + event_name
+            script_path = script_dir + "/" + script_name
+            script_path += "_" + md5(pretty_script) + ".sh"
+            # Write new script to file
+            if not os.path.exists(script_path):
+                try:
+                    script_file = open(script_path, "w")
+                    script_file.write(pretty_script)
+                    script_file.close()
+                except IOError:
+                    self._gen_err("Could not write file '" + script_path + "'")
+                log_debug("Generated script '" + script_path + "'")
+            # Create symlink for easy access of latest generated script for event
+            link_path = script_dir + "/" + script_name
+            if os.path.exists(link_path):
+                os.remove(link_path)
+            os.symlink(script_path, link_path)
+
+        def getscriptattr(event_name):
+            # Get event property
+            attribute = getattr(self, event_name, None)
+            if attribute is None:
+                return None
+            # Check for correct type
+            if isinstance(attribute, str):
+                return attribute
+            if callable(attribute):
+                # If attribute is a function we need to execute it safely and
+                # make sure that it returns a string
+                try:
+                    returnval = attribute()
+                    print(returnval)
+                except Exception as err:
+                    err_name = type(err).__name__
+                    msg = event_name + " exited with error " + err_name
+                    self._gen_err(msg + ": " + str(err))
+                # Again type checking
+                if isinstance(returnval, str):
+                    return returnval
+                self._gen_err(event_name + "() needs to return a string")
+            self._gen_err(event_name + " needs to be a string or function")
+
+        events = [
+            "beforeInstall", "beforeUpdate", "beforeUninstall",
+            "afterInstall", "afterUpdate", "afterUninstall"
+        ]
+        for event in events:
+            script = getscriptattr(event)
+            if script is not None:
+                gen_script(event, script)
+                self.result[event] = True
+            else:
+                self.result[event] = False
+
     def generator(self):
         """This is the wrapper for :func:`generate()`. It overwrites the
         builtins and maps it own commands to them. :func:`generate()` must not
@@ -170,13 +334,18 @@ class Profile:
         self.executed = True
         self.__set_builtins()
         try:
+            log_debug("Generating event scripts for profile '" + self.name + "'.")
+            self.__generate_scripts()
+            log_debug("Generating profile '" + self.name + "'.")
             self.generate()
+            log_debug("Successfully generated profile '" + self.name + "'.")
         except Exception as err:
             if isinstance(err, CustomError):
                 raise
             msg = "An unkown error occured in your generate() function: "
             self._gen_err(msg + type(err).__name__ + ": " + str(err))
-        self.__reset_builtins()
+        finally:
+            self.__reset_builtins()
         return self.result
 
     def __set_builtins(self):
@@ -638,6 +807,8 @@ class Profile:
                 # and current directory
                 ProfileClass = import_profile_class(subprofile)
                 profile = ProfileClass(suboptions, self.directory, self)
+                # Add the new profile as subprofile
+                self.subprofiles.append(profile)
                 # Generate profile and add it to this profile's
                 # generation result
                 self.result["profiles"].append(profile.generator())

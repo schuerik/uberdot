@@ -1,0 +1,47 @@
+{
+    "@version": "1.13.0_4",
+    "SuperProfileEvent": {
+        "name": "SuperProfileEvent",
+        "links": [
+            {
+                "target": "test/regression/files/name1",
+                "name": "test/regression/environment-event/name1",
+                "uid": 1000,
+                "gid": 985,
+                "permission": 644,
+                "secure": true,
+                "date": "2019-12-12 16:45:49"
+            }
+        ],
+        "installed": "2019-12-12 16:45:49",
+        "updated": "2019-12-12 16:45:49"
+    },
+    "SubprofileEvent": {
+        "name": "SubprofileEvent",
+        "links": [
+            {
+                "target": "test/regression/files/name2",
+                "name": "test/regression/environment-event/name2",
+                "uid": 1000,
+                "gid": 985,
+                "permission": 644,
+                "secure": true,
+                "date": "2019-12-12 16:45:49"
+            },
+            {
+                "target": "test/regression/files/name3",
+                "name": "test/regression/environment-event/name3",
+                "uid": 1000,
+                "gid": 985,
+                "permission": 644,
+                "secure": true,
+                "date": "2019-12-12 16:45:49"
+            }
+        ],
+        "installed": "2019-12-12 16:45:49",
+        "updated": "2020-01-13 17:32:27",
+        "parent": "SuperProfileEvent",
+        "beforeUninstall": true,
+        "afterUninstall": true
+    }
+}
