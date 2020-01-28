@@ -165,7 +165,6 @@ class UberDot:
         parser.add_argument("--save",
                             help="specify another install-file to use",
                             default="default")
-<<<<<<< HEAD
         # Setup mode show arguments
         help_text = "display various information about installed profiles"
         parser_show = subparsers.add_parser(
@@ -205,6 +204,15 @@ class UberDot:
         parser_run.add_argument("--superforce",
                                 help="overwrite blacklisted/protected files",
                                 action="store_true")
+        parser_run.add_argument("--skipafter",
+                            help="do not execute events after linking",
+                            action="store_true")
+        parser_run.add_argument("--skipbefore",
+                            help="do not execute events before linking",
+                            action="store_true")
+        parser_run.add_argument("--skipevents",
+                            help="do not execute any events",
+                            action="store_true")
         # Setup mode update arguments
         help_text="install new or update already installed profiles"
         parser_update = subparsers.add_parser(
@@ -252,53 +260,6 @@ class UberDot:
         )
         # TODO: finish parser
         # TODO: add new args to const
-=======
-        parser.add_argument("--silent",
-                            help="print absolute nothing",
-                            action="store_true")
-        parser.add_argument("--skipafter",
-                            help="do not execute events after linking",
-                            action="store_true")
-        parser.add_argument("--skipbefore",
-                            help="do not execute events before linking",
-                            action="store_true")
-        parser.add_argument("--skipevents",
-                            help="do not execute any events",
-                            action="store_true")
-        parser.add_argument("--skiproot",
-                            help="do nothing that requires root permissions",
-                            action="store_true")
-        parser.add_argument("--superforce",
-                            help="overwrite blacklisted/protected files",
-                            action="store_true")
-        parser.add_argument("-v", "--verbose",
-                            help="print stacktrace in case of error",
-                            action="store_true")
-        # Modes
-        modes = parser.add_mutually_exclusive_group(required=True)
-        modes.add_argument("-h", "--help",
-                           help="show this help message and exit",
-                           action="help")
-        modes.add_argument("-i", "--install",
-                           help="install and update (sub)profiles",
-                           action="store_true")
-        modes.add_argument("--debuginfo",
-                           help="display internal values",
-                           action="store_true")
-        modes.add_argument("-u", "--uninstall",
-                           help="uninstall (sub)profiles",
-                           action="store_true")
-        modes.add_argument("-s", "--show",
-                           help="show infos about installed profiles",
-                           action="store_true")
-        modes.add_argument("--version",
-                           help="print version number",
-                           action="store_true")
-        # Profile list
-        parser.add_argument("profiles",
-                            help="list of root profiles",
-                            nargs="*")
->>>>>>> master
 
         # Read arguments
         try:
@@ -306,7 +267,6 @@ class UberDot:
         except argparse.ArgumentError as err:
             raise UserError(err.message)
 
-<<<<<<< HEAD
         # Load args and configs into const
         const.load(args)
 
@@ -316,49 +276,6 @@ class UberDot:
             # inproper configuration won't "shadow" this
             self.print_debuginfo()
             sys.exit(0)
-=======
-        # Options need some extra parsing for tags
-        if self.args.opt_dict and "tags" in self.args.opt_dict:
-            reader = csv.reader([self.args.opt_dict["tags"]])
-            self.args.opt_dict["tags"] = next(reader)
-        # And the directory was specified relative to the old working directory
-        if self.args.directory:
-            self.args.directory = os.path.join(self.owd, self.args.directory)
-        # Like the path to the config file
-        if self.args.config:
-            self.args.config = os.path.join(self.owd, self.args.config)
-
-        # Load constants for this installed-file
-        constants.loadconfig(self.args.config, self.args.save)
-        # Write back defaults from config for arguments that weren't set
-        if not self.args.dui:
-            self.args.dui = constants.DUISTRATEGY
-        if not self.args.force:
-            self.args.force = constants.FORCE
-        if not self.args.makedirs:
-            self.args.makedirs = constants.MAKEDIRS
-        if not self.args.skipafter:
-            self.args.skipafter = constants.SKIPAFTER
-        if not self.args.skipbefore:
-            self.args.skipbefore = constants.SKIPBEFORE
-        if not self.args.skipevents:
-            self.args.skipevents = constants.SKIPEVENTS
-        if not self.args.skiproot:
-            self.args.skiproot = constants.SKIPROOT
-        if not self.args.superforce:
-            self.args.superforce = constants.SUPERFORCE
-        if not self.args.directory:
-            self.args.directory = constants.DIR_DEFAULT
-        if not self.args.opt_dict:
-            self.args.opt_dict = constants.DEFAULTS
-        if not self.args.log and constants.LOGFILE:
-            self.args.log = normpath(constants.LOGFILE)
-        else:
-            # Merge options provided by commandline with loaded defaults
-            tmptags = self.args.opt_dict["tags"] + constants.DEFAULTS["tags"]
-            self.args.opt_dict = {**constants.DEFAULTS, **self.args.opt_dict}
-            self.args.opt_dict["tags"] = tmptags
->>>>>>> master
 
         # Configure logger
         logging_level_mapping = {
@@ -401,77 +318,9 @@ class UberDot:
             msg += "' does not exist on this system."
             raise UserError(msg)
 
-<<<<<<< HEAD
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
         # TODO: remove the use of self.args
-=======
-        # Check if arguments are bad
-        def args_depend(*args, need=[], omit=[], xor=False, msg=None):
-            """Checks if argument dependencies are fullfilled.
-
-            Args:
-                *args (list): The argument names that depend on other arguments
-                need (list): One of this need to be set if one of the arguments
-                    is set
-                omit (list): All of this need to be set if none of the
-                    arguments are set
-                xor (bool): Only one of the args is allowed to be set
-                msg (str): An error message if dependecies aren't fullfilled. If
-                    ommitted, it will be generated automatically
-            Raises:
-                UserError: The dependencies aren't fullfilled
-            """
-            def gen_msg():
-                nonlocal msg
-                if msg is not None:
-                    return msg
-                if need:
-                    msg = "--" + "/--".join(args) + " need to be used with "
-                    msg += "--" + "/--".join(need)
-                if xor:
-                    msg = "--" + "/--".join(args) + " can't be used together"
-                if omit:
-                    msg = "--" + ", --".join(omit) + " need to be specified "
-                return msg
-            # If at least one of the arguments is set
-            set_args = [1 for arg in args if self.args.__dict__[arg]]
-            if set_args:
-                # we verify that at least one argument of need is set
-                if need and not [1 for arg in need if self.args.__dict__[arg]]:
-                    raise UserError(gen_msg())
-                # or else only one is set if xor is set
-                if xor and len(set_args) > 1:
-                    raise UserError(msg)
-            # No argument is set, so all args from "omit" need to be set
-            elif omit and [x for x in omit if self.args.__dict__[x]] != omit:
-                raise UserError(gen_msg())
-
-        args_depend(
-            "dryrun", "print", "plain",
-            need=["install", "uninstall", "debuginfo"]
-        )
-        args_depend(
-            "dryrun", "plain", "print",
-            xor=True
-        )
-        args_depend(
-            "silent", "quiet", "info", "verbose",
-            xor=True
-        )
-        args_depend(
-            "show", "version", "debuginfo",
-            msg = "No Profile specified!!",
-            omit=["profiles"]
-        )
-        args_depend(
-            "parent", need=["install", "debuginfo"]
-        )
-
-    def execute_arguments(self):
-        """Executes whatever was specified via commandline arguments."""
-        # Check which mode, then run it
->>>>>>> master
         if self.args.show:
             self.print_installed_profiles()
         elif self.args.version:
@@ -560,61 +409,10 @@ class UberDot:
             if section is None:
                 section = "Internal"
             if old_section != section:
-                print(const.col_bold + header + ":" + const.col_endc)
+                print(const.col_bold + section + ":" + const.col_endc)
                 old_section = section
-            print(str("   " + name + ": ").ljust(32) + str(val))
+            print(str("   " + name + ": ").ljust(32) + str(const[name]))
 
-<<<<<<< HEAD
-=======
-        print_header("Config search paths")
-        for cfg in constants.CONFIG_SEARCH_PATHS:
-            print("   " + cfg)
-        print_header("Loaded configs")
-        for cfg in constants.CFG_FILES:
-            print("   " + cfg)
-        print_header("Arguments")
-        print_value("DUISTRATEGY", self.args.dui)
-        print_value("FORCE", self.args.force)
-        print_value("LOGFILE", self.args.log)
-        print_value("LOGGINGLEVEL", constants.LOGGINGLEVEL)
-        print_value("MAKEDIRS", self.args.makedirs)
-        print_value("SKIPEVENTS", self.args.skipevents)
-        print_value("SKIPBEFORE", self.args.skipbefore)
-        print_value("SKIPAFTER", self.args.skipafter)
-        print_value("SKIPROOT", self.args.skiproot)
-        print_value("SUPERFORCE", self.args.superforce)
-        print_header("Settings")
-        print_value("ASKROOT", constants.ASKROOT)
-        print_value("BACKUP_EXTENSION", constants.BACKUP_EXTENSION)
-        print_value("COLOR", constants.COLOR)
-        print_value("DATA_DIR", constants.DATA_DIR)
-        print_value("DECRYPT_PWD", constants.DECRYPT_PWD)
-        print_value("HASH_SEPARATOR", constants.HASH_SEPARATOR)
-        print_value("PROFILE_FILES", constants.PROFILE_FILES)
-        print_value("SHELL", constants.SHELL)
-        print_value("SHELL_TIMEOUT", constants.SHELL_TIMEOUT)
-        print_value("SMART_CD", constants.SMART_CD)
-        print_value("TAG_SEPARATOR", constants.TAG_SEPARATOR)
-        print_value("TARGET_FILES", constants.TARGET_FILES)
-        print_header("Command options")
-        print_value("DEFAULTS['directory']", self.args.directory)
-        print_value("DEFAULTS['extension']", self.args.opt_dict["extension"])
-        print_value("DEFAULTS['name']", self.args.opt_dict["name"])
-        print_value("DEFAULTS['optional']", self.args.opt_dict["optional"])
-        print_value("DEFAULTS['owner']", self.args.opt_dict["owner"])
-        print_value("DEFAULTS['permission']", self.args.opt_dict["permission"])
-        print_value("DEFAULTS['prefix']", self.args.opt_dict["prefix"])
-        print_value("DEFAULTS['replace']", self.args.opt_dict["replace"])
-        print_value("DEFAULTS['replace_pattern']",
-                    self.args.opt_dict["replace_pattern"])
-        print_value("DEFAULTS['secure']", self.args.opt_dict["secure"])
-        print_value("DEFAULTS['suffix']", self.args.opt_dict["suffix"])
-        print_value("DEFAULTS['tags']", self.args.opt_dict["tags"])
-        print_header("Internal values")
-        print_value("INSTALLED_FILE", constants.INSTALLED_FILE)
-        print_value("INSTALLED_FILE_BACKUP", constants.INSTALLED_FILE_BACKUP)
-
->>>>>>> master
     def print_installed_profiles(self):
         """Print out the installed-file in a readable format.
 
