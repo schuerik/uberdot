@@ -34,7 +34,7 @@ import pwd
 import re
 import subprocess
 import time
-from uberdot import constants
+from uberdot import constants as const
 from uberdot.errors import FatalError
 from uberdot.errors import GenerationError
 from uberdot.errors import PreconditionError
@@ -65,7 +65,7 @@ def find_target(target, tags):
     for root, name in walk_dotfiles():
         # We need to look if filename matches a tag
         for tag in tags:
-            if name == tag + "%" + target:
+            if name == tag + const.tag_separator + target:
                 targets.append(os.path.join(root, name))
     if not targets:
         # Seems like nothing was found, but we searched only files
@@ -74,7 +74,6 @@ def find_target(target, tags):
     # Return found target. Because we found files with tags, we use
     # the file that matches the earliest defined tag
     for tag in tags:
-
         for tmp_target in targets:
             if os.path.basename(tmp_target).startswith(tag):
                 return tmp_target
@@ -125,7 +124,7 @@ def walk_dotfiles():
         found file
     """
     # load ignore list
-    ignorelist_path = os.path.join(constants.TARGET_FILES, ".dotignore")
+    ignorelist_path = os.path.join(const.target_files, ".dotignore")
     ignorelist = []
     if os.path.exists(ignorelist_path):
         with open(ignorelist_path, "r") as file:
@@ -135,7 +134,7 @@ def walk_dotfiles():
 
     # walk through dotfile directory
     result = []
-    for root, _, files in os.walk(constants.TARGET_FILES):
+    for root, _, files in os.walk(const.target_files):
         for name in files:
             # check if file should be ignored
             on_ignorelist = False
@@ -145,6 +144,17 @@ def walk_dotfiles():
             # if not add it to result
             if not on_ignorelist:
                 result.append((root, name))
+    return result
+
+
+def walk_profiles():
+    result = []
+    for root, _, files in os.walk(const.profile_files):
+        for file in files:
+            file = os.path.join(root, file)
+            # Ignore everything that isn't a python module
+            if file[-2:] == "py":
+                result.append(file)
     return result
 
 
@@ -372,7 +382,7 @@ def normpath(path):
 # Dynamic imports
 ###############################################################################
 
-def import_profile_class(class_name):
+def import_profile(class_name):
     """Imports a profile class only by it's name.
 
     Searches :const:`~constants.PROFILE_FILES` for python modules and imports
@@ -381,6 +391,8 @@ def import_profile_class(class_name):
 
     Args:
         class_name (str): The name of the class that will be imported
+        file (str): If set, ``class_name`` will be imported from this file
+            directly
     Raises:
         :class:`~errors.GenerationError`: One of the modules in
             :const:`~constants.PROFILE_FILES` contained errors or the imported
@@ -390,37 +402,63 @@ def import_profile_class(class_name):
     Returns:
         class: The class that was imported
     """
+
+    # Go through all python files in the profile directory
+    for file in walk_profiles():
+        imported = import_profile_class(class_name, file)
+        if imported is not None:
+            return imported
+    raise PreconditionError("The profile '" + class_name +
+                            "' could not be found in any module. Aborting.")
+
+def import_profile_class(class_name, file):
     # Import profile (can't be done globally because profile needs to
     # import this module first)
     from uberdot.profile import Profile
+    try:
+        module = import_module(file, supress=False)
+    except Exception as err:
+        raise GenerationError(class_name, "The module '" + file +
+                              "' contains an error and therefor " +
+                              "can't be imported. The error was:" +
+                              "\n   " + str(err))
+    # Return the class if it is in this module
+    if class_name in module.__dict__:
+        if issubclass(module.__dict__[class_name], Profile):
+            return module.__dict__[class_name]
+        msg = "The class '" + class_name + "' does not inherit from"
+        msg += " Profile and therefore can't be imported."
+        raise GenerationError(class_name, msg)
 
-    # Go through all files in the profile directory
-    for root, _, files in os.walk(constants.PROFILE_FILES):
-        for file in files:
-            file = os.path.join(root, file)
-            # Ignore everything that isn't a python module
-            if file[-2:] != "py":
-                continue
-            try:
-                # Import module
-                spec = importlib.util.spec_from_file_location("__name__", file)
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-            except Exception as err:
-                raise GenerationError(class_name, "The module '" + file +
-                                      "' contains an error and therefor " +
-                                      "can't be imported. The error was:" +
-                                      "\n   " + str(err))
-            # Return the class if it is in this module
-            if class_name in module.__dict__:
-                tmp_class = module.__dict__[class_name]
-                if issubclass(tmp_class, Profile):
-                    return module.__dict__[class_name]
-                msg = "The class '" + class_name + "' does not inherit from"
-                msg += " Profile and therefore can't be imported."
-                raise GenerationError(class_name, msg)
-    raise PreconditionError("The profile '" + class_name +
-                            "' could not be found in any module. Aborting.")
+def import_module(file, supress=True):
+    # Import profile (can't be done globally because profile needs to
+    # import this module first)
+    from uberdot.profile import Profile
+    try:
+        spec = importlib.util.spec_from_file_location("__name__", file)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+    except Exception as err:
+        if not supress:
+            raise err
+
+def get_available_profiles():
+    # Import profile (can't be done globally because profile needs to
+    # import this module first)
+    from uberdot.profile import Profile
+    result = []
+    # Go through all python files in the profile directory
+    for file in walk_profiles():
+        module = import_module(file)
+        if module is None:
+            continue
+        for name, field in module.__dict__.items():
+            if isinstance(field, type):
+                if issubclass(field, Profile):
+                    if name != "Profile" and field.__module__ == "__name__":
+                        result.append((file, name))
+    return result
 
 
 # Misc
@@ -467,8 +505,8 @@ def log_operation(profile_name, message):
         profile_name (str): The name of the profile that triggered the operation.
         message (str): The message that will be logged
     """
-    logger.info(constants.BOLD + "[" + profile_name + "]: " +
-                constants.NOBOLD + message + "\n")
+    logger.info(const.col_bold + "[" + profile_name + "]: " +
+                const.col_nobold + message + "\n")
 
 
 def log_warning(message):
@@ -480,7 +518,7 @@ def log_warning(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.warning(constants.C_WARNING + message + constants.ENDC + "\n")
+    logger.warning(const.col_warning + message + const.col_endc + "\n")
 
 
 def log_success(message):
@@ -492,7 +530,7 @@ def log_success(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.info(constants.C_OK + message + constants.ENDC + "\n")
+    logger.info(const.col_ok + message + const.col_endc + "\n")
 
 
 def log_debug(message):
@@ -504,7 +542,7 @@ def log_debug(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.debug(constants.C_DEBUG + message + constants.ENDC + "\n")
+    logger.debug(const.col_debug + message + const.col_endc + "\n")
 
 
 def log_error(message):

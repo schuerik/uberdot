@@ -72,7 +72,7 @@ from subprocess import PIPE
 from subprocess import STDOUT
 from subprocess import Popen
 from threading import Thread
-from uberdot import constants
+from uberdot import constants as const
 from uberdot.errors import *
 from uberdot.utils import *
 
@@ -349,16 +349,6 @@ class CheckDynamicFilesInterpreter(Interpreter):
     Attributes:
         dryrun (bool): Stores, if ``--dryrun`` was set
     """
-
-    def __init__(self, dryrun):
-        """Constructor.
-
-        Args:
-            dryrun (bool): Sets, if this is a dryrun
-        """
-        self.dryrun = dryrun
-        super().__init__()
-
     def _op_update_l(self, dop):
         """Inspects the target file of the to be updated link.
 
@@ -414,7 +404,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
             UserAbortion: The user decided to abort the whole process
             PreconditionError: The patch file could not be written
         """
-        target_bak = target + "." + constants.BACKUP_EXTENSION
+        target_bak = target + "." + const.backup_extension
         done = False
         while not done:
             inp = input("[A]bort / [I]gnore / Show [D]iff " +
@@ -429,7 +419,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
                 process.communicate()
             elif inp == "P":
                 # Create a git patch with git diff
-                patch_file = os.path.join(constants.TARGET_FILES,
+                patch_file = os.path.join(const.target_files,
                                           os.path.basename(target))
                 patch_file += ".patch"
                 patch_file = input("Enter filename for patch [" +
@@ -444,7 +434,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
                     msg = "Could not write patch file '" + patch_file + "'."
                     raise PreconditionError(msg)
             elif inp == "U":
-                if self.dryrun:
+                if const.dryrun:
                     print("This does nothing this time since " +
                           "this is just a dry-run")
                 else:
@@ -536,22 +526,17 @@ class CheckLinkBlacklistInterpreter(Interpreter):
     """Checks if a operation touches a link that is on the blacklist.
 
     Attributes:
-        superforce (bool): Stores, if ``--superforce`` was set
         blacklist (list): A list of file name patterns that are forbidden
             to touch without superforce flag
     """
-    def __init__(self, superforce):
+    def __init__(self):
         """Constructor.
 
         Loads the blacklist.
-
-        Args:
-            superforce (bool): Sets, if superforce was turned on
         """
         super().__init__()
-        self.superforce = superforce
         self.blacklist = []
-        for blfile in find_files("black.list", [constants.DATA_DIR]):
+        for blfile in find_files("black.list", [const.data_dir]):
             with open(blfile, "r") as file:
                 for line in file.readlines():
                     self.blacklist.append(line)
@@ -573,7 +558,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
                 log_warning("You are trying to " + action + " '" + file_name +
                             "' which is blacklisted. It is considered " +
                             "dangerous to " + action + " those files!")
-                if self.superforce:
+                if const.superforce:
                     log_warning("Are you sure that you want to " + action +
                                 " a blacklisted file?")
                     confirmation = input("Type \"YES\" to confirm or " +
@@ -622,15 +607,6 @@ class CheckLinkDirsInterpreter(Interpreter):
     Attributes:
         makedirs (bool): Stores, if ``--makedirs`` was set
     """
-    def __init__(self, makedirs):
-        """Constructor
-
-        Args:
-            makedirs (bool): Sets, if directories shall be created
-        """
-        super().__init__()
-        self.makedirs = makedirs
-
     def _op_add_l(self, dop):
         """Checks if the directory of the to be added link already exists.
 
@@ -656,7 +632,7 @@ class CheckLinkDirsInterpreter(Interpreter):
             PreconditionError: The directory doesn't exist and ``makedirs``
                 isn't set
         """
-        if not self.makedirs:
+        if not const.makedirs:
             if not os.path.isdir(dirname):
                 msg = "The directory '" + dirname + "/' needs to be created "
                 msg += "in order to perform this action, but "
@@ -668,14 +644,12 @@ class CheckLinkExistsInterpreter(Interpreter):
     """Checks if links of installed-file really exist in the filesystem.
 
     Attributes:
-        force (bool): Stores, if ``--force`` was set
         removed_links (list): A collection of all links that are going to be
             removed
     """
-    def __init__(self, force):
+    def __init__(self):
         """Constructor"""
         super().__init__()
-        self.force = force
         self.removed_links = []
 
     def _op_remove_l(self, dop):
@@ -725,7 +699,7 @@ class CheckLinkExistsInterpreter(Interpreter):
         if normpath(dop["symlink1"]["name"]) != dop["symlink2"]["name"]:
             if os.path.lexists(dop["symlink2"]["name"]):
                 if os.path.isdir(dop["symlink2"]["name"]):
-                    if not self.force:
+                    if not const.force:
                         msg = "'" + dop["symlink1"]["name"] + "' can not be "
                         msg += "moved to '" + dop["symlink2"]["name"] + "' "
                         msg += "because it is a directory and would be "
@@ -739,7 +713,7 @@ class CheckLinkExistsInterpreter(Interpreter):
                         msg += " that would be overwritten. Please empty the"
                         msg += " directory or remove it entirely."
                         raise PreconditionError(msg)
-                elif not self.force:
+                elif not const.force:
                     msg = "'" + dop["symlink1"]["name"] + "' can not be moved to '"
                     msg += dop["symlink2"]["name"] + "' because it already exists"
                     msg += " on your filesystem and would be overwritten."
@@ -758,7 +732,7 @@ class CheckLinkExistsInterpreter(Interpreter):
         name = dop["symlink"]["name"]
         if not normpath(name) in self.removed_links and os.path.lexists(name):
             if os.path.isdir(name):
-                if not self.force:
+                if not const.force:
                     msg = "'" + name + "' is a directory and would be"
                     msg += " overwritten. You can force to overwrite empty"
                     msg += " directories by setting the --force flag."
@@ -768,7 +742,7 @@ class CheckLinkExistsInterpreter(Interpreter):
                     msg += " that would be overwritten. Please empty the"
                     msg += " directory or remove it entirely."
                     raise PreconditionError(msg)
-            elif not self.force:
+            elif not const.force:
                 msg = "'" + name + "' already exists and would be"
                 msg += " overwritten by '" + dop["symlink"]["target"]
                 msg += " '. You can force to overwrite the"
@@ -786,12 +760,11 @@ class CheckProfilesInterpreter(Interpreter):
     duplicates and overwrites.
 
     Attributes:
-        parent_arg (str): Stores the value of ``--parent``
         profile_list (list): A list that stores all profiles, their parents
             and if they are already installed. Profiles that are still
             installed in the end, will end up twice in this list.
     """
-    def __init__(self, installed, parent_arg=None):
+    def __init__(self, installed):
         """Constructor.
 
         Initializes ``profile_list`` with all profiles from the installed-file.
@@ -802,7 +775,6 @@ class CheckProfilesInterpreter(Interpreter):
             parent_arg (str): The value of ``--parent``
         """
         super().__init__()
-        self.parent_arg = parent_arg
         self.profile_list = []
         # profile_list contains: (profile name, parent name, is installed)
         for key, profile in installed.items():
@@ -874,7 +846,7 @@ class CheckProfilesInterpreter(Interpreter):
             # Just make sure the parent is really updated
             if known[1] != dop["parent"]:
                 # If the user set the new parent manually, overwrites are ok
-                if self.parent_arg == dop["parent"]:
+                if const.parent == dop["parent"]:
                     return
                 # Detaching a profile from a parent is also allowed
                 if dop["parent"] is None:
@@ -977,7 +949,7 @@ class EventInterpreter(Interpreter):
                 generated script is searched
         """
         log_operation(profile_name, "Running event " + event_name)
-        script_dir = os.path.join(constants.DATA_DIR, "scripts") + "/"
+        script_dir = os.path.join(const.data_dir, "scripts") + "/"
         script_path = script_dir + profile_name + "_" + event_name
         if not os.path.exists(script_path):
             raise FatalError("Generated script couldn't be found")
@@ -1096,7 +1068,7 @@ class EventExecInterpreter(EventInterpreter):
         # Now the critical part start
         try:
             # Start the shell and start thread to listen to stdout and stderr
-            cmd = [constants.SHELL] + constants.SHELL_ARGS.split() + [script_path]
+            cmd = [const.shell] + const.shell_args.split() + [script_path]
             log_debug(" ".join(cmd))
             self.shell = Popen(
                 cmd, stdout=PIPE, stderr=STDOUT,
@@ -1108,11 +1080,11 @@ class EventExecInterpreter(EventInterpreter):
             self.ticks_without_feedback = 0
             while self.shell.poll() is None:
                 self.ticks_without_feedback += 1
-                if (self.ticks_without_feedback > constants.SHELL_TIMEOUT * 1000 \
-                        and constants.SHELL_TIMEOUT > 0):
+                if (self.ticks_without_feedback > const.shell_timeout * 1000 \
+                        and const.shell_timeout > 0):
                     stop_execution("Timeout reached!")
                     msg = "Script timed out after "
-                    msg += str(constants.SHELL_TIMEOUT) + " seconds"
+                    msg += str(const.shell_timeout) + " seconds"
                     raise GenerationError(profilename, msg)
                 # Just wait a tick
                 time.sleep(.001)
@@ -1198,9 +1170,8 @@ class ExecuteInterpreter(Interpreter):
 
     Attributes:
         installed (dict): The installed-file that will be updated
-        force (bool): Stores, if ``--force`` was set
     """
-    def __init__(self, installed, force):
+    def __init__(self, installed):
         """Constructor.
 
         Updates the version number of the installed-file.
@@ -1211,8 +1182,7 @@ class ExecuteInterpreter(Interpreter):
         """
         super().__init__()
         self.installed = installed
-        self.installed["@version"] = constants.VERSION  # Update version number
-        self.force = force
+        self.installed["@version"] = const.version  # Update version number
 
     def _op_update_s(self, dop):
         """Updates the script_path of the onUninstall-script for a profile.
@@ -1319,7 +1289,7 @@ class ExecuteInterpreter(Interpreter):
             self._makedirs(name)
         try:
             # Remove existing symlink
-            if self.force and os.path.lexists(name):
+            if const.force and os.path.lexists(name):
                 if os.path.isdir(name):
                     # Overwriting empty dirs is also possible. CheckLinkExists
                     # will make sure that the directory is empty
@@ -1587,7 +1557,7 @@ class GainRootInterpreter(RootNeededInterpreter):
             dop (dict): Unused in this implementation
         """
         if self.logged:
-            if constants.ASKROOT:
+            if const.askroot:
                 args = [sys.executable] + sys.argv
                 call_msg = "'sudo " + " ".join(args) + "'"
                 log_debug("Replacing process with " + call_msg + ".")

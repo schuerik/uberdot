@@ -36,7 +36,7 @@
 
 
 from abc import abstractmethod
-from uberdot import constants
+from uberdot import constants as const
 
 
 class CustomError(Exception):
@@ -65,8 +65,8 @@ class CustomError(Exception):
 
     @property
     def message(self):
-        msg = constants.C_FAIL + constants.BOLD + "ERROR: " + constants.NOBOLD
-        msg += self._message + constants.ENDC
+        msg = const.col_fail + const.col_bold + "ERROR: " + const.col_nobold
+        msg += self._message + const.col_endc
         return msg
 
 
@@ -85,11 +85,11 @@ class FatalError(CustomError):
             message (str): The error message
         """
         msg = message
-        msg += "\n" + constants.C_WARNING + "This error should "
-        msg += constants.BOLD + "NEVER EVER" + constants.NOBOLD + " "
+        msg += "\n" + const.col_warning + "This error should "
+        msg += const.col_bold + "NEVER EVER" + const.col_nobold + " "
         msg += "occur!! The developer fucked this up really hard! Please "
         msg += "make sure to resolve this issue before using this "
-        msg += "tool again!" + constants.ENDC
+        msg += "tool again!" + const.col_endc
         super().__init__(msg)
 
 
@@ -156,8 +156,8 @@ class GenerationError(CustomError):
             profile_name (str): Name of the profile that triggered the error
             message (str): The error message
         """
-        super().__init__(constants.BOLD + "[" + profile_name + "]: " +
-                         constants.NOBOLD + message)
+        super().__init__(const.col_bold + "[" + profile_name + "]: " +
+                         const.col_nobold + message)
 
 
 class UnkownError(CustomError):

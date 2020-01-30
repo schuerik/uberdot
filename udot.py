@@ -32,7 +32,7 @@ or you can import UberDot for debugging and testing purposes."""
 #
 ###############################################################################
 
-from uberdot.constants import Const
+from uberdot import constants as const
 from uberdot.interpreters import *
 from uberdot.errors import CustomError
 from uberdot.errors import FatalError
@@ -46,6 +46,8 @@ from uberdot.utils import has_root_priveleges
 from uberdot.utils import get_uid
 from uberdot.utils import get_gid
 from uberdot.utils import import_profile_class
+from uberdot.utils import import_profile
+from uberdot.utils import log
 from uberdot.utils import log_debug
 from uberdot.utils import log_error
 from uberdot.utils import log_success
@@ -56,6 +58,7 @@ from uberdot.utils import normpath
 import argparse
 import csv
 import grp
+import inspect
 import json
 import logging
 import os
@@ -68,8 +71,6 @@ if os.getenv("COVERAGE_PROCESS_START"):
     # Restart coverage if spawned as a subprocess
     import coverage
     coverage.process_startup()
-
-const = None
 
 class UberDot:
     """Bundles all functionality of uberdot.
@@ -139,14 +140,18 @@ class UberDot:
             dest="mode"
         )
         parser_profiles = CustomParser(add_help=False)
-        parser_profiles.add_argument("profiles",
+        parser_profiles.add_argument("profilenames",
                                      help="do this only for this list of root profiles",
                                      nargs="*")
         # Setup top level arguments
         parser.add_argument("--config",
                             help="specify another config-file to use")
         parser.add_argument("--debuginfo",
-                            help="show loaded settings and internal values")
+                            help="show loaded settings and internal values",
+                            action="store_true")
+        parser.add_argument("--ignore",
+                            help="list of profilenames that will be ignored",
+                            nargs="+")
         group_log_level = parser.add_mutually_exclusive_group()
         group_log_level.add_argument("-v", "--verbose",
                             help="print debug messages and tracebacks",
@@ -176,7 +181,6 @@ class UberDot:
         parser_show.add_argument("-l", "--links",
                                  help="show installed links",
                                  action="store_true")
-        # TODO: profiles can not be there twice
         parser_show.add_argument("-p", "--profiles",
                                  help="show installed profiles",
                                  action="store_true")
@@ -251,6 +255,39 @@ class UberDot:
             description=help_text,
             help=help_text
         )
+        parser_find.add_argument("-p", "--profiles",
+                                 help="search for profiles",
+                                 action="store_true")
+        parser_find.add_argument("-d", "--dotfiles",
+                                 help="search for dotfiles",
+                                 action="store_true")
+        parser_find.add_argument("-t", "--tags",
+                                 help="search for tags",
+                                 action="store_true")
+        parser_find.add_argument("-c", "--content",
+                                 help="search in file content of profiles/dotfiles",
+                                 action="store_true")
+        parser_find.add_argument("-n", "--name",
+                                 help="search in the plain names of profiles/dotfiles/tags",
+                                 action="store_true")
+        parser_find.add_argument("-f", "--filename",
+                                 help="search in filenames of profiles/dotfiles",
+                                 action="store_true")
+        parser_find.add_argument("-a", "--all",
+                                 help="search everywhere; same as -cnf",
+                                 action="store_true")
+        parser_find.add_argument("-i", "--ignorecase",
+                                 help="search caseinsensitv (has no effect with -r)",
+                                 action="store_true")
+        parser_find.add_argument("-r", "--regex",
+                                 help="interprete searchstr as regular expression",
+                                 action="store_true")
+        parser_find.add_argument("-l", "--locations",
+                                 help="also show the files where something was found",
+                                 action="store_true")
+        parser_find.add_argument("searchstr",
+                                 help="a string that will be searched for",
+                                 nargs="?")
         # Setup mode version arguments
         help_text="show version number"
         parser_version = subparsers.add_parser(
@@ -300,6 +337,10 @@ class UberDot:
     def check_arguments(self):
         """Checks if parsed arguments/settings are bad or incompatible to
         each other. If not, it raises an UserError."""
+        if const.mode == "version":
+            # If the user just want to get the version number, we should
+            # not force him to setup a proper config
+            return
         # Check if settings are bad
         if not const.target_files:
             raise UserError("You need to set target_files in your config")
@@ -320,26 +361,25 @@ class UberDot:
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
-        # TODO: remove the use of self.args
-        if self.args.show:
+        if const.mode == "show":
             self.print_installed_profiles()
-        elif self.args.version:
+        elif const.mode == "find":
+            self.search()
+        elif const.mode == "version":
             print(const.col_bold + "Version: " + const.col_endc +
                   const.version)
-        elif self.args.debuginfo:
-            self.print_debuginfo()
         else:
             # The above are modes that just print stuff, but here we
             # have to actually do something:
             # 1. Decide how to solve the differences
-            if self.args.uninstall:
-                dfs = UninstallDiffSolver(self.installed, self.args.profiles)
-            elif self.args.install:
+            if const.mode == "remove":
+                dfs = UninstallDiffSolver(self.installed, const.profilenames)
+            elif const.mode == "update":
                 self.execute_profiles()
                 profile_results = [p.result for p in self.profiles]
                 dfs = UpdateDiffSolver(self.installed,
                                        profile_results,
-                                       self.args.parent)
+                                       const.parent)
             # elif TODO history resolve...
             else:
                 raise FatalError("None of the expected modes were set")
@@ -347,19 +387,19 @@ class UberDot:
             log_debug("Calculate operations for linking process.")
             dfl = dfs.solve()
             # 3. Eventually manipulate the result
-            if self.args.dui:
+            if const.dui:
                 log_debug("Reordering operations according to --dui.")
                 dfl.run_interpreter(DUIStrategyInterpreter())
-            if self.args.skiproot:
+            if const.skiproot:
                 log_debug("Removing operations that require root.")
                 dfl.run_interpreter(SkipRootInterpreter())
             # 4. Simmulate a run, print the result or actually resolve the
             # differences
-            if self.args.dryrun:
+            if const.dryrun:
                 self.dryrun(dfl)
-            elif self.args.plain:
+            elif const.plain:
                 dfl.run_interpreter(PlainPrintInterpreter())
-            elif self.args.print:
+            elif const.print:
                 dfl.run_interpreter(PrintInterpreter())
             else:
                 self.run(dfl)
@@ -377,11 +417,12 @@ class UberDot:
         """
         # Use user arguments as default (can be overwritten for debugging)
         if profiles is None:
-            profiles = self.args.profiles
+            profiles = const.profilenames
         if options is None:
-            options = self.args.opt_dict
+            option_list = dict(const.items("Defaults"))
+            del option_list["directory"]
         if directory is None:
-            directory = self.args.directory
+            directory = const.directory
 
         # Setting arguments for root profiles
         pargs = {}
@@ -391,7 +432,7 @@ class UberDot:
         # Import and create profiles
         for profilename in profiles:
             self.profiles.append(
-                import_profile_class(profilename)(**pargs)
+                import_profile(profilename)(**pargs)
             )
         # And execute them
         for profile in self.profiles:
@@ -411,20 +452,26 @@ class UberDot:
             if old_section != section:
                 print(const.col_bold + section + ":" + const.col_endc)
                 old_section = section
-            print(str("   " + name + ": ").ljust(32) + str(const[name]))
+            value = str(const.get(name))
+            if name in ["col_endc", "col_bold", "col_nobold"]:
+                continue
+            if name.startswith("col_") and value:
+                # TODO print color codes
+                value = value + "text" + const.col_endc
+            print(str("   " + name + ": ").ljust(32) + value)
 
     def print_installed_profiles(self):
         """Print out the installed-file in a readable format.
 
         Prints only the profiles specified in the commandline arguments. If
         none are specified it prints all profiles of the installed-file."""
-        if self.args.profiles:
-            for profilename in self.args.profiles:
+        if const.profilenames:
+            for profilename in const.profilenames:
                 if profilename in self.installed:
                     self.print_installed(self.installed[profilename])
                 else:
-                    log_warning("\nThe profile '" + profilename +
-                                "' is not installed. Skipping...\n")
+                    log_warning("The profile '" + profilename +
+                                "' is not installed. Skipping...")
         else:
             for key in self.installed.keys():
                 if key[0] != "@":
@@ -436,24 +483,134 @@ class UberDot:
         Args:
             profile (dict): The profile that will be printed
         """
-        print(const.col_bold + profile["name"] + ":" + const.col_endc)
-        print("  Installed: " + profile["installed"])
-        print("  Updated: " + profile["updated"])
-        if "parent" in profile:
-            print("  Subprofile of: " + profile["parent"])
-        if "profiles" in profile:
-            print("  Has Subprofiles: " + ", ".join(
-                [s["name"] for s in profile["profiles"]]
-            ))
-        if profile["links"]:
-            print("  Links:")
-        for symlink in profile["links"]:
-            print("    " + symlink["name"] + "  →  " + symlink["target"])
-            user = pwd.getpwuid(symlink["uid"])[0]
-            group = grp.getgrgid(symlink["gid"])[0]
-            print("       Owner: " + user + ":" + group +
-                  "   Permission: " + str(symlink["permission"]) +
-                  "   Updated: " + symlink["date"])
+        tab = ""
+        if const.profiles or (not const.profiles and not const.links):
+            tab = "  "
+            if not const.links and not const.meta:
+                log(const.col_bold + profile["name"] + const.col_endc)
+            else:
+                log(const.col_bold + profile["name"] + ":" + const.col_endc)
+            if const.meta:
+                log(tab + "Installed: " + profile["installed"])
+                log(tab + "Updated: " + profile["updated"])
+                log(tab + "Updated: " + profile["updated"])
+                if "parent" in profile:
+                    log(tab + "Subprofile of: " + profile["parent"])
+                if "profiles" in profile:
+                    log(tab + "Has Subprofiles: " + ", ".join(
+                        [s["name"] for s in profile["profiles"]]
+                    ))
+        if const.links or (not const.profiles and not const.links):
+            for symlink in profile["links"]:
+                log(tab + symlink["name"] + "  →  " + symlink["target"])
+                if const.meta:
+                    user = pwd.getpwuid(symlink["uid"])[0]
+                    group = grp.getgrgid(symlink["gid"])[0]
+                    log(
+                        tab + "    Owner: " + user + ":" + group +
+                        "   Permission: " + str(symlink["permission"]) +
+                        "   Updated: " + symlink["date"]
+                    )
+
+    def search(self):
+        def search_and_hightlight(text, pattern):
+            all_results = []
+            for line in text.split("\n"):
+                if const.regex:
+                    match = re.search(pattern, line)
+                    if match:
+                        result = line[:match.start()] + const.col_fail
+                        result += line[match.start():match.end()]
+                        result += const.col_endc + line[match.end():]
+                        all_results.append(result)
+                else:
+                    try:
+                        if const.ignorecase:
+                            idx = line.lower().index(pattern.lower())
+                        else:
+                            idx = line.index(pattern)
+                    except ValueError:
+                        pass
+                    else:
+                        result = line[:idx] + const.col_fail
+                        result += line[idx:idx+len(pattern)]
+                        result += const.col_endc + line[idx+len(pattern):]
+                        all_results.append(result)
+            return all_results
+
+        result = []
+        if const.profiles:
+            if const.filename or const.all:
+                for file in walk_profiles():
+                    result += [(file, item) for item in search_and_hightlight(file, const.searchstr)]
+            if const.names or const.all:
+                for file, pname in get_available_profiles():
+                    result += [(file, item) for item in search_and_hightlight(pname, const.searchstr)]
+            if const.content or const.all:
+                for file, pname in get_available_profiles():
+                    pat = re.compile(r'^(\s*)class\s*' + pname + r'\b')
+                    # make some effort to find the best matching class definition:
+                    # use the one with the least indentation, which is the one
+                    # that's most probably not inside a function definition.
+                    candidates = []
+                    lines = open(file).readlines()
+                    start = None
+                    for i in range(len(lines)):
+                        match = pat.match(lines[i])
+                        if match:
+                            # if it's at toplevel, it's already the best one
+                            if lines[i][0] == 'c':
+                                start = i
+                            # else add whitespace to candidate list
+                            candidates.append((match.group(1), i))
+                    if start is None:
+                        # this will sort by whitespace, and by line number,
+                        # less whitespace first
+                        candidates.sort()
+                        start = candidates[0][1]
+                    searchtext = "".join(inspect.getblock(lines[start:]))
+                    result += [(file, item) for item in search_and_hightlight(searchtext, const.searchstr)]
+
+        if const.dotfiles:
+            for root, name in walk_dotfiles():
+                file = os.path.join(root, name)
+                if const.names or const.all:
+                    searchtext = name
+                    if const.tag_separator in searchtext:
+                        idx = searchtext.index(const.tag_separator)
+                        searchtext = searchtext[idx+1:]
+                    result += [(file, item) for item in search_and_hightlight(searchtext, const.searchstr)]
+                if const.filename or const.all:
+                    searchtext = file
+                    result += [(file, item) for item in search_and_hightlight(searchtext, const.searchstr)]
+                if const.content or const.all:
+                    try:
+                        searchtext = open(file).read()
+                        result += [(file, item) for item in search_and_hightlight(searchtext, const.searchstr)]
+                    except UnicodeDecodeError:
+                        pass
+        if const.tags:
+            tags = []
+            for root, name in walk_dotfiles():
+                file = os.path.join(root, name)
+                if const.tag_separator in name:
+                    tag = name[:name.index(const.tag_separator)+len(const.tag_separator)-1]
+                    if const.locations:
+                        result += [(file, item) for item in search_and_hightlight(tag, const.searchstr)]
+                    elif tag not in tags:
+                        tags.append(tag)
+            for tag in tags:
+                result += [(file, item) for item in search_and_hightlight(tag, const.searchstr)]
+
+        if const.locations:
+            for i, item in enumerate(result):
+                if item in result[i+1:]:
+                    result.pop(i)
+            for file, entry in result:
+                log(file + ": " + entry)
+        else:
+            for entry in sorted(list(set([item[1] for item in result]))):
+                log(entry)
 
     def run(self, difflog):
         """Performs checks on DiffLog and resolves it.
@@ -475,13 +632,13 @@ class UberDot:
         # Run integration tests on difflog
         log_debug("Checking operations for errors and conflicts.")
         difflog.run_interpreter(
-            CheckProfilesInterpreter(self.installed, const.parent)
+            CheckProfilesInterpreter(self.installed)
         )
         tests = [
             CheckLinksInterpreter(self.installed),
-            CheckLinkDirsInterpreter(const.makedirs),
-            CheckLinkExistsInterpreter(const.force),
-            CheckDynamicFilesInterpreter(False)
+            CheckLinkDirsInterpreter(),
+            CheckLinkExistsInterpreter(),
+            CheckDynamicFilesInterpreter()
         ]
         difflog.run_interpreter(*tests)
         # Gain root if needed
@@ -492,7 +649,7 @@ class UberDot:
             log_debug("uberdot was started with root priveleges")
         # Check blacklist not until now, because the user would need confirm it
         # twice if the programm is restarted with sudo
-        difflog.run_interpreter(CheckLinkBlacklistInterpreter(const.superforce))
+        difflog.run_interpreter(CheckLinkBlacklistInterpreter())
         # Now the critical part begins, devided into three main tasks:
         # 1. running events before, 2. linking, 3. running events after
         # Each part is surrounded with a try-catch block that wraps every
@@ -511,8 +668,8 @@ class UberDot:
                     # We need to run those tests again because the executed event
                     # might have fucked with some links or dynamic files
                     difflog.run_interpreter(
-                        CheckLinkExistsInterpreter(const.force),
-                        CheckDynamicFilesInterpreter(False)
+                        CheckLinkExistsInterpreter(),
+                        CheckDynamicFilesInterpreter()
                     )
                 except CustomError as err:
                     # We add some additional information to the raised errors
@@ -534,7 +691,7 @@ class UberDot:
                                 const.installed_backup)
             # Execute all operations of the difflog and print them
             difflog.run_interpreter(
-                ExecuteInterpreter(self.installed, const.force),
+                ExecuteInterpreter(self.installed),
                 PrintInterpreter()
             )
             # Remove Backup
@@ -578,20 +735,20 @@ class UberDot:
         # Run tests
         log_debug("Checking operations for errors and conflicts.")
         difflog.run_interpreter(
-            CheckProfilesInterpreter(self.installed, self.args.parent)
+            CheckProfilesInterpreter(self.installed)
         )
         tests = [
             CheckLinksInterpreter(self.installed),
-            CheckLinkBlacklistInterpreter(self.args.superforce),
-            CheckLinkDirsInterpreter(self.args.makedirs),
-            CheckLinkExistsInterpreter(self.args.force),
-            CheckDynamicFilesInterpreter(True)
+            CheckLinkBlacklistInterpreter(),
+            CheckLinkDirsInterpreter(),
+            CheckLinkExistsInterpreter(),
+            CheckDynamicFilesInterpreter()
         ]
         difflog.run_interpreter(*tests)
         log_debug("Checking if root would be needed")
         difflog.run_interpreter(RootNeededInterpreter())
         # Simulate events before
-        if not self.args.skipevents and not self.args.skipbefore:
+        if not const.skipevents and not const.skipbefore:
             difflog.run_interpreter(
                 EventPrintInterpreter(
                     self.profiles, self.installed, "before"
@@ -600,7 +757,7 @@ class UberDot:
         # Simulate execution
         difflog.run_interpreter(PrintInterpreter())
         # Simulate events after
-        if not self.args.skipevents and not self.args.skipafter:
+        if not const.skipevents and not const.skipafter:
             difflog.run_interpreter(
                 EventPrintInterpreter(
                     self.profiles, self.installed, "after"
@@ -666,9 +823,7 @@ def run_script(name):
             log_error(err.message)
         sys.exit(err.EXITCODE)
 
-    global const
     if name == "__main__":
-        const = Const(os.getcwd())
         # Init the logger, further configuration is done when we parse the
         # commandline arguments
         logger = logging.getLogger("root")

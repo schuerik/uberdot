@@ -1107,34 +1107,34 @@ DirRegressionTest("Conflict: Link has multiple targets",
                   ["update", "MultipleTargetsConflict"],
                   before, before).fail("run", 102)
 DirRegressionTest("Event: On Install",
-                  ["-i", "SuperProfileEvent"],
+                  ["update", "SuperProfileEvent"],
                   before, after_event).success()
 DirRegressionTest("Event: On Update",
-                  ["-if", "SuperProfileEvent"],
+                  ["update", "-f", "SuperProfileEvent"],
                   after_event, after_event_update, "event").success()
 DirRegressionTest("Event: On Uninstall",
-                  ["-u", "SuperProfileEvent"],
+                  ["remove", "SuperProfileEvent"],
                   after_event, before, "event").success()
 DirRegressionTest("Event: --skipbefore",
-                  ["-i", "--skipbefore", "SuperProfileEvent"],
+                  ["update", "--skipbefore", "SuperProfileEvent"],
                   before, after_event_no_before).success()
 DirRegressionTest("Event: --skipafter",
-                  ["-if", "--skipafter", "SuperProfileEvent"],
+                  ["update", "-f", "--skipafter", "SuperProfileEvent"],
                   after_event, after_event_no_after, "event").success()
 DirRegressionTest("Event: --skipevents",
-                  ["-u", "--skipevents", "SuperProfileEvent"],
+                  ["remove", "--skipevents", "SuperProfileEvent"],
                   after_event, after_event_no_event, "event").success()
 DirRegressionTest("Event: Conflicts with linking",
-                  ["-i", "ConflictProfileEvent"],
+                  ["update", "ConflictProfileEvent"],
                   before, before).fail("run", 103)
 DirRegressionTest("Event: Fail on purpose",
-                  ["-i", "FailProfileEvent"],
+                  ["update", "FailProfileEvent"],
                   before, before).fail("run", 107)
 DirRegressionTest("Event: Fail on error",
-                  ["-i", "--skipbefore", "FailProfileEvent"],
+                  ["update", "--skipbefore", "FailProfileEvent"],
                   before, after_ignorefiles).fail("run", 107)
 DirRegressionTest("Event: Fail on timeout",
-                  ["-i", "TimeoutProfileEvent"],
+                  ["update", "TimeoutProfileEvent"],
                   before, before).fail("run", 107)
 DirRegressionTest("Update: Simple",
                   ["update", "DirOption"],
@@ -1182,6 +1182,7 @@ if global_fails:
     print(str(global_fails) + " \033[1mTests \033[91mFAILED\033[0m")
 else:
     print("\033[1mTests \033[92msuccessful\033[0m")
+
 
 
 # Exit

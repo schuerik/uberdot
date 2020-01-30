@@ -31,7 +31,7 @@ import os
 import re
 import shutil
 from abc import abstractmethod
-from uberdot import constants
+from uberdot import constants as const
 from uberdot.dynamicfile import *
 from uberdot.errors import CustomError
 from uberdot.errors import GenerationError
@@ -109,15 +109,18 @@ class Profile:
         :attr:`self.directory<Profile.directory>` if ``directory`` is ``None``.
         """
         if options is None:
-            options = dict(constants.DEFAULTS)
-        if not directory:
-            directory = constants.DIR_DEFAULT
+            self.options = dict(const.items("Defaults"))
+            del self.options["directory"]
+        else:
+            self.options = options
+        if options is None:
+            self.directory = const.directory
+        else:
+            self.directory = directory
         self.__old_builtins = {}
         self.name = self.__class__.__name__
         self.executed = False
         self.builtins_overwritten = False
-        self.options = options
-        self.directory = directory
         self.parent = parent
         self.subprofiles = []
         self.result = {
@@ -239,7 +242,7 @@ class Profile:
 
             # Change dir automatically if enabled and the main script doesn't
             # start with a cd command
-            if constants.SMART_CD:
+            if const.smart_cd:
                 if not script.strip().startswith("cd "):
                     script = "\ncd " + self.directory + "\n" + script
             # Prepend prepare_scripts
@@ -260,7 +263,7 @@ class Profile:
             # Remove empty lines at beginning and end of script
             pretty_script = "\n".join(pretty_script.splitlines()[start:end+1])
             # Build path where the script will be stored
-            script_dir = os.path.join(constants.DATA_DIR, "scripts")
+            script_dir = os.path.join(const.data_dir, "scripts")
             if not os.path.exists(script_dir):
                 os.mkdir(script_dir)
             script_name =  self.name + "_" + event_name
@@ -385,7 +388,7 @@ class Profile:
 
     @command
     def find(self, target):
-        """Find a dotfile in :const:`~constants.TARGET_FILES`. Depends on the
+        """Find a dotfile in :const:`~const.target_files`. Depends on the
         current set tags.
 
         This can be overwritten to change the searching behaviour of a profile.
@@ -554,8 +557,8 @@ class Profile:
         # them by there name without tag
         for root, name in walk_dotfiles():
             tag, base = (None, os.path.basename(name))
-            if constants.TAG_SEPARATOR in base:
-                tag, base = base.split(constants.TAG_SEPARATOR, 1)
+            if const.tag_separator in base:
+                tag, base = base.split(const.tag_separator, 1)
             if re.fullmatch(target_pattern, base) is not None:
                 if base not in target_dir:
                     target_dir[base] = []
@@ -631,8 +634,8 @@ class Profile:
                 base = name
             else:
                 base = os.path.basename(target)
-            if constants.TAG_SEPARATOR in base:
-                base = base.split(constants.TAG_SEPARATOR, 1)[1]
+            if const.tag_separator in base:
+                base = base.split(const.tag_separator, 1)[1]
             name = re.sub(replace_pattern, replace, base)
         elif name:
             name = expandpath(name)
@@ -643,7 +646,7 @@ class Profile:
             # "name" wasn't set by the user,
             # so fallback to use the target name (but without the tag)
             name = os.path.basename(
-                target.split(constants.TAG_SEPARATOR, 1)[-1]
+                target.split(const.tag_separator, 1)[-1]
             )
 
         # Add prefix an suffix to name
@@ -720,12 +723,13 @@ class Profile:
         Args:
             *options (list): A list of options that will be reset
         """
-        self.cd(constants.DIR_DEFAULT)
+        self.directory = const.directory
         if not options:
-            self.options = dict(constants.DEFAULTS)
+            self.options = dict(const.items("Default"))
+            del self.options["directory"]
         else:
             for item in options:
-                self.options[item] = constants.DEFAULTS[item]
+                self.options[item] = const.get(item)
 
     @command
     def rmtags(self, *tags):
@@ -773,7 +777,7 @@ class Profile:
                 not exist
         """
         for key in kwargs:
-            if key in constants.DEFAULTS:
+            if key in self.options:
                 self.options[key] = kwargs[key]
             else:
                 self._gen_err("There is no option called " + key)
