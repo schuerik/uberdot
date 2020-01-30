@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Configuration &#8212; uberdot 1.12.17_4 documentation</title>
+    <title>Configuration &#8212; uberdot 1.13.1_4 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -98,11 +98,26 @@ dir. Mainly useful for automated testing.</td>
 <td>Path (absolute or relatively to the installation)</td>
 <td>The directory that contains the profiles</td>
 </tr>
-<tr class="row-odd"><td>tagSeparator</td>
+<tr class="row-odd"><td>shell</td>
+<td>Path/Process name (Default is &quot;bash&quot;)</td>
+<td>The shell that is used to execute shell scripts from event
+callbacks</td>
+</tr>
+<tr class="row-even"><td>shellTimeout</td>
+<td>Integer (Default is 60)</td>
+<td>Time in seconds that a shell command is allowed to run
+without printing anything.</td>
+</tr>
+<tr class="row-odd"><td>smartShellCWD</td>
+<td>True, False (Default is True)</td>
+<td>If true, event scripts will always start in the directory in
+which the profile started.</td>
+</tr>
+<tr class="row-even"><td>tagSeparator</td>
 <td>String (Default is &quot;%&quot;)</td>
 <td>The symbol that is used as separator for tags in dotfile names</td>
 </tr>
-<tr class="row-even"><td>targetFiles</td>
+<tr class="row-odd"><td>targetFiles</td>
 <td>Path (absolute or relatively to the installation)</td>
 <td>The directory that contains the dotfiles</td>
 </tr>

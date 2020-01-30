@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>udot &#8212; uberdot 1.12.17_4 documentation</title>
+    <title>udot &#8212; uberdot 1.13.1_4 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -67,6 +67,22 @@ should either exit or raise an exception.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="udot.StdoutFilter">
+<em class="property">class </em><code class="descclassname">udot.</code><code class="descname">StdoutFilter</code><span class="sig-paren">(</span><em>name=''</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.StdoutFilter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">logging.Filter</span></code></p>
+<p>Custom logging filter that filters all error messages from a stream.
+Used to filter stdout, because otherwise every error would be pushed to
+stdout AND stderr.</p>
+<dl class="method">
+<dt id="udot.StdoutFilter.filter">
+<code class="descname">filter</code><span class="sig-paren">(</span><em>record</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.StdoutFilter.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True for all records that have a logging level of
+WARNING or less.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="udot.StoreDictKeyPair">
 <em class="property">class </em><code class="descclassname">udot.</code><code class="descname">StoreDictKeyPair</code><span class="sig-paren">(</span><em>option_strings</em>, <em>dest</em>, <em>nargs=None</em>, <em>const=None</em>, <em>default=None</em>, <em>type=None</em>, <em>choices=None</em>, <em>required=False</em>, <em>help=None</em>, <em>metavar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.StoreDictKeyPair" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">argparse.Action</span></code></p>
@@ -96,6 +112,20 @@ printing information and executing profiles.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="udot.UberDot.profiles">
+<code class="descname">profiles</code><a class="headerlink" href="#udot.UberDot.profiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of the to be installed/updated profiles</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list</td>
 </tr>
 </tbody>
 </table>
@@ -132,9 +162,16 @@ printing information and executing profiles.</p>
 <dl class="method">
 <dt id="udot.UberDot.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructor</p>
+<dd><p>Constructor.</p>
 <p>Initializes attributes and changes the working directory to the
 directory where this module is stored.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="udot.UberDot.check_arguments">
+<code class="descname">check_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.check_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if parsed arguments/settings are bad or incompatible to
+each other. If not, it raises an UserError.</p>
 </dd></dl>
 
 <dl class="method">
@@ -158,6 +195,28 @@ raise all kinds of <a class="reference internal" href="errors.html#errors.Custom
 <dt id="udot.UberDot.execute_arguments">
 <code class="descname">execute_arguments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.execute_arguments" title="Permalink to this definition">¶</a></dt>
 <dd><p>Executes whatever was specified via commandline arguments.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="udot.UberDot.execute_profiles">
+<code class="descname">execute_profiles</code><span class="sig-paren">(</span><em>profiles=None</em>, <em>options=None</em>, <em>directory=None</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.UberDot.execute_profiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Imports profiles by name and executes them.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profiles</strong> (<em>list</em>) -- A list of names of profiles that will be executed.
+If this is None, it will be set to what the user set via cli.</li>
+<li><strong>options</strong> (<em>dict</em>) -- A dictionary of default options for root profiles.
+If this is None, it will be set to what the user set via cli.</li>
+<li><strong>directory</strong> (<em>str</em>) -- A default path in which root profiles start.
+If this is None, it will be set to what the user set via cli.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -257,8 +316,9 @@ raise all kinds of <a class="reference internal" href="errors.html#errors.Custom
 <dl class="function">
 <dt id="udot.run_script">
 <code class="descclassname">udot.</code><code class="descname">run_script</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#udot.run_script" title="Permalink to this definition">¶</a></dt>
-<dd><p>Act like a script if we were invoked like a script.</p>
-<p>This is needed for coverage.</p>
+<dd><p>Act like a script if this was invoked like a script.
+This is needed, because otherwise everything below couldn't
+be traced by coverage.</p>
 </dd></dl>
 
 </div>

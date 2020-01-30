@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Interpreters &#8212; uberdot 1.12.17_4 documentation</title>
+    <title>Interpreters &#8212; uberdot 1.13.1_4 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -76,25 +76,34 @@ DiffLog.</p>
 <tr class="row-even"><td><a class="reference internal" href="#interpreters.DetectRootInterpreter" title="interpreters.DetectRootInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DetectRootInterpreter</span></code></a></td>
 <td>Detects if root permission is needed to perform operations.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#interpreters.ExecuteInterpreter" title="interpreters.ExecuteInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExecuteInterpreter</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#interpreters.EventExecInterpreter" title="interpreters.EventExecInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventExecInterpreter</span></code></a></td>
+<td>This interpreter is used to execute the event scripts of a profile.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#interpreters.EventInterpreter" title="interpreters.EventInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventInterpreter</span></code></a></td>
+<td>This interpreter is the abstract base class for interpreters that work with profile events.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#interpreters.EventPrintInterpreter" title="interpreters.EventPrintInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EventPrintInterpreter</span></code></a></td>
+<td>This interpreter is used to print out what an event will do.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#interpreters.ExecuteInterpreter" title="interpreters.ExecuteInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ExecuteInterpreter</span></code></a></td>
 <td>This interpreter actually executes the operations from the DiffLog.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#interpreters.GainRootInterpreter" title="interpreters.GainRootInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GainRootInterpreter</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#interpreters.GainRootInterpreter" title="interpreters.GainRootInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GainRootInterpreter</span></code></a></td>
 <td>If root permission is needed to perform the operations, this interpreter restarts the process with &quot;sudo&quot;.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Interpreter</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Interpreter</span></code></a></td>
 <td>Base-class for interpreters.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#interpreters.PlainPrintInterpreter" title="interpreters.PlainPrintInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlainPrintInterpreter</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#interpreters.PlainPrintInterpreter" title="interpreters.PlainPrintInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PlainPrintInterpreter</span></code></a></td>
 <td>Prints add/remove/update-operation without any formating.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#interpreters.PrintInterpreter" title="interpreters.PrintInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrintInterpreter</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#interpreters.PrintInterpreter" title="interpreters.PrintInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PrintInterpreter</span></code></a></td>
 <td>Pretty-prints log messages and what a operation is going to do.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#interpreters.RootNeededInterpreter" title="interpreters.RootNeededInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RootNeededInterpreter</span></code></a></td>
+<tr class="row-odd"><td><a class="reference internal" href="#interpreters.RootNeededInterpreter" title="interpreters.RootNeededInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RootNeededInterpreter</span></code></a></td>
 <td>Checks if root permission are required to perform all operations.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#interpreters.SkipRootInterpreter" title="interpreters.SkipRootInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkipRootInterpreter</span></code></a></td>
+<tr class="row-even"><td><a class="reference internal" href="#interpreters.SkipRootInterpreter" title="interpreters.SkipRootInterpreter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SkipRootInterpreter</span></code></a></td>
 <td>Skips all operations that would require root permission.</td>
 </tr>
 </tbody>
@@ -1051,6 +1060,312 @@ will require root permission</li>
 </dd></dl>
 
 <dl class="class">
+<dt id="interpreters.EventExecInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">EventExecInterpreter</code><span class="sig-paren">(</span><em>profiles</em>, <em>installed</em>, <em>event_type</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventExecInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.EventInterpreter" title="interpreters.EventInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.EventInterpreter</span></code></a></p>
+<p>This interpreter is used to execute the event scripts of a profile.</p>
+<dl class="attribute">
+<dt id="interpreters.EventExecInterpreter.shell">
+<code class="descname">shell</code><a class="headerlink" href="#interpreters.EventExecInterpreter.shell" title="Permalink to this definition">¶</a></dt>
+<dd><p>The shell process used to execute all event callbacks</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Process</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.EventExecInterpreter.queue_out">
+<code class="descname">queue_out</code><a class="headerlink" href="#interpreters.EventExecInterpreter.queue_out" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to push the output of the shell back in realtime</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Queue</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.EventExecInterpreter.queue_err">
+<code class="descname">queue_err</code><a class="headerlink" href="#interpreters.EventExecInterpreter.queue_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to push exceptions during execution back to
+the main process</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">Queue</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.EventExecInterpreter.ticks_without_feedback">
+<code class="descname">ticks_without_feedback</code><a class="headerlink" href="#interpreters.EventExecInterpreter.ticks_without_feedback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counter that stores the time in
+milliseconds that the main thread is already waiting for the shell
+script without capturing any output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.EventExecInterpreter.failures">
+<code class="descname">failures</code><a class="headerlink" href="#interpreters.EventExecInterpreter.failures" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counter that stores how many scripts executed with errors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventExecInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>profiles</em>, <em>installed</em>, <em>event_type</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventExecInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Creates a thread and queues for listening on the shells stdout and
+stderr.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventExecInterpreter._op_fin">
+<code class="descname">_op_fin</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventExecInterpreter._op_fin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs a summary of the executed scripts. If one or more scripts
+failed, it aborts the program</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventExecInterpreter.listen_for_script_output">
+<code class="descname">listen_for_script_output</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventExecInterpreter.listen_for_script_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runnable of <code class="docutils literal notranslate"><span class="pre">thread_out</span></code>. Waits for the shell to push something
+to stdout or stderr and prints it. All catched exceptions will be
+stored in <code class="docutils literal notranslate"><span class="pre">queue_err</span></code> to handle on the main thread.
+Also resets <code class="docutils literal notranslate"><span class="pre">ticks_without_feedback</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventExecInterpreter.run_script">
+<code class="descname">run_script</code><span class="sig-paren">(</span><em>script_path</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventExecInterpreter.run_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute script for the given profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>script_name</strong> (<em>str</em>) -- The name of the script that was generated
+for an event</li>
+<li><strong>profilename</strong> (<em>str</em>) -- The name of the profile that triggered the
+event</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.EventInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">EventInterpreter</code><span class="sig-paren">(</span><em>profiles</em>, <em>installed</em>, <em>event_type</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
+<p>This interpreter is the abstract base class for interpreters that
+work with profile events. Implements _op_* depending on self.event_type.</p>
+<dl class="attribute">
+<dt id="interpreters.EventInterpreter.profiles">
+<code class="descname">profiles</code><a class="headerlink" href="#interpreters.EventInterpreter.profiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of profiles <strong>after</strong> their execution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.EventInterpreter.installed">
+<code class="descname">installed</code><a class="headerlink" href="#interpreters.EventInterpreter.installed" title="Permalink to this definition">¶</a></dt>
+<dd><p>A copy of the old installed-file that is used to
+lookup if a profile had Uninstall-events set</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="interpreters.EventInterpreter.event_type">
+<code class="descname">event_type</code><a class="headerlink" href="#interpreters.EventInterpreter.event_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>A specific type (&quot;after&quot; or &quot;before&quot;) that determines
+which events this interpreter shall look for</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventInterpreter.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>profiles</em>, <em>installed</em>, <em>event_type</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventInterpreter.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor.</p>
+<p>Sets _op_add_p and _op_update_p depending on event_type.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profiles</strong> (<em>list</em>) -- A list of profiles <strong>after</strong> their execution.</li>
+<li><strong>installed</strong> (<em>dict</em>) -- A copy of the old installed-file that is used to
+lookup if a profile had Uninstall-events set</li>
+<li><strong>event_type</strong> (<em>str</em>) -- A specific type (&quot;after&quot; or &quot;before&quot;) that
+determines which events this interpreter shall look for</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventInterpreter._op_remove_p">
+<code class="descname">_op_remove_p</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventInterpreter._op_remove_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a profile has an uninstall-event set, that matches
+event_type. If so, it calls start_event().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>dict</em>) -- The remove-operation that triggers the event</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventInterpreter.event_handler">
+<code class="descname">event_handler</code><span class="sig-paren">(</span><em>event_name</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventInterpreter.event_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a function that can be used to interprete add_p- and
+update_p-operations.</p>
+<p>The returned function checks for a given operation, if the profile
+has an event set that matches event_type and event_name. If so,
+it calls start_event().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event_name</strong> (<em>str</em>) -- Name of the event that shall be interpreted
+by the returned function</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventInterpreter.get_profile">
+<code class="descname">get_profile</code><span class="sig-paren">(</span><em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventInterpreter.get_profile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a profile from <a class="reference internal" href="#interpreters.EventInterpreter.profiles" title="interpreters.EventInterpreter.profiles"><code class="xref py py-attr docutils literal notranslate"><span class="pre">self.profiles</span></code></a>
+by it's name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>profilename</strong> (<em>str</em>) -- Name of the profile that will be searched for.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><em>Profile</em> -- The corresponding profile</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventInterpreter.run_script">
+<code class="descname">run_script</code><span class="sig-paren">(</span><em>script_path</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventInterpreter.run_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to handle script execution of an event. Depending on the
+subclass this might execute or just print out the script.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>script_path</strong> (<em>str</em>) -- The path of the script that was generated
+for an event</li>
+<li><strong>profilename</strong> (<em>str</em>) -- The name of the profile whose event is
+executed</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="interpreters.EventInterpreter.start_event">
+<code class="descname">start_event</code><span class="sig-paren">(</span><em>profile_name</em>, <em>event_name</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventInterpreter.start_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the generated script for a specific profile and event.
+Calls run_script() for the found script.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profile_name</strong> (<em>str</em>) -- The name of the profile for which the
+generated script is searched</li>
+<li><strong>event_name</strong> (<em>str</em>) -- The name of the event for which the
+generated script is searched</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="interpreters.EventPrintInterpreter">
+<em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">EventPrintInterpreter</code><span class="sig-paren">(</span><em>profiles</em>, <em>installed</em>, <em>event_type</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventPrintInterpreter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#interpreters.EventInterpreter" title="interpreters.EventInterpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.EventInterpreter</span></code></a></p>
+<p>This interpreter is used to print out what an event will do.</p>
+<p>More precisly this prints out the generated shell script that would be
+executed by an event line by line.</p>
+<dl class="method">
+<dt id="interpreters.EventPrintInterpreter.run_script">
+<code class="descname">run_script</code><span class="sig-paren">(</span><em>script_path</em>, <em>profilename</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.EventPrintInterpreter.run_script" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the script line by line for an event of a given profile.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="interpreters.ExecuteInterpreter">
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">ExecuteInterpreter</code><span class="sig-paren">(</span><em>installed</em>, <em>force</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
@@ -1251,6 +1566,20 @@ the corresponding profile in the installed-file.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="interpreters.ExecuteInterpreter._op_update_s">
+<code class="descname">_op_update_s</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.ExecuteInterpreter._op_update_s" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the script_path of the onUninstall-script for a profile.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dop</strong> (<em>dict</em>) -- The update-operation that will be executed</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -1323,25 +1652,6 @@ of uberdot, but prepend it with &quot;sudo&quot;.</p>
 <em class="property">class </em><code class="descclassname">interpreters.</code><code class="descname">PrintInterpreter</code><a class="headerlink" href="#interpreters.PrintInterpreter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#interpreters.Interpreter" title="interpreters.Interpreter"><code class="xref py py-class docutils literal notranslate"><span class="pre">interpreters.Interpreter</span></code></a></p>
 <p>Pretty-prints log messages and what a operation is going to do.</p>
-<dl class="staticmethod">
-<dt id="interpreters.PrintInterpreter._log_operation">
-<em class="property">static </em><code class="descname">_log_operation</code><span class="sig-paren">(</span><em>dop</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._log_operation" title="Permalink to this definition">¶</a></dt>
-<dd><p>Logs/Prints out a message for an operation.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>dop</strong> (<em>dict</em>) -- The operation that is logged. Used to include the
-profile name in the log message that triggered the operation.</li>
-<li><strong>message</strong> (<em>str</em>) -- The message that will be logged</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="method">
 <dt id="interpreters.PrintInterpreter._op_add_l">
 <code class="descname">_op_add_l</code><span class="sig-paren">(</span><em>dop</em><span class="sig-paren">)</span><a class="headerlink" href="#interpreters.PrintInterpreter._op_add_l" title="Permalink to this definition">¶</a></dt>

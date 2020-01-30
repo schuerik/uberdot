@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Constants &#8212; uberdot 1.12.17_4 documentation</title>
+    <title>Constants &#8212; uberdot 1.13.1_4 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -79,6 +79,36 @@ with higher index will be prefered.</p>
 </dd></dl>
 
 <dl class="data">
+<dt id="constants.C_DEBUG">
+<code class="descclassname">constants.</code><code class="descname">C_DEBUG</code><em class="property"> = '\x1b[90m'</em><a class="headerlink" href="#constants.C_DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bash color code for debugging output (gray).</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.C_FAIL">
+<code class="descclassname">constants.</code><code class="descname">C_FAIL</code><em class="property"> = '\x1b[91m'</em><a class="headerlink" href="#constants.C_FAIL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bash color code for error output (red).</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.C_HIGHLIGHT">
+<code class="descclassname">constants.</code><code class="descname">C_HIGHLIGHT</code><em class="property"> = '\x1b[34m'</em><a class="headerlink" href="#constants.C_HIGHLIGHT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bash color code for highlighting normal output (blue).</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.C_OK">
+<code class="descclassname">constants.</code><code class="descname">C_OK</code><em class="property"> = '\x1b[92m'</em><a class="headerlink" href="#constants.C_OK" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bash color code for successful output (green).</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.C_WARNING">
+<code class="descclassname">constants.</code><code class="descname">C_WARNING</code><em class="property"> = '\x1b[93m'</em><a class="headerlink" href="#constants.C_WARNING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bash color code for warning output (yellow).</p>
+</dd></dl>
+
+<dl class="data">
 <dt id="constants.DATA_DIR">
 <code class="descclassname">constants.</code><code class="descname">DATA_DIR</code><em class="property"> = '/home/travis/build/schuerik/uberdot/data'</em><a class="headerlink" href="#constants.DATA_DIR" title="Permalink to this definition">¶</a></dt>
 <dd><p>The directory that stores installed-files, dynamic files and
@@ -113,12 +143,6 @@ some static files.</p>
 <dt id="constants.ENDC">
 <code class="descclassname">constants.</code><code class="descname">ENDC</code><em class="property"> = '\x1b[0m'</em><a class="headerlink" href="#constants.ENDC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bash color code to stop formatation of text.</p>
-</dd></dl>
-
-<dl class="data">
-<dt id="constants.FAIL">
-<code class="descclassname">constants.</code><code class="descname">FAIL</code><em class="property"> = '\x1b[91m'</em><a class="headerlink" href="#constants.FAIL" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bash color code for red text.</p>
 </dd></dl>
 
 <dl class="data">
@@ -172,22 +196,63 @@ Default is <code class="docutils literal notranslate"><span class="pre">False</s
 </dd></dl>
 
 <dl class="data">
-<dt id="constants.OKGREEN">
-<code class="descclassname">constants.</code><code class="descname">OKGREEN</code><em class="property"> = '\x1b[92m'</em><a class="headerlink" href="#constants.OKGREEN" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bash color code for green text.</p>
-</dd></dl>
-
-<dl class="data">
 <dt id="constants.PROFILE_FILES">
 <code class="descclassname">constants.</code><code class="descname">PROFILE_FILES</code><em class="property"> = ''</em><a class="headerlink" href="#constants.PROFILE_FILES" title="Permalink to this definition">¶</a></dt>
 <dd><p>The directory where the profile will be loaded from.</p>
 </dd></dl>
 
 <dl class="data">
+<dt id="constants.SHELL">
+<code class="descclassname">constants.</code><code class="descname">SHELL</code><em class="property"> = '/bin/bash'</em><a class="headerlink" href="#constants.SHELL" title="Permalink to this definition">¶</a></dt>
+<dd><p>The shell that is used to execute event callbacks.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.SHELL_ARGS">
+<code class="descclassname">constants.</code><code class="descname">SHELL_ARGS</code><em class="property"> = '-e -O expand_aliases'</em><a class="headerlink" href="#constants.SHELL_ARGS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The arguments that will be passed to the shell.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.SHELL_TIMEOUT">
+<code class="descclassname">constants.</code><code class="descname">SHELL_TIMEOUT</code><em class="property"> = 60</em><a class="headerlink" href="#constants.SHELL_TIMEOUT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time in seconds that a shell command is allowed to run without
+printing something out.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.SKIPAFTER">
+<code class="descclassname">constants.</code><code class="descname">SKIPAFTER</code><em class="property"> = False</em><a class="headerlink" href="#constants.SKIPAFTER" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if all operations shall be ignored by EventAfterInterpreters.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.SKIPBEFORE">
+<code class="descclassname">constants.</code><code class="descname">SKIPBEFORE</code><em class="property"> = False</em><a class="headerlink" href="#constants.SKIPBEFORE" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if all operations shall be ignored by EventBeforeInterpreters.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.SKIPEVENTS">
+<code class="descclassname">constants.</code><code class="descname">SKIPEVENTS</code><em class="property"> = False</em><a class="headerlink" href="#constants.SKIPEVENTS" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if all operations shall be ignored by EventInterpreters.
+Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="data">
 <dt id="constants.SKIPROOT">
 <code class="descclassname">constants.</code><code class="descname">SKIPROOT</code><em class="property"> = False</em><a class="headerlink" href="#constants.SKIPROOT" title="Permalink to this definition">¶</a></dt>
-<dd><p>True, if all operations that requiere root permission will be omitted.
+<dd><p>True, if all operations that requiere root permission shall be omitted.
 Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="data">
+<dt id="constants.SMART_CD">
+<code class="descclassname">constants.</code><code class="descname">SMART_CD</code><em class="property"> = True</em><a class="headerlink" href="#constants.SMART_CD" title="Permalink to this definition">¶</a></dt>
+<dd><p>True, if event shell scripts shall automatically change the directory
+to the directory of the profile that triggered the event.</p>
 </dd></dl>
 
 <dl class="data">
@@ -210,24 +275,12 @@ Default is <code class="docutils literal notranslate"><span class="pre">False</s
 </dd></dl>
 
 <dl class="data">
-<dt id="constants.UNDERLINE">
-<code class="descclassname">constants.</code><code class="descname">UNDERLINE</code><em class="property"> = '\x1b[4m'</em><a class="headerlink" href="#constants.UNDERLINE" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bash color code for underlined text.</p>
-</dd></dl>
-
-<dl class="data">
 <dt id="constants.VERSION">
-<code class="descclassname">constants.</code><code class="descname">VERSION</code><em class="property"> = '1.12.17_4'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">constants.</code><code class="descname">VERSION</code><em class="property"> = '1.13.1_4'</em><a class="headerlink" href="#constants.VERSION" title="Permalink to this definition">¶</a></dt>
 <dd><p>Version numbers, seperated by underscore.</p>
 <p>First part is the version of uberdot. The second part (after the underscore)
 is the version of the installed-file schema. The latter will be used to
 determine compability of the uberdot with the installed-file.</p>
-</dd></dl>
-
-<dl class="data">
-<dt id="constants.WARNING">
-<code class="descclassname">constants.</code><code class="descname">WARNING</code><em class="property"> = '\x1b[93m'</em><a class="headerlink" href="#constants.WARNING" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bash color code for yellow text.</p>
 </dd></dl>
 
 <dl class="function">

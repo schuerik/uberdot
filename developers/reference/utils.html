@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Utils &#8212; uberdot 1.12.17_4 documentation</title>
+    <title>Utils &#8212; uberdot 1.13.1_4 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
@@ -243,6 +243,20 @@ was started with sudo) SUDO_GID will be returned instead.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="utils.get_timestamp_now">
+<code class="descclassname">utils.</code><code class="descname">get_timestamp_now</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_timestamp_now" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a timestamp string for the current moment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><em>str</em> -- The timestamp</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="utils.get_uid">
 <code class="descclassname">utils.</code><code class="descname">get_uid</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#utils.get_uid" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the UID of the user that started uberdot.</p>
@@ -365,9 +379,25 @@ exists</li>
 </dd></dl>
 
 <dl class="function">
+<dt id="utils.log">
+<code class="descclassname">utils.</code><code class="descname">log</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for logger.info() but creates a newline.</p>
+<p>Using the log functions, the output will also be printed into a logfile
+if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> -- The message that will be logged</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="utils.log_debug">
 <code class="descclassname">utils.</code><code class="descname">log_debug</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_debug" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints text that is only shown when <code class="docutils literal notranslate"><span class="pre">--verbose</span></code> is set.</p>
+<dd><p>Alias for logger.debug() but creates a newline and colorizes output.</p>
 <p>Using the log functions, the output will also be printed into a logfile
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -381,9 +411,45 @@ if the user set the <code class="docutils literal notranslate"><span class="pre"
 </dd></dl>
 
 <dl class="function">
+<dt id="utils.log_error">
+<code class="descclassname">utils.</code><code class="descname">log_error</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for logger.error() but creates a newline.</p>
+<p>Using the log functions, the output will also be printed into a logfile
+if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) -- The message that will be printed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.log_operation">
+<code class="descclassname">utils.</code><code class="descname">log_operation</code><span class="sig-paren">(</span><em>profile_name</em>, <em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_operation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Logs/Prints out a message for a profile.</p>
+<p>Using the log functions, the output will also be printed into a logfile
+if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>profile_name</strong> (<em>str</em>) -- The name of the profile that triggered the operation.</li>
+<li><strong>message</strong> (<em>str</em>) -- The message that will be logged</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="utils.log_success">
 <code class="descclassname">utils.</code><code class="descname">log_success</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_success" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints text in success color.</p>
+<dd><p>Alias for logger.info() but creates a newline and colorizes output.</p>
 <p>Using the log functions, the output will also be printed into a logfile
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -399,7 +465,7 @@ if the user set the <code class="docutils literal notranslate"><span class="pre"
 <dl class="function">
 <dt id="utils.log_warning">
 <code class="descclassname">utils.</code><code class="descname">log_warning</code><span class="sig-paren">(</span><em>message</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.log_warning" title="Permalink to this definition">¶</a></dt>
-<dd><p>Prints text in warning color.</p>
+<dd><p>Alias for logger.warning() but creates a newline and colorizes output.</p>
 <p>Using the log functions, the output will also be printed into a logfile
 if the user set the <code class="docutils literal notranslate"><span class="pre">--log</span></code> flag.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -407,6 +473,23 @@ if the user set the <code class="docutils literal notranslate"><span class="pre"
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> (<em>str</em>) -- The message that will be printed.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="utils.md5">
+<code class="descclassname">utils.</code><code class="descname">md5</code><span class="sig-paren">(</span><em>string</em><span class="sig-paren">)</span><a class="headerlink" href="#utils.md5" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the md5 hash for a given string or bytearray.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>string</strong> -- A string or bytearray that the md5 hash will be
+calculated for. Strings will be encoded before hashing.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The hexadecimal representation of the md5 hash</td>
 </tr>
 </tbody>
 </table>

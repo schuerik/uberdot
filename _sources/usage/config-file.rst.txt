@@ -44,6 +44,15 @@ The following settings are available:
 +-----------------+---------------------------------------------------+------------------------------------------------------------------+
 | profileFiles    | Path (absolute or relatively to the installation) | The directory that contains the profiles                         |
 +-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| shell           | Path/Process name (Default is "bash")             | The shell that is used to execute shell scripts from event       |
+|                 |                                                   | callbacks                                                        |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| shellTimeout    | Integer (Default is 60)                           | Time in seconds that a shell command is allowed to run           |
+|                 |                                                   | without printing anything.                                       |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
+| smartShellCWD   | True, False (Default is True)                     | If true, event scripts will always start in the directory in     |
+|                 |                                                   | which the profile started.                                       |
++-----------------+---------------------------------------------------+------------------------------------------------------------------+
 | tagSeparator    | String (Default is "%")                           | The symbol that is used as separator for tags in dotfile names   |
 +-----------------+---------------------------------------------------+------------------------------------------------------------------+
 | targetFiles     | Path (absolute or relatively to the installation) | The directory that contains the dotfiles                         |
