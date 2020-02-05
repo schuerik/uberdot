@@ -25,6 +25,7 @@ E.g. retrieving a environment variable or fixing file permisions."""
 
 import datetime
 import hashlib
+import inspect
 import grp
 import importlib.util
 import logging
@@ -460,6 +461,40 @@ def get_available_profiles():
                         result.append((file, name))
     return result
 
+def get_profile_source(profile_name, file=None):
+    if file is None:
+        for path, name in get_available_profiles():
+            if name == profile_name:
+                file = path
+                break
+        else:
+            msg = "Could not find module for '" + profile_name + "'"
+            raise PreconditionError(msg)
+
+    # This is a modified version inspect.getsource() because
+    # the way we import profiles on-demand fucks with inspect,
+    # so that it can't find the module of the profiles
+    pat = re.compile(r'^(\s*)class\s*' + profile_name + r'\b')
+    # make some effort to find the best matching class definition:
+    # use the one with the least indentation, which is the one
+    # that's most probably not inside a function definition.
+    candidates = []
+    lines = open(file).readlines()
+    start = None
+    for i in range(len(lines)):
+        match = pat.match(lines[i])
+        if match:
+            # if it's at toplevel, it's already the best one
+            if lines[i][0] == 'c':
+                start = i
+            # else add whitespace to candidate list
+            candidates.append((match.group(1), i))
+    if start is None:
+        # this will sort by whitespace, and by line number,
+        # less whitespace first
+        candidates.sort()
+        start = candidates[0][1]
+    return inspect.getblock(lines[start:])
 
 # Misc
 ###############################################################################

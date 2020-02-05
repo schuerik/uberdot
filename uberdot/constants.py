@@ -53,79 +53,78 @@ searchpaths = [
     ),
     data_dir
 ]
-f = False  # I just want to get some space in the datastructure below
 values = {
     # name: (value, was_overwritten, configsection, type, manipulation function)
-    "cfg_files"       : ([],                     f, None,        "list", None),
-    "cfg_search_paths": (searchpaths,            f, None,        "list", None),
-    "col_bold"        : ('\033[1m',              f, None,        "str",  None),
-    "col_endc"        : ('\033[0m',              f, None,        "str",  None),
-    "col_fail"        : ('\033[91m',             f, None,        "str",  None),
-    "col_nobold"      : ('\033[22m',             f, None,        "str",  None),
-    "col_ok"          : ('\033[92m',             f, None,        "str",  None),
-    "col_warning"     : ('\033[93m',             f, None,        "str",  None),
-    "col_debug"       : ('\033[90m',             f, None,        "str",  None),
-    "debuginfo"       : (False,                  f, None,        "bool", None),
-    "dryrun"          : (False,                  f, None,        "bool", None),
-    "installed_file"  : (installed,              f, None,        "str",  None),
-    "installed_backup": ("",                     f, None,        "str",  None),
-    "mode"            : ("",                     f, None,        "str",  None),
-    "owd"             : (owd,                    f, None,        "str",  None),
-    "parent"          : (None,                   f, None,        "str",  None),
-    "plain"           : (False,                  f, None,        "str",  None),
-    "print"           : (False,                  f, None,        "str",  None),
-    "version"         : ("1.12.17_4",            f, None,        "str",  None),
-    "all"             : (False,                  f, "Arguments", "bool", None),
-    "content"         : (False,                  f, "Arguments", "bool", None),
-    "dotfiles"        : (False,                  f, "Arguments", "bool", None),
-    "dui"             : (False,                  f, "Arguments", "bool", None),
-    "filename"        : (False,                  f, "Arguments", "bool", None),
-    "force"           : (False,                  f, "Arguments", "bool", None),
-    "ignore"          : ([],                     f, "Arguments", "list", None),
-    "ignorecase"      : (False,                  f, "Arguments", "bool", None),
-    "links"           : (False,                  f, "Arguments", "bool", None),
-    "logfile"         : ("",                     f, "Arguments", "path", None),
-    "logginglevel"    : ("INFO",                 f, "Arguments", "str",  str.upper),
-    "makedirs"        : (False,                  f, "Arguments", "bool", None),
-    "meta"            : (False,                  f, "Arguments", "bool", None),
-    "names"           : (True,                   f, "Arguments", "bool", None),
-    "locations"       : (True,                   f, "Arguments", "bool", None),
-    "profilenames"    : ([],                     f, "Arguments", "list", None),
-    "profiles"        : (False,                  f, "Arguments", "bool", None),
-    "regex"           : (False,                  f, "Arguments", "bool", None),
-    "save"            : ("default",              f, "Arguments", "str",  str.lower),
-    "searchstr"       : ("",                     f, "Arguments", "str",  None),
-    "searchtags"      : (False,                  f, "Arguments", "bool", None),
-    "skipafter"       : (False,                  f, "Arguments", "bool", None),
-    "skipbefore"      : (False,                  f, "Arguments", "bool", None),
-    "skipevents"      : (False,                  f, "Arguments", "bool", None),
-    "skiproot"        : (False,                  f, "Arguments", "bool", None),
-    "superforce"      : (False,                  f, "Arguments", "bool", None),
-    "askroot"         : (True,                   f, "Settings",  "bool", None),
-    "backup_extension": ("bak",                  f, "Settings",  "str",  None),
-    "color"           : (True,                   f, "Settings",  "bool", None),
-    "data_dir"        : (data_dir,               f, "Settings",  "str",  None),
-    "decrypt_pwd"     : (None,                   f, "Settings",  "str",  None),
-    "hash_separator"  : ("#",                    f, "Settings",  "str",  None),
-    "profile_files"   : ("",                     f, "Settings",  "path", None),
-    "shell"           : ("/bin/bash",            f, "Settings",  "path", None),
-    "shell_args"      : ("-e -O expand_aliases", f, "Settings",  "str",  None),
-    "shell_timeout"   : (60,                     f, "Settings",  "int",  None),
-    "smart_cd"        : (True,                   f, "Settings",  "bool", None),
-    "tag_separator"   : ("%",                    f, "Settings",  "str",  None),
-    "target_files"    : ("",                     f, "Settings",  "path", None),
-    "directory"       : ("$HOME",                f, "Defaults",  "path", None),
-    "extension"       : ("",                     f, "Defaults",  "str",  None),
-    "name"            : ("",                     f, "Defaults",  "str",  None),
-    "optional"        : (False,                  f, "Defaults",  "bool", None),
-    "owner"           : ("",                     f, "Defaults",  "str",  None),
-    "permission"      : (644,                    f, "Defaults",  "int",  None),
-    "prefix"          : ("",                     f, "Defaults",  "str",  None),
-    "replace"         : ("",                     f, "Defaults",  "str",  None),
-    "replace_pattern" : ("",                     f, "Defaults",  "str",  None),
-    "secure"          : (True,                   f, "Defaults",  "bool", None),
-    "suffix"          : ("",                     f, "Defaults",  "str",  None),
-    "tags"            : ([],                     f, "Defaults",  "list", None),
+    "cfg_files"       : ([],                     None,        "list", None),
+    "cfg_search_paths": (searchpaths,            None,        "list", None),
+    "col_bold"        : ('\033[1m',              None,        "str",  None),
+    "col_endc"        : ('\033[0m',              None,        "str",  None),
+    "col_fail"        : ('\033[91m',             None,        "str",  None),
+    "col_nobold"      : ('\033[22m',             None,        "str",  None),
+    "col_ok"          : ('\033[92m',             None,        "str",  None),
+    "col_warning"     : ('\033[93m',             None,        "str",  None),
+    "col_debug"       : ('\033[90m',             None,        "str",  None),
+    "debuginfo"       : (False,                  None,        "bool", None),
+    "dryrun"          : (False,                  None,        "bool", None),
+    "installed_file"  : (installed,              None,        "str",  None),
+    "installed_backup": ("",                     None,        "str",  None),
+    "mode"            : ("",                     None,        "str",  None),
+    "owd"             : (owd,                    None,        "str",  None),
+    "parent"          : (None,                   None,        "str",  None),
+    "plain"           : (False,                  None,        "str",  None),
+    "print"           : (False,                  None,        "str",  None),
+    "version"         : ("1.12.17_4",            None,        "str",  None),
+    "all"             : (False,                  "Arguments", "bool", None),
+    "content"         : (False,                  "Arguments", "bool", None),
+    "dotfiles"        : (False,                  "Arguments", "bool", None),
+    "dui"             : (False,                  "Arguments", "bool", None),
+    "filename"        : (False,                  "Arguments", "bool", None),
+    "force"           : (False,                  "Arguments", "bool", None),
+    "ignore"          : ([],                     "Arguments", "list", None),
+    "ignorecase"      : (False,                  "Arguments", "bool", None),
+    "links"           : (False,                  "Arguments", "bool", None),
+    "logfile"         : ("",                     "Arguments", "path", None),
+    "logginglevel"    : ("INFO",                 "Arguments", "str",  str.upper),
+    "makedirs"        : (False,                  "Arguments", "bool", None),
+    "meta"            : (False,                  "Arguments", "bool", None),
+    "names"           : (True,                   "Arguments", "bool", None),
+    "locations"       : (True,                   "Arguments", "bool", None),
+    "profilenames"    : ([],                     "Arguments", "list", None),
+    "profiles"        : (False,                  "Arguments", "bool", None),
+    "regex"           : (False,                  "Arguments", "bool", None),
+    "save"            : ("default",              "Arguments", "str",  str.lower),
+    "searchstr"       : ("",                     "Arguments", "str",  None),
+    "searchtags"      : (False,                  "Arguments", "bool", None),
+    "skipafter"       : (False,                  "Arguments", "bool", None),
+    "skipbefore"      : (False,                  "Arguments", "bool", None),
+    "skipevents"      : (False,                  "Arguments", "bool", None),
+    "skiproot"        : (False,                  "Arguments", "bool", None),
+    "superforce"      : (False,                  "Arguments", "bool", None),
+    "askroot"         : (True,                   "Settings",  "bool", None),
+    "backup_extension": ("bak",                  "Settings",  "str",  None),
+    "color"           : (True,                   "Settings",  "bool", None),
+    "data_dir"        : (data_dir,               "Settings",  "str",  None),
+    "decrypt_pwd"     : (None,                   "Settings",  "str",  None),
+    "hash_separator"  : ("#",                    "Settings",  "str",  None),
+    "profile_files"   : ("",                     "Settings",  "path", None),
+    "shell"           : ("/bin/bash",            "Settings",  "path", None),
+    "shell_args"      : ("-e -O expand_aliases", "Settings",  "str",  None),
+    "shell_timeout"   : (60,                     "Settings",  "int",  None),
+    "smart_cd"        : (True,                   "Settings",  "bool", None),
+    "tag_separator"   : ("%",                    "Settings",  "str",  None),
+    "target_files"    : ("",                     "Settings",  "path", None),
+    "directory"       : ("$HOME",                "Defaults",  "path", None),
+    "extension"       : ("",                     "Defaults",  "str",  None),
+    "name"            : ("",                     "Defaults",  "str",  None),
+    "optional"        : (False,                  "Defaults",  "bool", None),
+    "owner"           : ("",                     "Defaults",  "str",  None),
+    "permission"      : (644,                    "Defaults",  "int",  None),
+    "prefix"          : ("",                     "Defaults",  "str",  None),
+    "replace"         : ("",                     "Defaults",  "str",  None),
+    "replace_pattern" : ("",                     "Defaults",  "str",  None),
+    "secure"          : (True,                   "Defaults",  "bool", None),
+    "suffix"          : ("",                     "Defaults",  "str",  None),
+    "tags"            : ([],                     "Defaults",  "list", None),
 }
 defaults = dict(values)
 # Make values easy accessible
@@ -147,9 +146,9 @@ def _set(name, value):
         val_props = values[name]
     except KeyError:
         raise ValueError("'" + name + "' needs to be defined as constant")
-    if val_props[4] is not None:
-        value = val_props[4](value)
-    values[name] = value, True, val_props[2], val_props[3], val_props[4]
+    if val_props[3] is not None:
+        value = val_props[3](value)
+    values[name] = value
     # Upate global field
     globals()[name] = value
 
@@ -158,53 +157,23 @@ def get(name):
 
 def vals():
     return [
-        (item[2], key) for key, item in values.items()
+        (item[1], key) for key, item in values.items()
     ]
 
 def items(section=None):
+    print(values)
     return [
         (key, item[0]) for key, item in values.items()
-        if section is None or section == item[2]
+        if section is None or section == item[1]
     ]
 
 def load(args):
-    # Write arguments
-    for arg, value in vars(args).items():
-        if value is None:
-            continue
-        name = arg
-        # Parse tags and set values for --options
-        if arg == "opt_dict":
-            if "tags" in value:
-                value["tags"] = next(csv.reader([value["tags"]]))
-            for key, val in value.items():
-                _set(key, val)
-            continue
-        # Relative paths need to be absolute
-        if arg in ["directory", "config", "log"]:
-            value = os.path.join(get("owd"), value)
-        # Little fixes for arguments where the names don't match up
-        # with the configuration file argument
-        if arg == "log":
-            name = "logfile"
-        elif arg in ["verbose", "info", "quiet", "silent"]:
-            if value:
-                name = "logginglevel"
-                value = arg
-            else:
-                continue
-        elif arg == "config":
-            name = "cfg_files"
-            value = [value]
-        elif arg == "tags":
-            name = "searchtags"
-        # Set argument
-        _set(name, value)
-    # Update internal values
+    # Find all configs
     cfgs = find_files("uberdot.ini", get("cfg_search_paths"))
-    cfgs += get("cfg_files")
+    if args.config:
+       cfgs += os.path.join(get("owd"), args.config)
     _set("cfg_files", cfgs)
-    # Load config
+    # Load configs
     config = configparser.ConfigParser()
     try:
         for cfg in cfgs:
@@ -226,28 +195,57 @@ def load(args):
         raise PreconditionError(msg)
     # Write all values from config
     for name, props in values.items():
-        # Skip all values that are already overwritten by commandline
-        # or don't belong to any section in the config file
-        if props[1] or props[2] is None:
+        # Skip all values don't belong to any section in the config file
+        if props[1] is None:
             continue
         # Set getter for config depending on value type
         getter = config.get
-        if props[3] == "int":
+        if props[2] == "int":
             getter = config.getint
-        elif props[3] == "bool":
+        elif props[2] == "bool":
             getter = config.getboolean
         # Get value from config. Prefer values from special installed section
-        section = "Installed." + get("save") + "." + props[2]
+        section = "Installed." + get("save") + "." + props[1]
         if config.has_section(section) and config.has_option(section, name):
             value = getter(section, name)
-        elif config.has_section(props[2]) and config.has_option(props[2], name):
-            value = getter(props[2], name)
+        elif config.has_section(props[1]) and config.has_option(props[1], name):
+            value = getter(props[1], name)
         else:
             # Value is not in config, skipping
             continue
         # Fix values depending on value type
-        if props[3] == "list":
+        if props[2] == "list":
             value = next(csv.reader([value]))
+        _set(name, value)
+
+    # Write arguments
+    for arg, value in vars(args).items():
+        if value is None or arg == "config":
+            continue
+        name = arg
+        # Parse tags and set values for --options
+        if arg == "opt_dict":
+            if "tags" in value:
+                value["tags"] = next(csv.reader([value["tags"]]))
+            for key, val in value.items():
+                _set(key, val)
+            continue
+        # Relative paths need to be absolute
+        if arg in ["directory", "log"]:
+            value = os.path.join(get("owd"), value)
+        # Little fixes for arguments where the names don't match up
+        # with the configuration file argument
+        if arg == "log":
+            name = "logfile"
+        elif arg in ["verbose", "info", "quiet", "silent"]:
+            if value:
+                name = "logginglevel"
+                value = arg
+            else:
+                continue
+        elif arg == "tags":
+            name = "searchtags"
+        # Set argument
         _set(name, value)
     # Update internal values that depend on a loaded config
     installed_file = os.path.join(data_dir, installed_path_template) % get("save")

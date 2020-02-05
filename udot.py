@@ -140,36 +140,56 @@ class UberDot:
             dest="mode"
         )
         parser_profiles = CustomParser(add_help=False)
-        parser_profiles.add_argument("profilenames",
-                                     help="do this only for this list of root profiles",
-                                     nargs="*")
+        parser_profiles.add_argument(
+            "profilenames",
+            help="do this only for this list of root profiles",
+            nargs="*"
+        )
         # Setup top level arguments
-        parser.add_argument("--config",
-                            help="specify another config-file to use")
-        parser.add_argument("--debuginfo",
-                            help="show loaded settings and internal values",
-                            action="store_true")
-        parser.add_argument("--ignore",
-                            help="list of profilenames that will be ignored",
-                            nargs="+")
+        parser.add_argument(
+            "--config",
+            help="specify another config-file to use"
+        )
+        parser.add_argument(
+            "--debuginfo",
+            help="show loaded settings and internal values",
+            action="store_true"
+        )
+        parser.add_argument(
+            "--ignore",
+            help="list of profilenames that will be ignored",
+            nargs="+"
+        )
         group_log_level = parser.add_mutually_exclusive_group()
-        group_log_level.add_argument("-v", "--verbose",
-                            help="print debug messages and tracebacks",
-                            action="store_true")
-        group_log_level.add_argument("--info",
-                            help="print everything but debug messages",
-                            action="store_true")
-        group_log_level.add_argument("-q", "--quiet",
-                            help="print nothing but errors",
-                            action="store_true")
-        group_log_level.add_argument("--silent",
-                            help="print absolute nothing",
-                            action="store_true")
-        parser.add_argument("--log",
-                            help="specify a file to log to")
-        parser.add_argument("--save",
-                            help="specify another install-file to use",
-                            default="default")
+        group_log_level.add_argument(
+            "-v", "--verbose",
+            help="print debug messages and tracebacks",
+            action="store_true"
+        )
+        group_log_level.add_argument(
+            "--info",
+            help="print everything but debug messages",
+            action="store_true"
+        )
+        group_log_level.add_argument(
+            "-q", "--quiet",
+            help="print nothing but errors",
+            action="store_true"
+        )
+        group_log_level.add_argument(
+            "--silent",
+            help="print absolute nothing",
+            action="store_true"
+        )
+        parser.add_argument(
+            "--log",
+            help="specify a file to log to"
+        )
+        parser.add_argument(
+            "--save",
+            help="specify another install-file to use",
+            default="default"
+        )
         # Setup mode show arguments
         help_text = "display various information about installed profiles"
         parser_show = subparsers.add_parser(
@@ -178,45 +198,69 @@ class UberDot:
             description=help_text,
             help=help_text
         )
-        parser_show.add_argument("-l", "--links",
-                                 help="show installed links",
-                                 action="store_true")
-        parser_show.add_argument("-p", "--profiles",
-                                 help="show installed profiles",
-                                 action="store_true")
-        parser_show.add_argument("-m", "--meta",
-                                 help="display meta information about profiles and/or links",
-                                 action="store_true")
+        parser_show.add_argument(
+            "-l", "--links",
+            help="show installed links",
+            action="store_true"
+        )
+        parser_show.add_argument(
+            "-p", "--profiles",
+            help="show installed profiles",
+            action="store_true"
+        )
+        parser_show.add_argument(
+            "-m", "--meta",
+            help="display meta information about profiles and/or links",
+            action="store_true"
+        )
         # Setup arguments that are used in both update and remove
         parser_run = CustomParser(add_help=False)
         group_run_mode = parser_run.add_mutually_exclusive_group()
-        group_run_mode.add_argument("-d", "--dryrun",
-                                    help="just simulate what would happen",
-                                    action="store_true")
-        group_run_mode.add_argument("--plain",
-                                    help="print the internal DiffLog as plain json",
-                                    action="store_true")
-        group_run_mode.add_argument("-p", "--print",
-                                    help="print what changes uberdot will do",
-                                    action="store_true")
-        parser_run.add_argument("-f", "--force",
-                                help="overwrite existing files",
-                                action="store_true")
-        parser_run.add_argument("--skiproot",
-                                help="do nothing that requires root permissions",
-                                action="store_true")
-        parser_run.add_argument("--superforce",
-                                help="overwrite blacklisted/protected files",
-                                action="store_true")
-        parser_run.add_argument("--skipafter",
-                            help="do not execute events after linking",
-                            action="store_true")
-        parser_run.add_argument("--skipbefore",
-                            help="do not execute events before linking",
-                            action="store_true")
-        parser_run.add_argument("--skipevents",
-                            help="do not execute any events",
-                            action="store_true")
+        group_run_mode.add_argument(
+            "-d", "--dryrun",
+            help="just simulate what would happen",
+            action="store_true"
+        )
+        group_run_mode.add_argument(
+            "--plain",
+            help="print the internal DiffLog as plain json",
+            action="store_true"
+        )
+        group_run_mode.add_argument(
+            "-p", "--print",
+            help="print what changes uberdot will do",
+            action="store_true"
+        )
+        parser_run.add_argument(
+            "-f", "--force",
+            help="overwrite existing files",
+            action="store_true"
+        )
+        parser_run.add_argument(
+            "--skiproot",
+            help="do nothing that requires root permissions",
+            action="store_true"
+        )
+        parser_run.add_argument(
+            "--superforce",
+            help="overwrite blacklisted/protected files",
+            action="store_true"
+        )
+        parser_run.add_argument(
+            "--skipafter",
+            help="do not execute events after linking",
+            action="store_true"
+        )
+        parser_run.add_argument(
+            "--skipbefore",
+            help="do not execute events before linking",
+            action="store_true"
+        )
+        parser_run.add_argument(
+            "--skipevents",
+            help="do not execute any events",
+            action="store_true"
+        )
         # Setup mode update arguments
         help_text="install new or update already installed profiles"
         parser_update = subparsers.add_parser(
@@ -225,21 +269,31 @@ class UberDot:
             description=help_text,
             help=help_text
         )
-        parser_update.add_argument("--dui",
-                                   help="use the DUI strategy for updating links",
-                                   action="store_true")
-        parser_update.add_argument("--directory", help="set the default directory")
-        parser_update.add_argument("-m", "--makedirs",
-                                   help="create directories automatically if needed",
-                                   action="store_true")
-        parser_update.add_argument("--option",
-                                   help="set options for profiles",
-                                   dest="opt_dict",
-                                   action=StoreDictKeyPair,
-                                   nargs="+",
-                                   metavar="KEY=VAL")
-        parser_update.add_argument("--parent",
-                                   help="set the parent of the profiles you install")
+        parser_update.add_argument(
+            "--dui",
+            help="use the DUI strategy for updating links",
+            action="store_true"
+        )
+        parser_update.add_argument(
+            "--directory", help="set the default directory"
+        )
+        parser_update.add_argument(
+            "-m", "--makedirs",
+            help="create directories automatically if needed",
+            action="store_true"
+        )
+        parser_update.add_argument(
+            "--option",
+            help="set options for profiles",
+            dest="opt_dict",
+            action=StoreDictKeyPair,
+            nargs="+",
+            metavar="KEY=VAL"
+        )
+        parser_update.add_argument(
+            "--parent",
+            help="set the parent of the profiles you install"
+        )
         # Setup mode remove arguments
         help_text="remove already installed profiles"
         parser_remove = subparsers.add_parser(
@@ -255,39 +309,61 @@ class UberDot:
             description=help_text,
             help=help_text
         )
-        parser_find.add_argument("-p", "--profiles",
-                                 help="search for profiles",
-                                 action="store_true")
-        parser_find.add_argument("-d", "--dotfiles",
-                                 help="search for dotfiles",
-                                 action="store_true")
-        parser_find.add_argument("-t", "--tags",
-                                 help="search for tags",
-                                 action="store_true")
-        parser_find.add_argument("-c", "--content",
-                                 help="search in file content of profiles/dotfiles",
-                                 action="store_true")
-        parser_find.add_argument("-n", "--name",
-                                 help="search in the plain names of profiles/dotfiles/tags",
-                                 action="store_true")
-        parser_find.add_argument("-f", "--filename",
-                                 help="search in filenames of profiles/dotfiles",
-                                 action="store_true")
-        parser_find.add_argument("-a", "--all",
-                                 help="search everywhere; same as -cnf",
-                                 action="store_true")
-        parser_find.add_argument("-i", "--ignorecase",
-                                 help="search caseinsensitv (has no effect with -r)",
-                                 action="store_true")
-        parser_find.add_argument("-r", "--regex",
-                                 help="interprete searchstr as regular expression",
-                                 action="store_true")
-        parser_find.add_argument("-l", "--locations",
-                                 help="also show the files where something was found",
-                                 action="store_true")
-        parser_find.add_argument("searchstr",
-                                 help="a string that will be searched for",
-                                 nargs="?")
+        parser_find.add_argument(
+            "-p", "--profiles",
+            help="search for profiles",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "-d", "--dotfiles",
+            help="search for dotfiles",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "-t", "--tags",
+            help="search for tags",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "-c", "--content",
+            help="search in file content of profiles/dotfiles",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "-n", "--name",
+            help="search in the plain names of profiles/dotfiles/tags",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "-f", "--filename",
+            help="search in filenames of profiles/dotfiles",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "-a", "--all",
+            help="search everywhere; same as -cnf",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "-i", "--ignorecase",
+            help="search caseinsensitv (has no effect with -r)",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "-r", "--regex",
+            help="interprete searchstr as regular expression",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "-l", "--locations",
+            help="also show the files where something was found",
+            action="store_true"
+        )
+        parser_find.add_argument(
+            "searchstr",
+            help="a string that will be searched for",
+            nargs="?"
+        )
         # Setup mode version arguments
         help_text="show version number"
         parser_version = subparsers.add_parser(
@@ -295,8 +371,6 @@ class UberDot:
             description=help_text,
             help=help_text
         )
-        # TODO: finish parser
-        # TODO: add new args to const
 
         # Read arguments
         try:
@@ -513,102 +587,113 @@ class UberDot:
                     )
 
     def search(self):
-        def search_and_hightlight(text, pattern):
+        def hlsearch(text, pattern):
             all_results = []
+            # Search in each line of text independently and collect all results
+            # Returns always the full line where something was found, but
+            # colors the found substring red
             for line in text.split("\n"):
                 if const.regex:
+                    # Searching with regex
                     match = re.search(pattern, line)
                     if match:
+                        # Colorize match in line and add to results
                         result = line[:match.start()] + const.col_fail
                         result += line[match.start():match.end()]
                         result += const.col_endc + line[match.end():]
                         all_results.append(result)
                 else:
+                    # Plain search
+                    # Lowers text and pattern if ignorecase was set
                     try:
                         if const.ignorecase:
                             idx = line.lower().index(pattern.lower())
                         else:
                             idx = line.index(pattern)
                     except ValueError:
-                        pass
-                    else:
-                        result = line[:idx] + const.col_fail
-                        result += line[idx:idx+len(pattern)]
-                        result += const.col_endc + line[idx+len(pattern):]
-                        all_results.append(result)
+                        # Nothing was found in this line
+                        continue
+                    # Colorize match in line and add to results
+                    result = line[:idx] + const.col_fail
+                    result += line[idx:idx+len(pattern)]
+                    result += const.col_endc + line[idx+len(pattern):]
+                    all_results.append(result)
             return all_results
 
         result = []
+        # Search for profiles
         if const.profiles:
+            # Search in filename (full paths of files in the profile directory)
             if const.filename or const.all:
                 for file in walk_profiles():
-                    result += [(file, item) for item in search_and_hightlight(file, const.searchstr)]
+                    highlighted = hlsearch(file, const.searchstr)
+                    result += [(file, item) for item in highlighted]
+            # Search in names (class names of all available profiles)
             if const.names or const.all:
                 for file, pname in get_available_profiles():
-                    result += [(file, item) for item in search_and_hightlight(pname, const.searchstr)]
+                    highlighted = hlsearch(pname, const.searchstr)
+                    result += [(file, item) for item in highlighted]
+            # Search in content (source code of each available profile)
             if const.content or const.all:
                 for file, pname in get_available_profiles():
-                    pat = re.compile(r'^(\s*)class\s*' + pname + r'\b')
-                    # make some effort to find the best matching class definition:
-                    # use the one with the least indentation, which is the one
-                    # that's most probably not inside a function definition.
-                    candidates = []
-                    lines = open(file).readlines()
-                    start = None
-                    for i in range(len(lines)):
-                        match = pat.match(lines[i])
-                        if match:
-                            # if it's at toplevel, it's already the best one
-                            if lines[i][0] == 'c':
-                                start = i
-                            # else add whitespace to candidate list
-                            candidates.append((match.group(1), i))
-                    if start is None:
-                        # this will sort by whitespace, and by line number,
-                        # less whitespace first
-                        candidates.sort()
-                        start = candidates[0][1]
-                    searchtext = "".join(inspect.getblock(lines[start:]))
-                    result += [(file, item) for item in search_and_hightlight(searchtext, const.searchstr)]
+                    source = "".join(get_profile_source(pname, file))
+                    highlighted = hlsearch(source, const.searchstr)
+                    result += [(file, item) for item in highlighted]
 
+        # Search for dotfiles
         if const.dotfiles:
             for root, name in walk_dotfiles():
                 file = os.path.join(root, name)
+                # Search in names (only file basenames, without tag)
                 if const.names or const.all:
                     searchtext = name
                     if const.tag_separator in searchtext:
                         idx = searchtext.index(const.tag_separator)
                         searchtext = searchtext[idx+1:]
-                    result += [(file, item) for item in search_and_hightlight(searchtext, const.searchstr)]
+                    highlighted = hlsearch(searchtext, const.searchstr)
+                    result += [(file, item) for item in highlighted]
+                # Search in filename (full paths of dotfiles)
                 if const.filename or const.all:
-                    searchtext = file
-                    result += [(file, item) for item in search_and_hightlight(searchtext, const.searchstr)]
+                    highlighted = hlsearch(file, const.searchstr)
+                    result += [(file, item) for item in highlighted]
+                # Search in content (full content of each dotfile)
                 if const.content or const.all:
                     try:
                         searchtext = open(file).read()
-                        result += [(file, item) for item in search_and_hightlight(searchtext, const.searchstr)]
+                        highlighted = hlsearch(searchtext, const.searchstr)
+                        result += [(file, item) for item in highlighted]
                     except UnicodeDecodeError:
+                        # This is not a text file (maybe an image or encrypted)
                         pass
+        # Search for tags (this only collects the tags from filenames because
+        # it doesn't make sense to search in the content of files or whatever)
         if const.tags:
             tags = []
+            sep = const.tag_separator
+            # Collect tags first
             for root, name in walk_dotfiles():
                 file = os.path.join(root, name)
-                if const.tag_separator in name:
-                    tag = name[:name.index(const.tag_separator)+len(const.tag_separator)-1]
+                if sep in name:
+                    tag = name[:name.index(sep)+len(sep)-1]
                     if const.locations:
-                        result += [(file, item) for item in search_and_hightlight(tag, const.searchstr)]
+                        highlighted = hlsearch(tag, const.searchstr)
+                        result += [(file, item) for item in highlighted]
                     elif tag not in tags:
                         tags.append(tag)
             for tag in tags:
-                result += [(file, item) for item in search_and_hightlight(tag, const.searchstr)]
+                highlighted = hlsearch(tag, const.searchstr)
+                result += [(file, item) for item in highlighted]
 
+        # Print all the results
         if const.locations:
+            # Either with file paths (in the order that we found them)
             for i, item in enumerate(result):
                 if item in result[i+1:]:
                     result.pop(i)
             for file, entry in result:
                 log(file + ": " + entry)
         else:
+            # or just what was found (in alphabetical order)
             for entry in sorted(list(set([item[1] for item in result]))):
                 log(entry)
 
