@@ -3,7 +3,7 @@ overwrite defaults for a specific configuration."""
 
 ###############################################################################
 #
-# Copyright 2018 Erik Schulz
+# Copyright 2020 Erik Schulz
 #
 # This file is part of uberdot.
 #
@@ -57,6 +57,7 @@ values = {
     # name: (value, was_overwritten, configsection, type, manipulation function)
     "cfg_files"       : ([],                     None,        "list", None),
     "cfg_search_paths": (searchpaths,            None,        "list", None),
+    "changes"         : (False,                  None,        "bool", None),
     "col_bold"        : ('\033[1m',              None,        "str",  None),
     "col_endc"        : ('\033[0m',              None,        "str",  None),
     "col_fail"        : ('\033[91m',             None,        "str",  None),
@@ -71,8 +72,8 @@ values = {
     "mode"            : ("",                     None,        "str",  None),
     "owd"             : (owd,                    None,        "str",  None),
     "parent"          : (None,                   None,        "str",  None),
-    "plain"           : (False,                  None,        "str",  None),
-    "print"           : (False,                  None,        "str",  None),
+    "plain"           : (False,                  None,        "bool", None),
+    "save"            : ("default",              None,        "str",  str.lower),
     "version"         : ("1.12.17_4",            None,        "str",  None),
     "all"             : (False,                  "Arguments", "bool", None),
     "content"         : (False,                  "Arguments", "bool", None),
@@ -92,7 +93,6 @@ values = {
     "profilenames"    : ([],                     "Arguments", "list", None),
     "profiles"        : (False,                  "Arguments", "bool", None),
     "regex"           : (False,                  "Arguments", "bool", None),
-    "save"            : ("default",              "Arguments", "str",  str.lower),
     "searchstr"       : ("",                     "Arguments", "str",  None),
     "searchtags"      : (False,                  "Arguments", "bool", None),
     "skipafter"       : (False,                  "Arguments", "bool", None),
@@ -142,13 +142,10 @@ def reset():
 
 def _set(name, value):
     global values
-    try:
-        val_props = values[name]
-    except KeyError:
-        raise ValueError("'" + name + "' needs to be defined as constant")
+    val_props = values[name]
     if val_props[3] is not None:
         value = val_props[3](value)
-    values[name] = value
+    values[name] = value, val_props[1], val_props[2], val_props[3]
     # Upate global field
     globals()[name] = value
 
@@ -161,7 +158,6 @@ def vals():
     ]
 
 def items(section=None):
-    print(values)
     return [
         (key, item[0]) for key, item in values.items()
         if section is None or section == item[1]
@@ -171,8 +167,10 @@ def load(args):
     # Find all configs
     cfgs = find_files("uberdot.ini", get("cfg_search_paths"))
     if args.config:
-       cfgs += os.path.join(get("owd"), args.config)
+       cfgs += [os.path.join(get("owd"), args.config)]
     _set("cfg_files", cfgs)
+    if args.save:
+        _set("save", args.save)
     # Load configs
     config = configparser.ConfigParser()
     try:
@@ -220,7 +218,7 @@ def load(args):
 
     # Write arguments
     for arg, value in vars(args).items():
-        if value is None or arg == "config":
+        if value is None or arg in ["config", "save"]:
             continue
         name = arg
         # Parse tags and set values for --options

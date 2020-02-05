@@ -10,7 +10,7 @@ the standart DiffSolver) and their resulting data structure DiffLog.
 
 ###############################################################################
 #
-# Copyright 2018 Erik Schulz
+# Copyright 2020 Erik Schulz
 #
 # This file is part of uberdot.
 #
@@ -32,10 +32,12 @@ the standart DiffSolver) and their resulting data structure DiffLog.
 
 import copy
 from abc import abstractmethod
+from uberdot import constants as const
 from uberdot.errors import FatalError
 from uberdot.interpreters import Interpreter
 from uberdot.utils import get_date_time_now
 from uberdot.utils import import_profile_class
+from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import normpath
 
@@ -318,6 +320,9 @@ class UninstallDiffSolver(DiffSolver):
         Args:
             profile_name (str): Name of the profile that will be removed
         """
+        if profile_name in const.ignore:
+            log_debug("'" + profile_name + "' is in ignore list. Skipping...")
+            return
         # Recursive call for all subprofiles
         subprofiles = []
         for installed_name, installed_dict in self.installed.items():

@@ -3,7 +3,7 @@ retrieve system information."""
 
 ###############################################################################
 #
-# Copyright 2018 Erik Schulz
+# Copyright 2020 Erik Schulz
 #
 # This file is part of uberdot.
 #

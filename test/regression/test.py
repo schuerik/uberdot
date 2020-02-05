@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2018 Erik Schulz
+# Copyright 2020 Erik Schulz
 #
 # This file is part of uberdot.
 #
@@ -1026,21 +1026,21 @@ os.chdir(DIRNAME)
 DirRegressionTest("Simple",
                   ["update", "NoOptions"],
                   before, after_nooptions).success()
-DirRegressionTest("Arguments: Incompatible modes",
-                  ["remove", "update", "NoOptions"],
-                  before, after_nooptions).fail("run", 101)
 DirRegressionTest("Arguments: No mode",
                   ["NoOptions"],
                   before, before).fail("run", 101)
 DirRegressionTest("Arguments: Wrong mode",
                   ["remove", "--parent", "NameOption", "NoOptions"],
-                  before, None).fail("run", 101)
+                  before, before).fail("run", 101)
 DirRegressionTest("Arguments: No profiles",
                   ["update"],
-                  before, None).fail("run", 101)
+                  before, before).fail("run", 101)
+DirRegressionTest("Arguments: No makedirs",
+                  ["update", "Links"],
+                  before, before).fail("run", 103)
 DirRegressionTest("Arguments: No sudo",
                   ["update", "NeedsRootConflict"],
-                  before, None).fail("run", 101)
+                  before, before).fail("run", 101)
 DirRegressionTest("Arguments: --skiproot",
                   ["update", "--skiproot", "NeedsRootConflict"],
                   before, after_skiproot).success()
@@ -1050,22 +1050,22 @@ DirRegressionTest("Arguments: --option",
                       "tags=tag1,notag", "--", "OptionArgument"
                   ], before, after_options).success()
 DirRegressionTest("Option: name",
-                  ["update", "NameOption"],
+                  ["update", "-m", "NameOption"],
                   before, after_nameoptions).success()
 DirRegressionTest("Option: directory",
-                  ["update", "DirOption"],
+                  ["update", "-m", "DirOption"],
                   before, after_diroptions).success()
 DirRegressionTest("Option: prefix suffix extension",
-                  ["update", "PrefixSuffixExtensionOption"],
+                  ["update", "-m", "PrefixSuffixExtensionOption"],
                   before, after_prefixsuffixoptions).success()
 DirRegressionTest("Option: optional",
                   ["update", "OptionalOption"],
                   before, after_optional).success()
 DirRegressionTest("Option: replace",
-                  ["update", "ReplaceOption"],
+                  ["update", "-m", "ReplaceOption"],
                   before, after_replace).success()
 DirRegressionTest("Command: links()",
-                  ["update", "Links"],
+                  ["update", "-m", "Links"],
                   before, after_links).success()
 DirRegressionTest("Command: decrypt()",
                   ["update", "Decrypt"],
@@ -1077,13 +1077,13 @@ DirRegressionTest("Command: pipe()",
                   ["update", "Pipe"],
                   before, after_pipe).success()
 DirRegressionTest("Command: subprof()",
-                  ["update", "SuperProfile"],
+                  ["update", "-m", "SuperProfile"],
                   before, after_superprofile).success()
 DirRegressionTest("Command: tags()",
                   ["update", "SuperProfileTags"],
                   before, after_tags).success()
 DirRegressionTest("Command: extlink()",
-                  ["update", "ExteranalLink"],
+                  ["update", "-m", "ExteranalLink"],
                   before, after_extlink).success()
 DirRegressionTest("Command: default()",
                   ["update", "Default"],
@@ -1137,7 +1137,7 @@ DirRegressionTest("Event: Fail on timeout",
                   ["update", "TimeoutProfileEvent"],
                   before, before).fail("run", 107)
 DirRegressionTest("Update: Simple",
-                  ["update", "DirOption"],
+                  ["update", "-m", "DirOption"],
                   after_diroptions, after_updatediroptions, "update").success()
 DirRegressionTest("Update: Uninstall",
                   ["remove", "DirOption"],
@@ -1145,14 +1145,14 @@ DirRegressionTest("Update: Uninstall",
 DirRegressionTest("Update: --dui",
                   ["update", "--dui", "SuperProfileTags"],
                   after_tags, after_updatedui, "nested").success()
-OutputRegressionTest("Output: --print",
-                     ["update", "--print", "NoOptions"],
+OutputRegressionTest("Output: --changes",
+                     ["update", "--changes", "NoOptions"],
                      before).success()
 OutputRegressionTest("Output: --plain",
                      ["update", "--plain", "NoOptions"],
                      before).success()
 OutputRegressionTest("Output: --dryrun",
-                     ["updated", "NoOptions"],
+                     ["update", "-d", "NoOptions"],
                      before).success()
 OutputRegressionTest("Output: --debuginfo", ["--debuginfo"], before).success()
 DirRegressionTest("Fail: Not a profile",

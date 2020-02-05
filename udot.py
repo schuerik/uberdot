@@ -13,7 +13,7 @@ or you can import UberDot for debugging and testing purposes."""
 
 ###############################################################################
 #
-# Copyright 2018 Erik Schulz
+# Copyright 2020 Erik Schulz
 #
 # This file is part of uberdot.
 #
@@ -157,8 +157,8 @@ class UberDot:
         )
         parser.add_argument(
             "--ignore",
-            help="list of profilenames that will be ignored",
-            nargs="+"
+            help="ignore this profile in every mode",
+            action="append"
         )
         group_log_level = parser.add_mutually_exclusive_group()
         group_log_level.add_argument(
@@ -227,7 +227,7 @@ class UberDot:
             action="store_true"
         )
         group_run_mode.add_argument(
-            "-p", "--print",
+            "-c", "--changes",
             help="print what changes uberdot will do",
             action="store_true"
         )
@@ -364,6 +364,18 @@ class UberDot:
             help="a string that will be searched for",
             nargs="?"
         )
+        # Setup mode fix arguments
+        help_text="fix broken installed files"
+        parser_fix = subparsers.add_parser(
+            "fix",
+            description=help_text,
+            help=help_text
+        )
+        parser_fix.add_argument(
+            "--apply",
+            help="auto-apply certain kind of fixes",
+            choices=["none", "mem", "fs"]
+        )
         # Setup mode version arguments
         help_text="show version number"
         parser_version = subparsers.add_parser(
@@ -432,6 +444,11 @@ class UberDot:
             msg = "The directory for your profiles '" + const.profile_files
             msg += "' does not exist on this system."
             raise UserError(msg)
+        if const.mode in ["update", "remove"] and not const.profilenames:
+            msg = "You need to specify 'profilenames' when using mode"
+            msg += " '" + const.mode + "'."
+            raise UserError(msg)
+
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
@@ -439,9 +456,11 @@ class UberDot:
             self.print_installed_profiles()
         elif const.mode == "find":
             self.search()
+        elif const.mode == "fix":
+            self.fix_installed()
         elif const.mode == "version":
-            print(const.col_bold + "Version: " + const.col_endc +
-                  const.version)
+            log(const.col_bold + "Version: " + const.col_endc +
+                const.version)
         else:
             # The above are modes that just print stuff, but here we
             # have to actually do something:
@@ -473,10 +492,13 @@ class UberDot:
                 self.dryrun(dfl)
             elif const.plain:
                 dfl.run_interpreter(PlainPrintInterpreter())
-            elif const.print:
+            elif const.changes:
                 dfl.run_interpreter(PrintInterpreter())
             else:
                 self.run(dfl)
+
+    def fix_installed(self):
+        pass
 
     def execute_profiles(self, profiles=None, options=None, directory=None):
         """Imports profiles by name and executes them.
@@ -505,9 +527,13 @@ class UberDot:
 
         # Import and create profiles
         for profilename in profiles:
-            self.profiles.append(
-                import_profile(profilename)(**pargs)
-            )
+            if profilename in const.ignore:
+                log_debug("'" + profilename + "' is in ignore list." +
+                          " Skipping generation of profile...")
+            else:
+                self.profiles.append(
+                    import_profile(profilename)(**pargs)
+                )
         # And execute them
         for profile in self.profiles:
             profile.generator()
@@ -526,13 +552,18 @@ class UberDot:
             if old_section != section:
                 print(const.col_bold + section + ":" + const.col_endc)
                 old_section = section
-            value = str(const.get(name))
             if name in ["col_endc", "col_bold", "col_nobold"]:
                 continue
-            if name.startswith("col_") and value:
+            value = const.get(name)
+            if name.startswith("col_"):
                 # TODO print color codes
-                value = value + "text" + const.col_endc
-            print(str("   " + name + ": ").ljust(32) + value)
+                value = str(value) + "text" + const.col_endc
+            if (name == "cfg_files" or name == "cfg_search_paths") and value:
+                print(str("   " + name + ": ").ljust(32) + str(value[0]))
+                for item in value[1:]:
+                    print(" " * 32 + str(item))
+            else:
+                print(str("   " + name + ": ").ljust(32) + str(value))
 
     def print_installed_profiles(self):
         """Print out the installed-file in a readable format.
@@ -557,6 +588,9 @@ class UberDot:
         Args:
             profile (dict): The profile that will be printed
         """
+        if profile["name"] in const.ignore:
+            log_debug("'" + profile["name"] + "' is in ignore list. Skipping...")
+            return
         tab = ""
         if const.profiles or (not const.profiles and not const.links):
             tab = "  "
@@ -628,14 +662,16 @@ class UberDot:
                 for file in walk_profiles():
                     highlighted = hlsearch(file, const.searchstr)
                     result += [(file, item) for item in highlighted]
-            # Search in names (class names of all available profiles)
-            if const.names or const.all:
-                for file, pname in get_available_profiles():
+            for file, pname in get_available_profiles():
+                if pname in const.ignore:
+                    log_debug("'" + pname + "' is in ignore list. Skipping...")
+                    continue
+                # Search in names (class names of all available profiles)
+                if const.names or const.all:
                     highlighted = hlsearch(pname, const.searchstr)
                     result += [(file, item) for item in highlighted]
-            # Search in content (source code of each available profile)
-            if const.content or const.all:
-                for file, pname in get_available_profiles():
+                # Search in content (source code of each available profile)
+                if const.content or const.all:
                     source = "".join(get_profile_source(pname, file))
                     highlighted = hlsearch(source, const.searchstr)
                     result += [(file, item) for item in highlighted]

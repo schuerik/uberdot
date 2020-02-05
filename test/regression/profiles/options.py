@@ -53,7 +53,7 @@ class ReplaceOption(Profile):
 class OptionArgument(Profile):
     def generate(self):
         link("name1")
-        default("prefix")
+        opt(prefix="")
         link("name2")
         rmtags("tag1")
         link("name6", name="file2")

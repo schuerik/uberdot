@@ -6,7 +6,7 @@ and the ``@commands``-Decorator.
 
 ###############################################################################
 #
-# Copyright 2018 Erik Schulz
+# Copyright 2020 Erik Schulz
 #
 # This file is part of uberdot.
 #
@@ -31,6 +31,7 @@ import os
 import re
 import shutil
 from abc import abstractmethod
+from copy import deepcopy
 from uberdot import constants as const
 from uberdot.dynamicfile import *
 from uberdot.errors import CustomError
@@ -39,7 +40,7 @@ from uberdot.errors import FatalError
 from uberdot.utils import expandpath
 from uberdot.utils import find_target
 from uberdot.utils import get_dir_owner
-from uberdot.utils import import_profile_class
+from uberdot.utils import import_profile
 from uberdot.utils import log_debug
 from uberdot.utils import normpath
 from uberdot.utils import walk_dotfiles
@@ -109,11 +110,11 @@ class Profile:
         :attr:`self.directory<Profile.directory>` if ``directory`` is ``None``.
         """
         if options is None:
-            self.options = dict(const.items("Defaults"))
+            self.options = deepcopy(dict(const.items("Defaults")))
             del self.options["directory"]
         else:
-            self.options = options
-        if options is None:
+            self.options = deepcopy(dict(options))
+        if directory is None:
             self.directory = const.directory
         else:
             self.directory = directory
@@ -703,7 +704,7 @@ class Profile:
         self.result["links"].append(linkdescriptor)
 
     @command
-    def cd(self, directory):
+    def cd(self, directory=None):
         """Sets :attr:`self.directory<Profile.directory>`. Unix-like cd.
 
         The ``directory`` can be an absolute or relative path and it expands
@@ -712,7 +713,10 @@ class Profile:
         Args:
             directory (str): The path to switch to
         """
-        self.directory = directory
+        if directory is None:
+            self.directory = const.directory
+        else:
+            self.directory = directory
 
     @command
     def default(self, *options):
@@ -723,9 +727,8 @@ class Profile:
         Args:
             *options (list): A list of options that will be reset
         """
-        self.directory = const.directory
         if not options:
-            self.options = dict(const.items("Default"))
+            self.options = deepcopy(dict(const.items("Defaults")))
             del self.options["directory"]
         else:
             for item in options:
@@ -801,6 +804,9 @@ class Profile:
         for subprofile in profilenames:
             if subprofile == self.name:
                 self._gen_err("Recursive profiles are forbidden!")
+            elif subprofile in const.ignore:
+                log_debug("'" + subprofile + "' is in ignore list." +
+                          " Skipping generation of profile...")
             else:
                 if will_create_cycle(subprofile):
                     self._gen_err("Detected a cycle in your subprofiles!")
@@ -809,7 +815,7 @@ class Profile:
                 suboptions = {**self.options, **kwargs}
                 # Create instance of subprofile with merged options
                 # and current directory
-                ProfileClass = import_profile_class(subprofile)
+                ProfileClass = import_profile(subprofile)
                 profile = ProfileClass(suboptions, self.directory, self)
                 # Add the new profile as subprofile
                 self.subprofiles.append(profile)
