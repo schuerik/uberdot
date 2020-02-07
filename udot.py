@@ -655,8 +655,10 @@ class UberDot:
             return all_results
 
         result = []
+        nothing_selected = (not const.profiles and not const.dotfiles
+                            and not const.tags)
         # Search for profiles
-        if const.profiles:
+        if const.profiles or nothing_selected:
             # Search in filename (full paths of files in the profile directory)
             if const.filename or const.all:
                 for file in walk_profiles():
@@ -677,7 +679,7 @@ class UberDot:
                     result += [(file, item) for item in highlighted]
 
         # Search for dotfiles
-        if const.dotfiles:
+        if const.dotfiles or nothing_selected:
             for root, name in walk_dotfiles():
                 file = os.path.join(root, name)
                 # Search in names (only file basenames, without tag)
