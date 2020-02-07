@@ -39,10 +39,7 @@ from uberdot.utils import normpath
 ############################################################################
 
 owd = os.getcwd()
-data_dir = os.path.join(
-    os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
-    "data"
-)
+data_dir = "/var/local/uberdot/"
 installed_path_template = "installed/%s.json"
 installed = os.path.join(data_dir, installed_path_template)
 searchpaths = [
@@ -51,7 +48,7 @@ searchpaths = [
         get_user_env_var('XDG_CONFIG_HOME', normpath('~/.config')),
         "uberdot"
     ),
-    data_dir
+    os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
 ]
 values = {
     # name: (value, was_overwritten, configsection, type, manipulation function)
