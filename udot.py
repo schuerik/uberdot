@@ -42,6 +42,7 @@ from uberdot.errors import UserError
 from uberdot.differencesolver import UpdateDiffSolver
 from uberdot.differencesolver import UninstallDiffSolver
 from uberdot.differencesolver import DiffLog
+from uberdot.installedfile import InstalledFile
 from uberdot.utils import has_root_priveleges
 from uberdot.utils import get_uid
 from uberdot.utils import get_gid
@@ -97,27 +98,6 @@ class UberDot:
         # Change current working directory to the directory of this module
         newdir = os.path.abspath(sys.modules[__name__].__file__)
         os.chdir(os.path.dirname(newdir))
-
-    def load_installed(self):
-        """Reads the installed-file and parses it's content into
-        :attr:`self.installed<UberDot.installed>`.
-
-        Raises:
-            :class:`~errors.PreconditionError`: uberdot and installed-file
-                aren't version compatible.
-        """
-        try:
-            self.installed = json.load(open(const.installed_file))
-        except FileNotFoundError:
-            log_debug("No installed profiles found.")
-        # Check installed-file version
-        if (int(self.installed["@version"].split("_")[1]) !=
-                int(const.version.split("_")[1])):
-            msg = "There was a change of the installed-file schema "
-            msg += "with the last update. Please revert to version "
-            msg += self.installed["@version"] + " and uninstall "
-            msg += "all of your profiles before using this version."
-            raise PreconditionError(msg)
 
     def parse_arguments(self, arguments=None):
         """Parses the commandline arguments. This function can parse a custom
@@ -364,18 +344,6 @@ class UberDot:
             help="a string that will be searched for",
             nargs="?"
         )
-        # Setup mode fix arguments
-        help_text="fix broken installed files"
-        parser_fix = subparsers.add_parser(
-            "fix",
-            description=help_text,
-            help=help_text
-        )
-        parser_fix.add_argument(
-            "--apply",
-            help="auto-apply certain kind of fixes",
-            choices=["none", "mem", "fs"]
-        )
         # Setup mode version arguments
         help_text="show version number"
         parser_version = subparsers.add_parser(
@@ -452,17 +420,18 @@ class UberDot:
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
-        if const.mode == "show":
-            self.print_installed_profiles()
-        elif const.mode == "find":
+        # Lets do the easy modes first
+        if const.mode == "find":
             self.search()
-        elif const.mode == "fix":
-            self.fix_installed()
         elif const.mode == "version":
             log(const.col_bold + "Version: " + const.col_endc +
                 const.version)
+        # For the next modes we need a loaded installed_file
+        self.installed = InstalledFile()
+        if const.mode == "show":
+            self.print_installed_profiles()
         else:
-            # The above are modes that just print stuff, but here we
+            # The previous modes just printed stuff, but here we
             # have to actually do something:
             # 1. Decide how to solve the differences
             if const.mode == "remove":
@@ -496,9 +465,6 @@ class UberDot:
                 dfl.run_interpreter(PrintInterpreter())
             else:
                 self.run(dfl)
-
-    def fix_installed(self):
-        pass
 
     def execute_profiles(self, profiles=None, options=None, directory=None):
         """Imports profiles by name and executes them.
@@ -617,6 +583,7 @@ class UberDot:
                     log(
                         tab + "    Owner: " + user + ":" + group +
                         "   Permission: " + str(symlink["permission"]) +
+                        "   Secure: " + "yes" if symlink["secure"] else "no" +
                         "   Updated: " + symlink["date"]
                     )
 
@@ -778,7 +745,10 @@ class UberDot:
         # Each part is surrounded with a try-catch block that wraps every
         # exception which isn't a CustomError into UnkownError and reraises them
         # to handle them in the outer pokemon handler
-        old_installed = dict(self.installed)
+
+        # The events need to use the original installed file to access to
+        # correct uninstall events
+        old_installed = self.installed.copy()
         # Execute all events before linking and print them
         try:
             if not const.skipevents and not const.skipbefore:
@@ -807,27 +777,19 @@ class UberDot:
             raise UnkownError(err, msg)
         # Execute operations from difflog
         try:
-            # Create Backup in case something wents wrong,
-            # so the user can fix the mess we caused
-            if os.path.isfile(const.installed_file):
-                shutil.copyfile(const.installed_file,
-                                const.installed_backup)
             # Execute all operations of the difflog and print them
             difflog.run_interpreter(
                 ExecuteInterpreter(self.installed),
                 PrintInterpreter()
             )
-            # Remove Backup
-            if os.path.isfile(const.installed_backup):
-                os.remove(const.installed_backup)
-            log_success("Updated links successfully.")
         except CustomError:
             raise
         except Exception as err:
             msg = "An unkown error occured during linking/unlinking. Some "
-            msg += "links or your installed-file may be corrupted! Check the "
-            msg += "backup of your installed-file to resolve all possible "
-            msg += "issues before you proceed to use this tool!"
+            msg += "links or your installed-file may be corrupted. In most "
+            msg += "cases uberdot will fix all corruptions by itself the next "
+            msg += "time you use it. Please just make sure to to resolve the "
+            msg += "unkown error before you proceed to use this tool."
             raise UnkownError(err, msg)
         # Execute all events after linking and print them
         try:
@@ -977,13 +939,6 @@ def run_script(name):
         sys.path.append(const.profile_files)
         # Start everything in an exception handler
         try:
-            if os.path.isfile(const.installed_backup):
-                m = "I found a backup of your installed-file. It's most likely"
-                m += " that the last execution of this tool failed. If you "
-                m += "are certain that your installed-file is correct you can"
-                m += " remove the backup and start this tool again."
-                raise PreconditionError(m)
-            uber.load_installed()
             uber.execute_arguments()
         except CustomError as err:
             handle_custom_error(err)
@@ -994,18 +949,6 @@ def run_script(name):
             log_warning("The error above was unexpected. But it's fine," +
                         " I did nothing critical at the time :)")
             sys.exit(100)
-        finally:
-            # Write installed-file back to json file
-            try:
-                with open(const.installed_file, "w") as file:
-                    file.write(json.dumps(uber.installed, indent=4))
-                    file.flush()
-                os.chown(const.installed_file, get_uid(), get_gid())
-            except Exception as err:
-                msg = "An unkown error occured when trying to "
-                msg += "write all changes back to the installed-file"
-                unkw = UnkownError(err, msg)
-                log_error(unkw.message)
 
 
 run_script(__name__)

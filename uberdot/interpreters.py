@@ -1300,20 +1300,10 @@ class ExecuteInterpreter(Interpreter):
                     msg += " '" + name + "'."
                     log_debug(msg)
                     os.unlink(name)
-            # Create new symlink
-            os.symlink(target, name)
-            # Set owner and permission
-            os.lchown(name, uid, gid)
-            if permission != 644:
-                os.chmod(name, int(str(permission), 8))
-            # Set owner of target
-            if secure:
-                os.chown(target, uid, gid)
-            else:
-                os.chown(target, get_uid(), get_gid())
         except OSError as err:
             raise UnkownError(err, "An unkown error occured when trying to" +
-                              " create the link '" + name + "'.")
+                              " remove the link '" + name + "'.")
+        create_symlink(name, target, uid, gid, permission, secure)
 
     def __remove_symlink(self, path):
         """Remove a symlink. If the directory is empty, it removes the

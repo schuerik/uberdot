@@ -39,6 +39,7 @@ from uberdot import constants as const
 from uberdot.errors import FatalError
 from uberdot.errors import GenerationError
 from uberdot.errors import PreconditionError
+from uberdot.errors import UnkownError
 
 
 # Utils for finding targets
@@ -501,6 +502,33 @@ def get_profile_source(profile_name, file=None):
 
 logger = logging.getLogger("root")
 
+def create_symlink(name, target, uid, gid, permission, secure):
+    """Creates a symbolic link.
+
+    Args:
+        name (str): The filename (path) of the symbolic link
+        target (str): The path to the target of the symbolic link
+        uid (int): The userid if the link owner
+        gid (int): The groupid if the link owner
+        permission (int): The permission for the target
+        secure (bool): If the target should have the same owner as the link
+    """
+    try:
+        # Create new symlink
+        os.symlink(target, name)
+        # Set owner and permission
+        os.lchown(name, uid, gid)
+        if permission != 644:
+            os.chmod(name, int(str(permission), 8))
+        # Set owner of target
+        if secure:
+            os.chown(target, uid, gid)
+        else:
+            os.chown(target, get_uid(), get_gid())
+    except OSError as err:
+        raise UnkownError(err, "An unkown error occured when trying to" +
+                          " create the link '" + name + "'.")
+
 def get_timestamp_now():
     """Returns a timestamp string for the current moment
 
@@ -629,3 +657,24 @@ def md5(string):
     if isinstance(string, str):
         string = string.encode()
     return hashlib.md5(string).hexdigest()
+
+
+def is_version_smaller(version_a, version_b):
+    match = re.search(r"(\d+)\.(\d+)\.(\d+)", version_a)
+    major_a, minor_a, patch_a = match.groups()
+    major_a, minor_a, patch_a = int(major_a), int(minor_a), int(patch_a)
+    major_b, minor_b, patch_b = match.groups()
+    major_b, minor_b, patch_b = int(major_b), int(minor_b), int(patch_b)
+    if major_a > major_b:
+        return False
+    if major_a < major_b:
+        return True
+    if minor_a > minor_b:
+        return False
+    if minor_a < minor_b:
+        return True
+    if patch_a > patch_b:
+        return False
+    if patch_a < patch_b:
+        return True
+    return False
