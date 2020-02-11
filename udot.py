@@ -344,6 +344,18 @@ class UberDot:
             help="a string that will be searched for",
             nargs="?"
         )
+        # Setup arguments for mode fix
+        help_text="fix the installed file"
+        parser_version = subparsers.add_parser(
+            "fix",
+            description=help_text,
+            help=help_text
+        )
+        parser_find.add_argument(
+            "-a", "--all",
+            help="fix the installed files of all users",
+            action="store_true"
+        )
         # Setup mode version arguments
         help_text="show version number"
         parser_version = subparsers.add_parser(
@@ -423,30 +435,38 @@ class UberDot:
         # Lets do the easy modes first
         if const.mode == "find":
             self.search()
-        elif const.mode == "version":
-            log(const.col_bold + "Version: " + const.col_endc +
-                const.version)
+            return
+        if const.mode == "version":
+            log(const.col_bold + "Version: " + const.col_endc + const.version)
+            return
         # For the next modes we need a loaded installed_file
         self.installed = InstalledFile()
         if const.mode == "show":
             self.print_installed_profiles()
+        elif const.mode == "fix":
+            self.installed.fix(const.all)
         else:
             # The previous modes just printed stuff, but here we
             # have to actually do something:
-            # 1. Decide how to solve the differences
+            # 1. Decide how to solve the differences and
+            # setup DiffSolvers accordingly
             if const.mode == "remove":
+                log_debug("Calculating operations to remove profiles.")
                 dfs = UninstallDiffSolver(self.installed, const.profilenames)
             elif const.mode == "update":
+                log_debug("Calculating operations to update profiles.")
                 self.execute_profiles()
                 profile_results = [p.result for p in self.profiles]
                 dfs = UpdateDiffSolver(self.installed,
                                        profile_results,
                                        const.parent)
-            # elif TODO history resolve...
+            elif const.mode == "timewarp":
+                log_debug("Calculating operations to perform timewarp.")
+                # TODO HistoryDiffSolver
+                raise NotImplementedError
             else:
                 raise FatalError("None of the expected modes were set")
             # 2. Solve differences
-            log_debug("Calculate operations for linking process.")
             dfl = dfs.solve()
             # 3. Eventually manipulate the result
             if const.dui:

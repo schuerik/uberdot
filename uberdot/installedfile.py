@@ -29,14 +29,15 @@ from copy import deepcopy
 from uberdot import constants as const
 from uberdot.errors import UnkownError
 from uberdot.errors import PreconditionError
+from uberdot.utils import expandvars
 from uberdot.utils import get_current_username
 from uberdot.utils import log_debug
 from uberdot.utils import log
-from uberdot.utils import expandvars
+from uberdot.utils import makedirs
 from uberdot.utils import normpath
 from uberdot.utils import create_symlink
 from uberdot.utils import get_timestamp_now
-from uberdot.utils import version_is_smaller
+from uberdot.utils import is_version_smaller
 
 
 PATH_VALUES = ["from", "to"]
@@ -45,9 +46,9 @@ MIN_VERSION = "1.16.0"
 class AutoExpandDict(dict):
     def __getitem__(self, key):
         if key in PATH_VALUES:
-            value = normpath(self.__dict__[key])
+            value = normpath(super().__getitem__(key))
         else:
-            value = expandvars(self.__dict__[key])
+            value = expandvars(super().__getitem__(key))
         return value
 
 class InstalledFile(dict):
@@ -67,13 +68,13 @@ class InstalledFile(dict):
         self.loaded = AutoExpandDict()
         try:
             self.loaded.update(**json.load(open(path)))
-            if self.is_version_smaller(MIN_VERSION):
+            if is_version_smaller(self.loaded["@version"], MIN_VERSION):
                 msg = "Installed file is too old to be processed."
                 raise PreconditionError(msg)
-            if self.is_version_smaller(self.loaded["@version"], const.version):
-                msg = "Installed file was modified using version "
-                msg += self.loaded["@version"] + " but is only at version "
-                msg += const.version + ". Please update uberdot to proceed."
+            if is_version_smaller(const.version, self.loaded["@version"]):
+                msg = "Installed file has version " + self.loaded["@version"]
+                msg += " but uberdot is only at version " + const.version
+                msg += ". Please update uberdot to proceed."
                 raise PreconditionError(msg)
         except FileNotFoundError:
             log_debug("No installed file found.")
@@ -82,34 +83,13 @@ class InstalledFile(dict):
         if usr not in self.loaded:
             self.loaded[usr] = {}
         self.user_dict = AutoExpandDict(self.loaded[usr])
-        if timestamp is not None:
+        if timestamp is None:
             # The most recent installed file was loaded so we write it
             # right now, in case something has been already changed and
             # to verify that we have write access to this file
             self.__write_file__()
             # Furthermore we need to make sure that it matches the filesystem
             self.fix()
-
-    def is_version_smaller(self, version_b, version_a=self.loaded["@version"]):
-        match = re.search(r"(\d+)\.(\d+)\.(\d+)", version_a)
-        major_a, minor_a, patch_a = match.groups()
-        major_a, minor_a, patch_a = int(major_a), int(minor_a), int(patch_a)
-        match = re.search(r"(\d+)\.(\d+)\.(\d+)", version_b)
-        major_b, minor_b, patch_b = match.groups()
-        major_b, minor_b, patch_b = int(major_b), int(minor_b), int(patch_b)
-        if major_a > major_b:
-            return False
-        if major_a < major_b:
-            return True
-        if minor_a > minor_b:
-            return False
-        if minor_a < minor_b:
-            return True
-        if patch_a > patch_b:
-            return False
-        if patch_a < patch_b:
-            return True
-        return False
 
     def upgrade(self):
         patches = []
@@ -164,7 +144,11 @@ class InstalledFile(dict):
                 # TODO: Check for props
         self.__write_file__()
 
-    def __write_file__(self, path=const.installed_file):
+    def __write_file__(self, path=None):
+        if path is None:
+            path = const.installed_file
+        makedirs(os.path.dirname(path))
+        # Write content of self.loaded to file
         try:
             file = open(path, "w")
             file.write(json.dumps(self.loaded, indent=4))
@@ -174,6 +158,7 @@ class InstalledFile(dict):
             raise UnkownError(err, msg)
         finally:
             file.close()
+        # Make sure that anyone can edit this file
         os.chmod(path, 666)
 
     def get_special(self, key):

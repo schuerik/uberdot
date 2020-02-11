@@ -42,6 +42,8 @@ from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
 from uberdot import constants as const
+from uberdot.utils import get_current_username
+from uberdot.utils import makedirs
 from uberdot.utils import md5
 from uberdot.utils import normpath
 from uberdot.utils import log
@@ -132,11 +134,8 @@ class DynamicFile:
         Returns:
             str: The path to the directory
         """
-        path = normpath(os.path.join(const.data_dir, self.SUBDIR))
-        # Create dir if it doesn't exist
-        if not os.path.isdir(path):
-            log_debug("Creating directory '" + path + "'")
-            os.mkdir(path)
+        path = os.path.join(const.data_dir, get_current_username(), self.SUBDIR)
+        makedirs(path)
         return path
 
 

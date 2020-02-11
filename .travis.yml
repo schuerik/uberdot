@@ -12,7 +12,7 @@ branches:
 
 # Set up github deploy key
 before_install:
-  - openssl aes-256-cbc -K $encrypted_b1b55b706fb5_key -iv $encrypted_b1b55b706fb5_iv -in github-key.enc -out github-key -d
+  - openssl aes-256-cbc -K $encrypted_b1b55b706fb5_key -iv $encrypted_b1b55b706fb5_iv -in deploy/github-key.enc -out github-key -d
   - chmod 600 github-key
 
 # Install dependencies

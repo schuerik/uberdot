@@ -36,7 +36,7 @@ if [[ $git_status != "M" ]] && [[ $git_status != "A" ]]; then
         git config --local user.email "archlinuxuser@protonmail.com"
         tag="v$version_master"
         git tag $tag || exit 2
-        GIT_SSH_COMMAND="ssh -i github-key -F /dev/null" git push origin $tag || exit 3
+        GIT_SSH_COMMAND="ssh -i $deploy_dir/github-key -F /dev/null" git push origin $tag || exit 3
         echo "Created tag: $tag"
     else
         echo "The current version is already tagged."

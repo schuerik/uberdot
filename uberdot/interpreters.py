@@ -536,11 +536,12 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         """
         super().__init__()
         self.blacklist = []
-        for blfile in find_files("black.list", [const.data_dir]):
+        for blfile in find_files("black.list", const.searchpaths):
             with open(blfile, "r") as file:
                 for line in file.readlines():
                     self.blacklist.append(line)
         self.blacklist = [entry.strip() for entry in self.blacklist]
+        self.blacklist = list(set(self.blacklist))
 
     def check_blacklist(self, file_name, action):
         """Checks if a file matches a pattern in the blacklist.
