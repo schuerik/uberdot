@@ -7,18 +7,5 @@ docs/sphinx/build/html/*
 # Coverage reports
 .coverage*
 
-
 # The config file of the user
-data/uberdot.ini
-
-# Everything in the subdirectories beside the .gitkeep files
-data/installed/*
-!data/installed/.gitkeep
-**/data/decrypted/*
-!data/decrypted/.gitkeep
-**/data/merged/*
-!data/merged/.gitkeep
-**/data/piped/*
-!data/piped/.gitkeep
-**/data/scripts/*
-!data/scripts/.gitkeep
+uberdot.ini

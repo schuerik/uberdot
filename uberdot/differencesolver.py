@@ -418,6 +418,9 @@ class UpdateDiffSolver(DiffSolver):
 
         # Load the links from the InstalledLog
         profile_name = profile_dict["name"]
+        if profile_name in const.ignore:
+            log_debug("'" + profile_name + "' is in ignore list. Skipping...")
+            return
         installed_profile = None
         if profile_name in self.installed:
             installed_profile = self.installed[profile_name]
