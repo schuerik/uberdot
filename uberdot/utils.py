@@ -45,23 +45,49 @@ from uberdot.errors import UnkownError
 # Utils for finding targets
 ###############################################################################
 
-class SaveWalker:
+class Walker:
     def __init__(self, path):
         self.iterator = os.walk(path)
+        self.files = []
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        while True:
-            # Skip all internal files and symlinks
-            result = next(self.iterator)
-            if not re.match(r"/home/\w+/\.uberdot.*", result[0]):
-                break
+        while not self.files:
+            self.files = next(self.iterator)
+        result = files.pop()
         return result[0], result[2]
 
-def save_walk(path):
-    return iter(SaveWalker(path))
+
+class SafeWalker:
+    def __init__(self, path, ignorelist):
+        self.iterator = walk(path)
+        self.ignorelist = ignorelist + [
+            r"/home/\w+/\.uberdot.*",
+            r"/root/\.uberdot.*"
+        ]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        get_next = True
+        while get_next:
+            get_next = False
+            # Skip all internal files and symlinks
+            result = next(self.iterator)
+            file = os.path.join(result[0], result[1])
+            for ignore_pattern in self.ignorelist:
+                if re.match(ignore_pattern, file):
+                    get_next = True
+        return result[0], result[1]
+
+def walk(path):
+    return iter(Walker(path))
+
+def safe_walk(path, ignorelist=[]):
+    return iter(SafeWalker(path, ignorelist))
 
 def find_target(target, tags):
     """Finds the correct target version in the repository to link to.
@@ -149,33 +175,15 @@ def walk_dotfiles():
     if os.path.exists(ignorelist_path):
         with open(ignorelist_path, "r") as file:
             ignorelist = file.readlines()
-        ignorelist = [entry.strip() for entry in ignorelist]
-    ignorelist.append(".dotignore")
+        ignorelist = [entry.strip() for entry in ignorelist if entry.strip()]
+    ignorelist.append(r"\.dotignore$")
 
-    # walk through dotfile directory
-    result = []
-    for root, _, files in save_walk(const.target_files):
-        for name in files:
-            # check if file should be ignored
-            on_ignorelist = False
-            for entry in ignorelist:
-                if re.search(entry, os.path.join(root, name)):
-                    on_ignorelist = True
-            # if not add it to result
-            if not on_ignorelist:
-                result.append((root, name))
-    return result
+    return safe_walk(const.target_files, ignorelist)
 
 
 def walk_profiles():
-    result = []
-    for root, _, files in save_walk(const.profile_files):
-        for file in files:
-            file = os.path.join(root, file)
-            # Ignore everything that isn't a python module
-            if file[-2:] == "py":
-                result.append(file)
-    return result
+    # Ignore all files that are no python files
+    return safe_walk(const.profile_files, [r".*(?!py)$"])
 
 
 # Utils for permissions and user
