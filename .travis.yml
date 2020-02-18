@@ -43,7 +43,6 @@ jobs:
     # Deployment
     - stage: deploy
       python: 3.7
-      script: skip
       if: branch = master
       deploy:
         # Upload documentation to github pages
