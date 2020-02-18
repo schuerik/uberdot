@@ -76,7 +76,7 @@ values = {
     "parent"          : (None,                   None,        "str",  None),
     "plain"           : (False,                  None,        "bool", None),
     "save"            : ("default",              None,        "str",  str.lower),
-    "version"         : ("1.12.17_4",            None,        "str",  None),
+    "version"         : ("1.16.0",               None,        "str",  None),
     "all"             : (False,                  "Arguments", "bool", None),
     "allusers"        : (False,                  "Arguments", "bool", None),
     "content"         : (False,                  "Arguments", "bool", None),
@@ -249,5 +249,4 @@ def load(args):
         # Set argument
         _set(name, value)
     # Update internal values that depend on a loaded config
-    installed_path = installed_path % get("save")
-    _set("installed_path", installed_path)
+    _set("installed_path", get("installed_path") % get("save"))

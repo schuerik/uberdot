@@ -29,6 +29,7 @@ from copy import deepcopy
 from collections.abc import MutableMapping
 from collections.abc import MutableSequence
 from uberdot import constants as const
+from uberdot.upgrades import *
 from uberdot.errors import UnkownError
 from uberdot.errors import PreconditionError
 from uberdot.utils import expandvars
@@ -42,11 +43,9 @@ from uberdot.utils import save_walk
 from uberdot.utils import normpath
 from uberdot.utils import create_symlink
 from uberdot.utils import get_timestamp_now
-from uberdot.utils import is_version_smaller
 
 
 PATH_VALUES = ["from", "to"]
-MIN_VERSION = "1.16.0"
 
 class AutoExpander:
     def getitem(self, key):
@@ -147,13 +146,6 @@ class AutoExpanderJSONEncoder(json.JSONEncoder):
 
 
 class InstalledFile(MutableMapping):
-    def upgrade_owner(self, old_loaded):
-        return old_loaded
-
-    upgrades = [
-        ("1.17.0", upgrade_owner)
-    ]
-
     def __init__(self, timestamp=None):
         def get_user_installed_path(name):
             if name == "root":
@@ -170,7 +162,7 @@ class InstalledFile(MutableMapping):
         other_users.remove(get_current_username())
         for user in other_users:
             path = get_user_installed_path(user)
-            if not os.path.isfile(path):
+            if not os.path.exists(path):
                 # Ignore this user, if he has no installed file
                 continue
             # Load file
@@ -189,7 +181,8 @@ class InstalledFile(MutableMapping):
             dict_ = self.upgrade(dict_)
             self.loaded[user] = dict_
         # Load installed files of current users
-        self.own_file = get_user_installed_path(get_current_username())
+        user = get_current_username()
+        self.own_file = get_user_installed_path(user)
         path = self.own_file
         if timestamp is not None:
             path, ext = os.path.splitext(self.own_file)
@@ -197,23 +190,25 @@ class InstalledFile(MutableMapping):
         # Load file
         self.user_dict = AutoExpandDict()
         try:
-            self.user_dict = json.load(open(path))
+            self.user_dict.update(json.load(open(path)))
         except FileNotFoundError:
             log_debug("No installed file found. Creating new.")
             self.user_dict = self.init_empty_installed()
         # Make sure to write file on changes in user_dict
         self.user_dict.notify_change(self.__write_file__)
         # Check if we can upgrade
-        if is_version_smaller(dict_["@version"], MIN_VERSION):
+        if is_version_smaller(self.user_dict["@version"], MIN_VERSION):
             msg = "Your installed file is too old to be processed."
             raise PreconditionError(msg)
-        if is_version_smaller(const.version, dict_["@version"]):
+        if is_version_smaller(const.version, self.user_dict["@version"]):
             msg = "Your installed file was created with a newer version of "
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
         # Upgrade and store in loaded
         self.user_dict = self.upgrade(self.user_dict, True)
         self.loaded[user] = self.user_dict
+        # Make sure to update version in case no upgrade was needed
+        self.user_dict["@version"] = const.version
 
     def init_empty_installed(self):
         empty = AutoExpandDict()
@@ -223,7 +218,7 @@ class InstalledFile(MutableMapping):
     def upgrade(self, installed_file, write=False):
         patches = []
         # Skip all upgrades for smaller versions
-        for i, upgrade in enumerate(self.upgrades):
+        for i, upgrade in enumerate(upgrades):
             if is_version_smaller(installed_file["@version"], upgrade[0]):
                 patches = upgrades[i:]
                 break
@@ -271,8 +266,9 @@ class InstalledFile(MutableMapping):
     def get_profiles(self):
         profiles = []
         for usr in self.get_users():
-            for profile in self.loaded[usr].keys():
-                profiles.append((usr, profile))
+            for profile in self.loaded[usr]:
+                if profile[0] != "@":
+                    profiles.append((usr, self.loaded[usr][profile]))
         return profiles
 
     def __setitem__(self, key, value):

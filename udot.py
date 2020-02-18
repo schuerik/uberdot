@@ -92,7 +92,7 @@ class UberDot:
         Initializes attributes and changes the working directory to the
         directory where this module is stored."""
         # Initialise fields
-        self.installed = {"@version": const.version}
+        self.installed = None
         self.args = None
         self.profiles = []
         # Change current working directory to the directory of this module
@@ -180,7 +180,7 @@ class UberDot:
         )
         parser_show.add_argument(
             "-u", "--users",
-            help="show installed of other users too",
+            help="show installed of other users",
             nargs="+"
         )
         parser_show.add_argument(
@@ -356,16 +356,16 @@ class UberDot:
         )
         # Setup arguments for mode fix
         help_text="fix the installed file"
-        parser_version = subparsers.add_parser(
+        parser_fix = subparsers.add_parser(
             "fix",
             description=help_text,
             help=help_text
         )
-        parser_find.add_argument(
+        parser_fix.add_argument(
             "-u", "--user",
             help="fix the installed files of another user",
         )
-        parser_find.add_argument(
+        parser_fix.add_argument(
             "-a", "--action",
             help="preset a type of action to resolve each issue automatically",
         )
@@ -455,7 +455,7 @@ class UberDot:
         # For the next modes we need a loaded installed_file
         self.installed = InstalledFile()
         if const.mode == "show":
-            self.print_installed_profiles()
+            self.show()
         elif const.mode == "fix":
             self.fix()
         else:
@@ -628,23 +628,24 @@ class UberDot:
             else:
                 print(str("   " + name + ": ").ljust(32) + str(value))
 
-    def print_installed_profiles(self):
+    def show(self):
         """Print out the installed-file in a readable format.
 
         Prints only the profiles specified in the commandline arguments. If
         none are specified it prints all profiles of the installed-file."""
         last_user = ""
         for user, profile in self.installed.get_profiles():
-            # Skip all profiles that are not of the current user
-            if get_current_username() != user:
-                # Except this user shall be shown as well
-                if user not in const.users and not const.allusers:
+            # Skip users that shall not be printed
+            if not const.allusers:
+                if const.users and user not in const.users:
                     continue
-            # Log the next user
+                if get_current_username() != user:
+                    continue
+            # Print the next user
             if user != last_user:
                 # But only if other users shall be shown
                 if const.allusers or const.users:
-                    log(user)
+                    log(const.col_bold + "User: " + const.col_endc + user)
                 last_user = user
             # Show all profiles that are specified or all if none was specified
             if not const.profilenames or profile["name"] in const.profilenames:
@@ -664,11 +665,11 @@ class UberDot:
             return
         tab = "  " if const.users or const.allusers else ""
         if const.profiles or (not const.profiles and not const.links):
+            profile_header = tab + const.col_bold + profile["name"] + const.col_endc
+            if const.links or const.meta:
+                profile_header += ":"
+            log(profile_header)
             tab += "  "
-            if not const.links and not const.meta:
-                log(const.col_bold + profile["name"] + const.col_endc)
-            else:
-                log(const.col_bold + profile["name"] + ":" + const.col_endc)
             if const.meta:
                 log(tab + "Installed: " + profile["installed"])
                 log(tab + "Updated: " + profile["updated"])
@@ -1002,17 +1003,6 @@ def run_script(name):
     This is needed, because otherwise everything below couldn't
     be traced by coverage."""
 
-    def handle_custom_error(err):
-        # An error occured that we (more or less) expected.
-        # Print error, a stacktrace and exit
-        if isinstance(err, FatalError):
-            logger.critical(traceback.format_exc())
-            logger.critical(err.message + "\n")
-        else:
-            log_debug(traceback.format_exc())
-            log_error(err.message)
-        sys.exit(err.EXITCODE)
-
     if name == "__main__":
         # Init the logger, further configuration is done when we parse the
         # commandline arguments
@@ -1033,20 +1023,26 @@ def run_script(name):
         logger.addHandler(ch_out)
         logger.addHandler(ch_err)
 
-        # Create UberDot instance and parse arguments
-        uber = UberDot()
+        # Start everything in a try block with pokemon handler
         try:
+            # Create UberDot instance and parse arguments
+            uber = UberDot()
             uber.parse_arguments()
             uber.check_arguments()
-        except CustomError as err:
-            handle_custom_error(err)
-        # Add the users profiles to the python path
-        sys.path.append(const.profile_files)
-        # Start everything in an exception handler
-        try:
+            # Add the users profiles to the python path
+            sys.path.append(const.profile_files)
+            # Go
             uber.execute_arguments()
         except CustomError as err:
-            handle_custom_error(err)
+            # An error occured that we (more or less) expected.
+            # Print error, a stacktrace and exit
+            if isinstance(err, FatalError):
+                logger.critical(traceback.format_exc())
+                logger.critical(err.message + "\n")
+            else:
+                log_debug(traceback.format_exc())
+                log_error(err.message)
+            sys.exit(err.EXITCODE)
         except Exception:
             # This works because all critical parts will catch also all
             # exceptions and convert them into a CustomError
