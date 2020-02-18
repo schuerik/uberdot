@@ -35,11 +35,12 @@ from uberdot.errors import PreconditionError
 from uberdot.utils import expandvars
 from uberdot.utils import find_files
 from uberdot.utils import get_current_username
+from uberdot.utils import get_user_environ_path
 from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import log
 from uberdot.utils import makedirs
-from uberdot.utils import save_walk
+from uberdot.utils import safe_walk
 from uberdot.utils import normpath
 from uberdot.utils import create_symlink
 from uberdot.utils import get_timestamp_now
@@ -147,13 +148,6 @@ class AutoExpanderJSONEncoder(json.JSONEncoder):
 
 class InstalledFile(MutableMapping):
     def __init__(self, timestamp=None):
-        def get_user_installed_path(name):
-            if name == "root":
-                path = const.data_dir_root
-            else:
-                path = const.data_dir_temp % name
-            return os.path.join(path, const.installed_path)
-
         # Setup in-mememory installed file
         self.loaded = AutoExpandDict()
         self.loaded["@version"] = const.version
@@ -161,7 +155,8 @@ class InstalledFile(MutableMapping):
         other_users = ["root"] + os.listdir("/home")
         other_users.remove(get_current_username())
         for user in other_users:
-            path = get_user_installed_path(user)
+            path = get_user_environ_path(user)
+            path = os.path.join(path, const.state_name)
             if not os.path.exists(path):
                 # Ignore this user, if he has no installed file
                 continue
@@ -181,8 +176,7 @@ class InstalledFile(MutableMapping):
             dict_ = self.upgrade(dict_)
             self.loaded[user] = dict_
         # Load installed files of current users
-        user = get_current_username()
-        self.own_file = get_user_installed_path(user)
+        self.own_file = os.path.join(const.environ_dir, const.state_name)
         path = self.own_file
         if timestamp is not None:
             path, ext = os.path.splitext(self.own_file)
@@ -206,7 +200,7 @@ class InstalledFile(MutableMapping):
             raise PreconditionError(msg)
         # Upgrade and store in loaded
         self.user_dict = self.upgrade(self.user_dict, True)
-        self.loaded[user] = self.user_dict
+        self.loaded[get_current_username()] = self.user_dict
         # Make sure to update version in case no upgrade was needed
         self.user_dict["@version"] = const.version
 
@@ -258,7 +252,7 @@ class InstalledFile(MutableMapping):
         return self.loaded["@" + key]
 
     def get_users(self):
-        return [item for item in self.loaded.keys() if item[0] != "@"]
+        return [item for item in self.loaded if item[0] != "@"]
 
     def get_user_profiles(self, user):
         return self.loaded[user]

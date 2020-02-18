@@ -65,8 +65,8 @@ class CustomError(Exception):
 
     @property
     def message(self):
-        msg = const.col_fail + const.col_bold + "ERROR: " + const.col_nobold
-        msg += self._message + const.col_endc
+        msg = const.col_fail + const.col_emph + "ERROR: " + const.col_endc
+        msg += const.col_fail + self._message + const.col_endc
         return msg
 
 
@@ -85,8 +85,7 @@ class FatalError(CustomError):
             message (str): The error message
         """
         msg = message
-        msg += "\n" + const.col_warning + "This error should "
-        msg += const.col_bold + "NEVER EVER" + const.col_nobold + " "
+        msg += "\n" + const.col_warning + "This error should NEVER EVER "
         msg += "occur!! The developer fucked this up really hard! Please "
         msg += "make sure to resolve this issue before using this "
         msg += "tool again!" + const.col_endc
@@ -156,8 +155,8 @@ class GenerationError(CustomError):
             profile_name (str): Name of the profile that triggered the error
             message (str): The error message
         """
-        super().__init__(const.col_bold + "[" + profile_name + "]: " +
-                         const.col_nobold + message)
+        super().__init__(const.col_emph + "[" + profile_name + "]: " +
+                         const.col_endc + message)
 
 
 class UnkownError(CustomError):

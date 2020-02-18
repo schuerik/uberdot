@@ -145,7 +145,7 @@ def dircheck(environ, dir_tree):
 class RegressionTest():
     """This is the abstract base class for all regression tests.
     It provides simple start and check functionality"""
-    def __init__(self, name, cmd_args, save="default"):
+    def __init__(self, name, cmd_args, environ="default"):
         global test_nr
         self.nr = str(test_nr).rjust(2, "0")
         test_nr += 1
@@ -158,9 +158,8 @@ class RegressionTest():
         self.name = name
         self.cmd_args = ["python3", "../../udot.py",
                          "--config", "regressiontest.ini",
-                         "--save", save] + verbose + cmd_args
-        self.save = save
-        self.environ = os.path.join(DIRNAME, "environment-" + self.save)
+                         "--environ", environ] + verbose + cmd_args
+        self.environ = os.path.join(DIRNAME, "environment-" + self.environ)
 
     def dummy(self, *args):
         """Do nothing"""
@@ -190,8 +189,6 @@ class RegressionTest():
 
     def cleanup(self):
         """Resets test environment and installed files"""
-        installed_file = os.path.join(DIRNAME, "data/installed")
-        installed_file = os.path.join(installed_file, self.save + ".json")
         # Reset environment and installed dir with git
         process = Popen(["git", "checkout", "HEAD", "--", self.environ,
                          DIRNAME + "/data/installed"], stderr=PIPE)
@@ -278,8 +275,8 @@ class RegressionTest():
 class DirRegressionTest(RegressionTest):
     """Regression check if uberdot makes the expected
     changes to the filesystem"""
-    def __init__(self, name, cmd_args, before, after, save="default"):
-        super().__init__(name, cmd_args, save)
+    def __init__(self, name, cmd_args, before, after, environ="default"):
+        super().__init__(name, cmd_args, environ)
         self.before = before
         self.after = after
 
@@ -298,33 +295,33 @@ class DirRegressionTest(RegressionTest):
         return True, ""
 
 
-class OutputRegressionTest(RegressionTest):
-    """Regression tests for output."""
-    def __init__(self, name, cmd_args, before, save="default"):
-        super().__init__(name, cmd_args, save)
-        self.before = before
-        # self.output = output
+# class OutputRegressionTest(RegressionTest):
+#     """Regression tests for output."""
+#     def __init__(self, name, cmd_args, before, environ="default"):
+#         super().__init__(name, cmd_args, environ)
+#         self.before = before
+#         # self.output = output
 
-    def pre_check(self):
-        try:
-            dircheck(self.environ, self.before)
-        except ValueError as err:
-            return err.args[0]
-        return True, ""
+#     def pre_check(self):
+#         try:
+#             dircheck(self.environ, self.before)
+#         except ValueError as err:
+#             return err.args[0]
+#         return True, ""
 
-    def run(self):
-        process = Popen(self.cmd_args, stdout=PIPE, stderr=PIPE)
-        msg, error = process.communicate()
-        exitcode = process.returncode
-        if exitcode:
-            return False, exitcode, error
-        # if msg != self.output:
-        #     error = "Output was:\n" + msg
-        #     return False, "Output is not as expected", error
-        return True, ""
+#     def run(self):
+#         process = Popen(self.cmd_args, stdout=PIPE, stderr=PIPE)
+#         msg, error = process.communicate()
+#         exitcode = process.returncode
+#         if exitcode:
+#             return False, exitcode, error
+#         # if msg != self.output:
+#         #     error = "Output was:\n" + msg
+#         #     return False, "Output is not as expected", error
+#         return True, ""
 
-    def post_check(self):
-        return True, ""
+#     def post_check(self):
+#         return True, ""
 
 
 # Test data
@@ -1145,16 +1142,16 @@ DirRegressionTest("Update: Uninstall",
 DirRegressionTest("Update: --dui",
                   ["update", "--dui", "SuperProfileTags"],
                   after_tags, after_updatedui, "nested").success()
-OutputRegressionTest("Output: --changes",
-                     ["update", "--changes", "NoOptions"],
-                     before).success()
-OutputRegressionTest("Output: --plain",
-                     ["update", "--plain", "NoOptions"],
-                     before).success()
-OutputRegressionTest("Output: --dryrun",
-                     ["update", "-d", "NoOptions"],
-                     before).success()
-OutputRegressionTest("Output: --debuginfo", ["--debuginfo"], before).success()
+# OutputRegressionTest("Output: --changes",
+#                      ["update", "--changes", "NoOptions"],
+#                      before).success()
+# OutputRegressionTest("Output: --plain",
+#                      ["update", "--plain", "NoOptions"],
+#                      before).success()
+# OutputRegressionTest("Output: --dryrun",
+#                      ["update", "-d", "NoOptions"],
+#                      before).success()
+# OutputRegressionTest("Output: --debuginfo", ["--debuginfo"], before).success()
 DirRegressionTest("Fail: Not a profile",
                   ["update", "NotAProfileFail"],
                   before, before).fail("run", 104)
@@ -1192,9 +1189,17 @@ sys.exit(global_fails)
 
 
 ###############################################################################
-# TODO: Write tests for
-## option owner
-## option replace and replace_pattern
-## option permission
-## env var substitution
-## various conflicts
+# TODO: Write tests
+# Already possible
+#    env var substitution
+# Input needs to be simulated
+#    dynamic files changed
+#    fix installed file
+# Requires an extra user
+#    option secure
+#    option owner
+#    option permission
+# Output must be matched
+#    already implemented tests
+#    show
+#    find

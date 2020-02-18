@@ -31,23 +31,41 @@ from uberdot.errors import PreconditionError
 from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import get_current_username
+from uberdot.utils import get_user_environ_path
 from uberdot.utils import normpath
 
 # TODO: doc
+
+
+############################################################################
+# True hardcoded constants (not visible via --debuginfo)
+############################################################################
+# TODO: make tests work with new environ
+version = "1.16.0"
+state_name = "state.json"
+data_dir_temp = "/home/%s/.uberdot/"
+data_dir_root = "/root/.uberdot/"
+environ_subdir = "environments/%s/"
+
+
+############################################################################
+# Setup mainpulation functions
+############################################################################
+def __decode_ansi(string):
+    return string.encode("utf-8").decode("unicode_escape")
+
 
 ############################################################################
 # Initialize constants with defaults
 ############################################################################
 
-owd = os.getcwd()
-data_dir_temp = "/home/%s/.uberdot/"
-data_dir_root = "/root/.uberdot/"
+# Prepare all non-trivial defaults
 if get_current_username() == "root":
-    data_dir = data_dir_root
+    environ_dir = data_dir_root
 else:
-    data_dir = data_dir_temp % get_current_username()
-installed_path = "installed/%s.json"
-searchpaths = [
+    environ_dir = data_dir_temp % get_current_username()
+environ_dir += environ_subdir
+cfg_search_paths = [
     "/etc/uberdot",
     os.path.join(
         get_user_env_var('XDG_CONFIG_HOME', normpath('~/.config')),
@@ -55,28 +73,22 @@ searchpaths = [
     ),
     os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
 ]
+
+# Initialize constants
 values = {
     # name: (value, configsection, type, manipulation function)
     "cfg_files"       : ([],                     None,        "list", None),
-    "cfg_search_paths": (searchpaths,            None,        "list", None),
+    "cfg_search_paths": (cfg_search_paths,       None,        "list", None),
     "changes"         : (False,                  None,        "bool", None),
-    "col_bold"        : ('\033[1m',              None,        "str",  None),
-    "col_endc"        : ('\033[0m',              None,        "str",  None),
-    "col_fail"        : ('\033[91m',             None,        "str",  None),
-    "col_nobold"      : ('\033[22m',             None,        "str",  None),
-    "col_ok"          : ('\033[92m',             None,        "str",  None),
-    "col_warning"     : ('\033[93m',             None,        "str",  None),
-    "col_debug"       : ('\033[90m',             None,        "str",  None),
-    "data_dir"        : (data_dir,               None,        "path", None),
+    "col_endc"        : ('\x1b[0m',              None,        "str",  None),
+    "debug"           : (False,                  None,        "bool", None),
     "debuginfo"       : (False,                  None,        "bool", None),
     "dryrun"          : (False,                  None,        "bool", None),
-    "installed_path"  : (installed_path,         None,        "str",  None),
+    "environ_dir"     : (environ_dir,            None,        "path", None),
     "mode"            : ("",                     None,        "str",  None),
-    "owd"             : (owd,                    None,        "str",  None),
+    "owd"             : (os.getcwd(),            None,        "str",  None),
     "parent"          : (None,                   None,        "str",  None),
-    "plain"           : (False,                  None,        "bool", None),
-    "save"            : ("default",              None,        "str",  str.lower),
-    "version"         : ("1.16.0",               None,        "str",  None),
+    "environ"         : ("default",              None,        "str",  str.lower),
     "all"             : (False,                  "Arguments", "bool", None),
     "allusers"        : (False,                  "Arguments", "bool", None),
     "content"         : (False,                  "Arguments", "bool", None),
@@ -107,6 +119,11 @@ values = {
     "askroot"         : (True,                   "Settings",  "bool", None),
     "backup_extension": ("bak",                  "Settings",  "str",  None),
     "color"           : (True,                   "Settings",  "bool", None),
+    "col_emph"        : ('\x1b[1m',              "Settings",  "str",  __decode_ansi),
+    "col_fail"        : ('\x1b[91m',             "Settings",  "str",  __decode_ansi),
+    "col_ok"          : ('\x1b[92m',             "Settings",  "str",  __decode_ansi),
+    "col_warning"     : ('\x1b[93m',             "Settings",  "str",  __decode_ansi),
+    "col_debug"       : ('\x1b[90m',             "Settings",  "str",  __decode_ansi),
     "decrypt_pwd"     : (None,                   "Settings",  "str",  None),
     "hash_separator"  : ("#",                    "Settings",  "str",  None),
     "profile_files"   : ("",                     "Settings",  "path", None),
@@ -172,8 +189,8 @@ def load(args):
     if args.config:
        cfgs += [os.path.join(get("owd"), args.config)]
     _set("cfg_files", cfgs)
-    if args.save:
-        _set("save", args.save)
+    if args.environ:
+        _set("environ", args.environ)
     # Load configs
     config = configparser.ConfigParser()
     try:
@@ -182,8 +199,7 @@ def load(args):
             # We need to normalize all paths here, relatively to
             # the config file which it defined
             path_values = [
-                "directory", "profile_files", "target_files",
-                "logfile", "data_dir"
+                "directory", "profile_files", "target_files", "logfile"
             ]
             for section in config.sections():
                 for name, value in config.items(section):
@@ -206,7 +222,7 @@ def load(args):
         elif props[2] == "bool":
             getter = config.getboolean
         # Get value from config. Prefer values from special installed section
-        section = "Installed." + get("save") + "." + props[1]
+        section = "Environment." + get("environ") + "." + props[1]
         if config.has_section(section) and config.has_option(section, name):
             value = getter(section, name)
         elif config.has_section(props[1]) and config.has_option(props[1], name):
@@ -219,9 +235,15 @@ def load(args):
             value = next(csv.reader([value]))
         _set(name, value)
 
+    # Remove all colors if disabled
+    if not get("color"):
+        for key, val in items():
+            if key.startswith("col_"):
+                _set(key, "")
+
     # Write arguments
     for arg, value in vars(args).items():
-        if value is None or arg in ["config", "save"]:
+        if value is None or arg in ["config", "environ"]:
             continue
         name = arg
         # Parse tags and set values for --options
@@ -249,4 +271,4 @@ def load(args):
         # Set argument
         _set(name, value)
     # Update internal values that depend on a loaded config
-    _set("installed_path", get("installed_path") % get("save"))
+    _set("environ_dir", get("environ_dir") % get("environ"))

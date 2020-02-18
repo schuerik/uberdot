@@ -973,7 +973,7 @@ class EventInterpreter(Interpreter):
                 generated script is searched
         """
         log_operation(profile_name, "Running event " + event_name)
-        script_dir = os.path.join(const.data_dir, "scripts") + "/"
+        script_dir = os.path.join(const.environ_dir, "scripts") + "/"
         script_path = script_dir + profile_name + "_" + event_name
         if not os.path.exists(script_path):
             raise FatalError("Generated script couldn't be found")

@@ -26,8 +26,9 @@ def is_version_smaller(version_a, version_b):
 
 
 def upgrade_stone_age(old_loaded):
-    """Upgrade from old installed file with schema version to fancy
-    installed file. Luckily the schema didn't change, so we do nothing.
+    """Upgrade from old installed file with schema version 4 to fancy
+    installed file. Luckily the schema only introduced optional properties,
+    so we don't need to do anything.
     """
     return old_loaded
 

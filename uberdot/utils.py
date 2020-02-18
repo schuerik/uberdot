@@ -329,6 +329,12 @@ def get_user_env_var(varname, fallback=None):
         raise PreconditionError("There is no environment varibable set " +
                                 "with the name: '" + varname + "'")
 
+def get_user_environ_path(user):
+    if user == "root":
+        path = const.data_dir_root
+    else:
+        path = const.data_dir_temp % user
+    return path + const.environ_subdir % const.environ
 
 def expandvars(path):
     """Behaves like the ``os.path.expandvars()`` but uses
@@ -601,8 +607,8 @@ def log_operation(profile_name, message):
         profile_name (str): The name of the profile that triggered the operation.
         message (str): The message that will be logged
     """
-    logger.info(const.col_bold + "[" + profile_name + "]: " +
-                const.col_nobold + message + "\n")
+    logger.info(const.col_emph + "[" + profile_name + "]: " +
+                const.col_endc + message + "\n")
 
 
 def log_warning(message):

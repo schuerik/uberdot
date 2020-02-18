@@ -54,6 +54,7 @@ from uberdot.utils import log_error
 from uberdot.utils import log_success
 from uberdot.utils import log_warning
 from uberdot.utils import normpath
+from uberdot.utils import safe_walk
 
 
 import argparse
@@ -127,16 +128,16 @@ class UberDot:
         )
         # Setup top level arguments
         parser.add_argument(
-            "--config",
+            "-c", "--config",
             help="specify another config-file to use"
         )
         parser.add_argument(
-            "--debuginfo",
+            "-d", "--debuginfo",
             help="show loaded settings and internal values",
             action="store_true"
         )
         parser.add_argument(
-            "--ignore",
+            "-i", "--ignore",
             help="ignore this profile in every mode",
             action="append"
         )
@@ -157,17 +158,17 @@ class UberDot:
             action="store_true"
         )
         group_log_level.add_argument(
-            "--silent",
+            "-s", "--silent",
             help="print absolute nothing",
             action="store_true"
         )
         parser.add_argument(
-            "--log",
+            "-l", "--log",
             help="specify a file to log to"
         )
         parser.add_argument(
-            "--save",
-            help="specify another install-file to use",
+            "-e", "--environ",
+            help="specify another environment",
             default="default"
         )
         # Setup mode show arguments
@@ -200,7 +201,7 @@ class UberDot:
         )
         parser_show.add_argument(
             "-m", "--meta",
-            help="display meta information about profiles and/or links",
+            help="display meta information of profiles and/or links",
             action="store_true"
         )
         # Setup arguments that are used in both update and remove
@@ -209,11 +210,6 @@ class UberDot:
         group_run_mode.add_argument(
             "-d", "--dryrun",
             help="just simulate what would happen",
-            action="store_true"
-        )
-        group_run_mode.add_argument(
-            "--plain",
-            help="print the internal DiffLog as plain json",
             action="store_true"
         )
         group_run_mode.add_argument(
@@ -249,6 +245,11 @@ class UberDot:
         parser_run.add_argument(
             "--skipevents",
             help="do not execute any events",
+            action="store_true"
+        )
+        group_run_mode.add_argument(
+            "--debug",
+            help="print the internal DiffLog as plain json",
             action="store_true"
         )
         # Setup mode update arguments
@@ -369,6 +370,42 @@ class UberDot:
             "-a", "--action",
             help="preset a type of action to resolve each issue automatically",
         )
+        help_text="revert back to a prevoius state"
+        parser_timewarp = subparsers.add_parser(
+            "timewarp",
+            description=help_text,
+            help=help_text
+        )
+        parser_timewarp.add_argument(
+            "--minutes",
+            help="minutes to go back in time",
+            action="store"
+        )
+        parser_timewarp.add_argument(
+            "--hours",
+            help="hours to go back in time",
+            action="store"
+        )
+        parser_timewarp.add_argument(
+            "-d", "--days",
+            help="days to go back in time",
+            action="store"
+        )
+        parser_timewarp.add_argument(
+            "-m", "--months",
+            help="months to go back in time",
+            action="store"
+        )
+        parser_timewarp.add_argument(
+            "--date",
+            help="go back to this date",
+            action="store"
+        )
+        parser_timewarp.add_argument(
+            "--file",
+            help="go back to a specific installed file",
+            action="store"
+        )
         # Setup mode version arguments
         help_text="show version number"
         parser_version = subparsers.add_parser(
@@ -450,7 +487,7 @@ class UberDot:
             self.search()
             return
         if const.mode == "version":
-            log(const.col_bold + "Version: " + const.col_endc + const.version)
+            log(const.col_emph + "Version: " + const.col_endc + const.version)
             return
         # For the next modes we need a loaded installed_file
         self.installed = InstalledFile()
@@ -537,7 +574,7 @@ class UberDot:
                 # Check if link still exists
                 if not os.path.exists(link["name"]):
                     # Check if another symlink exists that has same target
-                    for root, name in save_walk(os.path.dirname(link["name"])):
+                    for root, name in safe_walk(os.path.dirname(link["name"])):
                         file = os.path.join(root, name)
                         if os.path.realpath(file) == link["target"]:
                             msg = "Link '" + link["name"] + "' was renamed '"
@@ -613,14 +650,14 @@ class UberDot:
             if section is None:
                 section = "Internal"
             if old_section != section:
-                print(const.col_bold + section + ":" + const.col_endc)
+                print(const.col_emph + section + ":" + const.col_endc)
                 old_section = section
-            if name in ["col_endc", "col_bold", "col_nobold"]:
+            if name == "col_endc":
                 continue
             value = const.get(name)
             if name.startswith("col_"):
-                # TODO print color codes
-                value = str(value) + "text" + const.col_endc
+                value = value + value.encode("unicode_escape").decode("utf-8")
+                value += const.col_endc
             if (name == "cfg_files" or name == "cfg_search_paths") and value:
                 print(str("   " + name + ": ").ljust(32) + str(value[0]))
                 for item in value[1:]:
@@ -628,6 +665,8 @@ class UberDot:
             else:
                 print(str("   " + name + ": ").ljust(32) + str(value))
 
+    # TODO: extend show
+    # options to display state of snapshots
     def show(self):
         """Print out the installed-file in a readable format.
 
@@ -637,23 +676,21 @@ class UberDot:
         for user, profile in self.installed.get_profiles():
             # Skip users that shall not be printed
             if not const.allusers:
-                if const.users and user not in const.users:
-                    continue
-                if get_current_username() != user:
+                if const.users:
+                    if user not in const.users:
+                        continue
+                elif get_current_username() != user:
                     continue
             # Print the next user
             if user != last_user:
                 # But only if other users shall be shown
                 if const.allusers or const.users:
-                    log(const.col_bold + "User: " + const.col_endc + user)
+                    log(const.col_emph + "User: " + const.col_endc + user)
                 last_user = user
             # Show all profiles that are specified or all if none was specified
             if not const.profilenames or profile["name"] in const.profilenames:
                 self.print_installed(profile)
 
-    # TODO: extend show
-    # option to display installeds of other users
-    # options to display state of snapshots
     def print_installed(self, profile):
         """Prints a single installed profile.
 
@@ -664,8 +701,8 @@ class UberDot:
             log_debug("'" + profile["name"] + "' is in ignore list. Skipping...")
             return
         tab = "  " if const.users or const.allusers else ""
-        if const.profiles or (not const.profiles and not const.links):
-            profile_header = tab + const.col_bold + profile["name"] + const.col_endc
+        if const.profiles or (not const.links and not const.meta):
+            profile_header = tab + const.col_emph + profile["name"] + const.col_endc
             if const.links or const.meta:
                 profile_header += ":"
             log(profile_header)
@@ -673,14 +710,13 @@ class UberDot:
             if const.meta:
                 log(tab + "Installed: " + profile["installed"])
                 log(tab + "Updated: " + profile["updated"])
-                log(tab + "Updated: " + profile["updated"])
                 if "parent" in profile:
                     log(tab + "Subprofile of: " + profile["parent"])
                 if "profiles" in profile:
                     log(tab + "Has Subprofiles: " + ", ".join(
                         [s["name"] for s in profile["profiles"]]
                     ))
-        if const.links or (not const.profiles and not const.links):
+        if const.links or (not const.profiles and not const.meta):
             for symlink in profile["links"]:
                 log(tab + symlink["name"] + "  →  " + symlink["target"])
                 if const.meta:
