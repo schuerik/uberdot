@@ -45,6 +45,24 @@ from uberdot.errors import UnkownError
 # Utils for finding targets
 ###############################################################################
 
+class SaveWalker:
+    def __init__(self, path):
+        self.iterator = os.walk(path)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while True:
+            # Skip all internal files and symlinks
+            result = next(self.iterator)
+            if not re.match(r"/home/\w+/\.uberdot.*", result[0]):
+                break
+        return result[0], result[2]
+
+def save_walk(path):
+    return iter(SaveWalker(path))
+
 def find_target(target, tags):
     """Finds the correct target version in the repository to link to.
 
@@ -136,7 +154,7 @@ def walk_dotfiles():
 
     # walk through dotfile directory
     result = []
-    for root, _, files in os.walk(const.target_files):
+    for root, _, files in save_walk(const.target_files):
         for name in files:
             # check if file should be ignored
             on_ignorelist = False
@@ -151,7 +169,7 @@ def walk_dotfiles():
 
 def walk_profiles():
     result = []
-    for root, _, files in os.walk(const.profile_files):
+    for root, _, files in save_walk(const.profile_files):
         for file in files:
             file = os.path.join(root, file)
             # Ignore everything that isn't a python module

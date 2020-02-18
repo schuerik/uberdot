@@ -179,6 +179,16 @@ class UberDot:
             help=help_text
         )
         parser_show.add_argument(
+            "-u", "--users",
+            help="show installed of other users too",
+            nargs="+"
+        )
+        parser_show.add_argument(
+            "-a", "--allusers",
+            help="show installed of all users",
+            action="store_true"
+        )
+        parser_show.add_argument(
             "-l", "--links",
             help="show installed links",
             action="store_true"
@@ -352,9 +362,12 @@ class UberDot:
             help=help_text
         )
         parser_find.add_argument(
-            "-a", "--all",
-            help="fix the installed files of all users",
-            action="store_true"
+            "-u", "--user",
+            help="fix the installed files of another user",
+        )
+        parser_find.add_argument(
+            "-a", "--action",
+            help="preset a type of action to resolve each issue automatically",
         )
         # Setup mode version arguments
         help_text="show version number"
@@ -444,7 +457,7 @@ class UberDot:
         if const.mode == "show":
             self.print_installed_profiles()
         elif const.mode == "fix":
-            self.installed.fix(const.all)
+            self.fix()
         else:
             # The previous modes just printed stuff, but here we
             # have to actually do something:
@@ -485,6 +498,70 @@ class UberDot:
                 dfl.run_interpreter(PrintInterpreter())
             else:
                 self.run(dfl)
+
+    # TODO create a difflog instead of creating links manually
+    # use just a selection of tests like RootNeeded and CheckLinksInterpreter
+    # TODO store last fix selection in case of error
+    # TODO do this for another user
+    def fix(self):
+        def fix_link(self, fix_description, remove=None):
+            if const.action:
+                # TODO: make this fail save
+                selection = const.action
+            else:
+                selection = input(fix_description + " (s/r/F/?) ")
+            if selection.lower() == "s":
+                return
+            elif selection == "F":
+                # Remove link from installed file
+                del link
+            elif selection == "r":
+                # Remove new file
+                if remove is not None:
+                    os.remove(remove)
+                # Create symlink as noted in the installed file
+                create_symlink(**link)
+            else:
+                if selection == "?":
+                    log("(s)kip / (r)estore link / (F)orget link")
+                else:
+                    log("Unkown option")
+                fix_link(fix_description, remove)
+
+        # TODO this could be potentially a differencesolver
+        # Setup a new difflog
+        difflog = DiffLog()
+        # Go through all links
+        for key in self.installed:
+            for link in self.installed[key]["links"]:
+                # Check if link still exists
+                if not os.path.exists(link["name"]):
+                    # Check if another symlink exists that has same target
+                    for root, name in save_walk(os.path.dirname(link["name"])):
+                        file = os.path.join(root, name)
+                        if os.path.realpath(file) == link["target"]:
+                            msg = "Link '" + link["name"] + "' was renamed '"
+                            msg += " to '" + file + "'."
+                            fix_link(msg, file)
+                            break
+                    # No other symlink exists, file must have been removed
+                    fix_link("Link '" + link["name"] + "' was removed.")
+                # Check if link still points to same target
+                elif os.path.realpath(link["name"]) != link["target"]:
+                    msg = "Link '" + link["name"] + "' now points to '"
+                    msg += link["target"] + "'."
+                    fix_link(msg, link["name"])
+                # TODO: check if target still exists (link broken)
+                # TODO: Check for props
+        # Run checks on difflog
+        difflog.run_interpreter(
+            GainRootInterpreter()
+        )
+        # And execute
+        difflog.run_interpreter(
+            ExecuteInterpreter(self.installed),
+            PrintInterpreter()
+        )
 
     def execute_profiles(self, profiles=None, options=None, directory=None):
         """Imports profiles by name and executes them.
@@ -556,18 +633,26 @@ class UberDot:
 
         Prints only the profiles specified in the commandline arguments. If
         none are specified it prints all profiles of the installed-file."""
-        if const.profilenames:
-            for profilename in const.profilenames:
-                if profilename in self.installed:
-                    self.print_installed(self.installed[profilename])
-                else:
-                    log_warning("The profile '" + profilename +
-                                "' is not installed. Skipping...")
-        else:
-            for key in self.installed.keys():
-                if key[0] != "@":
-                    self.print_installed(self.installed[key])
+        last_user = ""
+        for user, profile in self.installed.get_profiles():
+            # Skip all profiles that are not of the current user
+            if get_current_username() != user:
+                # Except this user shall be shown as well
+                if user not in const.users and not const.allusers:
+                    continue
+            # Log the next user
+            if user != last_user:
+                # But only if other users shall be shown
+                if const.allusers or const.users:
+                    log(user)
+                last_user = user
+            # Show all profiles that are specified or all if none was specified
+            if not const.profilenames or profile["name"] in const.profilenames:
+                self.print_installed(profile)
 
+    # TODO: extend show
+    # option to display installeds of other users
+    # options to display state of snapshots
     def print_installed(self, profile):
         """Prints a single installed profile.
 
@@ -577,9 +662,9 @@ class UberDot:
         if profile["name"] in const.ignore:
             log_debug("'" + profile["name"] + "' is in ignore list. Skipping...")
             return
-        tab = ""
+        tab = "  " if const.users or const.allusers else ""
         if const.profiles or (not const.profiles and not const.links):
-            tab = "  "
+            tab += "  "
             if not const.links and not const.meta:
                 log(const.col_bold + profile["name"] + const.col_endc)
             else:

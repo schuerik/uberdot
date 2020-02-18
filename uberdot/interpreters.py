@@ -126,6 +126,8 @@ class PlainPrintInterpreter(Interpreter):
         super().__init__()
         self._op_add_p = self._op_remove_p = self._op_update_p = print
         self._op_add_l = self._op_remove_l = self._op_update_l = print
+        self._op_info = self._op_track_l = self._op_forget_l = print
+        self._op_update_prop =  print
 
     def _op_start(self, dop):
         """Print "[" to show the start of an array.
@@ -182,6 +184,22 @@ class PrintInterpreter(Interpreter):
             dop (dict): The remove-operation that will be logged
         """
         log_operation(dop["profile"], "Uninstalled profile")
+
+    def _op_forget_l(self, dop):
+        """Logs/Prints out that a link won't be tracked anymore.
+
+        Args:
+            dop (dict): The forget-operation that will be logged
+        """
+        log_operation(dop["profile"], "Stop tracking '" + dop["name"] + "'")
+
+    def _op_track_l(self, dop):
+        """Logs/Prints out that a link will be tracked now.
+
+        Args:
+            dop (dict): The track-operation that will be logged
+        """
+        log_operation(dop["profile"], "Tracking '" + dop["name"] + "' now")
 
     def _op_update_p(self, dop):
         """Logs/Prints out that a profile was updated.
@@ -501,6 +519,9 @@ class CheckLinksInterpreter(Interpreter):
                 raise IntegrityError(msg)
         self.linklist.append((name, dop["profile"], False))
 
+    # TODO: _op_update_l missing?
+    # TODO: _op_forget_l, _op_track_l missing?
+
     def _op_remove_l(self, dop):
         """Removes link from linklist because links could be removed and
         added in one run by different profiles.
@@ -756,6 +777,8 @@ class CheckLinkExistsInterpreter(Interpreter):
             raise PreconditionError(msg)
 
 
+# TODO: check profiles of other users to
+# TODO: check other interpreters for multi user as well
 class CheckProfilesInterpreter(Interpreter):
     """Checks if profiles can be installed together. Protects against
     duplicates and overwrites.
@@ -1185,13 +1208,32 @@ class ExecuteInterpreter(Interpreter):
         self.installed = installed
         self.installed["@version"] = const.version  # Update version number
 
-    def _op_update_s(self, dop):
+    def _op_forget_l(self, dop):
+        """Removes link from installed file
+
+        Args:
+            dop (dict): The forget-operation that will be executed
+        """
+        self.remove_from_installed(dop)
+
+    def _op_track_l(self, dop):
+        """Logs/Prints out that a link will be tracked now.
+
+        Args:
+            dop (dict): The track-operation that will be logged
+        """
+        log_operation(dop["profile"], "Tracking '" + dop["name"] + "' now")
+
+    def _op_update_prop(self, dop):
         """Updates the script_path of the onUninstall-script for a profile.
 
         Args:
             dop (dict): The update-operation that will be executed
         """
-        self.installed[dop["profile"]][dop["event"]] = dop["enabled"]
+        if dop["value"] is None and dop["key"] in self.installed[dop["profile"]]:
+            del self.installed[dop["profile"]][dop["key"]]
+        else:
+            self.installed[dop["profile"]][dop["key"]] = dop["value"]
 
     def _op_add_p(self, dop):
         """Adds a profile entry of the installed-file.
@@ -1251,6 +1293,15 @@ class ExecuteInterpreter(Interpreter):
             dop (dict): The remove-operation that will be executed
         """
         self.__remove_symlink(dop["symlink_name"])
+        self.remove_from_installed(dop)
+
+    def remove_from_installed(self, dop):
+        """Removes a link entry for a remove_l- or forget_l-operation of
+        the corresponding profile in the installed-file.
+
+        Args:
+            dop (dict): A remove_l- or forget_l-operation
+        """
         for link in self.installed[dop["profile"]]["links"]:
             if link["name"] == dop["symlink_name"]:
                 self.installed[dop["profile"]]["links"].remove(link)

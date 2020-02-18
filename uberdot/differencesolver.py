@@ -55,7 +55,7 @@ class DiffLog():
         """Constructor"""
         self.data = []
 
-    def add_info(self, profilename, message):
+    def show_info(self, profilename, message):
         """Create an info operation.
 
         Info operations can be used to print out profile information to the
@@ -175,7 +175,7 @@ class DiffLog():
                            symlink1=installed_symlink,
                            symlink2=new_symlink)
 
-    def update_script(self, enabled, profilename, event_name):
+    def update_property(self, key, value, profilename):
         """Create an update-script operation.
 
         Update-script operations indicate that the onUninstall-script needs to
@@ -187,9 +187,14 @@ class DiffLog():
             enabled (bool): True, if script shall be executed
             profilename (str): The name of the profile that will be updated
         """
-        self.__append_data("update_s", profilename,
-                           enabled=enabled,
-                           event=event_name)
+        self.__append_data("update_prop", profilename, key=key, value=value)
+
+    def track_link(self, symlink, profilename):
+        symlink["date"] = get_date_time_now()
+        self.__append_data("track_l", profilename, symlink=symlink)
+
+    def forget_link(self, symlink_name, profilename):
+        self.__append_data("forget_l", profilename, symlink_name=symlink_name)
 
     def __append_data(self, operation, profilename, **kwargs):
         """Appends a new operation to :attr:`self.data<DiffLog.data>`.
@@ -445,6 +450,10 @@ class UpdateDiffSolver(DiffSolver):
         # it from new_links and installed_links, so in the end both lists
         # need to be empty.
 
+        # TODO: check if new/removed/updated links already exist like they are
+        # supposed to. if so just add/remove/update them in the installed file
+        # (new operations needed)
+
         # Check all unchanged
         count = 0
         for installed_link in installed_links[:]:
@@ -459,7 +468,7 @@ class UpdateDiffSolver(DiffSolver):
         if count > 0:
             msg = str(count)
             msg += " links will be left untouched, no changes here..."
-            self.difflog.add_info(profile_name, msg)
+            self.difflog.show_info(profile_name, msg)
 
         # Check all removed
         for installed_link in installed_links[:]:
@@ -549,11 +558,9 @@ class UpdateDiffSolver(DiffSolver):
 
         # Update old scripts for uninstall
         event = "beforeUninstall"
-        if profile_dict[event] is not None:
-            self.difflog.update_script(profile_dict[event], profile_name, event)
+        self.difflog.update_property(event, profile_dict[event], profile_name)
         event = "afterUninstall"
-        if profile_dict[event] is not None:
-            self.difflog.update_script(profile_dict[event], profile_name, event)
+        self.difflog.update_property(event, profile_dict[event], profile_name)
 
         # Recursive call for all subprofiles
         if "profiles" in profile_dict:

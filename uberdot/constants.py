@@ -30,6 +30,7 @@ import sys
 from uberdot.errors import PreconditionError
 from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
+from uberdot.utils import get_current_username
 from uberdot.utils import normpath
 
 # TODO: doc
@@ -39,9 +40,13 @@ from uberdot.utils import normpath
 ############################################################################
 
 owd = os.getcwd()
-data_dir = "/var/local/uberdot/"
-installed_path_template = "installed/%s.json"
-installed = os.path.join(data_dir, installed_path_template)
+data_dir_temp = "/home/%s/.uberdot/"
+data_dir_root = "/root/.uberdot/"
+if get_current_username() == "root":
+    data_dir = data_dir_root
+else:
+    data_dir = data_dir_temp % get_current_username()
+installed_path = "installed/%s.json"
 searchpaths = [
     "/etc/uberdot",
     os.path.join(
@@ -51,7 +56,7 @@ searchpaths = [
     os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
 ]
 values = {
-    # name: (value, was_overwritten, configsection, type, manipulation function)
+    # name: (value, configsection, type, manipulation function)
     "cfg_files"       : ([],                     None,        "list", None),
     "cfg_search_paths": (searchpaths,            None,        "list", None),
     "changes"         : (False,                  None,        "bool", None),
@@ -65,8 +70,7 @@ values = {
     "data_dir"        : (data_dir,               None,        "path", None),
     "debuginfo"       : (False,                  None,        "bool", None),
     "dryrun"          : (False,                  None,        "bool", None),
-    "installed_file"  : (installed,              None,        "str",  None),
-    "installed_backup": ("",                     None,        "str",  None),
+    "installed_path"  : (installed_path,         None,        "str",  None),
     "mode"            : ("",                     None,        "str",  None),
     "owd"             : (owd,                    None,        "str",  None),
     "parent"          : (None,                   None,        "str",  None),
@@ -74,6 +78,7 @@ values = {
     "save"            : ("default",              None,        "str",  str.lower),
     "version"         : ("1.12.17_4",            None,        "str",  None),
     "all"             : (False,                  "Arguments", "bool", None),
+    "allusers"        : (False,                  "Arguments", "bool", None),
     "content"         : (False,                  "Arguments", "bool", None),
     "dotfiles"        : (False,                  "Arguments", "bool", None),
     "dui"             : (False,                  "Arguments", "bool", None),
@@ -98,6 +103,7 @@ values = {
     "skipevents"      : (False,                  "Arguments", "bool", None),
     "skiproot"        : (False,                  "Arguments", "bool", None),
     "superforce"      : (False,                  "Arguments", "bool", None),
+    "users"           : ([],                     "Arguments", "list", None),
     "askroot"         : (True,                   "Settings",  "bool", None),
     "backup_extension": ("bak",                  "Settings",  "str",  None),
     "color"           : (True,                   "Settings",  "bool", None),
@@ -243,7 +249,5 @@ def load(args):
         # Set argument
         _set(name, value)
     # Update internal values that depend on a loaded config
-    installed_file = os.path.join(data_dir, installed_path_template) % get("save")
-    installed_backup = installed_file + "." + get("backup_extension")
-    _set("installed_file", installed_file)
-    _set("installed_backup", installed_backup)
+    installed_path = installed_path % get("save")
+    _set("installed_path", installed_path)
