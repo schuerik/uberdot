@@ -530,7 +530,7 @@ class UberDot:
             # differences
             if const.dryrun:
                 self.dryrun(dfl)
-            elif const.plain:
+            elif const.debug:
                 dfl.run_interpreter(PlainPrintInterpreter())
             elif const.changes:
                 dfl.run_interpreter(PrintInterpreter())

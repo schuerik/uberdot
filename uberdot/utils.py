@@ -49,24 +49,26 @@ class Walker:
     def __init__(self, path):
         self.iterator = os.walk(path)
         self.files = []
+        self.root = None
 
     def __iter__(self):
         return self
 
     def __next__(self):
         while not self.files:
-            self.files = next(self.iterator)
-        result = files.pop()
-        return result[0], result[2]
+            self.root, _, self.files = next(self.iterator)
+        result = self.files.pop()
+        return self.root, result
 
 
 class SafeWalker:
-    def __init__(self, path, ignorelist):
+    def __init__(self, path, ignorelist, joined):
         self.iterator = walk(path)
         self.ignorelist = ignorelist + [
             r"/home/\w+/\.uberdot.*",
             r"/root/\.uberdot.*"
         ]
+        self.joined = joined
 
     def __iter__(self):
         return self
@@ -79,15 +81,17 @@ class SafeWalker:
             result = next(self.iterator)
             file = os.path.join(result[0], result[1])
             for ignore_pattern in self.ignorelist:
-                if re.match(ignore_pattern, file):
+                if re.fullmatch(ignore_pattern, file):
                     get_next = True
+        if self.joined:
+            return os.path.join(result[0], result[1])
         return result[0], result[1]
 
 def walk(path):
     return iter(Walker(path))
 
-def safe_walk(path, ignorelist=[]):
-    return iter(SafeWalker(path, ignorelist))
+def safe_walk(path, ignorelist=[], joined=False):
+    return iter(SafeWalker(path, ignorelist, joined))
 
 def find_target(target, tags):
     """Finds the correct target version in the repository to link to.
@@ -183,7 +187,7 @@ def walk_dotfiles():
 
 def walk_profiles():
     # Ignore all files that are no python files
-    return safe_walk(const.profile_files, [r".*(?!py)$"])
+    return safe_walk(const.profile_files, [r".*[^p][^y]$"], joined=True)
 
 
 # Utils for permissions and user

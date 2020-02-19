@@ -156,9 +156,10 @@ class RegressionTest():
             self.fail = self.dummy
         verbose = ["-v"] if len(sys.argv) > 1 else []
         self.name = name
-        self.cmd_args = ["UBERDOT_TEST=1", "python3", "../../udot.py",
+        self.cmd_args = ["python3", "../../udot.py",
                          "--config", "regressiontest.ini",
                          "--session", session] + verbose + cmd_args
+        self.session = session
         self.environ = os.path.join(DIRNAME, "environment-" + self.session)
 
     def dummy(self, *args):
@@ -180,7 +181,9 @@ class RegressionTest():
     def run(self):
         """Runs the test. In this standart implementation a test is considered
         successful if uberdot terminates with exitcode 0."""
-        process = Popen(self.cmd_args, stdout=PIPE, stderr=PIPE)
+        env = os.environ.copy()
+        env["UBERDOT_TEST"] = "1"
+        process = Popen(self.cmd_args, stdout=PIPE, stderr=PIPE, env=env)
         output, error_msg = process.communicate()
         exitcode = process.returncode
         if len(sys.argv) > 1:
