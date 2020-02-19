@@ -180,7 +180,7 @@ def walk_dotfiles():
         with open(ignorelist_path, "r") as file:
             ignorelist = file.readlines()
         ignorelist = [entry.strip() for entry in ignorelist if entry.strip()]
-    ignorelist.append(r"\.dotignore$")
+    ignorelist.append(r"\/.+\.dotignore$")
 
     return safe_walk(const.target_files, ignorelist)
 

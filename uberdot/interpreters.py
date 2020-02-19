@@ -577,7 +577,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
                 set
         """
         for entry in self.blacklist:
-            if re.search(entry, file_name):
+            if re.fullmatch(entry, file_name):
                 log_warning("You are trying to " + action + " '" + file_name +
                             "' which is blacklisted. It is considered " +
                             "dangerous to " + action + " those files!")
