@@ -42,7 +42,6 @@ from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
 from uberdot import constants as const
-from uberdot.utils import get_current_username
 from uberdot.utils import makedirs
 from uberdot.utils import md5
 from uberdot.utils import normpath

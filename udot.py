@@ -167,8 +167,8 @@ class UberDot:
             help="specify a file to log to"
         )
         parser.add_argument(
-            "-e", "--environ",
-            help="specify another environment",
+            "--session",
+            help="run uberdot in another session",
             default="default"
         )
         # Setup mode show arguments
@@ -370,42 +370,43 @@ class UberDot:
             "-a", "--action",
             help="preset a type of action to resolve each issue automatically",
         )
-        help_text="revert back to a prevoius state"
-        parser_timewarp = subparsers.add_parser(
-            "timewarp",
-            description=help_text,
-            help=help_text
-        )
-        parser_timewarp.add_argument(
-            "--minutes",
-            help="minutes to go back in time",
-            action="store"
-        )
-        parser_timewarp.add_argument(
-            "--hours",
-            help="hours to go back in time",
-            action="store"
-        )
-        parser_timewarp.add_argument(
-            "-d", "--days",
-            help="days to go back in time",
-            action="store"
-        )
-        parser_timewarp.add_argument(
-            "-m", "--months",
-            help="months to go back in time",
-            action="store"
-        )
-        parser_timewarp.add_argument(
-            "--date",
-            help="go back to this date",
-            action="store"
-        )
-        parser_timewarp.add_argument(
-            "--file",
-            help="go back to a specific installed file",
-            action="store"
-        )
+        # help_text="revert back to a prevoius state"
+        # parser_timewarp = subparsers.add_parser(
+        #     "timewarp",
+        #     description=help_text,
+        #     help=help_text
+        # )
+        # parser_timewarp.add_argument(
+        #     "--minutes",
+        #     help="minutes to go back in time",
+        #     action="store"
+        # )
+        # parser_timewarp.add_argument(
+        #     "--hours",
+        #     help="hours to go back in time",
+        #     action="store"
+        # )
+        # parser_timewarp.add_argument(
+        #     "-d", "--days",
+        #     help="days to go back in time",
+        #     action="store"
+        # )
+        # parser_timewarp.add_argument(
+        #     "-m", "--months",
+        #     help="months to go back in time",
+        #     action="store"
+        # )
+        # parser_timewarp.add_argument(
+        #     "--date",
+        #     help="go back to this date",
+        #     action="store"
+        # )
+        # parser_timewarp.add_argument(
+        #     "--file",
+        #     help="go back to a specific installed file",
+        #     action="store"
+        # )
+
         # Setup mode version arguments
         help_text="show version number"
         parser_version = subparsers.add_parser(
@@ -679,7 +680,7 @@ class UberDot:
                 if const.users:
                     if user not in const.users:
                         continue
-                elif get_current_username() != user:
+                elif const.user != user:
                     continue
             # Print the next user
             if user != last_user:

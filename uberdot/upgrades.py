@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from copy import deepcopy
 
 def is_version_smaller(version_a, version_b):
     match = re.search(r"(\d+)\.(\d+)\.(\d+)", version_a)
@@ -25,12 +26,24 @@ def is_version_smaller(version_a, version_b):
     return False
 
 
-def upgrade_stone_age(old_loaded):
+def upgrade_stone_age(old_dict):
     """Upgrade from old installed file with schema version 4 to fancy
-    installed file. Luckily the schema only introduced optional properties,
-    so we don't need to do anything.
+    installed file. Luckily the schema only introduced optional properties
+    and renamed "name" to "from" and "target" to "to".
     """
-    return old_loaded
+    result = {}
+    for key in old_dict:
+        if key[0] == "@":
+            result[key] = old_dict[key]
+        else:
+            new_profile = deepcopy(old_dict[key])
+            for link in new_profile["links"]:
+                link["from"] = link["name"]
+                del link["name"]
+                link["to"] = link["target"]
+                del link["name"]
+            result[key] = new_profile
+    return result
 
 MIN_VERSION = "1.12.17_4"
 upgrades = [

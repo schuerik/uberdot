@@ -27,7 +27,7 @@ import os
 import re
 import shutil
 import platform
-from uberdot.utils import get_current_username
+from uberdot import constants
 
 
 def distribution():
@@ -92,4 +92,4 @@ def username():
     Returns:
         str: Username of current user
     """
-    return get_current_username()
+    return constants.user

@@ -34,8 +34,6 @@ from uberdot.errors import UnkownError
 from uberdot.errors import PreconditionError
 from uberdot.utils import expandvars
 from uberdot.utils import find_files
-from uberdot.utils import get_current_username
-from uberdot.utils import get_user_environ_path
 from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import log
@@ -50,6 +48,7 @@ PATH_VALUES = ["from", "to"]
 
 class AutoExpander:
     def getitem(self, key):
+        print(key)
         value = self.data[key]
         if isinstance(value, str):
             if key in PATH_VALUES:
@@ -150,33 +149,11 @@ class InstalledFile(MutableMapping):
     def __init__(self, timestamp=None):
         # Setup in-mememory installed file
         self.loaded = AutoExpandDict()
-        self.loaded["@version"] = const.version
         # Load installed files of other users
-        other_users = ["root"] + os.listdir("/home")
-        other_users.remove(get_current_username())
-        for user in other_users:
-            path = get_user_environ_path(user)
-            path = os.path.join(path, const.state_name)
-            if not os.path.exists(path):
-                # Ignore this user, if he has no installed file
-                continue
-            # Load file
-            dict_ = json.load(open(path))
-            # If we can't upgrade, ignore this installed file
-            if is_version_smaller(dict_["@version"], MIN_VERSION):
-                msg = "Ignoring installed file of user " + user + ". Too old."
-                log_warning(msg)
-                continue
-            if is_version_smaller(const.version, dict_["@version"]):
-                msg = "Ignoring installed file of user " + user + "."
-                msg += " uberdot is too old."
-                log_warning(msg)
-                continue
-            # Upgrade and store in loaded
-            dict_ = self.upgrade(dict_)
-            self.loaded[user] = dict_
+        for user, session_path in const.session_dirs_foreign:
+            self.try_load_user_session(user, session_path)
         # Load installed files of current users
-        self.own_file = os.path.join(const.environ_dir, const.state_name)
+        self.own_file = os.path.join(const.session_dir, const.state_name)
         path = self.own_file
         if timestamp is not None:
             path, ext = os.path.splitext(self.own_file)
@@ -200,9 +177,30 @@ class InstalledFile(MutableMapping):
             raise PreconditionError(msg)
         # Upgrade and store in loaded
         self.user_dict = self.upgrade(self.user_dict, True)
-        self.loaded[get_current_username()] = self.user_dict
+        self.loaded[const.user] = self.user_dict
         # Make sure to update version in case no upgrade was needed
         self.user_dict["@version"] = const.version
+
+    def try_load_user_session(self, user, session_dir):
+        path = os.path.join(path, const.state_name)
+        # Ignore this user, if he has no installed file
+        if not os.path.exists(path):
+            return
+        # Load file
+        dict_ = json.load(open(path))
+        # If we can't upgrade, ignore this installed file
+        if is_version_smaller(dict_["@version"], MIN_VERSION):
+            msg = "Ignoring installed file of user " + user + ". Too old."
+            log_warning(msg)
+            return
+        if is_version_smaller(const.version, dict_["@version"]):
+            msg = "Ignoring installed file of user " + user + "."
+            msg += " uberdot is too old."
+            log_warning(msg)
+            return
+        # Upgrade and store in loaded
+        dict_ = self.upgrade(dict_)
+        self.loaded[user] = dict_
 
     def init_empty_installed(self):
         empty = AutoExpandDict()

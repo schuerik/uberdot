@@ -145,7 +145,7 @@ def dircheck(environ, dir_tree):
 class RegressionTest():
     """This is the abstract base class for all regression tests.
     It provides simple start and check functionality"""
-    def __init__(self, name, cmd_args, environ="default"):
+    def __init__(self, name, cmd_args, session="default"):
         global test_nr
         self.nr = str(test_nr).rjust(2, "0")
         test_nr += 1
@@ -156,10 +156,10 @@ class RegressionTest():
             self.fail = self.dummy
         verbose = ["-v"] if len(sys.argv) > 1 else []
         self.name = name
-        self.cmd_args = ["python3", "../../udot.py",
+        self.cmd_args = ["UBERDOT_TEST=1", "python3", "../../udot.py",
                          "--config", "regressiontest.ini",
-                         "--environ", environ] + verbose + cmd_args
-        self.environ = os.path.join(DIRNAME, "environment-" + self.environ)
+                         "--session", session] + verbose + cmd_args
+        self.environ = os.path.join(DIRNAME, "environment-" + self.session)
 
     def dummy(self, *args):
         """Do nothing"""
@@ -191,13 +191,13 @@ class RegressionTest():
         """Resets test environment and installed files"""
         # Reset environment and installed dir with git
         process = Popen(["git", "checkout", "HEAD", "--", self.environ,
-                         DIRNAME + "/data/installed"], stderr=PIPE)
+                         DIRNAME + "/data/sessions/"], stderr=PIPE)
         _, error_msg = process.communicate()
         if process.returncode:  # Exitcode is > 0, so git failed
             print(error_msg)
             raise ValueError("git-checkout failed")
         process = Popen(["git", "clean", "-fdq", "--", self.environ,
-                         DIRNAME + "/data/installed"], stderr=PIPE)
+                         DIRNAME + "/data/sessions/"], stderr=PIPE)
         _, error_msg = process.communicate()
         if process.returncode:  # Exitcode is > 0, so git failed
             print(error_msg)
@@ -275,8 +275,8 @@ class RegressionTest():
 class DirRegressionTest(RegressionTest):
     """Regression check if uberdot makes the expected
     changes to the filesystem"""
-    def __init__(self, name, cmd_args, before, after, environ="default"):
-        super().__init__(name, cmd_args, environ)
+    def __init__(self, name, cmd_args, before, after, session="default"):
+        super().__init__(name, cmd_args, session)
         self.before = before
         self.after = after
 

@@ -248,19 +248,6 @@ def has_root_priveleges():
     return os.geteuid() == 0
 
 
-def get_current_username():
-    """Gets the current users username.
-
-    Gets the username of the user that started uberdot. If the
-    program was started with sudo, it still returns the original
-    username and not "root".
-
-    Returns:
-        str: The username of the current user
-    """
-    return get_username(get_uid())
-
-
 def get_username(uid):
     """Gets the username of a given uid.
 
@@ -304,7 +291,7 @@ def get_user_env_var(varname, fallback=None):
         user_environ = {}
         # Login into other user and read env
         proc = subprocess.run(
-            ["sudo", "-Hiu", get_current_username(), "env"],
+            ["sudo", "-Hiu", const.user, "env"],
             stdout=subprocess.PIPE
         )
         for line in proc.stdout.splitlines():
@@ -317,7 +304,7 @@ def get_user_env_var(varname, fallback=None):
             if fallback is not None:
                 return fallback
             msg = "There is no environment varibable set for user '"
-            msg += get_current_username() + "' with the name: '"
+            msg += const.user + "' with the name: '"
             msg += varname + "'"
             raise PreconditionError(msg)
     # A normal user can access its own variables
@@ -328,13 +315,6 @@ def get_user_env_var(varname, fallback=None):
             return fallback
         raise PreconditionError("There is no environment varibable set " +
                                 "with the name: '" + varname + "'")
-
-def get_user_environ_path(user):
-    if user == "root":
-        path = const.data_dir_root
-    else:
-        path = const.data_dir_temp % user
-    return path + const.environ_subdir % const.environ
 
 def expandvars(path):
     """Behaves like the ``os.path.expandvars()`` but uses
@@ -411,6 +391,7 @@ def normpath(path):
         path = expanduser(path)
         return os.path.abspath(path)
     return None
+
 
 
 # Dynamic imports
@@ -584,7 +565,6 @@ def get_date_time_now():
         str: The datetime string
     """
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
 
 def log(message):
     """Alias for logger.info() but creates a newline.

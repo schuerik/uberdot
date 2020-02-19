@@ -27,25 +27,55 @@ import configparser
 import csv
 import os
 import sys
+from copy import deepcopy
 from uberdot.errors import PreconditionError
 from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
-from uberdot.utils import get_current_username
-from uberdot.utils import get_user_environ_path
+from uberdot.utils import get_username
+from uberdot.utils import get_uid
 from uberdot.utils import normpath
 
 # TODO: doc
 
 
 ############################################################################
-# True hardcoded constants (not visible via --debuginfo)
+# True hardcoded not loadable constants (not visible via --debuginfo)
 ############################################################################
-# TODO: make tests work with new environ
 version = "1.16.0"
 state_name = "state.json"
-data_dir_temp = "/home/%s/.uberdot/"
 data_dir_root = "/root/.uberdot/"
-environ_subdir = "environments/%s/"
+data_dir_temp = "/home/%s/.uberdot/"
+session_subdir = "sessions/%s/"
+
+
+############################################################################
+# Not loadable, but flexible constants (only set on first import)
+############################################################################
+def gen_data_dir(user):
+    if user == "root":
+        path = data_dir_root
+    else:
+        path = data_dir_temp % user
+    return user, path
+
+user = get_username(get_uid())
+users = ["root"] + os.listdir("/home")
+users.remove(user)
+# Build/Prepare paths to stored data
+if os.getenv("UBERDOT_TEST", False):
+    # Tests use a seperated data directory that is tracked by git
+    data_dir = os.path.join(
+        os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
+        "test/regression/data/"
+    )
+    print("Testmode: Using " + data_dir + " as data directory.")
+    data_dirs_foreign = {}
+else:
+    data_dir = gen_data_dir(user)[1]
+    data_dirs_foreign = list(map(gen_data_dir, users))
+    data_dirs_foreign = list(
+        filter(lambda x: os.path.exists(x[1]), data_dirs_foreign)
+    )
 
 
 ############################################################################
@@ -56,15 +86,14 @@ def __decode_ansi(string):
 
 
 ############################################################################
-# Initialize constants with defaults
+# Initialize loadable constants with defaults
 ############################################################################
 
 # Prepare all non-trivial defaults
-if get_current_username() == "root":
-    environ_dir = data_dir_root
-else:
-    environ_dir = data_dir_temp % get_current_username()
-environ_dir += environ_subdir
+session_dir = os.path.join(data_dir, session_subdir)
+session_dirs_foreign = [
+    os.path.join(item, session_subdir) for item in data_dirs_foreign
+]
 cfg_search_paths = [
     "/etc/uberdot",
     os.path.join(
@@ -76,75 +105,76 @@ cfg_search_paths = [
 
 # Initialize constants
 values = {
-    # name: (value, configsection, type, manipulation function)
-    "cfg_files"       : ([],                     None,        "list", None),
-    "cfg_search_paths": (cfg_search_paths,       None,        "list", None),
-    "changes"         : (False,                  None,        "bool", None),
-    "col_endc"        : ('\x1b[0m',              None,        "str",  None),
-    "debug"           : (False,                  None,        "bool", None),
-    "debuginfo"       : (False,                  None,        "bool", None),
-    "dryrun"          : (False,                  None,        "bool", None),
-    "environ_dir"     : (environ_dir,            None,        "path", None),
-    "mode"            : ("",                     None,        "str",  None),
-    "owd"             : (os.getcwd(),            None,        "str",  None),
-    "parent"          : (None,                   None,        "str",  None),
-    "environ"         : ("default",              None,        "str",  str.lower),
-    "all"             : (False,                  "Arguments", "bool", None),
-    "allusers"        : (False,                  "Arguments", "bool", None),
-    "content"         : (False,                  "Arguments", "bool", None),
-    "dotfiles"        : (False,                  "Arguments", "bool", None),
-    "dui"             : (False,                  "Arguments", "bool", None),
-    "filename"        : (False,                  "Arguments", "bool", None),
-    "force"           : (False,                  "Arguments", "bool", None),
-    "ignore"          : ([],                     "Arguments", "list", None),
-    "ignorecase"      : (False,                  "Arguments", "bool", None),
-    "links"           : (False,                  "Arguments", "bool", None),
-    "logfile"         : ("",                     "Arguments", "path", None),
-    "logginglevel"    : ("INFO",                 "Arguments", "str",  str.upper),
-    "makedirs"        : (False,                  "Arguments", "bool", None),
-    "meta"            : (False,                  "Arguments", "bool", None),
-    "names"           : (True,                   "Arguments", "bool", None),
-    "locations"       : (True,                   "Arguments", "bool", None),
-    "profilenames"    : ([],                     "Arguments", "list", None),
-    "profiles"        : (False,                  "Arguments", "bool", None),
-    "regex"           : (False,                  "Arguments", "bool", None),
-    "searchstr"       : ("",                     "Arguments", "str",  None),
-    "searchtags"      : (False,                  "Arguments", "bool", None),
-    "skipafter"       : (False,                  "Arguments", "bool", None),
-    "skipbefore"      : (False,                  "Arguments", "bool", None),
-    "skipevents"      : (False,                  "Arguments", "bool", None),
-    "skiproot"        : (False,                  "Arguments", "bool", None),
-    "superforce"      : (False,                  "Arguments", "bool", None),
-    "users"           : ([],                     "Arguments", "list", None),
-    "askroot"         : (True,                   "Settings",  "bool", None),
-    "backup_extension": ("bak",                  "Settings",  "str",  None),
-    "color"           : (True,                   "Settings",  "bool", None),
-    "col_emph"        : ('\x1b[1m',              "Settings",  "str",  __decode_ansi),
-    "col_fail"        : ('\x1b[91m',             "Settings",  "str",  __decode_ansi),
-    "col_ok"          : ('\x1b[92m',             "Settings",  "str",  __decode_ansi),
-    "col_warning"     : ('\x1b[93m',             "Settings",  "str",  __decode_ansi),
-    "col_debug"       : ('\x1b[90m',             "Settings",  "str",  __decode_ansi),
-    "decrypt_pwd"     : (None,                   "Settings",  "str",  None),
-    "hash_separator"  : ("#",                    "Settings",  "str",  None),
-    "profile_files"   : ("",                     "Settings",  "path", None),
-    "shell"           : ("/bin/bash",            "Settings",  "path", None),
-    "shell_args"      : ("-e -O expand_aliases", "Settings",  "str",  None),
-    "shell_timeout"   : (60,                     "Settings",  "int",  None),
-    "smart_cd"        : (True,                   "Settings",  "bool", None),
-    "tag_separator"   : ("%",                    "Settings",  "str",  None),
-    "target_files"    : ("",                     "Settings",  "path", None),
-    "directory"       : ("$HOME",                "Defaults",  "path", None),
-    "extension"       : ("",                     "Defaults",  "str",  None),
-    "name"            : ("",                     "Defaults",  "str",  None),
-    "optional"        : (False,                  "Defaults",  "bool", None),
-    "owner"           : ("",                     "Defaults",  "str",  None),
-    "permission"      : (644,                    "Defaults",  "int",  None),
-    "prefix"          : ("",                     "Defaults",  "str",  None),
-    "replace"         : ("",                     "Defaults",  "str",  None),
-    "replace_pattern" : ("",                     "Defaults",  "str",  None),
-    "secure"          : (True,                   "Defaults",  "bool", None),
-    "suffix"          : ("",                     "Defaults",  "str",  None),
-    "tags"            : ([],                     "Defaults",  "list", None),
+    # name: (default value, configsection, type, manipulation function)
+    "cfg_files"           : ([],                     None,        "list", None),
+    "cfg_search_paths"    : (cfg_search_paths,       None,        "list", None),
+    "changes"             : (False,                  None,        "bool", None),
+    "col_endc"            : ('\x1b[0m',              None,        "str",  None),
+    "debug"               : (False,                  None,        "bool", None),
+    "debuginfo"           : (False,                  None,        "bool", None),
+    "dryrun"              : (False,                  None,        "bool", None),
+    "session_dir"         : (session_dir,            None,        "path", None),
+    "session_dirs_foreign": (session_dirs_foreign,   None,        "list", None),
+    "mode"                : ("",                     None,        "str",  None),
+    "owd"                 : (os.getcwd(),            None,        "str",  None),
+    "parent"              : (None,                   None,        "str",  None),
+    "session"             : ("default",              None,        "str",  str.lower),
+    "all"                 : (False,                  "Arguments", "bool", None),
+    "allusers"            : (False,                  "Arguments", "bool", None),
+    "content"             : (False,                  "Arguments", "bool", None),
+    "dotfiles"            : (False,                  "Arguments", "bool", None),
+    "dui"                 : (False,                  "Arguments", "bool", None),
+    "filename"            : (False,                  "Arguments", "bool", None),
+    "force"               : (False,                  "Arguments", "bool", None),
+    "ignore"              : ([],                     "Arguments", "list", None),
+    "ignorecase"          : (False,                  "Arguments", "bool", None),
+    "links"               : (False,                  "Arguments", "bool", None),
+    "logfile"             : ("",                     "Arguments", "path", None),
+    "logginglevel"        : ("INFO",                 "Arguments", "str",  str.upper),
+    "makedirs"            : (False,                  "Arguments", "bool", None),
+    "meta"                : (False,                  "Arguments", "bool", None),
+    "names"               : (True,                   "Arguments", "bool", None),
+    "locations"           : (True,                   "Arguments", "bool", None),
+    "profilenames"        : ([],                     "Arguments", "list", None),
+    "profiles"            : (False,                  "Arguments", "bool", None),
+    "regex"               : (False,                  "Arguments", "bool", None),
+    "searchstr"           : ("",                     "Arguments", "str",  None),
+    "searchtags"          : (False,                  "Arguments", "bool", None),
+    "skipafter"           : (False,                  "Arguments", "bool", None),
+    "skipbefore"          : (False,                  "Arguments", "bool", None),
+    "skipevents"          : (False,                  "Arguments", "bool", None),
+    "skiproot"            : (False,                  "Arguments", "bool", None),
+    "superforce"          : (False,                  "Arguments", "bool", None),
+    "users"               : ([],                     "Arguments", "list", None),
+    "askroot"             : (True,                   "Settings",  "bool", None),
+    "backup_extension"    : ("bak",                  "Settings",  "str",  None),
+    "color"               : (True,                   "Settings",  "bool", None),
+    "col_emph"            : ('\x1b[1m',              "Settings",  "str",  __decode_ansi),
+    "col_fail"            : ('\x1b[91m',             "Settings",  "str",  __decode_ansi),
+    "col_ok"              : ('\x1b[92m',             "Settings",  "str",  __decode_ansi),
+    "col_warning"         : ('\x1b[93m',             "Settings",  "str",  __decode_ansi),
+    "col_debug"           : ('\x1b[90m',             "Settings",  "str",  __decode_ansi),
+    "decrypt_pwd"         : (None,                   "Settings",  "str",  None),
+    "hash_separator"      : ("#",                    "Settings",  "str",  None),
+    "profile_files"       : ("",                     "Settings",  "path", None),
+    "shell"               : ("/bin/bash",            "Settings",  "path", None),
+    "shell_args"          : ("-e -O expand_aliases", "Settings",  "str",  None),
+    "shell_timeout"       : (60,                     "Settings",  "int",  None),
+    "smart_cd"            : (True,                   "Settings",  "bool", None),
+    "tag_separator"       : ("%",                    "Settings",  "str",  None),
+    "target_files"        : ("",                     "Settings",  "path", None),
+    "directory"           : ("$HOME",                "Defaults",  "path", None),
+    "extension"           : ("",                     "Defaults",  "str",  None),
+    "name"                : ("",                     "Defaults",  "str",  None),
+    "optional"            : (False,                  "Defaults",  "bool", None),
+    "owner"               : ("",                     "Defaults",  "str",  None),
+    "permission"          : (644,                    "Defaults",  "int",  None),
+    "prefix"              : ("",                     "Defaults",  "str",  None),
+    "replace"             : ("",                     "Defaults",  "str",  None),
+    "replace_pattern"     : ("",                     "Defaults",  "str",  None),
+    "secure"              : (True,                   "Defaults",  "bool", None),
+    "suffix"              : ("",                     "Defaults",  "str",  None),
+    "tags"                : ([],                     "Defaults",  "list", None),
 }
 defaults = dict(values)
 # Make values easy accessible
@@ -170,7 +200,7 @@ def _set(name, value):
     globals()[name] = value
 
 def get(name):
-    return values[name][0]
+    return deepcopy(values[name][0])
 
 def vals():
     return [
@@ -189,8 +219,8 @@ def load(args):
     if args.config:
        cfgs += [os.path.join(get("owd"), args.config)]
     _set("cfg_files", cfgs)
-    if args.environ:
-        _set("environ", args.environ)
+    if args.session:
+        _set("session", args.session)
     # Load configs
     config = configparser.ConfigParser()
     try:
@@ -222,7 +252,7 @@ def load(args):
         elif props[2] == "bool":
             getter = config.getboolean
         # Get value from config. Prefer values from special installed section
-        section = "Environment." + get("environ") + "." + props[1]
+        section = "Session." + get("session") + "." + props[1]
         if config.has_section(section) and config.has_option(section, name):
             value = getter(section, name)
         elif config.has_section(props[1]) and config.has_option(props[1], name):
@@ -243,7 +273,7 @@ def load(args):
 
     # Write arguments
     for arg, value in vars(args).items():
-        if value is None or arg in ["config", "environ"]:
+        if value is None or arg in ["config", "session"]:
             continue
         name = arg
         # Parse tags and set values for --options
@@ -271,4 +301,10 @@ def load(args):
         # Set argument
         _set(name, value)
     # Update internal values that depend on a loaded config
-    _set("environ_dir", get("environ_dir") % get("environ"))
+    _set("session_dir", get("session_dir") % get("session"))
+    _set("session_dirs_foreign",
+         list(map(
+             lambda x: (x[0], x[1] % get("session")),
+             session_dirs_foreign
+         ))
+     )
