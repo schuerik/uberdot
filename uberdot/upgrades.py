@@ -41,7 +41,7 @@ def upgrade_stone_age(old_dict):
                 link["from"] = link["name"]
                 del link["name"]
                 link["to"] = link["target"]
-                del link["name"]
+                del link["target"]
             result[key] = new_profile
     return result
 

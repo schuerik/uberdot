@@ -719,7 +719,7 @@ class UberDot:
                     ))
         if const.links or (not const.profiles and not const.meta):
             for symlink in profile["links"]:
-                log(tab + symlink["name"] + "  →  " + symlink["target"])
+                log(tab + symlink["from"] + "  →  " + symlink["to"])
                 if const.meta:
                     user = pwd.getpwuid(symlink["uid"])[0]
                     group = grp.getgrgid(symlink["gid"])[0]

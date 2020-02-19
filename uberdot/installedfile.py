@@ -48,7 +48,6 @@ PATH_VALUES = ["from", "to"]
 
 class AutoExpander:
     def getitem(self, key):
-        print(key)
         value = self.data[key]
         if isinstance(value, str):
             if key in PATH_VALUES:
