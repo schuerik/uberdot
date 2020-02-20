@@ -264,7 +264,7 @@ class Profile:
             # Remove empty lines at beginning and end of script
             pretty_script = "\n".join(pretty_script.splitlines()[start:end+1])
             # Build path where the script will be stored
-            script_dir = os.path.join(const.environ_dir, "scripts")
+            script_dir = os.path.join(const.session_dir, "scripts")
             if not os.path.exists(script_dir):
                 os.mkdir(script_dir)
             script_name =  self.name + "_" + event_name
@@ -695,8 +695,8 @@ class Profile:
 
         # Finally create the result entry
         linkdescriptor = {}
-        linkdescriptor["target"] = target
-        linkdescriptor["name"] = name
+        linkdescriptor["from"] = name
+        linkdescriptor["to"] = target
         linkdescriptor["uid"] = uid
         linkdescriptor["gid"] = gid
         linkdescriptor["permission"] = read_opt("permission")

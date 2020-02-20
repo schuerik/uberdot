@@ -175,7 +175,11 @@ class InstalledFile(MutableMapping):
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
         # Upgrade and store in loaded
-        self.user_dict = self.upgrade(self.user_dict, True)
+        for patch in self.get_patches(self.user_dict["@version"]):
+            log("Updating state to version " + patch[0] + " ... ", end="")
+            self.user_dict = self.upgrade(self.user_dict, patch)
+            self.__write_file__()
+            log("Done.")
         self.loaded[const.user] = self.user_dict
         # Make sure to update version in case no upgrade was needed
         self.user_dict["@version"] = const.version
@@ -198,7 +202,7 @@ class InstalledFile(MutableMapping):
             log_warning(msg)
             return
         # Upgrade and store in loaded
-        dict_ = self.upgrade(dict_)
+        dict_ = self.full_upgrade(dict_)
         self.loaded[user] = dict_
 
     def init_empty_installed(self):
@@ -206,20 +210,27 @@ class InstalledFile(MutableMapping):
         empty["@version"] = const.version
         return empty
 
-    def upgrade(self, installed_file, write=False):
+
+    def upgrade(self, state, patch):
+        state = patch[1](state)
+        state["@version"] = patch[0]
+        return state
+
+    def full_upgrade(self, state):
+        # Apply patches in order
+        for patch in self.get_patches(state["@version"]):
+            state = self.upgrade(state, patch)
+        return state
+
+    def get_patches(self, version):
         patches = []
         # Skip all upgrades for smaller versions
         for i, upgrade in enumerate(upgrades):
-            if is_version_smaller(installed_file["@version"], upgrade[0]):
+            if is_version_smaller(version, upgrade[0]):
                 patches = upgrades[i:]
                 break
-        # Apply patches in order
-        for patch in patches:
-            installed_file = patch[1](installed_file)
-            installed_file["@version"] = patch[0]
-            if write:
-                self.__write_file__()
-        return installed_file
+        return patches
+
 
     def create_snapshot(self):
         path, ext = os.path.splitext(self.own_file)

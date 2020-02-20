@@ -339,7 +339,7 @@ class UninstallDiffSolver(DiffSolver):
         # remove the profile from the installed file
         installed_links = copy.deepcopy(self.installed[profile_name]["links"])
         for installed_link in installed_links:
-            self.difflog.remove_link(installed_link["name"], profile_name)
+            self.difflog.remove_link(installed_link["from"], profile_name)
         self.difflog.remove_profile(profile_name)
 
 
@@ -407,12 +407,12 @@ class UpdateDiffSolver(DiffSolver):
                 profile
         """
         def symlinks_similar(sym1, sym2):
-            return normpath(sym1["name"]) == normpath(sym2["name"]) or \
-                   normpath(sym1["target"]) == normpath(sym2["target"])
+            return normpath(sym1["from"]) == normpath(sym2["from"]) or \
+                   normpath(sym1["to"]) == normpath(sym2["to"])
 
         def symlinks_equal(sym1, sym2):
-            return normpath(sym1["name"]) == normpath(sym2["name"]) and \
-                   normpath(sym1["target"]) == normpath(sym2["target"]) and \
+            return normpath(sym1["from"]) == normpath(sym2["from"]) and \
+                   normpath(sym1["to"]) == normpath(sym2["to"]) and \
                    sym1["uid"] == sym2["uid"] and \
                    sym1["gid"] == sym2["gid"] and \
                    sym1["permission"] == sym2["permission"] and \
@@ -481,7 +481,7 @@ class UpdateDiffSolver(DiffSolver):
                 # Installed link is not similiar to any new link, so create
                 # a remove operation in the difflog
                 profile_changed = True
-                self.difflog.remove_link(installed_link["name"], profile_name)
+                self.difflog.remove_link(installed_link["from"], profile_name)
                 installed_links.remove(installed_link)
 
         # Check all changed and added links

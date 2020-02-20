@@ -570,7 +570,7 @@ def get_date_time_now():
     """
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def log(message):
+def log(message, end="\n"):
     """Alias for logger.info() but creates a newline.
 
     Using the log functions, the output will also be printed into a logfile
@@ -579,7 +579,7 @@ def log(message):
     Args:
         message: The message that will be logged
     """
-    logger.info(message + "\n")
+    logger.info(message + end)
 
 def log_operation(profile_name, message):
     """Logs/Prints out a message for a profile.

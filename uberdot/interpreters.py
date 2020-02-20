@@ -222,9 +222,9 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation that will be logged
         """
-        log_operation(dop["profile"], dop["symlink"]["name"] +
+        log_operation(dop["profile"], dop["symlink"]["from"] +
                       " was created and links to " +
-                      dop["symlink"]["target"])
+                      dop["symlink"]["to"])
 
     def _op_remove_l(self, dop):
         """Logs/Prints out that a link was removed.
@@ -243,14 +243,14 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be logged
         """
-        if dop["symlink1"]["name"] != dop["symlink2"]["name"]:
-            log_operation(dop["profile"], dop["symlink1"]["name"] +
-                          " was moved to " + dop["symlink2"]["name"])
-        elif dop["symlink2"]["target"] != dop["symlink1"]["target"]:
-            log_operation(dop["profile"], dop["symlink1"]["name"] +
-                          " points now to " + dop["symlink2"]["target"])
+        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:
+            log_operation(dop["profile"], dop["symlink1"]["from"] +
+                          " was moved to " + dop["symlink2"]["from"])
+        elif dop["symlink2"]["to"] != dop["symlink1"]["to"]:
+            log_operation(dop["profile"], dop["symlink1"]["from"] +
+                          " points now to " + dop["symlink2"]["to"])
         else:
-            msg_start = dop["symlink1"]["name"] + " has changed "
+            msg_start = dop["symlink1"]["from"] + " has changed "
             if dop["symlink2"]["permission"] != dop["symlink1"]["permission"]:
                 msg = msg_start + "permission from "
                 msg += str(dop["symlink1"]["permssion"])
@@ -373,7 +373,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation of the to be updated link
         """
-        self.inspect_file(dop["symlink1"]["target"])
+        self.inspect_file(dop["symlink1"]["to"])
 
     def _op_remove_l(self, dop):
         """Inspects the target file of the to be removed link.
@@ -489,7 +489,7 @@ class CheckLinksInterpreter(Interpreter):
         for key, profile in installed.items():
             if key[0] != "@":  # Ignore special entrys like @version
                 for link in profile["links"]:
-                    link_name = normpath(link["name"])
+                    link_name = normpath(link["from"])
                     self.linklist.append((link_name, profile["name"], True))
 
     def _op_add_l(self, dop):
@@ -505,7 +505,7 @@ class CheckLinksInterpreter(Interpreter):
         Raises:
             IntegrityError: The check failed
         """
-        name = dop["symlink"]["name"]
+        name = dop["symlink"]["from"]
         for item in self.linklist:
             if item[0] == name:
                 if item[2]:
@@ -601,11 +601,11 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation whose symlinks will be checked
         """
-        if dop["symlink1"]["name"] == dop["symlink2"]["name"]:
-            self.check_blacklist(dop["symlink1"]["name"], "update")
+        if dop["symlink1"]["from"] == dop["symlink2"]["from"]:
+            self.check_blacklist(dop["symlink1"]["from"], "update")
         else:
-            self.check_blacklist(dop["symlink1"]["name"], "remove")
-            self.check_blacklist(dop["symlink2"]["name"], "overwrite")
+            self.check_blacklist(dop["symlink1"]["from"], "remove")
+            self.check_blacklist(dop["symlink2"]["from"], "overwrite")
 
     def _op_remove_l(self, dop):
         """Checks the to be removed symlink for blacklist violations.
@@ -621,7 +621,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation whose symlink will be checked
         """
-        self.check_blacklist(dop["symlink"]["name"], "overwrite")
+        self.check_blacklist(dop["symlink"]["from"], "overwrite")
 
 
 class CheckLinkDirsInterpreter(Interpreter):
@@ -636,7 +636,7 @@ class CheckLinkDirsInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation whose symlink will be checked
         """
-        self.check_dirname(os.path.dirname(dop["symlink"]["name"]))
+        self.check_dirname(os.path.dirname(dop["symlink"]["from"]))
 
     def _op_update_l(self, dop):
         """Checks if the directory of the to be updated link already exists.
@@ -644,7 +644,7 @@ class CheckLinkDirsInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation whose symlink will be checked
         """
-        self.check_dirname(os.path.dirname(dop["symlink2"]["name"]))
+        self.check_dirname(os.path.dirname(dop["symlink2"]["from"]))
 
     def check_dirname(self, dirname):
         """Checks if a directory exists.
@@ -707,41 +707,41 @@ class CheckLinkExistsInterpreter(Interpreter):
                 link already exists or the new link points to a non-existent
                 file
         """
-        if not os.path.lexists(dop["symlink1"]["name"]):
-            msg = "'" + dop["symlink1"]["name"] + "' can not be updated"
+        if not os.path.lexists(dop["symlink1"]["from"]):
+            msg = "'" + dop["symlink1"]["from"] + "' can not be updated"
             msg += " because it does not exist on your filesystem."
             msg += " Check your installed file!"
             raise PreconditionError(msg)
-        if (normpath(dop["symlink1"]["target"]) != dop["symlink2"]["target"]
-                and not os.path.exists(dop["symlink2"]["target"])):
-            msg = "'" + dop["symlink1"]["name"] + "' will not be updated"
-            msg += " to point to '" + dop["symlink2"]["target"] + "'"
-            msg += " because '" + dop["symlink2"]["target"]
+        if (normpath(dop["symlink1"]["to"]) != dop["symlink2"]["to"]
+                and not os.path.exists(dop["symlink2"]["to"])):
+            msg = "'" + dop["symlink1"]["from"] + "' will not be updated"
+            msg += " to point to '" + dop["symlink2"]["to"] + "'"
+            msg += " because '" + dop["symlink2"]["to"]
             msg += "' does not exist in your filesystem."
             raise PreconditionError(msg)
-        if normpath(dop["symlink1"]["name"]) != dop["symlink2"]["name"]:
-            if os.path.lexists(dop["symlink2"]["name"]):
-                if os.path.isdir(dop["symlink2"]["name"]):
+        if normpath(dop["symlink1"]["from"]) != dop["symlink2"]["from"]:
+            if os.path.lexists(dop["symlink2"]["from"]):
+                if os.path.isdir(dop["symlink2"]["from"]):
                     if not const.force:
-                        msg = "'" + dop["symlink1"]["name"] + "' can not be "
-                        msg += "moved to '" + dop["symlink2"]["name"] + "' "
+                        msg = "'" + dop["symlink1"]["from"] + "' can not be "
+                        msg += "moved to '" + dop["symlink2"]["from"] + "' "
                         msg += "because it is a directory and would be "
                         msg += "overwritten. You can force to overwrite empty"
                         msg += " directories by setting the --force flag."
                         raise PreconditionError(msg)
-                    if os.listdir(dop["symlink2"]["name"]):
-                        msg = "'" + dop["symlink1"]["name"] + "' can not be "
-                        msg += "moved to '" + dop["symlink2"]["name"] + "' "
+                    if os.listdir(dop["symlink2"]["from"]):
+                        msg = "'" + dop["symlink1"]["from"] + "' can not be "
+                        msg += "moved to '" + dop["symlink2"]["from"] + "' "
                         msg += "because it is a directory and contains files"
                         msg += " that would be overwritten. Please empty the"
                         msg += " directory or remove it entirely."
                         raise PreconditionError(msg)
                 elif not const.force:
-                    msg = "'" + dop["symlink1"]["name"] + "' can not be moved to '"
-                    msg += dop["symlink2"]["name"] + "' because it already exists"
+                    msg = "'" + dop["symlink1"]["from"] + "' can not be moved to '"
+                    msg += dop["symlink2"]["from"] + "' because it already exists"
                     msg += " on your filesystem and would be overwritten."
                     raise PreconditionError(msg)
-            self.removed_links.append(dop["symlink1"]["name"])
+            self.removed_links.append(dop["symlink1"]["from"])
 
     def _op_add_l(self, dop):
         """Checks if the new link already exists.
@@ -752,7 +752,7 @@ class CheckLinkExistsInterpreter(Interpreter):
             PreconditionError: The new link already exists or its target does
                 not exist
         """
-        name = dop["symlink"]["name"]
+        name = dop["symlink"]["from"]
         if not normpath(name) in self.removed_links and os.path.lexists(name):
             if os.path.isdir(name):
                 if not const.force:
@@ -767,13 +767,13 @@ class CheckLinkExistsInterpreter(Interpreter):
                     raise PreconditionError(msg)
             elif not const.force:
                 msg = "'" + name + "' already exists and would be"
-                msg += " overwritten by '" + dop["symlink"]["target"]
+                msg += " overwritten by '" + dop["symlink"]["to"]
                 msg += " '. You can force to overwrite the"
                 msg += " original file by setting the --force flag."
                 raise PreconditionError(msg)
-        if not os.path.exists(dop["symlink"]["target"]):
+        if not os.path.exists(dop["symlink"]["to"]):
             msg = "'" + name + "' will not be created"
-            msg += " because it points to '" + dop["symlink"]["target"]
+            msg += " because it points to '" + dop["symlink"]["to"]
             msg += "' which does not exist in your filesystem."
             raise PreconditionError(msg)
 
@@ -974,7 +974,7 @@ class EventInterpreter(Interpreter):
                 generated script is searched
         """
         log_operation(profile_name, "Running event " + event_name)
-        script_dir = os.path.join(const.environ_dir, "scripts") + "/"
+        script_dir = os.path.join(const.session_dir, "scripts") + "/"
         script_path = script_dir + profile_name + "_" + event_name
         if not os.path.exists(script_path):
             raise FatalError("Generated script couldn't be found")
@@ -1278,8 +1278,8 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation that will be executed
         """
-        self.__create_symlink(dop["symlink"]["name"],
-                              dop["symlink"]["target"],
+        self.__create_symlink(dop["symlink"]["from"],
+                              dop["symlink"]["to"],
                               dop["symlink"]["uid"],
                               dop["symlink"]["gid"],
                               dop["symlink"]["permission"],
@@ -1304,7 +1304,7 @@ class ExecuteInterpreter(Interpreter):
             dop (dict): A remove_l- or forget_l-operation
         """
         for link in self.installed[dop["profile"]]["links"]:
-            if link["name"] == dop["symlink_name"]:
+            if link["from"] == dop["symlink_name"]:
                 self.installed[dop["profile"]]["links"].remove(link)
 
     def _op_update_l(self, dop):
@@ -1314,10 +1314,10 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be executed
         """
-        self.__remove_symlink(dop["symlink1"]["name"])
+        self.__remove_symlink(dop["symlink1"]["from"])
         self.installed[dop["profile"]]["links"].remove(dop["symlink1"])
-        self.__create_symlink(dop["symlink2"]["name"],
-                              dop["symlink2"]["target"],
+        self.__create_symlink(dop["symlink2"]["from"],
+                              dop["symlink2"]["to"],
                               dop["symlink2"]["uid"],
                               dop["symlink2"]["gid"],
                               dop["symlink2"]["permission"],
@@ -1433,7 +1433,7 @@ class DetectRootInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation that will be checked
         """
-        name = dop["symlink"]["name"]
+        name = dop["symlink"]["from"]
         uid, gid = get_dir_owner(name)
         if dop["symlink"]["uid"] != uid or dop["symlink"]["gid"] != gid:
             self._root_detected(dop, "change owner of", name)
@@ -1462,27 +1462,27 @@ class DetectRootInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be checked
         """
-        name = dop["symlink2"]["name"]
+        name = dop["symlink2"]["from"]
         if dop["symlink1"]["uid"] != dop["symlink2"]["uid"] or \
                 dop["symlink1"]["gid"] != dop["symlink2"]["gid"]:
             if dop["symlink2"]["uid"] != get_uid() or \
                     dop["symlink2"]["gid"] != get_gid():
                 self._root_detected(dop, "change the owner of", name)
-        if dop["symlink1"]["name"] != dop["symlink2"]["name"]:
-            if not self._access(dop["symlink2"]["name"]):
+        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:
+            if not self._access(dop["symlink2"]["from"]):
                 self._root_detected(dop, "create links in",
                                     os.path.dirname(name))
-            if not self._access(dop["symlink1"]["name"]):
+            if not self._access(dop["symlink1"]["from"]):
                 self._root_detected(dop, "remove links from",
                                     os.path.dirname(name))
-        if dop["symlink1"]["target"] != dop["symlink2"]["target"]:
-            if not self._access(dop["symlink2"]["name"]):
+        if dop["symlink1"]["to"] != dop["symlink2"]["to"]:
+            if not self._access(dop["symlink2"]["from"]):
                 self._root_detected(dop, "change target of", name)
         if dop["symlink1"]["secure"] != dop["symlink2"]["secure"]:
-            if not self._access(dop["symlink2"]["name"]):
+            if not self._access(dop["symlink2"]["from"]):
                 self._root_detected(dop,
                                     "change owner of",
-                                    dop["symlink2"]["target"])
+                                    dop["symlink2"]["to"])
 
     @abstractmethod
     def _root_detected(self, dop, description, affected_file):
