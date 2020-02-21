@@ -521,7 +521,7 @@ class UberDot:
             dfl = dfs.solve()
             # 3. Eventually manipulate the result
             if const.dui:
-                log_debug("Reordering operations according to --dui.")
+                log_debug("Reordered operations to use DUI-strategy")
                 dfl.run_interpreter(DUIStrategyInterpreter())
             if const.skiproot:
                 log_debug("Removing operations that require root.")
