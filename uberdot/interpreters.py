@@ -357,7 +357,6 @@ class DUIStrategyInterpreter(Interpreter):
         self.data.clear()
         for item in merged_list:
             self.data.append(item)
-        log_debug("Reordered operations to do DUI")
 
 
 class CheckDynamicFilesInterpreter(Interpreter):
@@ -505,22 +504,13 @@ class CheckLinksInterpreter(Interpreter):
         Raises:
             IntegrityError: The check failed
         """
-        name = dop["symlink"]["from"]
-        for item in self.linklist:
-            if item[0] == name:
-                if item[2]:
-                    msg = " installed "
-                else:
-                    msg = " defined "
-                msg = "The link '" + name + "' is already" + msg + "by '"
-                msg += item[1] + "' and would be overwritten by '"
-                msg += dop["profile"] + "'. In most cases this error can be "
-                msg += "fixed by setting the --dui flag."
-                raise IntegrityError(msg)
-        self.linklist.append((name, dop["profile"], False))
+        self.add(dop["symlink"]["from"], dop["profile"])
 
-    # TODO: _op_update_l missing?
     # TODO: _op_forget_l, _op_track_l missing?
+
+    def _op_update_l(self, dop):
+        self.remove(dop["symlink1"]["from"])
+        self.add(dop["symlink2"]["from"], dop["profile"])
 
     def _op_remove_l(self, dop):
         """Removes link from linklist because links could be removed and
@@ -533,14 +523,30 @@ class CheckLinksInterpreter(Interpreter):
             dop (dict): The remove-operation that will be used to remove the
                 link
         """
-        count = 0
+        self.remove(dop["symlink_name"])
+
+    def add(self, name, profile):
         for item in self.linklist:
-            if item[0] == normpath(dop["symlink_name"]):
+            if item[0] == name:
+                if item[2]:
+                    msg = " installed "
+                else:
+                    msg = " defined "
+                msg = "The link '" + name + "' is already" + msg + "by '"
+                msg += item[1] + "' and would be overwritten by '"
+                msg += profile + "'. In most cases this error can be "
+                msg += "fixed by setting the --dui flag."
+                raise IntegrityError(msg)
+        self.linklist.append((name, profile, False))
+
+    def remove(self, name):
+        for item in self.linklist:
+            if item[0] == normpath(name):
                 break
-            count += 1
-        if count == len(self.linklist):
+        else:
             raise FatalError("Can't remove link that isn't installed")
-        self.linklist.pop(count)
+        self.linklist.remove(item)
+
 
 
 class CheckLinkBlacklistInterpreter(Interpreter):
@@ -802,11 +808,11 @@ class CheckProfilesInterpreter(Interpreter):
         super().__init__()
         self.profile_list = []
         # profile_list contains: (profile name, parent name, is installed)
-        for key, profile in installed.items():
-            if key[0] != "@":
-                self.profile_list.append(
-                    (profile["name"],
-                     profile["parent"] if "parent" in profile else None, True))
+        for user, profile in installed.get_profiles():
+            self.profile_list.append(
+                (profile["name"], user,
+                 profile["parent"] if "parent" in profile else None, True)
+            )
 
     def get_known(self, name, is_installed):
         """Returns the entry of a profile from ``profile_list``. Either for
