@@ -499,6 +499,24 @@ class UberDot:
         else:
             # The previous modes just printed stuff, but here we
             # have to actually do something:
+            # 0. Check for differences between filesystem and statefile
+            # and eventually fix those changes
+            # TODO handle wrong input
+            # TODO checks?
+            difflog = StateFilesystemDiffSolver(self.installed, action="t").solve()
+            if difflog:
+                log_warning("Some tracked links were manually changed.")
+                difflog.run_interpreter(PrintSummaryInterpreter())
+                log("How would you like to fix those changes?")
+                selection = input("(s)kip fixing / (t)ake over all changes / (r)estore all links / (d)ecide for each link: ")
+                if selection == "r":
+                    difflog = StateFilesystemDiffSolver(self.installed, action="r").solve()
+                if selection == "d":
+                    difflog = StateFilesystemDiffSolver(self.installed).solve()
+                if selection != "s":
+                    difflog.run_interpreter(ExecuteInterpreter(self.installed))
+
+
             # 1. Decide how to solve the differences and
             # setup DiffSolvers accordingly
             if const.mode == "remove":
@@ -528,9 +546,7 @@ class UberDot:
                 dfl.run_interpreter(SkipRootInterpreter())
             # 4. Simmulate a run, print the result or actually resolve the
             # differences
-            if const.dryrun:
-                self.dryrun(dfl)
-            elif const.debug:
+            if const.debug:
                 dfl.run_interpreter(PlainPrintInterpreter())
             elif const.changes:
                 dfl.run_interpreter(PrintInterpreter())
@@ -538,7 +554,6 @@ class UberDot:
                 self.run(dfl)
 
     # TODO do this for another user
-    # TODO this needs to be done for the current user before any run
     def fix(self):
         # Setup a new difflog
         difflog = StateFilesystemDiffSolver(self.installed).solve()
@@ -815,6 +830,9 @@ class UberDot:
             :class:`~errors.CustomError`: Executed interpreters can and will
                 raise all kinds of :class:`~errors.CustomError`.
         """
+        if const.dryrun:
+            log_warning("This is just a dry-run! Nothing of the following " +
+                        "is actually happening.")
         # Run integration tests on difflog
         log_debug("Checking operations for errors and conflicts.")
         difflog.run_interpreter(
@@ -830,7 +848,10 @@ class UberDot:
         # Gain root if needed
         if not has_root_priveleges():
             log_debug("Checking if root is needed")
-            difflog.run_interpreter(GainRootInterpreter())
+            if const.dryrun:
+                difflog.run_interpreter(RootNeededInterpreter())
+            else:
+                difflog.run_interpreter(GainRootInterpreter())
         else:
             log_debug("uberdot was started with root priveleges")
         # Check blacklist not until now, because the user would need confirm it
@@ -848,10 +869,9 @@ class UberDot:
         # Execute all events before linking and print them
         try:
             if not const.skipevents and not const.skipbefore:
+                inter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    EventExecInterpreter(
-                        self.profiles, old_installed, "before"
-                    )
+                    interpreter(self.profiles, old_installed, "before")
                 )
                 try:
                     # We need to run those tests again because the executed event
@@ -874,10 +894,11 @@ class UberDot:
         # Execute operations from difflog
         try:
             # Execute all operations of the difflog and print them
-            difflog.run_interpreter(
-                ExecuteInterpreter(self.installed),
-                PrintInterpreter()
-            )
+            interpreters = []
+            if not const.dryrun:
+                interpreters.append(ExecuteInterpreter(self.installed))
+            interpreters.append(PrintInterpreter())
+            difflog.run_interpreter(*interpreters)
         except CustomError:
             raise
         except Exception as err:
@@ -890,60 +911,15 @@ class UberDot:
         # Execute all events after linking and print them
         try:
             if not const.skipevents and not const.skipafter:
+                interpreter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    EventExecInterpreter(
-                        self.profiles, old_installed, "after"
-                    )
+                    interpreter(self.profiles, old_installed, "after")
                 )
         except CustomError:
             raise
         except Exception as err:
             msg = "An unkown error occured during after_event execution."
             raise UnkownError(err, msg)
-
-    def dryrun(self, difflog):
-        """Like `run()` but instead of resolving it it will be just printed out
-
-        Args:
-            difflog (DiffLog): The DiffLog that will be checked
-
-        Raises:
-            :class:`~errors.CustomError`: Executed interpreters can and will
-                raise all kinds of :class:`~errors.CustomError`.
-        """
-        log_warning("This is just a dry-run! Nothing of the following " +
-                    "is actually happening.")
-        # Run tests
-        log_debug("Checking operations for errors and conflicts.")
-        difflog.run_interpreter(
-            CheckProfilesInterpreter(self.installed)
-        )
-        tests = [
-            CheckLinksInterpreter(self.installed),
-            CheckLinkBlacklistInterpreter(),
-            CheckLinkDirsInterpreter(),
-            CheckLinkExistsInterpreter(),
-            CheckDynamicFilesInterpreter()
-        ]
-        difflog.run_interpreter(*tests)
-        log_debug("Checking if root would be needed")
-        difflog.run_interpreter(RootNeededInterpreter())
-        # Simulate events before
-        if not const.skipevents and not const.skipbefore:
-            difflog.run_interpreter(
-                EventPrintInterpreter(
-                    self.profiles, self.installed, "before"
-                )
-            )
-        # Simulate execution
-        difflog.run_interpreter(PrintInterpreter())
-        # Simulate events after
-        if not const.skipevents and not const.skipafter:
-            difflog.run_interpreter(
-                EventPrintInterpreter(
-                    self.profiles, self.installed, "after"
-                )
-            )
 
 
 class StoreDictKeyPair(argparse.Action):

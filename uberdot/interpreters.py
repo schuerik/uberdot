@@ -843,11 +843,11 @@ class CheckProfilesInterpreter(Interpreter):
         super().__init__()
         self.profile_list = []
         # profile_list contains: (profile name, parent name, is installed)
-        for user, profile in installed.get_profiles():
-            self.profile_list.append(
-                (profile["name"], user,
-                 profile["parent"] if "parent" in profile else None, True)
-            )
+        for key, profile in installed.items():
+            if key[0] != "@":
+                self.profile_list.append(
+                    (profile["name"],
+                     profile["parent"] if "parent" in profile else None, True))
 
     def get_known(self, name, is_installed):
         """Returns the entry of a profile from ``profile_list``. Either for
@@ -1284,6 +1284,7 @@ class ExecuteInterpreter(Interpreter):
             del self.installed[dop["profile"]][dop["key"]]
         else:
             self.installed[dop["profile"]][dop["key"]] = dop["value"]
+        self.installed[dop["profile"]]["updated"] = get_date_time_now()
 
     def _op_add_p(self, dop):
         """Adds a profile entry of the installed-file.
@@ -1313,12 +1314,15 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be executed
         """
-        if "parent" in dop:
-            if dop["parent"] is not None:
-                self.installed[dop["profile"]]["parent"] = dop["parent"]
-            elif "parent" in self.installed[dop["profile"]]:
-                del self.installed[dop["profile"]]["parent"]
-        self.installed[dop["profile"]]["updated"] = get_date_time_now()
+        # if "parent" in dop:
+        #     if dop["parent"] is not None:
+        #         self.installed[dop["profile"]]["parent"] = dop["parent"]
+        #     elif "parent" in self.installed[dop["profile"]]:
+        #         del self.installed[dop["profile"]]["parent"]
+        # self.installed[dop["profile"]]["updated"] = get_date_time_now()
+
+        # TODO: can this be replaced by update_prop?
+        raise NotImplementedError
 
     def _op_add_l(self, dop):
         """Adds a link to the filesystem and adds a link entry of the

@@ -112,6 +112,8 @@ class AutoExpandDict(MutableMapping, AutoExpander):
 
     def __repr__(self):
         rep = "{"
+        for key in self.data_specials:
+            rep += "@" + key + ": " + repr(self.data_specials[key]) + ", "
         for key in list(self.data.keys())[:-1]:
             rep += repr(key) + ": " + repr(self[key]) + ", "
         if self.len():

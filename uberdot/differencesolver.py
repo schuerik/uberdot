@@ -39,11 +39,14 @@ from uberdot.installedfile import AutoExpandDict
 from uberdot.interpreters import Interpreter
 from uberdot.utils import get_date_time_now
 from uberdot.utils import import_profile_class
+from uberdot.utils import get_linkdescriptor_from_file
 from uberdot.utils import get_owner
 from uberdot.utils import get_permission
+from uberdot.utils import log
 from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import normpath
+from uberdot.utils import safe_walk
 
 
 def links_similar(sym1, sym2):
@@ -51,7 +54,6 @@ def links_similar(sym1, sym2):
            normpath(sym1["to"]) == normpath(sym2["to"])
 
 def links_equal(link1, link2):
-    print("LinkDescriptors: ", link1, link2)
     return normpath(link1["from"]) == normpath(link2["from"]) and \
            normpath(link1["to"]) == normpath(link2["to"]) and \
            link1["uid"] == link2["uid"] and \
@@ -60,15 +62,12 @@ def links_equal(link1, link2):
            link1["secure"] == link2["secure"]
 
 def link_exists(link):
-    file = link["from"]
-    props = {}
-    props["from"] = file
-    props["to"] = os.readlink(file)
-    props["uid"], props["gid"] = get_owner(file)
-    props["permission"] = get_permission(file)
-    props["secure"] = get_permission(file) == get_permission(os.readlink(file))
-    props["date"] = os.path.getmtime(file)
-    return links_equal(link, props)
+    link2 = get_linkdescriptor_from_file(link["from"])
+    return links_equal(link, link2)
+
+def similar_link_exists(link):
+    link2 = get_linkdescriptor_from_file(link["from"])
+    return links_similar(link, link2)
 
 
 class DiffLog():
@@ -76,6 +75,19 @@ class DiffLog():
     Difference-Solver. Furthermore it provides helpers to create such
     operations and a function that allows multiple interpreters to interprete
     the operations at the same time.
+
+    The following operations are supported:
+        op_info: Log/print some information
+        op_add_p: Adds a new profile
+        op_update_p: Updates an existing profile
+        op_remove_p: Removes an existing profile
+        op_update_prop: Update a property of a profile
+        op_add_l: Create new link and track it
+        op_update_l: Updates an existing link
+        op_remove_l: Removes an existing link and stops tracking
+        op_track_l: Tracks existing link
+        op_untrack_l: Don't track an existing link anymore
+        op_restore_l: Restore (not) existing link
 
     Attributes:
         data (list): Used to store the operations
@@ -128,19 +140,6 @@ class DiffLog():
         """
         self.__append_data("update_p", profilename)
 
-    def update_parent(self, profilename, parentname):
-        """Create an update-parent operation.
-
-        Update-parent operations indicate that a certain profile will change
-        its parent.
-
-        Args:
-            profilename (str): The name of the to be updated profile
-            parentname (str): The name of the new parent of the profile. If
-                ``None`` it will be a root profile from now on.
-        """
-        self.__append_data("update_p", profilename, parent=parentname)
-
     def remove_profile(self, profilename):
         """Create a remove-profile operation.
 
@@ -168,7 +167,10 @@ class DiffLog():
             profilename (str): The name of profile that the link belongs to
         """
         symlink["date"] = get_date_time_now()
-        self.__append_data("add_l", profilename, symlink=symlink)
+        if link_exists(symlink):
+            self.track_link(symlink, profilename)
+        else:
+            self.__append_data("add_l", profilename, symlink=symlink)
 
     def remove_link(self, symlink_name, profilename):
         """Create a remove-link operation.
@@ -182,7 +184,10 @@ class DiffLog():
             symlink_name (str): The absolute path to the symbolic link
             profilename (str): The profile that the link is removed from
         """
-        self.__append_data("remove_l", profilename, symlink_name=symlink_name)
+        if os.path.lexists(symlink_name):
+            self.__append_data("remove_l", profilename, symlink_name=symlink_name)
+        else:
+            self.untrack_link(symlink_name, profilename)
 
     def update_link(self, installed_symlink, new_symlink, profilename):
         """Create an update-link operation.
@@ -199,10 +204,20 @@ class DiffLog():
             new_symlink (dict): A dictionary that describes the symbolic
                 link that will replace the old link
         """
-        new_symlink["date"] = get_date_time_now()
-        self.__append_data("update_l", profilename,
-                           symlink1=installed_symlink,
-                           symlink2=new_symlink)
+        if not os.path.lexists(installed_symlink["from"]):
+            self.untrack_link(installed_symlink["from"], profilename)
+            if link_exists(new_symlink):
+                self.track_link(new_symlink, profilename)
+            else:
+                self.add_link(new_symlink, profilename)
+        elif link_exists(new_symlink):
+            self.remove_link(installed_symlink["from"], profilename)
+            self.track_link(new_symlink, profilename)
+        else:
+            new_symlink["date"] = get_date_time_now()
+            self.__append_data("update_l", profilename,
+                               symlink1=installed_symlink,
+                               symlink2=new_symlink)
 
     def update_property(self, key, value, profilename):
         """Create an update-script operation.
@@ -310,7 +325,7 @@ class StateFilesystemDiffSolver(DiffSolver):
         super().__init__()
         self.state = state
         self.users = users
-        if action is not None
+        if action is not None:
             self.action = action
         else:
             self.action = const.action
@@ -322,50 +337,60 @@ class StateFilesystemDiffSolver(DiffSolver):
                     self.__generate_profile_fix(profile)
 
     def __generate_profile_fix(self, profile):
-        def fix_link(self, fix_description, remove=None):
-            if self.action:
-                # TODO: make this fail save
-                # TODO store last fix selection in case of error
-                selection = self.action
-            else:
-                selection = input(fix_description + " (s/r/t/u/?) ").lower()
-            if selection == "s":
-                return
-            elif selection == "r":
-                # TODO operation needed that restores a link
-                pass
-            elif selection == "t":
-                # TODO operation needed that restores a link
-                pass
-            elif selection == "u":
-                # Remove link from installed file
-                self.difflog.untrack_l(profile, link)
-            else:
-                if selection == "?":
-                    log("(s)kip / (r)estore link / (t)ake over / (u)ntrack link")
-                else:
-                    log("Unkown option")
-                fix_link(fix_description, remove)
         for link in profile["links"]:
+            if link_exists(link):
+                continue
             # Check if link still exists
-            if not os.path.exists(link["name"]):
+            if not os.path.exists(link["from"]):
                 # Check if another symlink exists that has same target
-                for root, name in safe_walk(os.path.dirname(link["name"])):
+                for root, name in safe_walk(os.path.dirname(link["from"])):
                     file = os.path.join(root, name)
-                    if os.path.realpath(file) == link["target"]:
-                        msg = "Link '" + link["name"] + "' was renamed '"
+                    if os.path.realpath(file) == link["to"]:
+                        msg = "Link '" + link["from"] + "' was renamed '"
                         msg += " to '" + file + "'."
-                        fix_link(msg, file)
+                        self._fix_link(msg,profile,  link, get_linkdescriptor_from_file(file))
                         break
                 # No other symlink exists, file must have been removed
-                fix_link("Link '" + link["name"] + "' was removed.")
+                self.fix_link("Link '" + link["from"] + "' was removed.", profile, link, {})
             # Check if link still points to same target
-            elif os.path.realpath(link["name"]) != link["target"]:
-                msg = "Link '" + link["name"] + "' now points to '"
-                msg += link["target"] + "'."
-                fix_link(msg, link["name"])
-            # TODO: check if target still exists (link broken)
-            # TODO: Check for props
+            elif os.path.realpath(link["from"]) != link["to"]:
+                msg = "Link '" + link["from"] + "' now points to '"
+                msg += link["to"] + "'."
+                self.fix_link(msg, profile, link, get_linkdescriptor_from_file(link["from"]))
+            # Another property changed
+            else:
+                actual_link = get_linkdescriptor_from_file(link["from"])
+                msg = "Properties of link '" + link["from"] + "' changed:" + "\n"
+                if actual_link["owner"] != link["owner"]:
+                    msg += "owner: " + str(link["owner"]) + "->" + str(actual_link["owner"]) + "\n"
+                if actual_link["permission"] != link["permission"]:
+                    msg += "permssion: " + str(link["permission"]) + "->" + str(actual_link["permission"]) + "\n"
+                if actual_link["secure"] != link["secure"]:
+                    msg += "secure: " + str(link["secure"]) + "->" + str(actual_link["secure"]) + "\n"
+                self.fix_link(msg, profile, link, actual_link)
+
+    def fix_link(self, fix_description, profile, saved_link, actual_link):
+        if self.action:
+            selection = self.action
+        else:
+            selection = input(fix_description + " (s/r/t/u/?) ").lower()
+        if selection == "s":
+            return
+        elif selection == "r":
+            self.difflog.restore_l(profile, saved_link)
+        elif selection == "t":
+            if not actual_link:
+                self.difflog.untrack_l(profile, saved_link)
+            else:
+                self.difflog.update_l(profile, saved_link, actual_link)
+        elif selection == "u":
+            self.difflog.untrack_l(profile, saved_link)
+        else:
+            if selection == "?":
+                log("(s)kip / (r)estore link / (t)ake over / (u)ntrack link")
+            else:
+                log("Unkown option")
+            self.fix_link(fix_description, profile, saved_link, actual_link)
 
 
 class UninstallDiffSolver(DiffSolver):
@@ -525,11 +550,6 @@ class UpdateDiffSolver(DiffSolver):
         # it from new_links and installed_links, so in the end both lists
         # need to be empty.
 
-        # TODO: check if new/removed/updated links already exist like they are
-        # supposed to. if so just add/remove/update them in the installed file
-        # (new operations needed)
-        # Maybe could be done in the CheckLinkExists interpreter
-
         # Check all unchanged
         count = 0
         for installed_link in installed_links[:]:
@@ -548,33 +568,31 @@ class UpdateDiffSolver(DiffSolver):
 
         # Check all removed
         for installed_link in installed_links[:]:
-            remove = True
             for new_link in new_links[:]:
                 if links_similar(installed_link, new_link):
-                    remove = False
                     break
-            if remove:
-                # Installed link is not similiar to any new link, so create
-                # a remove operation in the difflog
+            else:
+                # Installed link is not similiar to any new link, so it
+                # needs to be removed
                 profile_changed = True
+                # Check if it was already removed from the filesystem
                 self.difflog.remove_link(installed_link["from"], profile_name)
                 installed_links.remove(installed_link)
 
         # Check all changed and added links
         for new_link in new_links[:]:
-            add = True
             for installed_link in installed_links[:]:
                 if links_similar(installed_link, new_link):
                     # new_link has same name or target, so we need to create
                     # an update operation in the difflog
                     profile_changed = True
+                    # Check if it was already updated in the filesystem
                     self.difflog.update_link(installed_link, new_link,
                                              profile_name)
                     installed_links.remove(installed_link)
                     new_links.remove(new_link)
-                    add = False
                     break
-            if add:
+            else:
                 # There was no similar installed link, so we need to create an
                 # add operation in the difflog
                 profile_changed = True
@@ -628,7 +646,7 @@ class UpdateDiffSolver(DiffSolver):
                 parent_changed = True
             # Update profile
             if parent_changed:
-                self.difflog.update_parent(profile_name, parent_name)
+                self.difflog.update_property("parent", parent_name, profile_name)
             elif profile_changed and not profile_new:
                 self.difflog.update_profile(profile_name)
 
