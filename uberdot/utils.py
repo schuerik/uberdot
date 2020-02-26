@@ -223,7 +223,7 @@ def get_gid():
     return os.getgid()
 
 
-def get_dir_owner(filename):
+def predict_owner(filename):
     """Gets the owner of the directory of a (non existing) file.
 
     If the the directory does not exist, this function will goes the directory
@@ -240,8 +240,23 @@ def get_dir_owner(filename):
     dirname = os.path.dirname(filename)
     while not os.path.isdir(dirname):
         dirname = os.path.dirname(dirname)
-    return os.stat(dirname).st_uid, os.stat(dirname).st_gid
+    return get_owner(dirname)
 
+def get_owner(filename):
+    return os.lstat().st_uid, os.lstat(filename).st_gid
+
+def get_permission(filename)
+    return oct(os.lstat(file).st_mode)[-3:]
+
+def get_linkdescriptor_from_file(file):
+    props = {}
+    props["from"] = file
+    props["to"] = os.readlink(file)
+    props["uid"], props["gid"] = get_owner(file)
+    props["permission"] = get_permission(file)
+    props["secure"] = get_permission(file) == get_permission(os.readlink(file))
+    props["date"] = os.path.getmtime(file)
+    return AutoExpandDict(props)
 
 def has_root_priveleges():
     """Checks if this programm has root priveleges.
@@ -397,7 +412,6 @@ def normpath(path):
     return None
 
 
-
 # Dynamic imports
 ###############################################################################
 
@@ -526,7 +540,7 @@ def makedirs(dir_):
         log_debug("Creating directory '" + dir_ + "'")
         os.mkdir(dir_)
 
-def create_symlink(name, target, uid, gid, permission, secure):
+def create_symlink(linkdescriptor):
     """Creates a symbolic link.
 
     Args:

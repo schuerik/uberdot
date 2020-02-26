@@ -537,61 +537,13 @@ class UberDot:
             else:
                 self.run(dfl)
 
-    # TODO create a difflog instead of creating links manually
-    # use just a selection of tests like RootNeeded and CheckLinksInterpreter
-    # TODO store last fix selection in case of error
     # TODO do this for another user
+    # TODO this needs to be done for the current user before any run
     def fix(self):
-        def fix_link(self, fix_description, remove=None):
-            if const.action:
-                # TODO: make this fail save
-                selection = const.action
-            else:
-                selection = input(fix_description + " (s/r/F/?) ")
-            if selection.lower() == "s":
-                return
-            elif selection == "F":
-                # Remove link from installed file
-                del link
-            elif selection == "r":
-                # Remove new file
-                if remove is not None:
-                    os.remove(remove)
-                # Create symlink as noted in the installed file
-                create_symlink(**link)
-            else:
-                if selection == "?":
-                    log("(s)kip / (r)estore link / (F)orget link")
-                else:
-                    log("Unkown option")
-                fix_link(fix_description, remove)
-
-        # TODO this could be potentially a differencesolver
         # Setup a new difflog
-        difflog = DiffLog()
-        # Go through all links
-        for key in self.installed:
-            for link in self.installed[key]["links"]:
-                # Check if link still exists
-                if not os.path.exists(link["name"]):
-                    # Check if another symlink exists that has same target
-                    for root, name in safe_walk(os.path.dirname(link["name"])):
-                        file = os.path.join(root, name)
-                        if os.path.realpath(file) == link["target"]:
-                            msg = "Link '" + link["name"] + "' was renamed '"
-                            msg += " to '" + file + "'."
-                            fix_link(msg, file)
-                            break
-                    # No other symlink exists, file must have been removed
-                    fix_link("Link '" + link["name"] + "' was removed.")
-                # Check if link still points to same target
-                elif os.path.realpath(link["name"]) != link["target"]:
-                    msg = "Link '" + link["name"] + "' now points to '"
-                    msg += link["target"] + "'."
-                    fix_link(msg, link["name"])
-                # TODO: check if target still exists (link broken)
-                # TODO: Check for props
+        difflog = StateFilesystemDiffSolver(self.installed).solve()
         # Run checks on difflog
+        # TODO: More checks?
         difflog.run_interpreter(
             GainRootInterpreter()
         )
@@ -600,6 +552,7 @@ class UberDot:
             ExecuteInterpreter(self.installed),
             PrintInterpreter()
         )
+        # TODO create snapshot (maybe in op_fin of ExecuteInterpreter?)
 
     def execute_profiles(self, profiles=None, options=None, directory=None):
         """Imports profiles by name and executes them.

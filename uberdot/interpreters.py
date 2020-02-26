@@ -146,6 +146,41 @@ class PlainPrintInterpreter(Interpreter):
         print("]")
 
 
+class PrintSummaryInterpreter(Interpreter):
+    def __init__(self):
+        super().__init__()
+        self.profile_changes = {}
+        self._op_add_l = self.gen_counter("added")
+        self._op_remove_l = self.gen_counter("removed")
+        self._op_update_l = self.gen_counter("updated")
+        self._op_track_l = self.gen_counter("tracked")
+        self._op_untrack_l = self.gen_counter("untracked")
+        self._op_restore_l = self.gen_counter("restored")
+        self._op_update_prop = self.gen_counter("updated properties")
+
+    def gen_counter(self, key):
+        def counter(self, dop):
+            prof = dop["profile"]
+            if prof not in self.profile_changes:
+                self.profile_changes[prof] = {
+                    "added": 0,
+                    "removed": 0,
+                    "updated": 0,
+                    "tracked": 0,
+                    "untracked": 0,
+                    "restored": 0
+                    "updated properties": 0
+                }
+            self.profile_changes[prof][key] +=1
+        return counter
+
+    def _op_fin(self, dop):
+        for profile in self.profile_changes:
+            changes = filter(lambda x: x[1] > 0, self.profile_changes[profile])
+            changes = ", ".join(map(lambda x: x[0] + " " + str(x[1]), changes.items()))
+            log_operation(profile, changes)
+
+
 class PrintInterpreter(Interpreter):
     """Pretty-prints log messages and what a operation is going to do."""
 
@@ -983,8 +1018,16 @@ class EventInterpreter(Interpreter):
         script_dir = os.path.join(const.session_dir, "scripts") + "/"
         script_path = script_dir + profile_name + "_" + event_name
         if not os.path.exists(script_path):
-            raise FatalError("Generated script couldn't be found")
-        self.run_script(script_path, profile_name)
+            if not event_name.endswith("Uninstall"):
+                # The script should have already been generated in this run
+                raise FatalError("Generated script couldn't be found")
+            # The script was generated in a previous run and was removed
+            # That should not happen in the best case, but its not an error
+            log_warning(
+                "Unfortunally the generated script was removed. Skipping."
+            )
+        else:
+            self.run_script(script_path, profile_name)
 
     def event_handler(self, event_name):
         """Returns a function that can be used to interprete add_p- and

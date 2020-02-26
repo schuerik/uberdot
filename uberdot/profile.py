@@ -279,6 +279,8 @@ class Profile:
                 except IOError:
                     self._gen_err("Could not write file '" + script_path + "'")
                 log_debug("Generated script '" + script_path + "'")
+            else:
+                log_debug("Script already generated at '" + script_path + "'")
             # Create symlink for easy access of latest generated script for event
             link_path = script_dir + "/" + script_name
             if os.path.exists(link_path):

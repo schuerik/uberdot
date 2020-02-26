@@ -84,6 +84,7 @@ class AutoExpander:
 class AutoExpandDict(MutableMapping, AutoExpander):
     def __init__(self, args={}, **kwargs):
         self.data = {}
+        self.data_specials = {}
         self.update(args, **kwargs)
 
     def __getitem__(self, key): return self.getitem(key)
@@ -94,8 +95,20 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         return iter(self.data)
 
     def __setitem__(self, key, value):
-        self.data[key] = self.wrap_value(value)
+        if key[0] == "@":
+            self.set_special(key[1:], value)
+        else:
+            self.data[key] = self.wrap_value(value)
         self.notify()
+
+    def get_specials(self):
+        return self.data_specials
+
+    def get_special(self, key):
+        return self.data_specials[key]
+
+    def set_special(self, key, value):
+        self.data_specials[key] = value
 
     def __repr__(self):
         rep = "{"
@@ -167,22 +180,22 @@ class InstalledFile(MutableMapping):
         # Make sure to write file on changes in user_dict
         self.user_dict.notify_change(self.__write_file__)
         # Check if we can upgrade
-        if is_version_smaller(self.user_dict["@version"], MIN_VERSION):
+        if is_version_smaller(self.user_dict.get_special("version"), MIN_VERSION):
             msg = "Your installed file is too old to be processed."
             raise PreconditionError(msg)
-        if is_version_smaller(const.version, self.user_dict["@version"]):
+        if is_version_smaller(const.version, self.user_dict.get_special("version")):
             msg = "Your installed file was created with a newer version of "
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
         # Upgrade and store in loaded
-        for patch in self.get_patches(self.user_dict["@version"]):
+        for patch in self.get_patches(self.user_dict.get_special("version")):
             log("Updating state to version " + patch[0] + " ... ", end="")
             self.user_dict = self.upgrade(self.user_dict, patch)
             self.__write_file__()
             log("Done.")
         self.loaded[const.user] = self.user_dict
         # Make sure to update version in case no upgrade was needed
-        self.user_dict["@version"] = const.version
+        self.user_dict.set_special("version", const.version)
 
     def try_load_user_session(self, user, session_dir):
         path = os.path.join(path, const.state_name)
@@ -192,11 +205,11 @@ class InstalledFile(MutableMapping):
         # Load file
         dict_ = json.load(open(path))
         # If we can't upgrade, ignore this installed file
-        if is_version_smaller(dict_["@version"], MIN_VERSION):
+        if is_version_smaller(dict_.get_special("version"), MIN_VERSION):
             msg = "Ignoring installed file of user " + user + ". Too old."
             log_warning(msg)
             return
-        if is_version_smaller(const.version, dict_["@version"]):
+        if is_version_smaller(const.version, dict_.get_special("version")):
             msg = "Ignoring installed file of user " + user + "."
             msg += " uberdot is too old."
             log_warning(msg)
@@ -207,18 +220,17 @@ class InstalledFile(MutableMapping):
 
     def init_empty_installed(self):
         empty = AutoExpandDict()
-        empty["@version"] = const.version
+        empty.set_special("version", const.version)
         return empty
-
 
     def upgrade(self, state, patch):
         state = patch[1](state)
-        state["@version"] = patch[0]
+        state.set_special("version", patch[0])
         return state
 
     def full_upgrade(self, state):
         # Apply patches in order
-        for patch in self.get_patches(state["@version"]):
+        for patch in self.get_patches(state.get_special("version")):
             state = self.upgrade(state, patch)
         return state
 
@@ -230,7 +242,6 @@ class InstalledFile(MutableMapping):
                 patches = upgrades[i:]
                 break
         return patches
-
 
     def create_snapshot(self):
         path, ext = os.path.splitext(self.own_file)
@@ -256,11 +267,8 @@ class InstalledFile(MutableMapping):
         finally:
             file.close()
 
-    def get_special(self, key):
-        return self.loaded["@" + key]
-
     def get_users(self):
-        return [item for item in self.loaded if item[0] != "@"]
+        return self.loaded.keys()
 
     def get_user_profiles(self, user):
         return self.loaded[user]
@@ -269,8 +277,7 @@ class InstalledFile(MutableMapping):
         profiles = []
         for usr in self.get_users():
             for profile in self.loaded[usr]:
-                if profile[0] != "@":
-                    profiles.append((usr, self.loaded[usr][profile]))
+                profiles.append((usr, self.loaded[usr][profile]))
         return profiles
 
     def __setitem__(self, key, value):
