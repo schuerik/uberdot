@@ -665,6 +665,8 @@ def is_dynamic_file(target):
     Returns:
         bool: True, if given path is a dynamicfile
     """
+    # TODO this is wrong at the moment: probably requires a dedicated subdir for dynamic files
+    # TODO would be nice if the symlink itself would return same result
     return os.path.dirname(os.path.dirname(target)) == normpath("data")
 
 

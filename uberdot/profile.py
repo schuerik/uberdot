@@ -143,6 +143,7 @@ class Profile:
         Makes sure that :attr:`self.directory<Profile.directory>` is always
         expanded and noramlized.
         """
+        # TODO: Shouldnt cd do the join and self.directory be just a normal attribute?
         if name == "directory":
             if hasattr(self, name):
                 value = os.path.join(self.directory, expandpath(value))

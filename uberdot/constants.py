@@ -69,6 +69,7 @@ if os.getenv("UBERDOT_TEST", 0) == 0:
         filter(lambda x: os.path.exists(x[1]), data_dirs_foreign)
     )
 else:
+    # TODO: Multi user regression tests
     data_dir = os.path.join(
         os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
         "test/regression/data/"

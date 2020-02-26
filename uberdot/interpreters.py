@@ -116,7 +116,8 @@ class Interpreter():
             attribute(operation)
 
 
-class PlainPrintInterpreter(Interpreter):
+# TODO: check interpreters for multi user
+class PrintPlainInterpreter(Interpreter):
     """Prints add/remove/update-operation without any formating."""
     def __init__(self):
         """Constructor.
@@ -126,8 +127,8 @@ class PlainPrintInterpreter(Interpreter):
         super().__init__()
         self._op_add_p = self._op_remove_p = self._op_update_p = print
         self._op_add_l = self._op_remove_l = self._op_update_l = print
-        self._op_info = self._op_track_l = self._op_forget_l = print
-        self._op_update_prop =  print
+        self._op_info = self._op_track_l = self._op_untrack_l = print
+        self._op_update_prop = self._op_restore_l = print
 
     def _op_start(self, dop):
         """Print "[" to show the start of an array.
@@ -168,7 +169,7 @@ class PrintSummaryInterpreter(Interpreter):
                     "updated": 0,
                     "tracked": 0,
                     "untracked": 0,
-                    "restored": 0
+                    "restored": 0,
                     "updated properties": 0
                 }
             self.profile_changes[prof][key] +=1
@@ -220,7 +221,7 @@ class PrintInterpreter(Interpreter):
         """
         log_operation(dop["profile"], "Uninstalled profile")
 
-    def _op_forget_l(self, dop):
+    def _op_untrack_l(self, dop):
         """Logs/Prints out that a link won't be tracked anymore.
 
         Args:
@@ -242,13 +243,6 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be logged
         """
-        if "parent" in dop:
-            if dop["parent"] is not None:
-                log_operation(dop["profile"], "Changed parent to '" +
-                              dop["parent"] + "'")
-            else:
-                log_operation(dop["profile"], "Detached from parent." +
-                              " This is a root profile now.")
         log_operation(dop["profile"], "Profile updated")
 
     def _op_add_l(self, dop):
@@ -307,6 +301,11 @@ class PrintInterpreter(Interpreter):
                 msg += "enabled" if dop["symlink2"]["secure"] else "disabled"
                 log_operation(dop["profile"], msg)
 
+    def _op_update_prop(self, dop):
+        log_operation(dop["profile"], "Set property '" + dop["key"] + "' to '" + dop["value"] + "'")
+
+    def _op_restore_l(self, dop):
+        log_operation(dop["profile"], "Restored tracked file '" + dop["symlink"]["from"] + "'")
 
 
 class DUIStrategyInterpreter(Interpreter):
@@ -339,6 +338,9 @@ class DUIStrategyInterpreter(Interpreter):
         """
         self.profile_adds.append(dop)
 
+    def _op_track_l(self, dop):
+        self.link_adds.append(dop)
+
     def _op_remove_p(self, dop):
         """Adds the profile-remove-operation to ``profile_removes``.
 
@@ -346,6 +348,12 @@ class DUIStrategyInterpreter(Interpreter):
             dop (dict): The operation that will be added
         """
         self.profile_deletes.append(dop)
+
+    def _op_untrack_l(self, dop):
+        self.link_deletes.append(dop)
+
+    def _op_restore_l(self, dop):
+        self.link_updates.append(dop)
 
     def _op_update_p(self, dop):
         """Adds the profile-update-operation to ``profile_updates``.
@@ -428,7 +436,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
             # This is not a dynamic file
             return
         # Calculate new hash and get old has of file
-        md5_calc = hashlib.md5(open(target, "rb").read()).hexdigest()
+        md5_calc = md5(open(target, "rb").read())
         md5_old = os.path.basename(target)[-32:]
         # Check for changes
         if md5_calc != md5_old:
@@ -496,6 +504,8 @@ class CheckDynamicFilesInterpreter(Interpreter):
             else:
                 log_warning("Invalid option")
 
+# TODO are link descriptors always expanded?
+# i already removed a lot of parts that expanded link descriptors
 
 class CheckLinksInterpreter(Interpreter):
     """Checks for conflicts between all links.
@@ -518,13 +528,11 @@ class CheckLinksInterpreter(Interpreter):
         """
         super().__init__()
         # Setup linklist to store/lookup which links are modified
-        # Stores for any link: (linkname, profile, is_installed)
+        # Stores for any link: (linkname, profile, user, is_installed)
         self.linklist = []
-        for key, profile in installed.items():
-            if key[0] != "@":  # Ignore special entrys like @version
-                for link in profile["links"]:
-                    link_name = normpath(link["from"])
-                    self.linklist.append((link_name, profile["name"], True))
+        for user, profile in installed.get_profiles():
+            for link in profile["links"]:
+                self.linklist.append((link["from"], profile["name"], user, True))
 
     def _op_add_l(self, dop):
         """Checks if the to be added link already occurs in ``linklist``.
@@ -541,7 +549,11 @@ class CheckLinksInterpreter(Interpreter):
         """
         self.add(dop["symlink"]["from"], dop["profile"])
 
-    # TODO: _op_forget_l, _op_track_l missing?
+    def _op_track_l(self, dop):
+        self.add(dop["symlink"]["from"], dop["profile"])
+
+    def _op_untrack_l(self, dop):
+        self.remove(dop["symlink_name"])
 
     def _op_update_l(self, dop):
         self.remove(dop["symlink1"]["from"])
@@ -560,7 +572,8 @@ class CheckLinksInterpreter(Interpreter):
         """
         self.remove(dop["symlink_name"])
 
-    def add(self, name, profile):
+    def add(self, name, profile, user):
+        user_msg = "of user " + user if user != const.user else ""
         for item in self.linklist:
             if item[0] == name:
                 if item[2]:
@@ -568,7 +581,7 @@ class CheckLinksInterpreter(Interpreter):
                 else:
                     msg = " defined "
                 msg = "The link '" + name + "' is already" + msg + "by '"
-                msg += item[1] + "' and would be overwritten by '"
+                msg += item[1] + "' " + user_msg + "and would be overwritten by '"
                 msg += profile + "'. In most cases this error can be "
                 msg += "fixed by setting the --dui flag."
                 raise IntegrityError(msg)
@@ -576,12 +589,11 @@ class CheckLinksInterpreter(Interpreter):
 
     def remove(self, name):
         for item in self.linklist:
-            if item[0] == normpath(name):
+            if item[0] == name:
                 break
         else:
             raise FatalError("Can't remove link that isn't installed")
         self.linklist.remove(item)
-
 
 
 class CheckLinkBlacklistInterpreter(Interpreter):
@@ -664,6 +676,9 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         """
         self.check_blacklist(dop["symlink"]["from"], "overwrite")
 
+    def _op_restore_l(self, dop):
+        self.check_blacklist(dop["symlink"]["from"], "overwrite")
+
 
 class CheckLinkDirsInterpreter(Interpreter):
     """Checks if directories need to be created.
@@ -677,6 +692,9 @@ class CheckLinkDirsInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation whose symlink will be checked
         """
+        self.check_dirname(os.path.dirname(dop["symlink"]["from"]))
+
+    def _op_restore_l(self, dop):
         self.check_dirname(os.path.dirname(dop["symlink"]["from"]))
 
     def _op_update_l(self, dop):
@@ -704,6 +722,7 @@ class CheckLinkDirsInterpreter(Interpreter):
                 raise PreconditionError(msg)
 
 
+######################## We stopped here, adapting the interpreters #########################################
 class CheckLinkExistsInterpreter(Interpreter):
     """Checks if links of installed-file really exist in the filesystem.
 
@@ -732,7 +751,7 @@ class CheckLinkExistsInterpreter(Interpreter):
             msg += " it does not exist on your filesystem."
             msg += " Check your installed file!"
             raise PreconditionError(msg)
-        self.removed_links.append(normpath(dop["symlink_name"]))
+        self.removed_links.append(dop["symlink_name"])
 
     def _op_update_l(self, dop):
         """Checks if the old and the new link already exist.
@@ -794,7 +813,9 @@ class CheckLinkExistsInterpreter(Interpreter):
                 not exist
         """
         name = dop["symlink"]["from"]
-        if not normpath(name) in self.removed_links and os.path.lexists(name):
+        # TODO This seems super strange. is removed_links even needed?
+        # also isdir() doesnt check if path exists
+        if normpath(name) not in self.removed_links and os.path.lexists(name):
             if os.path.isdir(name):
                 if not const.force:
                     msg = "'" + name + "' is a directory and would be"
@@ -820,7 +841,6 @@ class CheckLinkExistsInterpreter(Interpreter):
 
 
 # TODO: check profiles of other users to
-# TODO: check other interpreters for multi user as well
 class CheckProfilesInterpreter(Interpreter):
     """Checks if profiles can be installed together. Protects against
     duplicates and overwrites.
@@ -1314,15 +1334,7 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be executed
         """
-        # if "parent" in dop:
-        #     if dop["parent"] is not None:
-        #         self.installed[dop["profile"]]["parent"] = dop["parent"]
-        #     elif "parent" in self.installed[dop["profile"]]:
-        #         del self.installed[dop["profile"]]["parent"]
-        # self.installed[dop["profile"]]["updated"] = get_date_time_now()
-
-        # TODO: can this be replaced by update_prop?
-        raise NotImplementedError
+        self.installed[dop["profile"]]["updated"] = get_date_time_now()
 
     def _op_add_l(self, dop):
         """Adds a link to the filesystem and adds a link entry of the
