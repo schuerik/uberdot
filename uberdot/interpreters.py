@@ -14,10 +14,11 @@ DiffLog.
 .. autosummary::
     :nosignatures:
 
+    CheckDiffsolverResult
     CheckDynamicFilesInterpreter
+    CheckFileOverwriteInterpreter
     CheckLinkBlacklistInterpreter
     CheckLinkDirsInterpreter
-    CheckLinkExistsInterpreter
     CheckLinksInterpreter
     CheckProfilesInterpreter
     DUIStrategyInterpreter
@@ -722,9 +723,72 @@ class CheckLinkDirsInterpreter(Interpreter):
                 raise PreconditionError(msg)
 
 
-######################## We stopped here, adapting the interpreters #########################################
-class CheckLinkExistsInterpreter(Interpreter):
-    """Checks if links of installed-file really exist in the filesystem.
+class CheckDiffsolverResult(Interpreter):
+    """Checks if operations meet the implicated constraints. For example
+    if a remove operation for a specific path is in the difflog the file
+    needs to exist. Otherwise it should have been an untrack operation.
+    """
+    # TODO implement
+    def _op_remove_l(self, dop):
+        """Checks if the to be removed link really exists.
+
+        Furthermore adds the link to ``removed_links``, because removed links
+        need to be stored for ``_op_add_l()``.
+
+        Args:
+            dop (dict): The remove-operation that will be checked
+        Raises:
+            PreconditionError: The to be removed link does not exist
+        """
+        if not os.path.lexists(dop["symlink_name"]):
+            msg = "'" + dop["symlink_name"] + "' can not be removed because"
+            msg += " it file does not exist."
+            raise FatalError(msg)
+
+    def _op_update_l(self, dop):
+        """Checks if the old and the new link already exist.
+
+        Furthermore adds the old link to ``removed_links`` if old and new link
+        have different names, because removed links need to be stored for
+        ``_op_add_l()``.
+
+        Args:
+            dop (dict): The update-operation that will be checked
+        Raises:
+            PreconditionError: The old link does not exist, the new
+                link already exists or the new link points to a non-existent
+                file
+        """
+        if not os.path.lexists(dop["symlink1"]["from"]):
+            msg = "'" + dop["symlink1"]["from"] + "' can not be updated"
+            msg += " because it does not exist on your filesystem."
+            raise FatalError(msg)
+        if (dop["symlink1"]["to"] != dop["symlink2"]["to"]
+                and not os.path.exists(dop["symlink2"]["to"])):
+            msg = "'" + dop["symlink1"]["from"] + "' will not be updated"
+            msg += " to point to '" + dop["symlink2"]["to"] + "'"
+            msg += " because '" + dop["symlink2"]["to"]
+            msg += "' does not exist in your filesystem."
+            raise FatalError(msg)
+
+    def _op_add_l(self, dop):
+        """Checks if the new link already exists.
+
+        Args:
+            dop (dict): The add-operation that will be checked
+        Raise:
+            PreconditionError: The new link already exists or its target does
+                not exist
+        """
+        if not os.path.exists(dop["symlink"]["to"]):
+            msg = "'" + name + "' will not be created"
+            msg += " because it points to '" + dop["symlink"]["to"]
+            msg += "' which does not exist in your filesystem."
+            raise PreconditionError(msg)
+
+
+class CheckFileOverwriteInterpreter(Interpreter):
+    """Checks if links would overwrite existing files.
 
     Attributes:
         removed_links (list): A collection of all links that are going to be
@@ -746,11 +810,9 @@ class CheckLinkExistsInterpreter(Interpreter):
         Raises:
             PreconditionError: The to be removed link does not exist
         """
-        if not os.path.lexists(dop["symlink_name"]):
-            msg = "'" + dop["symlink_name"] + "' can not be removed because"
-            msg += " it does not exist on your filesystem."
-            msg += " Check your installed file!"
-            raise PreconditionError(msg)
+        self.removed_links.append(dop["symlink_name"])
+
+    def _op_untrack_l(self, dop):
         self.removed_links.append(dop["symlink_name"])
 
     def _op_update_l(self, dop):
@@ -767,19 +829,7 @@ class CheckLinkExistsInterpreter(Interpreter):
                 link already exists or the new link points to a non-existent
                 file
         """
-        if not os.path.lexists(dop["symlink1"]["from"]):
-            msg = "'" + dop["symlink1"]["from"] + "' can not be updated"
-            msg += " because it does not exist on your filesystem."
-            msg += " Check your installed file!"
-            raise PreconditionError(msg)
-        if (normpath(dop["symlink1"]["to"]) != dop["symlink2"]["to"]
-                and not os.path.exists(dop["symlink2"]["to"])):
-            msg = "'" + dop["symlink1"]["from"] + "' will not be updated"
-            msg += " to point to '" + dop["symlink2"]["to"] + "'"
-            msg += " because '" + dop["symlink2"]["to"]
-            msg += "' does not exist in your filesystem."
-            raise PreconditionError(msg)
-        if normpath(dop["symlink1"]["from"]) != dop["symlink2"]["from"]:
+        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:
             if os.path.lexists(dop["symlink2"]["from"]):
                 if os.path.isdir(dop["symlink2"]["from"]):
                     if not const.force:
@@ -813,9 +863,7 @@ class CheckLinkExistsInterpreter(Interpreter):
                 not exist
         """
         name = dop["symlink"]["from"]
-        # TODO This seems super strange. is removed_links even needed?
-        # also isdir() doesnt check if path exists
-        if normpath(name) not in self.removed_links and os.path.lexists(name):
+        if name not in self.removed_links and os.path.lexists(name):
             if os.path.isdir(name):
                 if not const.force:
                     msg = "'" + name + "' is a directory and would be"
@@ -833,14 +881,8 @@ class CheckLinkExistsInterpreter(Interpreter):
                 msg += " '. You can force to overwrite the"
                 msg += " original file by setting the --force flag."
                 raise PreconditionError(msg)
-        if not os.path.exists(dop["symlink"]["to"]):
-            msg = "'" + name + "' will not be created"
-            msg += " because it points to '" + dop["symlink"]["to"]
-            msg += "' which does not exist in your filesystem."
-            raise PreconditionError(msg)
 
 
-# TODO: check profiles of other users to
 class CheckProfilesInterpreter(Interpreter):
     """Checks if profiles can be installed together. Protects against
     duplicates and overwrites.
@@ -863,11 +905,14 @@ class CheckProfilesInterpreter(Interpreter):
         super().__init__()
         self.profile_list = []
         # profile_list contains: (profile name, parent name, is installed)
-        for key, profile in installed.items():
-            if key[0] != "@":
-                self.profile_list.append(
-                    (profile["name"],
-                     profile["parent"] if "parent" in profile else None, True))
+        for profile in installed.vals():
+            self.profile_list.append(
+                    (
+                        profile["name"],
+                        profile["parent"] if "parent" in profile else None,
+                        True
+                    )
+            )
 
     def get_known(self, name, is_installed):
         """Returns the entry of a profile from ``profile_list``. Either for
@@ -1225,7 +1270,7 @@ class EventExecInterpreter(EventInterpreter):
             for byte in iter(lambda: self.shell.stdout.read(1), b""):
                 # Reset timeout
                 self.ticks_without_feedback = 0
-                # Decode byte (with a little bit of black magic involved)
+                # Decode byte
                 try:
                     if oldbyte:
                         byte = oldbyte + byte
@@ -1276,9 +1321,10 @@ class ExecuteInterpreter(Interpreter):
         """
         super().__init__()
         self.installed = installed
-        self.installed["@version"] = const.version  # Update version number
+        # Update version number
+        self.installed.set_special("version", const.version)
 
-    def _op_forget_l(self, dop):
+    def _op_untrack_l(self, dop):
         """Removes link from installed file
 
         Args:
@@ -1292,7 +1338,10 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The track-operation that will be logged
         """
-        log_operation(dop["profile"], "Tracking '" + dop["name"] + "' now")
+        self.add_to_installed(dop)
+
+    def _op_restore_l(self, dop):
+
 
     def _op_update_prop(self, dop):
         """Updates the script_path of the onUninstall-script for a profile.
@@ -1343,13 +1392,8 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation that will be executed
         """
-        self.__create_symlink(dop["symlink"]["from"],
-                              dop["symlink"]["to"],
-                              dop["symlink"]["uid"],
-                              dop["symlink"]["gid"],
-                              dop["symlink"]["permission"],
-                              dop["symlink"]["secure"])
-        self.installed[dop["profile"]]["links"].append(dop["symlink"])
+        self.create_symlink(dop["symlink"])
+        self.add_to_installed(dop["profile"], dop["symlink"])
 
     def _op_remove_l(self, dop):
         """Removes a link from the filesystem and removes the links entry of
@@ -1358,19 +1402,8 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be executed
         """
-        self.__remove_symlink(dop["symlink_name"])
-        self.remove_from_installed(dop)
-
-    def remove_from_installed(self, dop):
-        """Removes a link entry for a remove_l- or forget_l-operation of
-        the corresponding profile in the installed-file.
-
-        Args:
-            dop (dict): A remove_l- or forget_l-operation
-        """
-        for link in self.installed[dop["profile"]]["links"]:
-            if link["from"] == dop["symlink_name"]:
-                self.installed[dop["profile"]]["links"].remove(link)
+        self.remove_symlink(dop["symlink_name"])
+        self.remove_from_installed(dop["profile"], dop["symlink_name"])
 
     def _op_update_l(self, dop):
         """Updates a link in the filesystem and updates the links entry of
@@ -1379,17 +1412,26 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be executed
         """
-        self.__remove_symlink(dop["symlink1"]["from"])
-        self.installed[dop["profile"]]["links"].remove(dop["symlink1"])
-        self.__create_symlink(dop["symlink2"]["from"],
-                              dop["symlink2"]["to"],
-                              dop["symlink2"]["uid"],
-                              dop["symlink2"]["gid"],
-                              dop["symlink2"]["permission"],
-                              dop["symlink2"]["secure"])
-        self.installed[dop["profile"]]["links"].append(dop["symlink2"])
+        self.remove_symlink(dop["symlink1"]["from"])
+        self.remove_from_installed(dop["profile"], dop["symlink1"]["from"])
+        self.create_symlink(dop["symlink2"])
+        self.add_to_installed(dop["profile"], dop["symlink2"])
 
-    def __create_symlink(self, name, target, uid, gid, permission, secure):
+    def add_to_installed(self, profilename, linkdescriptor):
+        self.installed[profilename]["links"].append(linkdescriptor)
+
+    def remove_from_installed(self, profilename, linkname):
+        """Removes a link entry for a remove_l- or forget_l-operation of
+        the corresponding profile in the installed-file.
+
+        Args:
+            dop (dict): A remove_l- or forget_l-operation
+        """
+        for link in self.installed[profilename]["links"]:
+            if link["from"] == linkname:
+                self.installed[profilename]["links"].remove(link)
+
+    def create_symlink(self, linkdescriptor, force=const.force):
         """Create a symlink in the filesystem.
 
         Args:
@@ -1403,39 +1445,55 @@ class ExecuteInterpreter(Interpreter):
         Raises:
             UnkownError: The link could not be created
         """
-        if not os.path.isdir(os.path.dirname(name)):
-            self._makedirs(name)
+        if not os.path.isdir(os.path.dirname(dop["from"])):
+            self._makedirs(dop["from"])
+        self.remove_symlink(dop["from"], force=force, cleanup=False)
         try:
-            # Remove existing symlink
-            if const.force and os.path.lexists(name):
-                if os.path.isdir(name):
-                    # Overwriting empty dirs is also possible. CheckLinkExists
-                    # will make sure that the directory is empty
-                    os.rmdir(name)
-                else:
-                    filetype = "symlink" if os.path.islink(name) else "file"
-                    msg = "Removing already existing " + filetype
-                    msg += " '" + name + "'."
-                    log_debug(msg)
-                    os.unlink(name)
+            # Create new symlink
+            os.symlink(dop["to"], dop["from"])
+            # Set owner and permission
+            os.lchown(dop["from"], dop["uid"], dop["gid"])
+            if permission != 644:
+                os.chmod(dop["from"], int(str(permission), 8))
+            # Set owner of symlink
+            if secure:
+                os.chown(dop["to"], dop["uid"], dop["gid"])
+            else:
+                os.chown(dop["to"], get_uid(), get_gid())
         except OSError as err:
             raise UnkownError(err, "An unkown error occured when trying to" +
-                              " remove the link '" + name + "'.")
-        create_symlink(name, target, uid, gid, permission, secure)
+                              " create the link '" + dop["from"] + "'.")
 
-    def __remove_symlink(self, path):
+    def remove_symlink(self, path, force=const.force, cleanup=True):
         """Remove a symlink. If the directory is empty, it removes the
         directory as well. Does this recursively for all parent directories.
 
         Args:
             path (str): The path to the symlink, that will be removed
         """
-        os.unlink(path)
-        parent = os.path.dirname(path)
-        while not os.listdir(parent):  # while parent dir is empty
-            log_debug("Removing directory '" + parent + "'.")
-            os.rmdir(parent)
-            parent = os.path.dirname(parent)
+        try:
+            # Remove existing symlink
+            if force and os.path.lexists(path):
+                if os.path.isdir(path):
+                    # Overwriting empty dirs is also possible. CheckFileOverwrite
+                    # will make sure that the directory is empty
+                    os.rmdir(path)
+                else:
+                    filetype = "symlink" if os.path.islink(path) else "file"
+                    msg = "Removing already existing " + filetype
+                    msg += " '" + path + "'."
+                    log_debug(msg)
+                    os.unlink(path)
+                if cleanup:
+                    # go directory tree upwards to remove all empty directories
+                    parent = os.path.dirpath(path)
+                    while not os.listdir(parent):  # while parent dir is empty
+                        log_debug("Removing directory '" + parent + "'.")
+                        os.rmdir(parent)
+                        parent = os.path.dirpath(parent)
+        except OSError as err:
+            raise UnkownError(err, "An unkown error occured when trying to" +
+                              " remove the link '" + path + "'.")
 
     @staticmethod
     def _makedirs(filename):
@@ -1519,6 +1577,8 @@ class DetectRootInterpreter(Interpreter):
         except FileNotFoundError:
             raise FatalError(dop["symlink_name"] + " can't be checked " +
                              "for owner rights because it does not exist.")
+
+    # TODO: op_restore_l
 
     def _op_update_l(self, dop):
         """Checks if to be updated links are owned by other users than
