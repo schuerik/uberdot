@@ -365,24 +365,31 @@ class StateFilesystemDiffSolver(DiffSolver):
                 msg = "Properties of link '" + link["from"]
                 msg += "' changed:" + "\n"
                 if actual_link["uid"] != link["uid"]:
-                    msg += "uid: " + str(link["uid"]) + "->"
+                    msg += "  uid: " + str(link["uid"]) + " -> "
                     msg += str(actual_link["uid"]) + "\n"
                 if actual_link["gid"] != link["gid"]:
-                    msg += "gid: " + str(link["gid"]) + "->"
+                    msg += "  gid: " + str(link["gid"]) + " -> "
                     msg += str(actual_link["gid"]) + "\n"
                 if actual_link["permission"] != link["permission"]:
-                    msg += "permssion: " + str(link["permission"]) + "->"
+                    msg += "  permssion: " + str(link["permission"]) + " -> "
                     msg += str(actual_link["permission"]) + "\n"
                 if actual_link["secure"] != link["secure"]:
-                    msg += "secure: " + str(link["secure"]) + "->"
+                    msg += "  secure: " + str(link["secure"]) + " -> "
                     msg += str(actual_link["secure"]) + "\n"
                 self.fix_link(msg, profilename, link, actual_link)
 
     def fix_link(self, fix_description, profilename, saved_link, actual_link):
-        if self.action:
-            selection = self.action
-        else:
-            selection = input(fix_description + " (s/r/t/u/?) ").lower()
+        selection = self.action
+        if not selection:
+            print(fix_description, end="")
+        while not selection:
+            selection = input("(s/r/t/u/?) ").lower().strip()
+            if selection == "?":
+                print("(s)kip / (r)estore link / (t)ake over / (u)ntrack link")
+                selection = ""
+            elif selection not in ["s", "r", "t", "u"]:
+                print("Unkown option")
+                selection = ""
         if selection == "s":
             return
         elif selection == "r":
@@ -394,12 +401,6 @@ class StateFilesystemDiffSolver(DiffSolver):
                 self.difflog.update_link(profilename, saved_link, actual_link)
         elif selection == "u":
             self.difflog.untrack_link(profilename, saved_link)
-        else:
-            if selection == "?":
-                log("(s)kip / (r)estore link / (t)ake over / (u)ntrack link")
-            else:
-                log("Unkown option")
-            self.fix_link(fix_description, profilename, saved_link, actual_link)
 
 
 class StateFilesystemDiffFinder(StateFilesystemDiffSolver):

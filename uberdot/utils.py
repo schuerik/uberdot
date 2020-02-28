@@ -458,6 +458,7 @@ def import_profile(class_name):
     raise PreconditionError("The profile '" + class_name +
                             "' could not be found in any module. Aborting.")
 
+
 def import_profile_class(class_name, file):
     # Import profile (can't be done globally because profile needs to
     # import this module first)
@@ -477,6 +478,7 @@ def import_profile_class(class_name, file):
         msg += " Profile and therefore can't be imported."
         raise GenerationError(class_name, msg)
 
+
 def import_module(file, supress=True):
     # Import profile (can't be done globally because profile needs to
     # import this module first)
@@ -489,6 +491,7 @@ def import_module(file, supress=True):
     except Exception as err:
         if not supress:
             raise err
+
 
 def get_available_profiles():
     # Import profile (can't be done globally because profile needs to
@@ -506,6 +509,7 @@ def get_available_profiles():
                     if name != "Profile" and field.__module__ == "__name__":
                         result.append((file, name))
     return result
+
 
 def get_profile_source(profile_name, file=None):
     if file is None:
@@ -542,6 +546,7 @@ def get_profile_source(profile_name, file=None):
         start = candidates[0][1]
     return inspect.getblock(lines[start:])
 
+
 # Misc
 ###############################################################################
 
@@ -552,6 +557,7 @@ def links_similar(sym1, sym2):
     return normpath(sym1["from"]) == normpath(sym2["from"]) or \
            normpath(sym1["to"]) == normpath(sym2["to"])
 
+
 def links_equal(link1, link2):
     return normpath(link1["from"]) == normpath(link2["from"]) and \
            normpath(link1["to"]) == normpath(link2["to"]) and \
@@ -560,12 +566,14 @@ def links_equal(link1, link2):
            link1["permission"] == link2["permission"] and \
            link1["secure"] == link2["secure"]
 
+
 def makedirs(dir_):
     if not os.path.exists(os.path.dirname(dir_)):
         makedirs(os.path.dirname(dir_))
     if not os.path.exists(dir_):
         log_debug("Creating directory '" + dir_ + "'")
         os.mkdir(dir_)
+
 
 def get_timestamp_now():
     """Returns a timestamp string for the current moment
@@ -575,6 +583,7 @@ def get_timestamp_now():
     """
     return str(math.floor(time.time()))
 
+
 def get_date_time_now():
     """Returns a datetime string for the current moment in the format
     YYYY-MM-DD hh:mm:ss
@@ -583,6 +592,7 @@ def get_date_time_now():
         str: The datetime string
     """
     return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
 def log(message, end="\n"):
     """Alias for logger.info() but creates a newline.
@@ -594,6 +604,7 @@ def log(message, end="\n"):
         message: The message that will be logged
     """
     logger.info(message + end)
+
 
 def log_operation(profile_name, message):
     """Logs/Prints out a message for a profile.
