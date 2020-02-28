@@ -40,7 +40,7 @@ from uberdot.errors import GenerationError
 from uberdot.errors import FatalError
 from uberdot.utils import expandpath
 from uberdot.utils import find_target
-from uberdot.utils import get_dir_owner
+from uberdot.utils import predict_owner
 from uberdot.utils import import_profile
 from uberdot.utils import log_debug
 from uberdot.utils import normpath
@@ -692,7 +692,7 @@ class Profile:
         else:
             # if no owner was specified, we need to set it
             # to the owner of the dir
-            uid, gid = get_dir_owner(name)
+            uid, gid = predict_owner(name)
 
         # Finally create the result entry
         linkdescriptor = AutoExpandDict()

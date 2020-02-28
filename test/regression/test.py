@@ -510,12 +510,12 @@ after_links = {
         "links": [
             {
                 "name": "encrypt8",
-                "target": "data/sessions/default/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
                 "content": "d6eb32081c822ed572b70567826d9d9d"
             },
             {
                 "name": "encrypt9",
-                "target": "data/sessions/default/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
                 "content": "e59ab101cf09636fc06d10bf3d56a5cc"
             }
         ],
@@ -528,17 +528,17 @@ after_decrypt = {
         "links": [
             {
                 "name": "name_encrypt8",
-                "target": "data/sessions/default/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
                 "content": "d6eb32081c822ed572b70567826d9d9d"
             },
             {
                 "name": "encrypt8",
-                "target": "data/sessions/default/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
                 "content": "d6eb32081c822ed572b70567826d9d9d"
             },
             {
                 "name": "encrypt9",
-                "target": "data/sessions/default/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
                 "content": "e59ab101cf09636fc06d10bf3d56a5cc"
             }
         ],
@@ -551,12 +551,12 @@ after_merge = {
         "links": [
             {
                 "name": "merge1",
-                "target": "data/sessions/default/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "target": "data/sessions/default/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
                 "content": "6ddb4095eb719e2a9f0a3f95677d24e0"
             },
             {
                 "name": "merge3",
-                "target": "data/sessions/default/merged/merge2#04b6c550264c39e8b533d7f7b977415e",
+                "target": "data/sessions/default/dynamicfiles/merged/merge2#04b6c550264c39e8b533d7f7b977415e",
                 "content": "04b6c550264c39e8b533d7f7b977415e"
             }
         ],
@@ -569,7 +569,7 @@ after_pipe = {
         "links": [
             {
                 "name": "file",
-                "target": "data/sessions/default/piped/file#fdb6e0c029299e6aabca0963120f0fa0",
+                "target": "data/sessions/default/dynamicfiles/piped/file#fdb6e0c029299e6aabca0963120f0fa0",
                 "content": "fdb6e0c029299e6aabca0963120f0fa0"
             }
         ],
@@ -582,12 +582,12 @@ after_nesteddynamic = {
         "links": [
             {
                 "name": "merge1",
-                "target": "data/sessions/default/merged/merge1#526f328977744debf953a2c76c2c6169",
+                "target": "data/sessions/default/dynamicfiles/merged/merge1#526f328977744debf953a2c76c2c6169",
                 "content": "526f328977744debf953a2c76c2c6169"
             },
             {
                 "name": "merge2",
-                "target": "data/sessions/default/piped/merge2#0281651775d0a19e648acf333cabac2f",
+                "target": "data/sessions/default/dynamicfiles/piped/merge2#0281651775d0a19e648acf333cabac2f",
                 "content": "0281651775d0a19e648acf333cabac2f"
             }
         ],

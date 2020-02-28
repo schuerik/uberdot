@@ -88,6 +88,9 @@ class DiffLog():
         """Constructor"""
         self.data = []
 
+    def __len__(self):
+        return len(self.data)
+
     def show_info(self, profilename, message):
         """Create an info operation.
 
@@ -145,7 +148,7 @@ class DiffLog():
         """
         self.__append_data("remove_p", profilename)
 
-    def add_link(self, symlink, profilename):
+    def add_link(self, profilename, symlink):
         """Create an add-link operation.
 
         Add-link operations indicate that a new link needs to be created.
@@ -160,11 +163,11 @@ class DiffLog():
         """
         symlink["date"] = get_date_time_now()
         if link_exists(symlink):
-            self.track_link(symlink, profilename)
+            self.track_link(profilename, symlink)
         else:
             self.__append_data("add_l", profilename, symlink=symlink)
 
-    def remove_link(self, symlink_name, profilename):
+    def remove_link(self, profilename, symlink_name):
         """Create a remove-link operation.
 
         Remove-link operations indicate that a certain link needs to be
@@ -179,9 +182,9 @@ class DiffLog():
         if os.path.lexists(symlink_name):
             self.__append_data("remove_l", profilename, symlink_name=symlink_name)
         else:
-            self.untrack_link(symlink_name, profilename)
+            self.untrack_link(profilename, symlink_name)
 
-    def update_link(self, installed_symlink, new_symlink, profilename):
+    def update_link(self, profilename, installed_symlink, new_symlink):
         """Create an update-link operation.
 
         Update-link operations indicate that a certain link needs to be
@@ -197,21 +200,21 @@ class DiffLog():
                 link that will replace the old link
         """
         if not os.path.lexists(installed_symlink["from"]):
-            self.untrack_link(installed_symlink["from"], profilename)
+            self.untrack_link(profilename, installed_symlink["from"])
             if link_exists(new_symlink):
-                self.track_link(new_symlink, profilename)
+                self.track_link(profilename, new_symlink)
             else:
-                self.add_link(new_symlink, profilename)
+                self.add_link(profilename, new_symlink)
         elif link_exists(new_symlink):
-            self.remove_link(installed_symlink["from"], profilename)
-            self.track_link(new_symlink, profilename)
+            self.remove_link(profilename, installed_symlink["from"])
+            self.track_link(profilename, new_symlink)
         else:
             new_symlink["date"] = get_date_time_now()
             self.__append_data("update_l", profilename,
                                symlink1=installed_symlink,
                                symlink2=new_symlink)
 
-    def update_property(self, key, value, profilename):
+    def update_property(self, profilename, key, value):
         """Create an update-script operation.
 
         Update-script operations indicate that the onUninstall-script needs to
@@ -225,11 +228,11 @@ class DiffLog():
         """
         self.__append_data("update_prop", profilename, key=key, value=value)
 
-    def track_link(self, symlink, profilename):
+    def track_link(self, profilename, symlink):
         symlink["date"] = os.path.getmtime(symlink["from"])
         self.__append_data("track_l", profilename, symlink=symlink)
 
-    def untrack_link(self, symlink_name, profilename):
+    def untrack_link(self, profilename, symlink_name):
         self.__append_data("untrack_l", profilename, symlink_name=symlink_name)
 
     def __append_data(self, operation, profilename, **kwargs):
@@ -313,25 +316,23 @@ class DiffSolver():
 
 
 class StateFilesystemDiffSolver(DiffSolver):
-    def __init__(self, state, users=[const.user], action=None):
+    def __init__(self, state, users=[const.user], action=""):
         super().__init__()
         self.state = state
         self.users = users
-        if action is not None:
-            self.action = action
-        else:
-            self.action = const.action
+        self.action = action
 
     def _generate_operations(self):
         for user in self.users:
             if user in self.state.get_users():
-                for profile in self.state.get_user_profiles(user):
+                for profile in self.state.get_user_profiles(user).values():
                     self.__generate_profile_fix(profile)
 
     def __generate_profile_fix(self, profile):
         for link in profile["links"]:
             if link_exists(link):
                 continue
+            profilename = profile["name"]
             # Check if link still exists
             if not os.path.exists(link["from"]):
                 # Check if another symlink exists that has same target
@@ -340,28 +341,44 @@ class StateFilesystemDiffSolver(DiffSolver):
                     if os.path.realpath(file) == link["to"]:
                         msg = "Link '" + link["from"] + "' was renamed '"
                         msg += " to '" + file + "'."
-                        self._fix_link(msg,profile,  link, get_linkdescriptor_from_file(file))
+                        self._fix_link(
+                            msg, profilename, link,
+                            get_linkdescriptor_from_file(file)
+                        )
                         break
                 # No other symlink exists, file must have been removed
-                self.fix_link("Link '" + link["from"] + "' was removed.", profile, link, {})
+                self.fix_link(
+                    "Link '" + link["from"] + "' was removed.",
+                    profilename, link, {}
+                )
             # Check if link still points to same target
             elif os.path.realpath(link["from"]) != link["to"]:
                 msg = "Link '" + link["from"] + "' now points to '"
                 msg += link["to"] + "'."
-                self.fix_link(msg, profile, link, get_linkdescriptor_from_file(link["from"]))
+                self.fix_link(
+                    msg, profilename, link,
+                    get_linkdescriptor_from_file(link["from"])
+                )
             # Another property changed
             else:
                 actual_link = get_linkdescriptor_from_file(link["from"])
-                msg = "Properties of link '" + link["from"] + "' changed:" + "\n"
-                if actual_link["owner"] != link["owner"]:
-                    msg += "owner: " + str(link["owner"]) + "->" + str(actual_link["owner"]) + "\n"
+                msg = "Properties of link '" + link["from"]
+                msg += "' changed:" + "\n"
+                if actual_link["uid"] != link["uid"]:
+                    msg += "uid: " + str(link["uid"]) + "->"
+                    msg += str(actual_link["uid"]) + "\n"
+                if actual_link["gid"] != link["gid"]:
+                    msg += "gid: " + str(link["gid"]) + "->"
+                    msg += str(actual_link["gid"]) + "\n"
                 if actual_link["permission"] != link["permission"]:
-                    msg += "permssion: " + str(link["permission"]) + "->" + str(actual_link["permission"]) + "\n"
+                    msg += "permssion: " + str(link["permission"]) + "->"
+                    msg += str(actual_link["permission"]) + "\n"
                 if actual_link["secure"] != link["secure"]:
-                    msg += "secure: " + str(link["secure"]) + "->" + str(actual_link["secure"]) + "\n"
-                self.fix_link(msg, profile, link, actual_link)
+                    msg += "secure: " + str(link["secure"]) + "->"
+                    msg += str(actual_link["secure"]) + "\n"
+                self.fix_link(msg, profilename, link, actual_link)
 
-    def fix_link(self, fix_description, profile, saved_link, actual_link):
+    def fix_link(self, fix_description, profilename, saved_link, actual_link):
         if self.action:
             selection = self.action
         else:
@@ -369,20 +386,32 @@ class StateFilesystemDiffSolver(DiffSolver):
         if selection == "s":
             return
         elif selection == "r":
-            self.difflog.restore_l(profile, saved_link)
+            self.difflog.restore_link(profilename, saved_link)
         elif selection == "t":
             if not actual_link:
-                self.difflog.untrack_l(profile, saved_link)
+                self.difflog.untrack_link(profilename, saved_link)
             else:
-                self.difflog.update_l(profile, saved_link, actual_link)
+                self.difflog.update_link(profilename, saved_link, actual_link)
         elif selection == "u":
-            self.difflog.untrack_l(profile, saved_link)
+            self.difflog.untrack_link(profilename, saved_link)
         else:
             if selection == "?":
                 log("(s)kip / (r)estore link / (t)ake over / (u)ntrack link")
             else:
                 log("Unkown option")
-            self.fix_link(fix_description, profile, saved_link, actual_link)
+            self.fix_link(fix_description, profilename, saved_link, actual_link)
+
+
+class StateFilesystemDiffFinder(StateFilesystemDiffSolver):
+    def __init__(self, state, users=[const.user]):
+        super().__init__(state, users, "t")
+
+    def fix_link(self, fix_description, profilename, saved_link, actual_link):
+        # We invert saved and actual link so that we calculate the operations
+        # that would be required to get with the current state file to the
+        # actual state in filesystem.
+        # That way we can show the user what he changed manually
+        super().fix_link(fix_description, profilename, actual_link, saved_link)
 
 
 class UninstallDiffSolver(DiffSolver):
@@ -442,7 +471,7 @@ class UninstallDiffSolver(DiffSolver):
         # remove the profile from the installed file
         installed_links = copy.deepcopy(self.installed[profile_name]["links"])
         for installed_link in installed_links:
-            self.difflog.remove_link(installed_link["from"], profile_name)
+            self.difflog.remove_link(profile_name, installed_link["from"])
         self.difflog.remove_profile(profile_name)
 
 
@@ -568,7 +597,7 @@ class UpdateDiffSolver(DiffSolver):
                 # needs to be removed
                 profile_changed = True
                 # Check if it was already removed from the filesystem
-                self.difflog.remove_link(installed_link["from"], profile_name)
+                self.difflog.remove_link(profile_name, installed_link["from"])
                 installed_links.remove(installed_link)
 
         # Check all changed and added links
@@ -579,8 +608,8 @@ class UpdateDiffSolver(DiffSolver):
                     # an update operation in the difflog
                     profile_changed = True
                     # Check if it was already updated in the filesystem
-                    self.difflog.update_link(installed_link, new_link,
-                                             profile_name)
+                    self.difflog.update_link(profile_name, installed_link,
+                                             new_link)
                     installed_links.remove(installed_link)
                     new_links.remove(new_link)
                     break
@@ -588,7 +617,7 @@ class UpdateDiffSolver(DiffSolver):
                 # There was no similar installed link, so we need to create an
                 # add operation in the difflog
                 profile_changed = True
-                self.difflog.add_link(new_link, profile_name)
+                self.difflog.add_link(profile_name, new_link)
                 new_links.remove(new_link)
 
         # We removed every symlink from new_links and installed_links when
@@ -638,15 +667,15 @@ class UpdateDiffSolver(DiffSolver):
                 parent_changed = True
             # Update profile
             if parent_changed:
-                self.difflog.update_property("parent", parent_name, profile_name)
+                self.difflog.update_property(profile_name, "parent", parent_name)
             elif profile_changed and not profile_new:
                 self.difflog.update_profile(profile_name)
 
         # Update old scripts for uninstall
         event = "beforeUninstall"
-        self.difflog.update_property(event, profile_dict[event], profile_name)
+        self.difflog.update_property(profile_name, event, profile_dict[event])
         event = "afterUninstall"
-        self.difflog.update_property(event, profile_dict[event], profile_name)
+        self.difflog.update_property(profile_name, event, profile_dict[event])
 
         # Recursive call for all subprofiles
         if "profiles" in profile_dict:

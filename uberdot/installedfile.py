@@ -29,7 +29,7 @@ from copy import deepcopy
 from collections.abc import MutableMapping
 from collections.abc import MutableSequence
 from uberdot import constants as const
-from uberdot.upgrades import *
+from uberdot.errors import CustomError
 from uberdot.errors import UnkownError
 from uberdot.errors import PreconditionError
 from uberdot.utils import expandvars
@@ -40,9 +40,62 @@ from uberdot.utils import log
 from uberdot.utils import makedirs
 from uberdot.utils import safe_walk
 from uberdot.utils import normpath
-from uberdot.utils import create_symlink
 from uberdot.utils import get_timestamp_now
 
+
+###############################################################################
+# Upgrades
+###############################################################################
+
+def is_version_smaller(version_a, version_b):
+    match = re.search(r"(\d+)\.(\d+)\.(\d+)", version_a)
+    major_a, minor_a, patch_a = match.groups()
+    major_a, minor_a, patch_a = int(major_a), int(minor_a), int(patch_a)
+    match = re.search(r"(\d+)\.(\d+)\.(\d+)", version_b)
+    major_b, minor_b, patch_b = match.groups()
+    major_b, minor_b, patch_b = int(major_b), int(minor_b), int(patch_b)
+    if major_a > major_b:
+        return False
+    if major_a < major_b:
+        return True
+    if minor_a > minor_b:
+        return False
+    if minor_a < minor_b:
+        return True
+    if patch_a > patch_b:
+        return False
+    if patch_a < patch_b:
+        return True
+    return False
+
+
+def upgrade_stone_age(old_state):
+    """Upgrade from old installed file with schema version 4 to fancy
+    installed file. Luckily the schema only introduced optional properties
+    and renamed "name" to "from" and "target" to "to".
+    """
+    result = AutoExpandDict()
+    for key in old_state:
+        new_profile = deepcopy(old_state[key])
+        for link in new_profile["links"]:
+            link["from"] = link["name"]
+            del link["name"]
+            link["to"] = link["target"]
+            del link["target"]
+        result[key] = new_profile
+    result.data_specials = old_state.data_specials
+    return result
+
+MIN_VERSION = "1.12.17_4"
+upgrades = [
+    ("1.16.0", upgrade_stone_age),
+    # ("1.17.0", upgrade_owner)
+]
+
+
+###############################################################################
+# Helper classes to interact with state file
+###############################################################################
 
 PATH_VALUES = ["from", "to"]
 
@@ -95,6 +148,8 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         return iter(self.data)
 
     def __setitem__(self, key, value):
+        # if not isinstance(value, MutableSequence) and not isinstance(value, MutableMapping):
+        #     print(key, value)
         if key[0] == "@":
             self.set_special(key[1:], value)
         else:
@@ -159,8 +214,13 @@ class AutoExpanderJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
+###############################################################################
+# Main class
+###############################################################################
+
 class InstalledFile(MutableMapping):
     def __init__(self, timestamp=None):
+        log_debug("Loading state files.")
         # Setup in-mememory installed file
         self.loaded = AutoExpandDict()
         # Load installed files of other users
@@ -185,13 +245,13 @@ class InstalledFile(MutableMapping):
         if is_version_smaller(self.user_dict.get_special("version"), MIN_VERSION):
             msg = "Your installed file is too old to be processed."
             raise PreconditionError(msg)
-        if is_version_smaller(const.version, self.user_dict.get_special("version")):
+        if is_version_smaller(const.VERSION, self.user_dict.get_special("version")):
             msg = "Your installed file was created with a newer version of "
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
         # Upgrade and store in loaded
         for patch in self.get_patches(self.user_dict.get_special("version")):
-            log("Updating state to version " + patch[0] + " ... ", end="")
+            log("Updating state file to version " + patch[0] + " ... ", end="")
             self.user_dict = self.upgrade(self.user_dict, patch)
             self.__write_file__()
             log("Done.")
@@ -200,7 +260,7 @@ class InstalledFile(MutableMapping):
         self.user_dict.set_special("version", const.VERSION)
 
     def try_load_user_session(self, user, session_dir):
-        path = os.path.join(path, const.state_name)
+        path = os.path.join(session_dir, const.STATE_NAME)
         # Ignore this user, if he has no installed file
         if not os.path.exists(path):
             return
@@ -211,7 +271,7 @@ class InstalledFile(MutableMapping):
             msg = "Ignoring installed file of user " + user + ". Too old."
             log_warning(msg)
             return
-        if is_version_smaller(const.version, dict_.get_special("version")):
+        if is_version_smaller(const.VERSION, dict_.get_special("version")):
             msg = "Ignoring installed file of user " + user + "."
             msg += " uberdot is too old."
             log_warning(msg)
@@ -226,8 +286,15 @@ class InstalledFile(MutableMapping):
         return empty
 
     def upgrade(self, state, patch):
-        state = patch[1](state)
-        state.set_special("version", patch[0])
+        try:
+            state = patch[1](state)
+            state.set_special("version", patch[0])
+        except CustomError:
+            raise
+        except Exception as err:
+            msg = "An unkown error occured when trying to upgrade the "
+            msg += "state file. Please resolve this error first."
+            raise UnkownError(err, msg)
         return state
 
     def full_upgrade(self, state):
@@ -235,6 +302,8 @@ class InstalledFile(MutableMapping):
         for patch in self.get_patches(state.get_special("version")):
             state = self.upgrade(state, patch)
         return state
+
+    # TODO: if the upgrade of another users state file fails, ignore it
 
     def get_patches(self, version):
         patches = []
@@ -264,7 +333,7 @@ class InstalledFile(MutableMapping):
             ))
         except OSError as err:
             msg = "An unkown error occured when trying to "
-            msg += "write changes back to the installed-file."
+            msg += "write changes back to the state file."
             raise UnkownError(err, msg)
         finally:
             file.close()

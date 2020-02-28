@@ -160,7 +160,7 @@ class PrintSummaryInterpreter(Interpreter):
         self._op_update_prop = self.gen_counter("updated properties")
 
     def gen_counter(self, key):
-        def counter(self, dop):
+        def counter(dop):
             prof = dop["profile"]
             if prof not in self.profile_changes:
                 self.profile_changes[prof] = {
@@ -177,11 +177,11 @@ class PrintSummaryInterpreter(Interpreter):
 
     def _op_fin(self, dop):
         for profile in self.profile_changes:
-            changes = filter(lambda x: x[1] > 0, self.profile_changes[profile])
+            changes = dict(filter(lambda x: x[1] > 0, self.profile_changes[profile].items()))
             changes = ", ".join(map(lambda x: x[0] + " " + str(x[1]), changes.items()))
             log_operation(profile, changes)
         if not self.profile_changes:
-            log_operation("Already up-to-date.")
+            log("Already up-to-date.")
 
 
 class PrintInterpreter(Interpreter):
@@ -193,7 +193,7 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): Unused in this implementation
         """
-        log_debug("Starting linking process now.")
+        log_debug("Executing difflog now.")
 
     def _op_info(self, dop):
         """Logs/Prints out an info-operation.
@@ -304,10 +304,16 @@ class PrintInterpreter(Interpreter):
                 log_operation(dop["profile"], msg)
 
     def _op_update_prop(self, dop):
-        log_operation(dop["profile"], "Set property '" + dop["key"] + "' to '" + dop["value"] + "'")
+        log_operation(
+            dop["profile"],
+            "Set property '" + dop["key"] + "' to '" + str(dop["value"]) + "'"
+        )
 
     def _op_restore_l(self, dop):
-        log_operation(dop["profile"], "Restored tracked file '" + dop["symlink"]["from"] + "'")
+        log_operation(
+            dop["profile"],
+            "Restored tracked file '" + dop["symlink"]["from"] + "'"
+        )
 
 
 class DUIStrategyInterpreter(Interpreter):
@@ -572,14 +578,14 @@ class CheckLinksInterpreter(Interpreter):
         """
         self.remove(dop["symlink_name"])
 
-    def add(self, name, profile, user):
-        user_msg = "of user " + user if user != const.user else ""
+    def add(self, name, profile):
         for item in self.linklist:
             if item[0] == name:
-                if item[2]:
+                if item[3]:
                     msg = " installed "
                 else:
                     msg = " defined "
+                user_msg = "of user " + item[2] if item[2] != const.user else ""
                 msg = "The link '" + name + "' is already" + msg + "by '"
                 msg += item[1] + "' " + user_msg + "and would be overwritten by '"
                 msg += profile + "'. In most cases this error can be "
@@ -931,7 +937,7 @@ class CheckProfilesInterpreter(Interpreter):
         super().__init__()
         self.profile_list = []
         # profile_list contains: (profile name, parent name, is installed)
-        for profile in installed.vals():
+        for profile in installed.values():
             self.profile_list.append(
                     (
                         profile["name"],

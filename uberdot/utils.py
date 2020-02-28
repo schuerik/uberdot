@@ -243,19 +243,33 @@ def predict_owner(filename):
     return get_owner(dirname)
 
 def get_owner(filename):
-    return os.lstat().st_uid, os.lstat(filename).st_gid
+    stat = os.lstat(filename)
+    return stat.st_uid, stat.st_gid
 
-def get_permission(filename)
-    return oct(os.lstat(file).st_mode)[-3:]
+def get_permission(filename):
+    return oct(os.lstat(filename).st_mode)[-3:]
 
 def get_linkdescriptor_from_file(file):
+    from uberdot.installedfile import AutoExpandDict
     props = AutoExpandDict()
-    props["from"] = file
-    props["to"] = os.readlink(file)
-    props["uid"], props["gid"] = get_owner(file)
-    props["permission"] = get_permission(file)
-    props["secure"] = get_permission(file) == get_permission(os.readlink(file))
-    props["date"] = os.path.getmtime(file)
+    props["from"] = ""
+    props["to"] = ""
+    props["uid"], props["gid"] = "", ""
+    props["permission"] = ""
+    props["secure"] = ""
+    props["date"] = ""
+    if os.path.exists(file):
+        target_file = os.readlink(file)
+        props["from"] = file
+        props["to"] = target_file
+        props["uid"], props["gid"] = get_owner(file)
+        props["permission"] = get_permission(file)
+        if os.path.exists(target_file):
+            props["secure"] = get_permission(file) \
+                == get_permission(os.readlink(file))
+        else:
+            props["secure"] = False
+        props["date"] = os.path.getmtime(file)
     return props
 
 def has_root_priveleges():
@@ -657,7 +671,10 @@ def is_dynamic_file(target):
     session_dir = os.path.dirname(dyn_dir)
     if session_dir == const.session_dir:
         return True
-    return session_dir in const.session_dirs_foreign
+    for _, dir_foreign in const.session_dirs_foreign:
+        if session_dir == dir_foreign:
+            return True
+    return False
 
 
 

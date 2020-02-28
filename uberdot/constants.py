@@ -62,7 +62,7 @@ user = get_username(get_uid())
 users = ["root"] + os.listdir("/home")
 users.remove(user)
 # Build/Prepare paths to stored data
-if os.getenv("UBERDOT_TEST", 0):
+if not os.getenv("UBERDOT_TEST", 0):
     data_dir = gen_data_dir(user)[1]
     data_dirs_foreign = list(map(gen_data_dir, users))
     data_dirs_foreign = list(
@@ -95,7 +95,7 @@ def __decode_ansi(string):
 # Prepare all non-trivial defaults
 session_dir = os.path.join(data_dir, SESSION_SUBDIR)
 session_dirs_foreign = [
-    os.path.join(item, SESSION_SUBDIR) for item in data_dirs_foreign
+    (user, os.path.join(item, SESSION_SUBDIR)) for user, item in data_dirs_foreign
 ]
 cfg_search_paths = [
     "/etc/uberdot",
@@ -159,6 +159,7 @@ values = {
     "col_warning"         : ('\x1b[93m',             "Settings",  "str",  __decode_ansi),
     "col_debug"           : ('\x1b[90m',             "Settings",  "str",  __decode_ansi),
     "decrypt_pwd"         : (None,                   "Settings",  "str",  None),
+    "fix_action"          : ("",                     "Settings",  "str",  None),
     "hash_separator"      : ("#",                    "Settings",  "str",  None),
     "profile_files"       : ("",                     "Settings",  "path", None),
     "shell"               : ("/bin/bash",            "Settings",  "path", None),
