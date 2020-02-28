@@ -673,6 +673,7 @@ class UpdateDiffSolver(DiffSolver):
                 self.difflog.update_profile(profile_name)
 
         # Update old scripts for uninstall
+        # TODO: only update properites if they chaged
         event = "beforeUninstall"
         self.difflog.update_property(profile_name, event, profile_dict[event])
         event = "afterUninstall"

@@ -9,8 +9,8 @@
                 "permission": 644,
                 "secure": true,
                 "date": "2019-12-12 16:45:49",
-                "from": "/home/schulz/repos/uberdot/test/regression/environment-event/name1",
-                "to": "/home/schulz/repos/uberdot/test/regression/files/name1"
+                "from": "test/regression/environment-event/name1",
+                "to": "test/regression/files/name1"
             }
         ],
         "installed": "2019-12-12 16:45:49",
@@ -25,8 +25,8 @@
                 "permission": 644,
                 "secure": true,
                 "date": "2019-12-12 16:45:49",
-                "from": "/home/schulz/repos/uberdot/test/regression/environment-event/name2",
-                "to": "/home/schulz/repos/uberdot/test/regression/files/name2"
+                "from": "test/regression/environment-event/name2",
+                "to": "test/regression/files/name2"
             },
             {
                 "uid": 1000,
@@ -34,8 +34,8 @@
                 "permission": 644,
                 "secure": true,
                 "date": "2019-12-12 16:45:49",
-                "from": "/home/schulz/repos/uberdot/test/regression/environment-event/name3",
-                "to": "/home/schulz/repos/uberdot/test/regression/files/name3"
+                "from": "test/regression/environment-event/name3",
+                "to": "test/regression/files/name3"
             }
         ],
         "installed": "2019-12-12 16:45:49",
