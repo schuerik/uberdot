@@ -540,33 +540,6 @@ def makedirs(dir_):
         log_debug("Creating directory '" + dir_ + "'")
         os.mkdir(dir_)
 
-def create_symlink(linkdescriptor):
-    """Creates a symbolic link.
-
-    Args:
-        name (str): The filename (path) of the symbolic link
-        target (str): The path to the target of the symbolic link
-        uid (int): The userid if the link owner
-        gid (int): The groupid if the link owner
-        permission (int): The permission for the target
-        secure (bool): If the target should have the same owner as the link
-    """
-    try:
-        # Create new symlink
-        os.symlink(target, name)
-        # Set owner and permission
-        os.lchown(name, uid, gid)
-        if permission != 644:
-            os.chmod(name, int(str(permission), 8))
-        # Set owner of target
-        if secure:
-            os.chown(target, uid, gid)
-        else:
-            os.chown(target, get_uid(), get_gid())
-    except OSError as err:
-        raise UnkownError(err, "An unkown error occured when trying to" +
-                          " create the link '" + name + "'.")
-
 def get_timestamp_now():
     """Returns a timestamp string for the current moment
 
