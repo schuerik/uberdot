@@ -533,39 +533,25 @@ def get_profile_source(profile_name, file=None):
 
 logger = logging.getLogger("root")
 
+
+def links_similar(sym1, sym2):
+    return normpath(sym1["from"]) == normpath(sym2["from"]) or \
+           normpath(sym1["to"]) == normpath(sym2["to"])
+
+def links_equal(link1, link2):
+    return normpath(link1["from"]) == normpath(link2["from"]) and \
+           normpath(link1["to"]) == normpath(link2["to"]) and \
+           link1["uid"] == link2["uid"] and \
+           link1["gid"] == link2["gid"] and \
+           link1["permission"] == link2["permission"] and \
+           link1["secure"] == link2["secure"]
+
 def makedirs(dir_):
     if not os.path.exists(os.path.dirname(dir_)):
         makedirs(os.path.dirname(dir_))
     if not os.path.exists(dir_):
         log_debug("Creating directory '" + dir_ + "'")
         os.mkdir(dir_)
-
-def create_symlink(linkdescriptor):
-    """Creates a symbolic link.
-
-    Args:
-        name (str): The filename (path) of the symbolic link
-        target (str): The path to the target of the symbolic link
-        uid (int): The userid if the link owner
-        gid (int): The groupid if the link owner
-        permission (int): The permission for the target
-        secure (bool): If the target should have the same owner as the link
-    """
-    try:
-        # Create new symlink
-        os.symlink(target, name)
-        # Set owner and permission
-        os.lchown(name, uid, gid)
-        if permission != 644:
-            os.chmod(name, int(str(permission), 8))
-        # Set owner of target
-        if secure:
-            os.chown(target, uid, gid)
-        else:
-            os.chown(target, get_uid(), get_gid())
-    except OSError as err:
-        raise UnkownError(err, "An unkown error occured when trying to" +
-                          " create the link '" + name + "'.")
 
 def get_timestamp_now():
     """Returns a timestamp string for the current moment

@@ -167,7 +167,7 @@ class InstalledFile(MutableMapping):
         for user, session_path in const.session_dirs_foreign:
             self.try_load_user_session(user, session_path)
         # Load installed files of current users
-        self.own_file = os.path.join(const.session_dir, const.state_name)
+        self.own_file = os.path.join(const.session_dir, const.STATE_NAME)
         path = self.own_file
         if timestamp is not None:
             path, ext = os.path.splitext(self.own_file)
@@ -197,7 +197,7 @@ class InstalledFile(MutableMapping):
             log("Done.")
         self.loaded[const.user] = self.user_dict
         # Make sure to update version in case no upgrade was needed
-        self.user_dict.set_special("version", const.version)
+        self.user_dict.set_special("version", const.VERSION)
 
     def try_load_user_session(self, user, session_dir):
         path = os.path.join(path, const.state_name)
@@ -222,7 +222,7 @@ class InstalledFile(MutableMapping):
 
     def init_empty_installed(self):
         empty = AutoExpandDict()
-        empty.set_special("version", const.version)
+        empty.set_special("version", const.VERSION)
         return empty
 
     def upgrade(self, state, patch):

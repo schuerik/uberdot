@@ -42,24 +42,14 @@ from uberdot.utils import import_profile_class
 from uberdot.utils import get_linkdescriptor_from_file
 from uberdot.utils import get_owner
 from uberdot.utils import get_permission
+from uberdot.utils import links_equal
+from uberdot.utils import links_similar
 from uberdot.utils import log
 from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import normpath
 from uberdot.utils import safe_walk
 
-
-def links_similar(sym1, sym2):
-    return normpath(sym1["from"]) == normpath(sym2["from"]) or \
-           normpath(sym1["to"]) == normpath(sym2["to"])
-
-def links_equal(link1, link2):
-    return normpath(link1["from"]) == normpath(link2["from"]) and \
-           normpath(link1["to"]) == normpath(link2["to"]) and \
-           link1["uid"] == link2["uid"] and \
-           link1["gid"] == link2["gid"] and \
-           link1["permission"] == link2["permission"] and \
-           link1["secure"] == link2["secure"]
 
 def link_exists(link):
     link2 = get_linkdescriptor_from_file(link["from"])
@@ -77,6 +67,8 @@ class DiffLog():
     the operations at the same time.
 
     The following operations are supported:
+        op_start: Called before all other operations
+        op_fin: Called after all other operations
         op_info: Log/print some information
         op_add_p: Adds a new profile
         op_update_p: Updates an existing profile
@@ -87,7 +79,7 @@ class DiffLog():
         op_remove_l: Removes an existing link and stops tracking
         op_track_l: Tracks existing link
         op_untrack_l: Don't track an existing link anymore
-        op_restore_l: Restore (not) existing link
+        op_restore_l: Restore (non-)existing link
 
     Attributes:
         data (list): Used to store the operations

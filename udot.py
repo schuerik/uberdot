@@ -224,6 +224,11 @@ class UberDot:
             action="store_true"
         )
         parser_run.add_argument(
+            "--short",
+            help="print only a short summary of what happens",
+            action="store_true"
+        )
+        parser_run.add_argument(
             "--skiproot",
             help="do nothing that requires root permissions",
             action="store_true"
@@ -549,7 +554,7 @@ class UberDot:
                 return
             # Execute difflog. First some obligatory checks
             difflog.run_interpreter(
-                CheckFileOverwitesInterpreter(),
+                CheckFileOverwriteInterpreter(),
                 CheckDiffsolverResultInterpreter()
             )
             # Also allow to skip root here
@@ -563,10 +568,12 @@ class UberDot:
                 )
             # Finally execute
             try:
-                difflog.run_interpreter(
-                    ExecuteInterpreter(self.installed),
-                    PrintInterpreter()
-                )
+                interpreters = [ExecuteInterpreter(self.installed)]
+                if const.short:
+                    interpreters.append(PrintSummaryInterpreter())
+                else:
+                    interpreters.append(PrintInterpreter())
+                difflog.run_interpreter(*interpreters)
             except CustomError:
                 raise
             except Exception as err:
@@ -844,13 +851,17 @@ class UberDot:
                         "is actually happening.")
         # Run integration tests on difflog
         log_debug("Checking operations for errors and conflicts.")
+        # These tests should be run before the other tests, because they
+        # would fail anyway if these tests don't pass
         difflog.run_interpreter(
+            CheckDiffsolverResultInterpreter(),
             CheckProfilesInterpreter(self.installed)
         )
+        # Run the rest of the tests
         tests = [
             CheckLinksInterpreter(self.installed),
             CheckLinkDirsInterpreter(),
-            CheckLinkExistsInterpreter(),
+            CheckFileOverwriteInterpreter(),
             CheckDynamicFilesInterpreter()
         ]
         difflog.run_interpreter(*tests)
@@ -886,7 +897,8 @@ class UberDot:
                     # We need to run this test again because the executed event
                     # might have fucked with some links
                     difflog.run_interpreter(
-                        CheckFileOverwitesInterpreter()
+                        CheckDiffsolverResultInterpreter(error_type=PreconditionError),
+                        CheckFileOverwriteInterpreter()
                     )
                 except CustomError as err:
                     # We add some additional information to the raised errors
@@ -905,7 +917,10 @@ class UberDot:
             interpreters = []
             if not const.dryrun:
                 interpreters.append(ExecuteInterpreter(self.installed))
-            interpreters.append(PrintInterpreter())
+            if const.short:
+                interpreters.append(PrintSummaryInterpreter())
+            else:
+                interpreters.append(PrintInterpreter())
             difflog.run_interpreter(*interpreters)
         except CustomError:
             raise

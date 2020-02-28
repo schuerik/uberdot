@@ -41,11 +41,11 @@ from uberdot.utils import normpath
 ############################################################################
 # True hardcoded not loadable constants (not visible via --debuginfo)
 ############################################################################
-version = "1.16.0"
-state_name = "state.json"
-data_dir_root = "/root/.uberdot/"
-data_dir_temp = "/home/%s/.uberdot/"
-session_subdir = "sessions/%s/"
+VERSION = "1.16.0"
+STATE_NAME = "state.json"
+DATA_DIR_ROOT = "/root/.uberdot/"
+DATA_DIR_TEMP = "/home/%s/.uberdot/"
+SESSION_SUBDIR = "sessions/%s/"
 
 
 ############################################################################
@@ -53,9 +53,9 @@ session_subdir = "sessions/%s/"
 ############################################################################
 def gen_data_dir(user):
     if user == "root":
-        path = data_dir_root
+        path = DATA_DIR_ROOT
     else:
-        path = data_dir_temp % user
+        path = DATA_DIR_TEMP % user
     return user, path
 
 user = get_username(get_uid())
@@ -93,9 +93,9 @@ def __decode_ansi(string):
 ############################################################################
 
 # Prepare all non-trivial defaults
-session_dir = os.path.join(data_dir, session_subdir)
+session_dir = os.path.join(data_dir, SESSION_SUBDIR)
 session_dirs_foreign = [
-    os.path.join(item, session_subdir) for item in data_dirs_foreign
+    os.path.join(item, SESSION_SUBDIR) for item in data_dirs_foreign
 ]
 cfg_search_paths = [
     "/etc/uberdot",
@@ -143,6 +143,7 @@ values = {
     "regex"               : (False,                  "Arguments", "bool", None),
     "searchstr"           : ("",                     "Arguments", "str",  None),
     "searchtags"          : (False,                  "Arguments", "bool", None),
+    "short"               : (False,                  "Arguments", "bool", None),
     "skipafter"           : (False,                  "Arguments", "bool", None),
     "skipbefore"          : (False,                  "Arguments", "bool", None),
     "skipevents"          : (False,                  "Arguments", "bool", None),
