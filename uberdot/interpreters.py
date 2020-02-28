@@ -591,7 +591,7 @@ class CheckLinksInterpreter(Interpreter):
                 msg += profile + "'. In most cases this error can be "
                 msg += "fixed by setting the --dui flag."
                 raise IntegrityError(msg)
-        self.linklist.append((name, profile, False))
+        self.linklist.append((name, profile, const.user, False))
 
     def remove(self, name):
         for item in self.linklist:
