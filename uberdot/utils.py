@@ -249,14 +249,14 @@ def get_permission(filename)
     return oct(os.lstat(file).st_mode)[-3:]
 
 def get_linkdescriptor_from_file(file):
-    props = {}
+    props = AutoExpandDict()
     props["from"] = file
     props["to"] = os.readlink(file)
     props["uid"], props["gid"] = get_owner(file)
     props["permission"] = get_permission(file)
     props["secure"] = get_permission(file) == get_permission(os.readlink(file))
     props["date"] = os.path.getmtime(file)
-    return AutoExpandDict(props)
+    return props
 
 def has_root_priveleges():
     """Checks if this programm has root priveleges.
@@ -665,9 +665,14 @@ def is_dynamic_file(target):
     Returns:
         bool: True, if given path is a dynamicfile
     """
-    # TODO this is wrong at the moment: probably requires a dedicated subdir for dynamic files
-    # TODO would be nice if the symlink itself would return same result
-    return os.path.dirname(os.path.dirname(target)) == normpath("data")
+    dyn_dir = os.path.dirname(os.path.dirname(normpath(target)))
+    if os.path.basename(dyn_dir) != "dynamicfiles":
+        return False
+    session_dir = os.path.dirname(dyn_dir)
+    if session_dir == const.session_dir:
+        return True
+    return session_dir in const.session_dirs_foreign
+
 
 
 def find_files(filename, paths):

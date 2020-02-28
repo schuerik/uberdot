@@ -504,8 +504,6 @@ class CheckDynamicFilesInterpreter(Interpreter):
             else:
                 log_warning("Invalid option")
 
-# TODO are link descriptors always expanded?
-# i already removed a lot of parts that expanded link descriptors
 
 class CheckLinksInterpreter(Interpreter):
     """Checks for conflicts between all links.
@@ -1277,6 +1275,9 @@ class ExecuteInterpreter(Interpreter):
         super().__init__()
         self.installed = installed
         self.installed["@version"] = const.version  # Update version number
+
+    def _op_fin(self, dop):
+        self.installed.create_snapshot()
 
     def _op_forget_l(self, dop):
         """Removes link from installed file

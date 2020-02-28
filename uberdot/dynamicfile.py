@@ -133,7 +133,7 @@ class DynamicFile:
         Returns:
             str: The path to the directory
         """
-        path = os.path.join(const.session_dir, self.SUBDIR)
+        path = os.path.join(const.session_dir, "dynamicfiles", self.SUBDIR)
         makedirs(path)
         return path
 

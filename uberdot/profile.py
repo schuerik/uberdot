@@ -34,6 +34,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from uberdot import constants as const
 from uberdot.dynamicfile import *
+from uberdot.installedfile import AutoExpandDict
 from uberdot.errors import CustomError
 from uberdot.errors import GenerationError
 from uberdot.errors import FatalError
@@ -137,19 +138,16 @@ class Profile:
             "afterUninstall": None
         }
 
-    def __setattr__(self, name, value):
-        """Setter for :attr:`self.directory<Profile.directory>`.
+    def __getattr__(self, name):
+        """Getter for :attr:`self.directory<Profile.directory>`.
 
         Makes sure that :attr:`self.directory<Profile.directory>` is always
         expanded and noramlized.
         """
-        # TODO: Shouldnt cd do the join and self.directory be just a normal attribute?
         if name == "directory":
-            if hasattr(self, name):
-                value = os.path.join(self.directory, expandpath(value))
-            else:
-                value = normpath(value)
-        super(Profile, self).__setattr__(name, value)
+            return expandpath(self.directory)
+        else:
+            return super(Profile, self).__getattr__(name)
 
     def _make_read_opt(self, kwargs):
         """Creates a function that looks up options but prefers options of
@@ -697,7 +695,7 @@ class Profile:
             uid, gid = get_dir_owner(name)
 
         # Finally create the result entry
-        linkdescriptor = {}
+        linkdescriptor = AutoExpandDict()
         linkdescriptor["from"] = name
         linkdescriptor["to"] = target
         linkdescriptor["uid"] = uid
@@ -719,7 +717,7 @@ class Profile:
         if directory is None:
             self.directory = const.directory
         else:
-            self.directory = directory
+            self.directory = os.path.join(self.directory, directory)
 
     @command
     def default(self, *options):

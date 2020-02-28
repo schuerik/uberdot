@@ -62,26 +62,23 @@ user = get_username(get_uid())
 users = ["root"] + os.listdir("/home")
 users.remove(user)
 # Build/Prepare paths to stored data
-if os.getenv("UBERDOT_TEST", 0) == 0:
+if os.getenv("UBERDOT_TEST", 0):
     data_dir = gen_data_dir(user)[1]
     data_dirs_foreign = list(map(gen_data_dir, users))
     data_dirs_foreign = list(
         filter(lambda x: os.path.exists(x[1]), data_dirs_foreign)
     )
 else:
-    # TODO: Multi user regression tests
+    # Using a dedicated data_dir that is tracked by git
+    # so the tests can set back generated files and the logged state
     data_dir = os.path.join(
         os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
         "test/regression/data/"
     )
-    if os.getenv("UBERDOT_TEST", 0) == 1:
-        print("Single user testmode")
-        data_dirs_foreign = []
-    else:
-        print("Multi-user testmode")
-        data_dirs_foreign = [
-            ("test", os.path.join(os.path.dirname(data_dir), "data_test"))
-        ]
+    # simulating a second user "test"
+    data_dirs_foreign = [
+        ("test", os.path.join(os.path.dirname(data_dir), "data_test"))
+    ]
 
 
 ############################################################################

@@ -41,6 +41,7 @@ from uberdot.errors import UnkownError
 from uberdot.errors import UserError
 from uberdot.differencesolver import UpdateDiffSolver
 from uberdot.differencesolver import UninstallDiffSolver
+from uberdot.differencesolver import StateFilesystemDiffSolver
 from uberdot.differencesolver import DiffLog
 from uberdot.installedfile import InstalledFile
 from uberdot.utils import has_root_priveleges
@@ -355,21 +356,6 @@ class UberDot:
             help="a string that will be searched for",
             nargs="?"
         )
-        # Setup arguments for mode fix
-        help_text="fix the installed file"
-        parser_fix = subparsers.add_parser(
-            "fix",
-            description=help_text,
-            help=help_text
-        )
-        parser_fix.add_argument(
-            "-u", "--user",
-            help="fix the installed files of another user",
-        )
-        parser_fix.add_argument(
-            "-a", "--action",
-            help="preset a type of action to resolve each issue automatically",
-        )
         # help_text="revert back to a prevoius state"
         # parser_timewarp = subparsers.add_parser(
         #     "timewarp",
@@ -494,31 +480,12 @@ class UberDot:
         self.installed = InstalledFile()
         if const.mode == "show":
             self.show()
-        elif const.mode == "fix":
-            self.fix()
         else:
             # The previous modes just printed stuff, but here we
             # have to actually do something:
-            # 0. Check for differences between filesystem and statefile
-            # and eventually fix those changes
-            # TODO handle wrong input
-            # TODO checks?
-            difflog = StateFilesystemDiffSolver(self.installed, action="t").solve()
-            if difflog:
-                log_warning("Some tracked links were manually changed.")
-                difflog.run_interpreter(PrintSummaryInterpreter())
-                log("How would you like to fix those changes?")
-                selection = input("(s)kip fixing / (t)ake over all changes / (r)estore all links / (d)ecide for each link: ")
-                if selection == "r":
-                    difflog = StateFilesystemDiffSolver(self.installed, action="r").solve()
-                if selection == "d":
-                    difflog = StateFilesystemDiffSolver(self.installed).solve()
-                if selection != "s":
-                    difflog.run_interpreter(ExecuteInterpreter(self.installed))
-
-
-            # 1. Decide how to solve the differences and
-            # setup DiffSolvers accordingly
+            # 0. Make sure that state file is up to date
+            self.fix()
+            # 1. Decide how to solve the differences and setup DiffSolvers
             if const.mode == "remove":
                 log_debug("Calculating operations to remove profiles.")
                 dfs = UninstallDiffSolver(self.installed, const.profilenames)
@@ -547,27 +514,69 @@ class UberDot:
             # 4. Simmulate a run, print the result or actually resolve the
             # differences
             if const.debug:
-                dfl.run_interpreter(PlainPrintInterpreter())
+                dfl.run_interpreter(PrintPlainInterpreter())
             elif const.changes:
                 dfl.run_interpreter(PrintInterpreter())
             else:
                 self.run(dfl)
 
-    # TODO do this for another user
     def fix(self):
-        # Setup a new difflog
-        difflog = StateFilesystemDiffSolver(self.installed).solve()
-        # Run checks on difflog
-        # TODO: More checks?
-        difflog.run_interpreter(
-            GainRootInterpreter()
-        )
-        # And execute
-        difflog.run_interpreter(
-            ExecuteInterpreter(self.installed),
-            PrintInterpreter()
-        )
-        # TODO create snapshot (maybe in op_fin of ExecuteInterpreter?)
+        log_debug("Checking state file consistency")
+        # Calc difflog between state and filesystem with preset action to
+        # figure out if there are inconsistencies
+        difflog = StateFilesystemDiffSolver(self.installed, action="t").solve()
+        if difflog:
+            log_warning("Some tracked links were manually changed.")
+            # Print summary to give user an idea of what have changed
+            difflog.run_interpreter(PrintSummaryInterpreter())
+            # Get selection from user
+            log("How would you like to fix those changes?")
+            selection = ""
+            while not selection:
+                msg = "(s)kip fixing / (t)ake over all changes / "
+                msg += "(r)estore all links / (d)ecide for each link: "
+                selection = input(msg).lower()
+                if selection not in ["s", "r", "t", "d"]:
+                    selection = ""
+            # Calculate difflog again depending on selection. For selection "t"
+            # we can reuse the already calculated difflog
+            if selection == "r":
+                difflog = StateFilesystemDiffSolver(self.installed, action="r")
+                difflog.solve()
+            elif selection == "d":
+                difflog = StateFilesystemDiffSolver(self.installed).solve()
+            elif selection == "s":
+                return
+            # Execute difflog. First some obligatory checks
+            difflog.run_interpreter(
+                CheckFileOverwitesInterpreter(),
+                CheckDiffsolverResultInterpreter()
+            )
+            # Also allow to skip root here
+            if const.skiproot:
+                difflog.run_interpreter(SkipRootInterpreter())
+            # Get root if needed
+            if not has_root_priveleges():
+                log_debug("Checking if root is required for fixing")
+                difflog.run_interpreter(
+                    GainRootInterpreter()
+                )
+            # Finally execute
+            try:
+                difflog.run_interpreter(
+                    ExecuteInterpreter(self.installed),
+                    PrintInterpreter()
+                )
+            except CustomError:
+                raise
+            except Exception as err:
+                msg = "An unkown error occured when trying to fix the state "
+                msg += "file. Your state file is probably still corrupted. "
+                msg += "Uberdot will again try to fix the corruptions the next"
+                msg += " time you use it. Please just make sure to to resolve "
+                msg += "the unkown error before you proceed to use this tool."
+                raise UnkownError(err, msg)
+
 
     def execute_profiles(self, profiles=None, options=None, directory=None):
         """Imports profiles by name and executes them.
@@ -847,7 +856,7 @@ class UberDot:
         difflog.run_interpreter(*tests)
         # Gain root if needed
         if not has_root_priveleges():
-            log_debug("Checking if root is needed")
+            log_debug("Checking if root is required")
             if const.dryrun:
                 difflog.run_interpreter(RootNeededInterpreter())
             else:
@@ -874,11 +883,10 @@ class UberDot:
                     interpreter(self.profiles, old_installed, "before")
                 )
                 try:
-                    # We need to run those tests again because the executed event
-                    # might have fucked with some links or dynamic files
+                    # We need to run this test again because the executed event
+                    # might have fucked with some links
                     difflog.run_interpreter(
-                        CheckLinkExistsInterpreter(),
-                        CheckDynamicFilesInterpreter()
+                        CheckFileOverwitesInterpreter()
                     )
                 except CustomError as err:
                     # We add some additional information to the raised errors
