@@ -1,27 +1,3 @@
 {
-    "SuperProfileEvent": {
-        "name": "SuperProfileEvent",
-        "links": [
-            {
-                "from": "test/regression/environment-default/name1",
-                "to": "test/regression/files/name1",
-                "uid": 1000,
-                "gid": 985,
-                "permission": 644,
-                "secure": true,
-                "date": "2020-02-28 19:31:44"
-            }
-        ],
-        "state": "2020-02-28 19:31:44",
-        "updated": "2020-02-28 19:31:44",
-        "beforeUninstall": false,
-        "afterUninstall": false
-    },
-    "SubprofileEvent": {
-        "name": "SubprofileEvent",
-        "links": [],
-        "state": "2020-02-28 19:31:44",
-        "updated": "2020-02-28 19:31:44",
-        "parent": "SuperProfileEvent"
-    }
+    "@version": "1.12.17_4"
 }
