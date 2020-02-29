@@ -258,7 +258,7 @@ def get_linkdescriptor_from_file(file):
     if not os.path.islink(file):
         # This should be possible later on when hardlinks are supported
         raise NotImplementedError
-    from uberdot.installedfile import AutoExpandDict
+    from uberdot.state import AutoExpandDict
     props = AutoExpandDict()
     target_file = readlink(file)
     props["from"] = file

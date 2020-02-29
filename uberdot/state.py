@@ -1,4 +1,4 @@
-"""This module handles writing and loading installed-files. """
+"""This module handles writing and loading state-files. """
 
 ###############################################################################
 #
@@ -71,7 +71,7 @@ def is_version_smaller(version_a, version_b):
 
 def upgrade_stone_age(old_state):
     """Upgrade from old installed file with schema version 4 to fancy
-    installed file. Luckily the schema only introduced optional properties
+    state file. Luckily the schema only introduced optional properties
     and renamed "name" to "from" and "target" to "to".
     """
     result = AutoExpandDict()
@@ -218,15 +218,15 @@ class AutoExpanderJSONEncoder(json.JSONEncoder):
 # Main class
 ###############################################################################
 
-class InstalledFile(MutableMapping):
+class State(MutableMapping):
     def __init__(self, timestamp=None):
         log_debug("Loading state files.")
-        # Setup in-mememory installed file
+        # Setup in-mememory state file
         self.loaded = AutoExpandDict()
-        # Load installed files of other users
+        # Load state files of other users
         for user, session_path in const.session_dirs_foreign:
             self.try_load_user_session(user, session_path)
-        # Load installed files of current users
+        # Load state files of current users
         self.own_file = os.path.join(const.session_dir, const.STATE_NAME)
         path = self.own_file
         if timestamp is not None:
@@ -237,16 +237,16 @@ class InstalledFile(MutableMapping):
         try:
             self.user_dict.update(json.load(open(path)))
         except FileNotFoundError:
-            log_debug("No installed file found. Creating new.")
-            self.user_dict = self.init_empty_installed()
+            log_debug("No state file found. Creating new.")
+            self.user_dict = self.init_empty_state()
         # Make sure to write file on changes in user_dict
         self.user_dict.notify_change(self.__write_file__)
         # Check if we can upgrade
         if is_version_smaller(self.user_dict.get_special("version"), MIN_VERSION):
-            msg = "Your installed file is too old to be processed."
+            msg = "Your state file is too old to be processed."
             raise PreconditionError(msg)
         if is_version_smaller(const.VERSION, self.user_dict.get_special("version")):
-            msg = "Your installed file was created with a newer version of "
+            msg = "Your state file was created with a newer version of "
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
         # Upgrade and store in loaded
@@ -261,26 +261,34 @@ class InstalledFile(MutableMapping):
 
     def try_load_user_session(self, user, session_dir):
         path = os.path.join(session_dir, const.STATE_NAME)
-        # Ignore this user, if he has no installed file
+        # Ignore this user, if he has no state file
         if not os.path.exists(path):
             return
         # Load file
         dict_ = json.load(open(path))
-        # If we can't upgrade, ignore this installed file
+        # If we can't upgrade, ignore this state file
         if is_version_smaller(dict_.get_special("version"), MIN_VERSION):
-            msg = "Ignoring installed file of user " + user + ". Too old."
+            msg = "Ignoring state file of user " + user + ". Too old."
             log_warning(msg)
             return
         if is_version_smaller(const.VERSION, dict_.get_special("version")):
-            msg = "Ignoring installed file of user " + user + "."
+            msg = "Ignoring state file of user " + user + "."
             msg += " uberdot is too old."
             log_warning(msg)
             return
         # Upgrade and store in loaded
-        dict_ = self.full_upgrade(dict_)
-        self.loaded[user] = dict_
+        try:
+            dict_ = self.full_upgrade(dict_)
+            self.loaded[user] = dict_
+        except CustomError as err:
+            msg = "An error occured when upgrading the state file of user "
+            msg += user + ". Ignoring."
+            log_warning(msg)
+            # We shouldn't ignore it if we are testing at the moment
+            if os.getenv("UBERDOT_TEST", 0):
+                raise err
 
-    def init_empty_installed(self):
+    def init_empty_state(self):
         empty = AutoExpandDict()
         empty.set_special("version", const.VERSION)
         return empty
@@ -302,8 +310,6 @@ class InstalledFile(MutableMapping):
         for patch in self.get_patches(state.get_special("version")):
             state = self.upgrade(state, patch)
         return state
-
-    # TODO: if the upgrade of another users state file fails, ignore it
 
     def get_patches(self, version):
         patches = []

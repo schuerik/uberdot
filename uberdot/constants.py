@@ -256,7 +256,7 @@ def load(args):
             getter = config.getint
         elif props[2] == "bool":
             getter = config.getboolean
-        # Get value from config. Prefer values from special installed section
+        # Get value from config. Prefer values from special session section
         section = "Session." + get("session") + "." + props[1]
         if config.has_section(section) and config.has_option(section, name):
             value = getter(section, name)

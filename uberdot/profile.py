@@ -34,7 +34,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from uberdot import constants as const
 from uberdot.dynamicfile import *
-from uberdot.installedfile import AutoExpandDict
+from uberdot.state import AutoExpandDict
 from uberdot.errors import CustomError
 from uberdot.errors import GenerationError
 from uberdot.errors import FatalError

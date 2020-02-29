@@ -29,8 +29,9 @@ DiffLog.
     ExecuteInterpreter
     GainRootInterpreter
     Interpreter
-    PlainPrintInterpreter
     PrintInterpreter
+    PrintPlainInterpreter
+    PrintSummaryInterpreter
     RootNeededInterpreter
     SkipRootInterpreter
 """
@@ -304,10 +305,17 @@ class PrintInterpreter(Interpreter):
                 log_operation(dop["profile"], msg)
 
     def _op_update_prop(self, dop):
-        log_operation(
-            dop["profile"],
-            "Set '" + dop["key"] + "' to '" + str(dop["value"]) + "'"
-        )
+        if dop["key"] == "parent":
+            if dop["value"] is None:
+                log_operation(dop["profile"], "Is root profile now")
+            else:
+                log_operation(dop["profile"],
+                              "Is subprofile of '" + dop["value"] + "' now")
+        else:
+            log_operation(
+                dop["profile"],
+                "Set '" + dop["key"] + "' to '" + str(dop["value"]) + "'"
+            )
 
     def _op_restore_l(self, dop):
         log_operation(
@@ -523,20 +531,20 @@ class CheckLinksInterpreter(Interpreter):
             profiles and if they are already installed. Links that are already
             installed and won't be removed, will end up twice in this list.
     """
-    def __init__(self, installed):
+    def __init__(self, state):
         """Constructor.
 
-        Initializes ``linklist`` with all links from the installed-file.
+        Initializes ``linklist`` with all links from the state file.
 
         Args:
-            installed (dict): The installed-file, that was used to create the
+            state (State): The state file, that was used to create the
                 current DiffLog
         """
         super().__init__()
         # Setup linklist to store/lookup which links are modified
         # Stores for any link: (linkname, profile, user, is_installed)
         self.linklist = []
-        for user, profile in installed.get_profiles():
+        for user, profile in state.get_profiles():
             for link in profile["links"]:
                 self.linklist.append((link["from"], profile["name"], user, True))
 
@@ -924,20 +932,20 @@ class CheckProfilesInterpreter(Interpreter):
             and if they are already installed. Profiles that are still
             installed in the end, will end up twice in this list.
     """
-    def __init__(self, installed):
+    def __init__(self, state):
         """Constructor.
 
-        Initializes ``profile_list`` with all profiles from the installed-file.
+        Initializes ``profile_list`` with all profiles from the state file.
 
         Args:
-            installed (dict): The installed-file, that was used to create the
+            state (State): The state file, that was used to create the
                 DiffLog
             parent_arg (str): The value of ``--parent``
         """
         super().__init__()
         self.profile_list = []
         # profile_list contains: (profile name, parent name, is installed)
-        for profile in installed.values():
+        for profile in state.values():
             self.profile_list.append(
                     (
                         profile["name"],
@@ -1039,27 +1047,27 @@ class EventInterpreter(Interpreter):
 
     Attributes:
         profiles (list): A list of profiles **after** their execution.
-        installed (dict): A copy of the old installed-file that is used to
+        state (State): A copy of the old state that is used to
             lookup if a profile had Uninstall-events set
         event_type (str): A specific type ("after" or "before") that determines
             which events this interpreter shall look for
     """
 
-    def __init__(self, profiles, installed, event_type):
+    def __init__(self, profiles, state, event_type):
         """Constructor.
 
         Sets _op_add_p and _op_update_p depending on event_type.
 
         Args:
             profiles (list): A list of profiles **after** their execution.
-            installed (dict): A copy of the old installed-file that is used to
+            state (State): A copy of the old state file that is used to
                 lookup if a profile had Uninstall-events set
             event_type (str): A specific type ("after" or "before") that
                 determines which events this interpreter shall look for
         """
         self.event_type = event_type
         self.profiles = profiles
-        self.installed = installed
+        self.state = state
         self._op_add_p = self.event_handler(self.event_type + "Install")
         self._op_update_p = self.event_handler(self.event_type + "Update")
 
@@ -1151,7 +1159,7 @@ class EventInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that triggers the event
         """
-        profile = self.installed[dop["profile"]]
+        profile = self.state[dop["profile"]]
         event_name = self.event_type+"Uninstall"
         if event_name in profile and profile[event_name]:
             self.start_event(dop["profile"], event_name)
@@ -1188,13 +1196,13 @@ class EventExecInterpreter(EventInterpreter):
         failures (int): Counter that stores how many scripts executed with errors.
     """
 
-    def __init__(self, profiles, installed, event_type):
+    def __init__(self, profiles, state, event_type):
         """Constructor.
 
         Creates a thread and queues for listening on the shells stdout and
         stderr.
         """
-        super().__init__(profiles, installed, event_type)
+        super().__init__(profiles, state, event_type)
         self.shell = None
         self.ticks_without_feedback = 0
         self.queue_out = Queue()

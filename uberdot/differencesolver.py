@@ -35,7 +35,7 @@ import os
 from abc import abstractmethod
 from uberdot import constants as const
 from uberdot.errors import FatalError
-from uberdot.installedfile import AutoExpandDict
+from uberdot.state import AutoExpandDict
 from uberdot.interpreters import Interpreter
 from uberdot.utils import get_date_time_now
 from uberdot.utils import import_profile_class
@@ -117,7 +117,7 @@ class DiffLog():
         Add-profile operations indicate that a new profile will be
         added/installed. This will be - for example - evalutated by the
         :class:`~interpreters.ExecuteInterpreter` to create a new empty entry
-        in the installed-file.
+        in the state file.
 
         Args:
             profilename (str): The name of the new profile
@@ -132,7 +132,7 @@ class DiffLog():
         Update-profile operations indicate that a certain profile will be
         updated. This will be - for example - evaluated by the
         :class:`~interpreters.ExecuteInterpreter` to update the changed-date of
-        a profile in the installed file.
+        a profile in the state file.
 
         Args:
             profilename (str): The name of the to be updated profile
@@ -145,7 +145,7 @@ class DiffLog():
         Remove-profile operations indicate that a certain profile will be
         removed/uninstalled. This will be - for example - evaluated by the
         :class:`~interpreters.ExecuteInterpreter` to remove the profile in the
-        installed file.
+        state file.
 
         Args:
             profilename (str): The name of the to be removed profile
@@ -158,7 +158,7 @@ class DiffLog():
         Add-link operations indicate that a new link needs to be created.
         This will be - for example - evaluated by the
         :class:`~interpreters.ExecuteInterpreter` to create the link in the
-        filesystem and create an entry in the installed file.
+        filesystem and create an entry in the state file.
 
         Args:
             symlink (dict): A dictionary that describes the symbolic link that
@@ -177,7 +177,7 @@ class DiffLog():
         Remove-link operations indicate that a certain link needs to be
         removed. This will be - for example - evaluated by the
         :class:`~interpreters.ExecuteInterpreter` to remove the link from the
-        filesystem and the installed file.
+        filesystem and the state file.
 
         Args:
             symlink_name (str): The absolute path to the symbolic link
@@ -195,7 +195,7 @@ class DiffLog():
         replaced by a new link. This will be - for example - evaluated by the
         :class:`~interpreters.ExecuteInterpreter` to remove the old link from
         the filesystem, create the new link in the filesystem and update the
-        entry of the old link in the installed-file.
+        entry of the old link in the state file.
 
         Args:
             installed_symlink (dict): A dictionary that describes the symbolic
@@ -224,7 +224,7 @@ class DiffLog():
         Update-script operations indicate that the onUninstall-script needs to
         be updated by a new path. This will be evaluated by the
         :class:`~interpreters.ExecuteInterpreter` to update the entry of the
-        old script in the installed-file.
+        old script in the state file.
 
         Args:
             enabled (bool): True, if script shall be executed
@@ -282,7 +282,7 @@ class DiffLog():
 class DiffSolver():
     """This is the abstract base class for difference solvers. Difference
     solver take two "different states" of the filesystem (e.g. one state
-    could be an installed-file and another one a result of executed profiles)
+    could be an state file and another one a result of executed profiles)
     and create a :class:`DiffLog` that holds all operations that are needed to
     transfer from the fist state to the second.
 
@@ -327,15 +327,20 @@ class StateFilesystemDiffSolver(DiffSolver):
         self.action = action
 
     def _generate_operations(self):
+        # Go through state files of users and generate operations for each of them
         for user in self.users:
             if user in self.state.get_users():
                 for profile in self.state.get_user_profiles(user).values():
                     self.__generate_profile_fix(profile)
 
     def __generate_profile_fix(self, profile):
+        if profile["name"] in const.ignore:
+            return
         for link in profile["links"]:
             if link_exists(link):
+                # If the link exists like this, there is no difference
                 continue
+            # So lets figure out what's different about the installed link
             profilename = profile["name"]
             # Check if link still exists
             if not os.path.exists(link["from"]):
@@ -383,9 +388,11 @@ class StateFilesystemDiffSolver(DiffSolver):
                 self.fix_link(msg, profilename, link, actual_link)
 
     def fix_link(self, fix_description, profilename, saved_link, actual_link):
+        # Setup selection for how to solve the difference
         selection = self.action
         if not selection:
             print(fix_description, end="")
+        # Getting selection from user, if no action was predefined
         while not selection:
             selection = input("(s/r/t/u/?) ").lower().strip()
             if selection == "?":
@@ -394,6 +401,7 @@ class StateFilesystemDiffSolver(DiffSolver):
             elif selection not in ["s", "r", "t", "u"]:
                 print("Unkown option")
                 selection = ""
+        # Solve according to the selection
         if selection == "s":
             return
         elif selection == "r":
@@ -420,24 +428,24 @@ class StateFilesystemDiffFinder(StateFilesystemDiffSolver):
 
 
 class UninstallDiffSolver(DiffSolver):
-    """This difference solver takes the current installed file and a list of
+    """This difference solver takes the current state file and a list of
     profile names. It is used to calculate all operations needed to uninstall
     the given profiles.
 
     Attributes:
-        installed (dict): The installed-file that is used for solving
+        state (State): The state file that is used for solving
         profile_names (list): A list of profile names that will be uninstalled
     """
-    def __init__(self, installed, profile_names):
+    def __init__(self, state, profile_names):
         """ Constructor.
 
         Args:
-            installed (dict): The installed-file that is used for solving
+            state (State): The state file that is used for solving
             profile_names (list): A list of profile names that will be
                 uninstalled
         """
         super().__init__()
-        self.installed = installed
+        self.state = state
         self.profile_names = profile_names
 
     def _generate_operations(self, profilelist=None):
@@ -449,7 +457,7 @@ class UninstallDiffSolver(DiffSolver):
         if profilelist is None:
             profilelist = self.profile_names
         for profilename in profilelist:
-            if profilename in self.installed:
+            if profilename in self.state:
                 self.__generate_profile_unlink(profilename)
             else:
                 log_warning("The profile " + profilename +
@@ -466,18 +474,25 @@ class UninstallDiffSolver(DiffSolver):
         """
         if profile_name in const.ignore:
             log_debug("'" + profile_name + "' is in ignore list. Skipping...")
+            # Even though we skip it, we need to make sure that the profile is
+            # no longer a subprofile, because at this point profile_name is
+            # either a root profile or we will definitely generate the remove
+            # operations for its parent
+            if "parent" in self.state[profile_name]:
+                self.difflog.update_property(profile_name, "parent", None)
             return
         # Recursive call for all subprofiles
         subprofiles = []
-        for installed_name, installed_dict in self.installed.items():
+        for installed_name, installed_dict in self.state.items():
             if ("parent" in installed_dict and
                     installed_dict["parent"] == profile_name):
                 subprofiles.append(installed_name)
         self._generate_operations(subprofiles)
         # We are removing all symlinks of this profile before we
-        # remove the profile from the installed file
-        for installed_link in self.installed[profile_name]["links"]:
+        # remove the profile from the state file
+        for installed_link in self.state[profile_name]["links"]:
             self.difflog.remove_link(profile_name, installed_link["from"])
+        # Remove the profile itself
         self.difflog.remove_profile(profile_name)
 
 
@@ -485,26 +500,26 @@ class UninstallDiffSolver(DiffSolver):
 
 
 class UpdateDiffSolver(DiffSolver):
-    """This solver determines the differences between an installed-file
+    """This solver determines the differences between an state file
     and a list of profiles.
 
     Attributes:
-        installed (dict): The installed-file that is used for solving
+        state (State): The state file that is used for solving
         profile_results (dict): The result of the executed profiles
         parent(str): The name of the parent that all profiles will change
             its parent to (only set if ``--parent`` was specified)
     """
-    def __init__(self, installed, profile_results, parent):
+    def __init__(self, state, profile_results, parent):
         """ Constructor.
 
         Args:
-            installed (dict): The installed-file that is used for solving
+            state (State): The state file that is used for solving
             profile_results (list): A list of the result of the executed
                 profiles
             parent (str): The value of the cli argument --parent
         """
         super().__init__()
-        self.installed = installed
+        self.state = state
         self.profile_results = profile_results
         self.parent = parent
 
@@ -525,10 +540,10 @@ class UpdateDiffSolver(DiffSolver):
         for profile in self.profile_results:
             add_profilenames(profile)
         for profile in self.profile_results:
-            # Generate difflog from diff between links and installed
+            # Generate difflog from diff between profile result and state
             self.__generate_profile_link(profile, allpnames, self.parent)
 
-    def __generate_profile_link(self, profile_dict, all_profilenames,
+    def __generate_profile_link(self, profile_result, all_profilenames,
                                 parent_name):
         """Generate operations for resolving the differences between a single
         profile and the installed ones and appends the corresponding operations
@@ -536,8 +551,8 @@ class UpdateDiffSolver(DiffSolver):
         subprofiles.
 
         Args:
-            profile_dict (dict): The result of an executed profile that will be
-                compared against the installed-file
+            profile_result (dict): The result of an executed profile that will be
+                compared against the state file
             all_profilenames (list): A list with all profile names (including
                 all sub- and root-profiles)
             parent_name (str): The name of the profiles (new) parent. If
@@ -548,14 +563,15 @@ class UpdateDiffSolver(DiffSolver):
         profile_new = False
         profile_changed = False
 
-        # Load the links from the InstalledLog
-        profile_name = profile_dict["name"]
+        # Checking ignore list
+        profile_name = profile_result["name"]
         if profile_name in const.ignore:
             log_debug("'" + profile_name + "' is in ignore list. Skipping...")
             return
+        # Load profile from state
         installed_profile = None
-        if profile_name in self.installed:
-            installed_profile = self.installed[profile_name]
+        if profile_name in self.state:
+            installed_profile = self.state[profile_name]
             installed_links = copy.deepcopy(installed_profile["links"])
         else:
             installed_links = []
@@ -563,16 +579,16 @@ class UpdateDiffSolver(DiffSolver):
             self.difflog.add_profile(profile_name, parent_name)
             profile_new = True
         # And from the new profile
-        new_links = copy.deepcopy(profile_dict["links"])
+        new_links = copy.deepcopy(profile_result["links"])
 
-        # Now we can compare installed_dict and profile_dict and write
+        # Now we can compare installed_profile and profile_result and write
         # the difflog that resolves these differences
         # To do so we actually compare installed_links with new_links
         # and check which links
         #   - didn't changed (must be the same in both)
         #   - are removed (occure only in installed_links)
-        #   - are updated (two links that differ, but name or target are same)
         #   - are added (occure only in new_links)
+        #   - are updated (two links that differ, but name or target are same)
         # Whenever we find a link to be unchanged/removed/etc. we will remove
         # it from new_links and installed_links, so in the end both lists
         # need to be empty.
@@ -639,13 +655,13 @@ class UpdateDiffSolver(DiffSolver):
             installed_subprofiles = set()
             profiles_subprofiles = set()
             # First get all subprofiles that were installed
-            for installed_name, installed_dict in self.installed.items():
+            for installed_name, installed_dict in self.state.items():
                 if "parent" in installed_dict:
                     if installed_dict["parent"] == profile_name:
                         installed_subprofiles.add(installed_name)
             # Then get all subprofiles that shall be installed
-            if "profiles" in profile_dict:
-                for subprofile in profile_dict["profiles"]:
+            if "profiles" in profile_result:
+                for subprofile in profile_result["profiles"]:
                     profiles_subprofiles.add(subprofile["name"])
             # With those we generate the list of subprofiles that need to be
             # uninstalled
@@ -658,7 +674,7 @@ class UpdateDiffSolver(DiffSolver):
                     old_subprofiles.pop(i)
             # We can use another DiffSolver to create all the operations needed
             # to uninstall all the old profiles and all their links
-            dfs = UninstallDiffSolver(self.installed, old_subprofiles)
+            dfs = UninstallDiffSolver(self.state, old_subprofiles)
             dfs.solve(self.difflog)
 
         # If something in the profile changed we need to update
@@ -677,16 +693,18 @@ class UpdateDiffSolver(DiffSolver):
             elif profile_changed and not profile_new:
                 self.difflog.update_profile(profile_name)
 
-        # Update old scripts for uninstall
-        # TODO: only update properites if they chaged
+        # Update script properties for uninstall, but only if they changed
+        installed_profile = self.state.get(profile_name, {})
         event = "beforeUninstall"
-        self.difflog.update_property(profile_name, event, profile_dict[event])
+        if installed_profile.get(event, False) != profile_result[event]:
+            self.difflog.update_property(profile_name, event, profile_result[event])
         event = "afterUninstall"
-        self.difflog.update_property(profile_name, event, profile_dict[event])
+        if installed_profile.get(event, False) != profile_result[event]:
+            self.difflog.update_property(profile_name, event, profile_result[event])
 
         # Recursive call for all subprofiles
-        if "profiles" in profile_dict:
-            for subprofile in profile_dict["profiles"]:
+        if "profiles" in profile_result:
+            for subprofile in profile_result["profiles"]:
                 self.__generate_profile_link(subprofile,
                                              all_profilenames,
                                              profile_name)

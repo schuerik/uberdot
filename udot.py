@@ -40,7 +40,7 @@ from uberdot.errors import PreconditionError
 from uberdot.errors import UnkownError
 from uberdot.errors import UserError
 from uberdot.differencesolver import *
-from uberdot.installedfile import InstalledFile
+from uberdot.state import State
 from uberdot.utils import has_root_priveleges
 from uberdot.utils import get_uid
 from uberdot.utils import get_gid
@@ -75,11 +75,11 @@ if os.getenv("COVERAGE_PROCESS_START"):
 class UberDot:
     """Bundles all functionality of uberdot.
 
-    This includes things like parsing arguments, loading installed-files,
+    This includes things like parsing arguments, loading state files,
     printing information and executing profiles.
 
     Attributes:
-        installed (dict): The installed-file that is used as a reference
+        state (State): The state file that is used as a reference
         profiles (list): A list of the to be installed/updated profiles
         args (argparse): The parsed arguments
         owd (str): The old working directory uberdot was started from
@@ -91,7 +91,7 @@ class UberDot:
         Initializes attributes and changes the working directory to the
         directory where this module is stored."""
         # Initialise fields
-        self.installed = None
+        self.state = None
         self.args = None
         self.profiles = []
         # Change current working directory to the directory of this module
@@ -478,8 +478,8 @@ class UberDot:
         if const.mode == "version":
             log(const.col_emph + "Version: " + const.col_endc + const.version)
             return
-        # For the next modes we need a loaded installed_file
-        self.installed = InstalledFile()
+        # For the next modes we need a loaded state
+        self.state = State()
         if const.mode == "show":
             self.show()
         else:
@@ -490,12 +490,12 @@ class UberDot:
             # 1. Decide how to solve the differences and setup DiffSolvers
             if const.mode == "remove":
                 log_debug("Calculating operations to remove profiles.")
-                dfs = UninstallDiffSolver(self.installed, const.profilenames)
+                dfs = UninstallDiffSolver(self.state, const.profilenames)
             elif const.mode == "update":
                 log_debug("Calculating operations to update profiles.")
                 self.execute_profiles()
                 profile_results = [p.result for p in self.profiles]
-                dfs = UpdateDiffSolver(self.installed,
+                dfs = UpdateDiffSolver(self.state,
                                        profile_results,
                                        const.parent)
             elif const.mode == "timewarp":
@@ -523,11 +523,10 @@ class UberDot:
                 self.run(dfl)
 
     def fix(self):
-        # TODO: test 45 wants to remove links and track them afterwards
         log_debug("Checking state file consistency.")
         # Calc difflog between state and filesystem to figure out
         # if there are inconsistencies
-        difflog = StateFilesystemDiffFinder(self.installed).solve()
+        difflog = StateFilesystemDiffFinder(self.state).solve()
         if difflog:
             log_warning("Some tracked links were manually changed.")
             # Print summary to give user an idea of what have changed
@@ -548,16 +547,16 @@ class UberDot:
             if selection == "s":
                 return
             if selection == "r":
-                difflog = StateFilesystemDiffSolver(self.installed, action="r")
+                difflog = StateFilesystemDiffSolver(self.state, action="r")
             elif selection == "t":
-                difflog = StateFilesystemDiffSolver(self.installed, action="t")
+                difflog = StateFilesystemDiffSolver(self.state, action="t")
             else:
-                difflog = StateFilesystemDiffSolver(self.installed)
+                difflog = StateFilesystemDiffSolver(self.state)
             difflog.solve()
             # Execute difflog. First some obligatory checks
             difflog.run_interpreter(
                 CheckFileOverwriteInterpreter(),
-                CheckDiffsolverResultInterpreter(self.installed)
+                CheckDiffsolverResultInterpreter(self.state)
             )
             # Also allow to skip root here
             if const.skiproot:
@@ -570,7 +569,7 @@ class UberDot:
                 )
             # Finally execute
             try:
-                interpreters = [ExecuteInterpreter(self.installed)]
+                interpreters = [ExecuteInterpreter(self.state)]
                 if const.short:
                     interpreters.append(PrintSummaryInterpreter())
                 else:
@@ -655,12 +654,12 @@ class UberDot:
     # TODO: extend show
     # options to display state of snapshots
     def show(self):
-        """Print out the installed-file in a readable format.
+        """Print out the state file in a readable format.
 
         Prints only the profiles specified in the commandline arguments. If
-        none are specified it prints all profiles of the installed-file."""
+        none are specified it prints all profiles of the state file."""
         last_user = ""
-        for user, profile in self.installed.get_profiles():
+        for user, profile in self.state.get_profiles():
             # Skip users that shall not be printed
             if not const.allusers:
                 if const.users:
@@ -856,12 +855,12 @@ class UberDot:
         # These tests should be run before the other tests, because they
         # would fail anyway if these tests don't pass
         difflog.run_interpreter(
-            CheckDiffsolverResultInterpreter(self.installed),
-            CheckProfilesInterpreter(self.installed)
+            CheckDiffsolverResultInterpreter(self.state),
+            CheckProfilesInterpreter(self.state)
         )
         # Run the rest of the tests
         tests = [
-            CheckLinksInterpreter(self.installed),
+            CheckLinksInterpreter(self.state),
             CheckLinkDirsInterpreter(),
             CheckFileOverwriteInterpreter(),
             CheckDynamicFilesInterpreter()
@@ -885,22 +884,22 @@ class UberDot:
         # exception which isn't a CustomError into UnkownError and reraises them
         # to handle them in the outer pokemon handler
 
-        # The events need to use the original installed file to access to
+        # The events need to use the original state file to access to
         # correct uninstall events
-        old_installed = self.installed.copy()
+        old_state = self.state.copy()
         # Execute all events before linking and print them
         try:
             if not const.skipevents and not const.skipbefore:
                 inter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    inter(self.profiles, old_installed, "before")
+                    inter(self.profiles, old_state, "before")
                 )
                 try:
                     # We need to run this test again because the executed event
                     # might have fucked with some links
                     difflog.run_interpreter(
                         CheckDiffsolverResultInterpreter(
-                            self.installed, error_type=PreconditionError
+                            self.state, error_type=PreconditionError
                         ),
                         CheckFileOverwriteInterpreter()
                     )
@@ -920,7 +919,7 @@ class UberDot:
             # Execute all operations of the difflog and print them
             interpreters = []
             if not const.dryrun:
-                interpreters.append(ExecuteInterpreter(self.installed))
+                interpreters.append(ExecuteInterpreter(self.state))
             if const.short:
                 interpreters.append(PrintSummaryInterpreter())
             else:
@@ -930,7 +929,7 @@ class UberDot:
             raise
         except Exception as err:
             msg = "An unkown error occured during linking/unlinking. Some "
-            msg += "links or your installed-file may be corrupted. In most "
+            msg += "links or your state file may be corrupted. In most "
             msg += "cases uberdot will fix all corruptions by itself the next "
             msg += "time you use it. Please just make sure to to resolve the "
             msg += "unkown error before you proceed to use this tool."
@@ -940,7 +939,7 @@ class UberDot:
             if not const.skipevents and not const.skipafter:
                 interpreter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    interpreter(self.profiles, old_installed, "after")
+                    interpreter(self.profiles, old_state, "after")
                 )
         except CustomError:
             raise

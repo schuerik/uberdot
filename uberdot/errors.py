@@ -129,7 +129,7 @@ class PreconditionError(CustomError):
     """A custom exception for all errors that occur due to preconditions
     or expectations that are not fullfilled.
 
-    :Example: A link that is defined in the installed-file doesn't exist
+    :Example: A link that is defined in the state file doesn't exist
         on the system.
     """
 
