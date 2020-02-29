@@ -247,29 +247,30 @@ def get_owner(filename):
     return stat.st_uid, stat.st_gid
 
 def get_permission(filename):
-    return oct(os.lstat(filename).st_mode)[-3:]
+    return int(oct(os.lstat(filename).st_mode)[-3:])
+
+def readlink(file):
+    return normpath(os.path.join(os.path.dirname(file), os.readlink(file)))
 
 def get_linkdescriptor_from_file(file):
+    if not os.path.exists(file):
+        raise FileNotFoundError
+    if not os.path.islink(file):
+        # This should be possible later on when hardlinks are supported
+        raise NotImplementedError
     from uberdot.installedfile import AutoExpandDict
     props = AutoExpandDict()
-    props["from"] = ""
-    props["to"] = ""
-    props["uid"], props["gid"] = "", ""
-    props["permission"] = ""
-    props["secure"] = ""
-    props["date"] = ""
-    if os.path.exists(file):
-        target_file = os.readlink(file)
-        props["from"] = file
-        props["to"] = target_file
-        props["uid"], props["gid"] = get_owner(file)
-        props["permission"] = get_permission(file)
-        if os.path.exists(target_file):
-            props["secure"] = get_permission(file) \
-                == get_permission(os.readlink(file))
-        else:
-            props["secure"] = False
-        props["date"] = os.path.getmtime(file)
+    target_file = readlink(file)
+    props["from"] = file
+    props["to"] = target_file
+    props["uid"], props["gid"] = get_owner(file)
+    props["permission"] = get_permission(target_file)
+    if os.path.exists(target_file):
+        props["secure"] = get_owner(file) \
+            == get_owner(target_file)
+    else:
+        props["secure"] = None
+    props["date"] = os.path.getmtime(file)
     return props
 
 def has_root_priveleges():
@@ -420,8 +421,7 @@ def normpath(path):
         str: The normalized path
     """
     if path is not None:
-        path = expandvars(path)
-        path = expanduser(path)
+        path = expandpath(path)
         return os.path.abspath(path)
     return None
 

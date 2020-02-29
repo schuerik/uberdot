@@ -178,7 +178,7 @@ class PrintSummaryInterpreter(Interpreter):
     def _op_fin(self, dop):
         for profile in self.profile_changes:
             changes = dict(filter(lambda x: x[1] > 0, self.profile_changes[profile].items()))
-            changes = ", ".join(map(lambda x: x[0] + " " + str(x[1]), changes.items()))
+            changes = ", ".join(map(lambda x: str(x[1]) + " " + x[0], changes.items()))
             log_operation(profile, changes)
         if not self.profile_changes:
             log("Already up-to-date.")
@@ -306,7 +306,7 @@ class PrintInterpreter(Interpreter):
     def _op_update_prop(self, dop):
         log_operation(
             dop["profile"],
-            "Set property '" + dop["key"] + "' to '" + str(dop["value"]) + "'"
+            "Set '" + dop["key"] + "' to '" + str(dop["value"]) + "'"
         )
 
     def _op_restore_l(self, dop):
@@ -1464,7 +1464,7 @@ class ExecuteInterpreter(Interpreter):
             if link["from"] == linkname:
                 self.state[profilename]["links"].remove(link)
 
-    def create_symlink(self, ldescriptor, force=const.force):
+    def create_symlink(self, ldescriptor, force=None):
         """Create a symlink in the filesystem.
 
         Args:
@@ -1478,9 +1478,11 @@ class ExecuteInterpreter(Interpreter):
         Raises:
             UnkownError: The link could not be created
         """
+        if force is None:
+            force = const.force
         if not os.path.isdir(os.path.dirname(ldescriptor["from"])):
             self._makedirs(ldescriptor["from"])
-        self.remove_symlink(ldescriptor["from"], force=force, cleanup=False)
+        self.remove_symlink(ldescriptor["from"], cleanup=False)
         try:
             # Create new symlink
             os.symlink(ldescriptor["to"], ldescriptor["from"])
@@ -1497,7 +1499,7 @@ class ExecuteInterpreter(Interpreter):
             raise UnkownError(err, "An unkown error occured when trying to" +
                               " create the link '" + ldescriptor["from"] + "'.")
 
-    def remove_symlink(self, path, force=const.force, cleanup=True):
+    def remove_symlink(self, path, cleanup=True):
         """Remove a symlink. If the directory is empty, it removes the
         directory as well. Does this recursively for all parent directories.
 
@@ -1506,24 +1508,20 @@ class ExecuteInterpreter(Interpreter):
         """
         try:
             # Remove existing symlink
-            if force and os.path.lexists(path):
+            if os.path.lexists(path):
                 if os.path.isdir(path):
                     # Overwriting empty dirs is also possible. CheckFileOverwrite
                     # will make sure that the directory is empty
                     os.rmdir(path)
                 else:
-                    filetype = "symlink" if os.path.islink(path) else "file"
-                    msg = "Removing already existing " + filetype
-                    msg += " '" + path + "'."
-                    log_debug(msg)
                     os.unlink(path)
                 if cleanup:
                     # go directory tree upwards to remove all empty directories
-                    parent = os.path.dirpath(path)
+                    parent = os.path.dirname(path)
                     while not os.listdir(parent):  # while parent dir is empty
                         log_debug("Removing directory '" + parent + "'.")
                         os.rmdir(parent)
-                        parent = os.path.dirpath(parent)
+                        parent = os.path.dirname(parent)
         except OSError as err:
             raise UnkownError(err, "An unkown error occured when trying to" +
                               " remove the link '" + path + "'.")

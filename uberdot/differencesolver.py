@@ -52,10 +52,14 @@ from uberdot.utils import safe_walk
 
 
 def link_exists(link):
+    if not os.path.islink(link["from"]):
+        return False
     link2 = get_linkdescriptor_from_file(link["from"])
     return links_equal(link, link2)
 
 def similar_link_exists(link):
+    if not os.path.islink(link["from"]):
+        return False
     link2 = get_linkdescriptor_from_file(link["from"])
     return links_similar(link, link2)
 
@@ -436,13 +440,15 @@ class UninstallDiffSolver(DiffSolver):
         self.installed = installed
         self.profile_names = profile_names
 
-    def _generate_operations(self):
+    def _generate_operations(self, profilelist=None):
         """Generates operations to remove all installed profiles of
         ``profilelist``.
 
         Skips profiles that are not installed.
         """
-        for profilename in self.profile_names:
+        if profilelist is None:
+            profilelist = self.profile_names
+        for profilename in profilelist:
             if profilename in self.installed:
                 self.__generate_profile_unlink(profilename)
             else:
@@ -470,8 +476,7 @@ class UninstallDiffSolver(DiffSolver):
         self._generate_operations(subprofiles)
         # We are removing all symlinks of this profile before we
         # remove the profile from the installed file
-        installed_links = copy.deepcopy(self.installed[profile_name]["links"])
-        for installed_link in installed_links:
+        for installed_link in self.installed[profile_name]["links"]:
             self.difflog.remove_link(profile_name, installed_link["from"])
         self.difflog.remove_profile(profile_name)
 
