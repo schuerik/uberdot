@@ -571,6 +571,10 @@ def link_exists(link):
     if not os.path.islink(link["from"]):
         return False
     link2 = get_linkdescriptor_from_file(link["from"])
+    print(link)
+    print(link2)
+    print(links_equal(link, link2))
+    print("####################")
     return links_equal(link, link2)
 
 

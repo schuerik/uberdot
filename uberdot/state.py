@@ -34,6 +34,9 @@ from uberdot.errors import UnkownError
 from uberdot.errors import PreconditionError
 from uberdot.utils import expandvars
 from uberdot.utils import find_files
+from uberdot.utils import get_gid
+from uberdot.utils import get_groupname
+from uberdot.utils import get_username
 from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import log
@@ -80,13 +83,18 @@ def upgrade_stone_age(old_state):
             del link["name"]
             link["to"] = link["target"]
             del link["target"]
+            uid = link["uid"]
+            gid = link["gid"]
+            link["owner"] = get_username(uid) + ":" + get_groupname(gid)
+            del link["uid"]
+            del link["gid"]
     return old_state
 
 MIN_VERSION = "1.12.17_4"
 upgrades = [
-    ("1.16.0", upgrade_stone_age),
-    # ("1.17.0", upgrade_owner)
+    ("1.17.0", upgrade_stone_age),
 ]
+
 
 
 ###############################################################################
@@ -118,6 +126,15 @@ class AutoExpander(Notifier):
         if isinstance(value, str):
             if key in PATH_VALUES:
                 value = normpath(value)
+            elif key == "owner":
+                user, group = value.split(":")
+                user = expandvars(user)
+                group = expandvars(group)
+                if not user:
+                    user = const.user
+                if not group:
+                    group = get_groupname(get_gid())
+                value = user + ":" + group
             else:
                 value = expandvars(value)
         return value

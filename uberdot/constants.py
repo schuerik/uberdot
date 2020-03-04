@@ -35,13 +35,13 @@ from uberdot.utils import get_username
 from uberdot.utils import get_uid
 from uberdot.utils import normpath
 
-# TODO: doc
+# TODO: doc & cleanup
 
 
 ############################################################################
 # True hardcoded not loadable constants (not visible via --debuginfo)
 ############################################################################
-VERSION = "1.16.0"
+VERSION = "1.17.0"
 STATE_NAME = "state.json"
 DATA_DIR_ROOT = "/root/.uberdot/"
 DATA_DIR_TEMP = "/home/%s/.uberdot/"

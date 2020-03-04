@@ -6,8 +6,7 @@
             {
                 "target": "test/regression/files/name1",
                 "name": "test/regression/environment-nested/name1",
-                "uid": 1000,
-                "gid": 985,
+                "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:01:42",
                 "secure": true
@@ -22,8 +21,7 @@
             {
                 "target": "test/regression/files/tag1%name2",
                 "name": "test/regression/environment-nested/name2",
-                "uid": 1000,
-                "gid": 985,
+                "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:01:42",
                 "secure": true
@@ -31,8 +29,7 @@
             {
                 "target": "test/regression/files/tag2%name3",
                 "name": "test/regression/environment-nested/name3",
-                "uid": 1000,
-                "gid": 985,
+                "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:01:42",
                 "secure": true
@@ -40,8 +37,7 @@
             {
                 "target": "test/regression/files/name4",
                 "name": "test/regression/environment-nested/name4",
-                "uid": 1000,
-                "gid": 985,
+                "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:01:42",
                 "secure": true
@@ -57,8 +53,7 @@
             {
                 "target": "test/regression/files/tag3%name6",
                 "name": "test/regression/environment-nested/name6",
-                "uid": 1000,
-                "gid": 985,
+                "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:46:46",
                 "secure": true
@@ -66,8 +61,7 @@
             {
                 "target": "test/regression/files/tag3%name5",
                 "name": "test/regression/environment-nested/name5",
-                "uid": 1000,
-                "gid": 985,
+                "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:46:46",
                 "secure": true

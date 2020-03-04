@@ -311,7 +311,7 @@ class DiffSolver():
 class StateFilesystemDiffSolver(DiffSolver):
     def __init__(self, state, users=[const.user], action=""):
         super().__init__()
-        self.state = state
+        self.state = state.copy()
         self.users = users
         self.action = action
 

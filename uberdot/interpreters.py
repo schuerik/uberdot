@@ -222,7 +222,9 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The forget-operation that will be logged
         """
-        log_operation(dop["profile"], "Stop tracking '" + dop["name"] + "'")
+        log_operation(
+            dop["profile"], "Stop tracking '" + dop["symlink"]["from"] + "'"
+        )
 
     def _op_track_l(self, dop):
         """Logs/Prints out that a link will be tracked now.
@@ -230,7 +232,9 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The track-operation that will be logged
         """
-        log_operation(dop["profile"], "Tracking '" + dop["name"] + "' now")
+        log_operation(
+            dop["profile"], "Tracking '" + dop["symlink"]["from"] + "' now"
+        )
 
     def _op_update_p(self, dop):
         """Logs/Prints out that a profile was updated.
@@ -1403,7 +1407,7 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The forget-operation that will be executed
         """
-        self.remove_from_state(dop)
+        self.remove_from_state(dop["profile"], dop["symlink"]["from"])
 
     def _op_track_l(self, dop):
         """Logs/Prints out that a link will be tracked now.
@@ -1411,7 +1415,7 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The track-operation that will be logged
         """
-        self.add_to_state(dop)
+        self.add_to_state(dop["profile"], dop["symlink"])
 
     def _op_restore_l(self, dop):
         self.create_symlink(dop["symlink"], force=True)

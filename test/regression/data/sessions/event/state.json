@@ -4,8 +4,7 @@
         "name": "SuperProfileEvent",
         "links": [
             {
-                "uid": 1000,
-                "gid": 985,
+                "owner": ":",
                 "permission": 644,
                 "secure": true,
                 "date": "2019-12-12 16:45:49",
@@ -20,8 +19,7 @@
         "name": "SubprofileEvent",
         "links": [
             {
-                "uid": 1000,
-                "gid": 985,
+                "owner": ":",
                 "permission": 644,
                 "secure": true,
                 "date": "2019-12-12 16:45:49",
@@ -29,8 +27,7 @@
                 "to": "test/regression/files/name2"
             },
             {
-                "uid": 1000,
-                "gid": 985,
+                "owner": ":",
                 "permission": 644,
                 "secure": true,
                 "date": "2019-12-12 16:45:49",

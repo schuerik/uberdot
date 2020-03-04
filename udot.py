@@ -555,12 +555,12 @@ class UberDot:
             if selection == "s":
                 return
             if selection == "r":
-                difflog = StateFilesystemDiffSolver(self.state, action="r")
+                diffsolver = StateFilesystemDiffSolver(self.state, action="r")
             elif selection == "t":
-                difflog = StateFilesystemDiffSolver(self.state, action="t")
+                diffsolver = StateFilesystemDiffSolver(self.state, action="t")
             else:
-                difflog = StateFilesystemDiffSolver(self.state)
-            difflog.solve()
+                diffsolver = StateFilesystemDiffSolver(self.state)
+            difflog = diffsolver.solve()
             # Execute difflog. First some obligatory checks
             difflog.run_interpreter(
                 CheckFileOverwriteInterpreter(),
