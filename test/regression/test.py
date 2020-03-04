@@ -1017,6 +1017,43 @@ after_updatedui = {
 }
 
 
+after_modified = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name3",
+            },
+            {
+                "name": "name5",
+                "target": "files/name5",
+            }
+        ],
+    },
+    "subdir": {
+        "links": [
+            {
+                "name": "name2",
+                "target": "files/name2",
+            }
+        ],
+    },
+    "subdir/subsubdir": {
+        "links": [
+            {
+                "name": "name6",
+                "target": "files/name3",
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+            }
+        ],
+    },
+}
+
+
 # Test execution
 ###############################################################################
 
@@ -1173,8 +1210,17 @@ DirRegressionTest("Fail: Cycle in profile",
 DirRegressionTest("Fail: Link moved between profiles",
                   ["update", "SuperProfileTags"],
                   after_tags, before, "nested").fail("run", 102)
+DirRegressionTest("Fail: Link moved between profiles",
+                  ["update", "SuperProfileTags"],
+                  after_tags, before, "nested").fail("run", 102)
 # This test needs ticket #42 to be resolved
 # OutputRegressionTest("Output: --show", ["-s"], after_diroptions, "update").success()
+DirRegressionTest("Autofix: Take over",
+                  ["update", "SuperProfileTags"],
+                  after_modified, after_modified, "modified").success()
+DirRegressionTest("Autofix: Restore",
+                  ["--fix", "r", "update", "SuperProfileTags"],
+                  after_modified, after_diroptions, "modified").success()
 
 # Overall result
 print(LINEWDTH*"=")

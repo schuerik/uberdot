@@ -42,6 +42,7 @@ from uberdot.utils import import_profile_class
 from uberdot.utils import get_linkdescriptor_from_file
 from uberdot.utils import get_owner
 from uberdot.utils import get_permission
+from uberdot.utils import link_exists
 from uberdot.utils import links_equal
 from uberdot.utils import links_similar
 from uberdot.utils import log
@@ -49,19 +50,7 @@ from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import normpath
 from uberdot.utils import safe_walk
-
-
-def link_exists(link):
-    if not os.path.islink(link["from"]):
-        return False
-    link2 = get_linkdescriptor_from_file(link["from"])
-    return links_equal(link, link2)
-
-def similar_link_exists(link):
-    if not os.path.islink(link["from"]):
-        return False
-    link2 = get_linkdescriptor_from_file(link["from"])
-    return links_similar(link, link2)
+from uberdot.utils import similar_link_exists
 
 
 class DiffLog():

@@ -498,15 +498,14 @@ class CheckDynamicFilesInterpreter(Interpreter):
                 try:
                     with open(patch_file, "wb") as file:
                         file.write(process.stdout.read())
-                    print("Patch file written successfully")
+                    log("Patch file written successfully")
                 except IOError:
                     msg = "Could not write patch file '" + patch_file + "'."
                     raise PreconditionError(msg)
             elif inp == "U":
-                # TODO Check all occurences of print() and log()
                 if const.dryrun:
-                    print("This does nothing this time since " +
-                          "this is just a dry-run")
+                    log_warning("This does nothing since " +
+                                "this is just a dry-run")
                 else:
                     # Copy the original to the changed
                     copyfile(target_bak, target)
@@ -732,7 +731,6 @@ class CheckDiffsolverResultInterpreter(Interpreter):
     if a remove operation for a specific path is in the difflog the file
     needs to exist. Otherwise it should have been an untrack operation.
     """
-    # TODO: enhance and add checks for profile operations
     def __init__(self, state, error_type=FatalError):
         self.state = state
         self.error_type = error_type
@@ -748,6 +746,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
         return False
 
     def _op_restore_l(self, dop):
+        # Only restore link if it is tracked and differs from the tracked
         if not self.is_link_in_state(dop["symlink"]):
             msg = "'" + dop["symlink"]["from"] + "' can not be restored "
             msg += " because it is not tracked."
@@ -758,11 +757,13 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             self._raise(msg)
 
     def _op_untrack_l(self, dop):
+        # Only untack link if it is tracked
         if not self.is_link_in_state(dop["symlink"]):
             msg = "'" + dop["symlink"]["from"] + "' is not tracked."
             self._raise(msg)
 
     def _op_track_l(self, dop):
+        # Only track link if it exists and is not already tracked
         if not os.path.lexists(dop["symlink"]["from"]):
             msg = "'" + dop["symlink"]["from"] + "' can not be tracked "
             msg += " because it does not exist."
@@ -772,16 +773,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             self._raise(msg)
 
     def _op_remove_l(self, dop):
-        """Checks if the to be removed link really exists.
-
-        Furthermore adds the link to ``removed_links``, because removed links
-        need to be stored for ``_op_add_l()``.
-
-        Args:
-            dop (dict): The remove-operation that will be checked
-        Raises:
-            PreconditionError: The to be removed link does not exist
-        """
+        # Only remove symlink if it still exists and is tracked
         if not os.path.lexists(dop["symlink"]["from"]):
             msg = "'" + dop["symlink"]["from"] + "' can not be removed because"
             msg += " it does not exist."
@@ -791,27 +783,14 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             self._raise(msg)
 
     def _op_update_l(self, dop):
-        """Checks if the old and the new link already exist.
-
-        Furthermore adds the old link to ``removed_links`` if old and new link
-        have different names, because removed links need to be stored for
-        ``_op_add_l()``.
-
-        Args:
-            dop (dict): The update-operation that will be checked
-        Raises:
-            PreconditionError: The old link does not exist, the new
-                link already exists or the new link points to a non-existent
-                file
-        """
+        # Only update link if old link still exists, the target of the
+        # new link exists, the old link is tracked and the links differ
         if not os.path.lexists(dop["symlink1"]["from"]):
             msg = "'" + dop["symlink1"]["from"] + "' can not be updated"
             msg += " because it does not exist on your filesystem."
             self._raise(msg)
-        if (dop["symlink1"]["to"] != dop["symlink2"]["to"]
-                and not os.path.exists(dop["symlink2"]["to"])):
-            # TODO: more precisly
-            msg = "'" + dop["symlink1"]["from"] + "' will not be updated"
+        if not os.path.exists(dop["symlink2"]["to"]):
+            msg = "'" + dop["symlink1"]["from"] + "' can not be updated"
             msg += " to point to '" + dop["symlink2"]["to"] + "'"
             msg += " because '" + dop["symlink2"]["to"]
             msg += "' does not exist in your filesystem."
@@ -819,16 +798,12 @@ class CheckDiffsolverResultInterpreter(Interpreter):
         if not self.is_link_in_state(dop["symlink1"]):
             msg = "'" + dop["symlink1"]["from"] + "' is not tracked."
             self._raise(msg)
+        if links_equal(dop["symlink1"], dop["symlink2"]):
+            self._raise("New symlink is the same as the old symlink.")
 
     def _op_add_l(self, dop):
-        """Checks if the new link already exists.
-
-        Args:
-            dop (dict): The add-operation that will be checked
-        Raise:
-            PreconditionError: The new link already exists or its target does
-                not exist
-        """
+        # Only create symlink if is not already tracked and only if
+        # the file it points to exists
         if not os.path.exists(dop["symlink"]["to"]):
             msg = "'" + dop["symlink"]["from"] + "' will not be created"
             msg += " because it points to '" + dop["symlink"]["to"]
@@ -839,21 +814,25 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             self._raise(msg)
 
     def _op_add_p(self, dop):
+        # Only add profile if it wasn't installed
         if dop["profile"] in self.state:
             msg = "Profile '" + dop["profile"] + "' is already installed."
             self._raise(msg)
 
     def _op_update_p(self, dop):
+        # Only update profile if it was in installed
         if dop["profile"] not in self.state:
             msg = "Profile '" + dop["profile"] + "' is not installed."
             self._raise(msg)
 
     def _op_remove_p(self, dop):
+        # Only remove profile if it was in installed
         if dop["profile"] not in self.state:
             msg = "Profile '" + dop["profile"] + "' is not installed."
             self._raise(msg)
 
     def _op_update_prop(self, dop):
+        # Only update property if changed
         msg = "Property '" + dop["key"] + "' of profile '"
         msg += dop["profile"] + "' did not change."
         profile = self.state[dop["profile"]]

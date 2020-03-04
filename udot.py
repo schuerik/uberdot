@@ -135,6 +135,10 @@ class UberDot:
             action="store_true"
         )
         parser.add_argument(
+            "-f", "--fix",
+            help="specify an action to resolve all fxes with",
+        )
+        parser.add_argument(
             "-i", "--ignore",
             help="ignore this profile in every mode",
             action="append"
@@ -467,6 +471,11 @@ class UberDot:
             msg = "You need to specify 'profilenames' when using mode"
             msg += " '" + const.mode + "'."
             raise UserError(msg)
+        # Check if arguments are bad
+        if const.fix not in ["", "s", "t", "r", "d"]:
+            raise UserError(
+                "'" + const.fix + "' is not a valid fix action."
+            )
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
@@ -531,11 +540,11 @@ class UberDot:
             # Print summary to give user an idea of what have changed
             difflog.run_interpreter(PrintSummaryInterpreter())
             # Get selection from user
-            selection = const.fix_action
+            selection = const.fix
             if not selection:
                 log("How would you like to fix those changes?")
             else:
-                log("Autofixing using mode " + const.fix_action + ".")
+                log("Autofixing using mode " + const.fix + ".")
             while not selection:
                 msg = "(s)kip fixing / (t)ake over all changes / "
                 msg += "(r)estore all links / (d)ecide for each link: "
@@ -669,7 +678,7 @@ class UberDot:
             if user != last_user:
                 # But only if other users shall be shown
                 if const.allusers or const.users:
-                    log(const.col_emph + "User: " + const.col_endc + user)
+                    print(const.col_emph + "User: " + const.col_endc + user)
                 last_user = user
             # Show all profiles that are specified or all if none was specified
             if not const.profilenames or profile["name"] in const.profilenames:
@@ -689,24 +698,24 @@ class UberDot:
             profile_header = tab + const.col_emph + profile["name"] + const.col_endc
             if const.links or const.meta:
                 profile_header += ":"
-            log(profile_header)
+            print(profile_header)
             tab += "  "
             if const.meta:
-                log(tab + "Installed: " + profile["installed"])
-                log(tab + "Updated: " + profile["updated"])
+                print(tab + "Installed: " + profile["installed"])
+                print(tab + "Updated: " + profile["updated"])
                 if "parent" in profile:
-                    log(tab + "Subprofile of: " + profile["parent"])
+                    print(tab + "Subprofile of: " + profile["parent"])
                 if "profiles" in profile:
-                    log(tab + "Has Subprofiles: " + ", ".join(
+                    print(tab + "Has Subprofiles: " + ", ".join(
                         [s["name"] for s in profile["profiles"]]
                     ))
         if const.links or (not const.profiles and not const.meta):
             for symlink in profile["links"]:
-                log(tab + symlink["from"] + "  →  " + symlink["to"])
+                print(tab + symlink["from"] + "  →  " + symlink["to"])
                 if const.meta:
                     user = pwd.getpwuid(symlink["uid"])[0]
                     group = grp.getgrgid(symlink["gid"])[0]
-                    log(
+                    print(
                         tab + "    Owner: " + user + ":" + group +
                         "   Permission: " + str(symlink["permission"]) +
                         "   Secure: " + "yes" if symlink["secure"] else "no" +
@@ -822,11 +831,11 @@ class UberDot:
                 if item in result[i+1:]:
                     result.pop(i)
             for file, entry in result:
-                log(file + ": " + entry)
+                print(file + ": " + entry)
         else:
             # or just what was found (in alphabetical order)
             for entry in sorted(list(set([item[1] for item in result]))):
-                log(entry)
+                print(entry)
 
     def run(self, difflog):
         """Performs checks on DiffLog and resolves it.

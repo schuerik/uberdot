@@ -567,6 +567,20 @@ def links_equal(link1, link2):
            link1["secure"] == link2["secure"]
 
 
+def link_exists(link):
+    if not os.path.islink(link["from"]):
+        return False
+    link2 = get_linkdescriptor_from_file(link["from"])
+    return links_equal(link, link2)
+
+
+def similar_link_exists(link):
+    if not os.path.islink(link["from"]):
+        return False
+    link2 = get_linkdescriptor_from_file(link["from"])
+    return links_similar(link, link2)
+
+
 def makedirs(dir_):
     if not os.path.exists(os.path.dirname(dir_)):
         makedirs(os.path.dirname(dir_))
