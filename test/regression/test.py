@@ -1183,8 +1183,6 @@ if global_fails:
 else:
     print("\033[1mTests \033[92msuccessful\033[0m")
 
-
-
 # Exit
 os.chdir(owd)
 sys.exit(global_fails)
@@ -1195,9 +1193,11 @@ sys.exit(global_fails)
 # TODO: Write tests
 # Already possible
 #    env var substitution
+#    fix state file
+#    upgrade state file
+#    conflicts between users
 # Input needs to be simulated
 #    dynamic files changed
-#    fix installed file
 # Requires an extra user
 #    option secure
 #    option owner

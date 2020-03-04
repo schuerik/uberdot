@@ -171,7 +171,7 @@ class DiffLog():
         else:
             self.__append_data("add_l", profilename, symlink=symlink)
 
-    def remove_link(self, profilename, symlink_name):
+    def remove_link(self, profilename, symlink):
         """Create a remove-link operation.
 
         Remove-link operations indicate that a certain link needs to be
@@ -183,10 +183,10 @@ class DiffLog():
             symlink_name (str): The absolute path to the symbolic link
             profilename (str): The profile that the link is removed from
         """
-        if os.path.lexists(symlink_name):
-            self.__append_data("remove_l", profilename, symlink_name=symlink_name)
+        if os.path.lexists(symlink["from"]):
+            self.__append_data("remove_l", profilename, symlink=symlink)
         else:
-            self.untrack_link(profilename, symlink_name)
+            self.untrack_link(profilename, symlink)
 
     def update_link(self, profilename, installed_symlink, new_symlink):
         """Create an update-link operation.
@@ -210,7 +210,7 @@ class DiffLog():
             else:
                 self.add_link(profilename, new_symlink)
         elif link_exists(new_symlink):
-            self.remove_link(profilename, installed_symlink["from"])
+            self.remove_link(profilename, installed_symlink)
             self.track_link(profilename, new_symlink)
         else:
             new_symlink["date"] = get_date_time_now()
@@ -236,8 +236,8 @@ class DiffLog():
         symlink["date"] = os.path.getmtime(symlink["from"])
         self.__append_data("track_l", profilename, symlink=symlink)
 
-    def untrack_link(self, profilename, symlink_name):
-        self.__append_data("untrack_l", profilename, symlink_name=symlink_name)
+    def untrack_link(self, profilename, symlink):
+        self.__append_data("untrack_l", profilename, symlink=symlink)
 
     def __append_data(self, operation, profilename, **kwargs):
         """Appends a new operation to :attr:`self.data<DiffLog.data>`.
@@ -491,7 +491,7 @@ class UninstallDiffSolver(DiffSolver):
         # We are removing all symlinks of this profile before we
         # remove the profile from the state file
         for installed_link in self.state[profile_name]["links"]:
-            self.difflog.remove_link(profile_name, installed_link["from"])
+            self.difflog.remove_link(profile_name, installed_link)
         # Remove the profile itself
         self.difflog.remove_profile(profile_name)
 
@@ -519,7 +519,7 @@ class UpdateDiffSolver(DiffSolver):
             parent (str): The value of the cli argument --parent
         """
         super().__init__()
-        self.state = state
+        self.state = state.copy()
         self.profile_results = profile_results
         self.parent = parent
 
@@ -619,7 +619,7 @@ class UpdateDiffSolver(DiffSolver):
                 # needs to be removed
                 profile_changed = True
                 # Check if it was already removed from the filesystem
-                self.difflog.remove_link(profile_name, installed_link["from"])
+                self.difflog.remove_link(profile_name, installed_link)
                 installed_links.remove(installed_link)
 
         # Check all changed and added links

@@ -74,17 +74,13 @@ def upgrade_stone_age(old_state):
     state file. Luckily the schema only introduced optional properties
     and renamed "name" to "from" and "target" to "to".
     """
-    result = AutoExpandDict()
     for key in old_state:
-        new_profile = deepcopy(old_state[key])
-        for link in new_profile["links"]:
+        for link in old_state[key]["links"]:
             link["from"] = link["name"]
             del link["name"]
             link["to"] = link["target"]
             del link["target"]
-        result[key] = new_profile
-    result.data_specials = old_state.data_specials
-    return result
+    return old_state
 
 MIN_VERSION = "1.12.17_4"
 upgrades = [
@@ -99,7 +95,24 @@ upgrades = [
 
 PATH_VALUES = ["from", "to"]
 
-class AutoExpander:
+class Notifier:
+    def set_parent(self, parent):
+        if parent is not None and not isinstance(parent, Notifier):
+            raise FatalError(str(parent) + " needs to be Notifier")
+        self.parent = parent
+
+    def notify(self):
+        if hasattr(self, "parent") and self.parent is not None:
+            if hasattr(self.parent, "notify") and self.parent.notify is not None:
+                self.parent.notify()
+
+    def copy(self):
+        clone = deepcopy(self)
+        clone.parent = None
+        return clone
+
+
+class AutoExpander(Notifier):
     def getitem(self, key):
         value = self.data[key]
         if isinstance(value, str):
@@ -109,33 +122,27 @@ class AutoExpander:
                 value = expandvars(value)
         return value
 
-    def notify(self):
-        pass
-
-    def notify_change(self, handler):
-        self.notify = handler
-
     def len(self):
         return len(self.data)
 
     def delitem(self, key):
         del self.data[key]
+        self.notify()
 
     def wrap_value(self, value):
-        if isinstance(value, AutoExpander):
-            return value
-        val = value
+        # Wrap dicts and lists into AutoExpanders
         if type(value) == dict:
-            val = AutoExpandDict(value)
-            val.notify_change(self.notify)
+            value = AutoExpandDict(value)
         elif type(value) == list:
-            val = AutoExpandList(value)
-            val.notify_change(self.notify)
-        return val
-
+            value = AutoExpandList(value)
+        # If we got a Notifier or wraped a dict or a list, we set the parent
+        if isinstance(value, Notifier):
+            value.set_parent(self)
+        return value
 
 class AutoExpandDict(MutableMapping, AutoExpander):
     def __init__(self, args={}, **kwargs):
+        # Init fields and load data
         self.data = {}
         self.data_specials = {}
         self.update(args, **kwargs)
@@ -148,8 +155,6 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         return iter(self.data)
 
     def __setitem__(self, key, value):
-        # if not isinstance(value, MutableSequence) and not isinstance(value, MutableMapping):
-        #     print(key, value)
         if key[0] == "@":
             self.set_special(key[1:], value)
         else:
@@ -179,12 +184,13 @@ class AutoExpandDict(MutableMapping, AutoExpander):
 
 
 class AutoExpandList(MutableSequence, AutoExpander):
-    def __init__(self, args=[]):
+    def __init__(self, args=[], parent=None):
+        # Init fields and load data
         self.data = []
         self.extend(args)
 
-    def __getitem__(self, key): return self.getitem(key)
-    def __delitem__(self, key): self.delitem(key)
+    def __getitem__(self, index): return self.getitem(index)
+    def __delitem__(self, index): self.delitem(index)
     def __len__(self): return self.len()
 
     def __setitem__(self, value):
@@ -218,11 +224,11 @@ class AutoExpanderJSONEncoder(json.JSONEncoder):
 # Main class
 ###############################################################################
 
-class State(MutableMapping):
+class State(MutableMapping, Notifier):
     def __init__(self, timestamp=None):
         log_debug("Loading state files.")
         # Setup in-mememory state file
-        self.loaded = AutoExpandDict()
+        self.loaded = {}
         # Load state files of other users
         for user, session_path in const.session_dirs_foreign:
             self.try_load_user_session(user, session_path)
@@ -233,14 +239,12 @@ class State(MutableMapping):
             path, ext = os.path.splitext(self.own_file)
             path += "_" + timestamp + "." + ext
         # Load file
-        self.user_dict = AutoExpandDict()
         try:
-            self.user_dict.update(json.load(open(path)))
+            self.user_dict = AutoExpandDict(json.load(open(path)))
         except FileNotFoundError:
             log_debug("No state file found. Creating new.")
-            self.user_dict = self.init_empty_state()
-        # Make sure to write file on changes in user_dict
-        self.user_dict.notify_change(self.__write_file__)
+            self.user_dict = AutoExpandDict(**{"@version": const.VERSION})
+        self.loaded[const.user] = self.user_dict
         # Check if we can upgrade
         if is_version_smaller(self.user_dict.get_special("version"), MIN_VERSION):
             msg = "Your state file is too old to be processed."
@@ -250,14 +254,18 @@ class State(MutableMapping):
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
         # Upgrade and store in loaded
-        for patch in self.get_patches(self.user_dict.get_special("version")):
+        patches = self.get_patches(self.user_dict.get_special("version"))
+        for patch in patches:
             log("Updating state file to version " + patch[0] + " ... ", end="")
             self.user_dict = self.upgrade(self.user_dict, patch)
-            self.__write_file__()
             log("Done.")
-        self.loaded[const.user] = self.user_dict
-        # Make sure to update version in case no upgrade was needed
-        self.user_dict.set_special("version", const.VERSION)
+            self.write_file()
+        if not patches:
+            # Make sure to update version in case no upgrade was needed
+            self.user_dict.set_special("version", const.VERSION)
+        # Connect user_dict to this class, so we get notified whenever the
+        # any subdict/sublist is updated
+        self.user_dict.set_parent(self)
 
     def try_load_user_session(self, user, session_dir):
         path = os.path.join(session_dir, const.STATE_NAME)
@@ -288,11 +296,6 @@ class State(MutableMapping):
             if os.getenv("UBERDOT_TEST", 0):
                 raise err
 
-    def init_empty_state(self):
-        empty = AutoExpandDict()
-        empty.set_special("version", const.VERSION)
-        return empty
-
     def upgrade(self, state, patch):
         try:
             state = patch[1](state)
@@ -322,21 +325,31 @@ class State(MutableMapping):
 
     def create_snapshot(self):
         path, ext = os.path.splitext(self.own_file)
-        path += "_" + get_timestamp_now() + "." + ext
-        self.__write_file__(path)
+        path += "_" + get_timestamp_now() + ext
+        log_debug("Creating state file snapshot at '" + path + "'.")
+        self.write_file(path)
 
-    def __write_file__(self, path=None):
+    def write_file(self, path=None):
+        # Prepare directory
         if path is None:
             path = self.own_file
         makedirs(os.path.dirname(path))
-        # Write content of self.loaded to file
+        # Merge user_dict with specials
+        new_dict = {}
+        new_dict.update(self.user_dict)
+        new_dict.update(
+            map(
+                # Prepend the removed @ signs to special values
+                lambda x: ("@"+x[0], x[1]),
+                self.user_dict.get_specials().items()
+            )
+        )
+        # Write content to file
         try:
             file = open(path, "w")
-            file.write(json.dumps(
-                self.user_dict,
-                cls=AutoExpanderJSONEncoder,
-                indent=4
-            ))
+            file.write(
+                json.dumps(new_dict, cls=AutoExpanderJSONEncoder, indent=4)
+            )
         except OSError as err:
             msg = "An unkown error occured when trying to "
             msg += "write changes back to the state file."
@@ -359,17 +372,12 @@ class State(MutableMapping):
 
     def __setitem__(self, key, value):
         self.user_dict[key] = value
-        self.__write_file__()
 
     def __delitem__(self, key):
         del self.user_dict[key]
-        self.__write_file__()
 
     def __getitem__(self, key):
         return self.user_dict[key]
-
-    def copy(self):
-        return deepcopy(self)
 
     def __len__(self):
         return len(self.user_dict)
@@ -379,3 +387,12 @@ class State(MutableMapping):
 
     def __iter__(self):
         return iter(self.user_dict)
+
+    def notify(self):
+        log_debug("Writing changes back to state file.")
+        self.write_file()
+
+    def copy(self):
+        clone = deepcopy(self)
+        clone.notify = None
+        return clone

@@ -468,7 +468,6 @@ class UberDot:
             msg += " '" + const.mode + "'."
             raise UserError(msg)
 
-
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
         # Lets do the easy modes first
@@ -651,8 +650,7 @@ class UberDot:
             else:
                 print(str("   " + name + ": ").ljust(32) + str(value))
 
-    # TODO: extend show
-    # options to display state of snapshots
+    # TODO: options to display snapshots of state
     def show(self):
         """Print out the state file in a readable format.
 
@@ -868,13 +866,13 @@ class UberDot:
         difflog.run_interpreter(*tests)
         # Gain root if needed
         if not has_root_priveleges():
-            log_debug("Checking if root is required")
+            log_debug("Checking if root is required.")
             if const.dryrun:
                 difflog.run_interpreter(RootNeededInterpreter())
             else:
                 difflog.run_interpreter(GainRootInterpreter())
         else:
-            log_debug("uberdot was started with root priveleges")
+            log_debug("uberdot was started with root priveleges.")
         # Check blacklist not until now, because the user would need confirm it
         # twice if the programm is restarted with sudo
         difflog.run_interpreter(CheckLinkBlacklistInterpreter())
