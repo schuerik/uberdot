@@ -263,7 +263,8 @@ def get_linkdescriptor_from_file(file):
     target_file = readlink(file)
     props["from"] = file
     props["to"] = target_file
-    props["uid"], props["gid"] = get_owner(file)
+    uid, gid = get_owner(file)
+    props["owner"] = get_username(uid) + ":" + get_groupname(gid)
     props["permission"] = get_permission(target_file)
     if os.path.exists(target_file):
         props["secure"] = get_owner(file) \
@@ -299,6 +300,9 @@ def get_groupname(gid):
     """
     return grp.getgrgid(gid).gr_name
 
+def get_owner_ids(owner_string):
+    user, group = owner_string.split(":")
+    return pwd.getpwnam(user)[2], grp.getgrnam(group)[2]
 
 def get_user_env_var(varname, fallback=None):
     """Lookup an environment variable.

@@ -1661,11 +1661,12 @@ class DetectRootInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be checked
         """
+        # TODO: finish owner
         name = dop["symlink2"]["from"]
         if dop["symlink1"]["uid"] != dop["symlink2"]["uid"] or \
                 dop["symlink1"]["gid"] != dop["symlink2"]["gid"]:
-            if dop["symlink2"]["uid"] != get_uid() or \
-                    dop["symlink2"]["gid"] != get_gid():
+            uid, gid = get_owner_ids(dop["symlink2"]["owner"])
+            if  uid != get_uid() or gid != get_gid():
                 self._root_detected(dop, "change the owner of", name)
         if dop["symlink1"]["from"] != dop["symlink2"]["from"]:
             if not self._access(dop["symlink2"]["from"]):
