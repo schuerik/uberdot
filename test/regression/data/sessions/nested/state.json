@@ -1,11 +1,11 @@
 {
-    "@version": "1.12.17_4",
+    "@version": "1.17.0",
     "SuperProfileTags": {
-        "name": "SuperProfileTags",
+        "from": "SuperProfileTags",
         "links": [
             {
-                "target": "test/regression/files/name1",
-                "name": "test/regression/environment-nested/name1",
+                "to": "test/regression/files/name1",
+                "from": "test/regression/environment-nested/name1",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:01:42",
@@ -16,27 +16,27 @@
         "updated": "2019-08-02 15:01:42"
     },
     "Subprofile1": {
-        "name": "Subprofile1",
+        "from": "Subprofile1",
         "links": [
             {
-                "target": "test/regression/files/tag1%name2",
-                "name": "test/regression/environment-nested/name2",
+                "to": "test/regression/files/tag1%name2",
+                "from": "test/regression/environment-nested/name2",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:01:42",
                 "secure": true
             },
             {
-                "target": "test/regression/files/tag2%name3",
-                "name": "test/regression/environment-nested/name3",
+                "to": "test/regression/files/tag2%name3",
+                "from": "test/regression/environment-nested/name3",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:01:42",
                 "secure": true
             },
             {
-                "target": "test/regression/files/name4",
-                "name": "test/regression/environment-nested/name4",
+                "to": "test/regression/files/name4",
+                "from": "test/regression/environment-nested/name4",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:01:42",
@@ -48,19 +48,19 @@
         "parent": "SuperProfileTags"
     },
     "Subprofile2": {
-        "name": "Subprofile2",
+        "from": "Subprofile2",
         "links": [
             {
-                "target": "test/regression/files/tag3%name6",
-                "name": "test/regression/environment-nested/name6",
+                "to": "test/regression/files/tag3%name6",
+                "from": "test/regression/environment-nested/name6",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:46:46",
                 "secure": true
             },
             {
-                "target": "test/regression/files/tag3%name5",
-                "name": "test/regression/environment-nested/name5",
+                "to": "test/regression/files/tag3%name5",
+                "from": "test/regression/environment-nested/name5",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-08-02 15:46:46",

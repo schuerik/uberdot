@@ -561,8 +561,7 @@ def links_similar(sym1, sym2):
 def links_equal(link1, link2):
     return normpath(link1["from"]) == normpath(link2["from"]) and \
            normpath(link1["to"]) == normpath(link2["to"]) and \
-           link1["uid"] == link2["uid"] and \
-           link1["gid"] == link2["gid"] and \
+           link1["owner"] == link2["owner"] and \
            link1["permission"] == link2["permission"] and \
            link1["secure"] == link2["secure"]
 
