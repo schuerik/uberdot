@@ -188,16 +188,22 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         self.data_specials[key] = value
 
     def __repr__(self):
-        rep = "{"
-        for key in self.data_specials:
-            rep += "@" + key + ": " + repr(self.data_specials[key]) + ", "
-        for key in list(self.data.keys())[:-1]:
-            rep += repr(key) + ": " + repr(self[key]) + ", "
-        if self.len():
-            last_key = list(self.data.keys())[-1]
-            rep += repr(last_key) + ": " + repr(self[last_key])
-        rep += "}"
-        return rep
+        def dict_repr(dict_):
+            rep = ""
+            for key in list(dict_.keys())[:-1]:
+                rep += repr(key) + ": " + repr(dict_[key]) + ", "
+            if len(dict_):
+                last_key = list(dict_.keys())[-1]
+                rep += repr(last_key) + ": " + repr(dict_[last_key])
+            return rep
+        data_result = dict_repr(self)
+        special_result = dict_repr(self.data_specials)
+        result = "{" + special_result
+        if special_result and data_result:
+            result += ", "
+        result += data_result
+        result += "}"
+        return result
 
 
 class AutoExpandList(MutableSequence, AutoExpander):

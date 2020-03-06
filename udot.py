@@ -472,7 +472,7 @@ class UberDot:
             msg += " '" + const.mode + "'."
             raise UserError(msg)
         # Check if arguments are bad
-        if const.fix not in ["", "s", "t", "r", "d"]:
+        if const.fix not in ["", "s", "t", "r", "d", "u"]:
             raise UserError(
                 "'" + const.fix + "' is not a valid fix action."
             )
@@ -538,7 +538,7 @@ class UberDot:
         if difflog:
             log_warning("Some tracked links were manually changed.")
             # Print summary to give user an idea of what have changed
-            difflog.run_interpreter(PrintSummaryInterpreter())
+            difflog.run_interpreter(PrintInterpreter())
             # Get selection from user
             selection = const.fix
             if not selection:
@@ -547,19 +547,15 @@ class UberDot:
                 log("Autofixing using mode " + const.fix + ".")
             while not selection:
                 msg = "(s)kip fixing / (t)ake over all changes / "
-                msg += "(r)estore all links / (d)ecide for each link: "
+                msg += "(r)estore all links / (u)ntrack all changes / "
+                msg += "(d)ecide for each link: "
                 selection = input(msg).lower()
-                if selection not in ["s", "r", "t", "d"]:
+                if selection not in ["s", "r", "t", "d", "u"]:
                     selection = ""
             # Calculate difflog again depending on selection.
             if selection == "s":
                 return
-            if selection == "r":
-                diffsolver = StateFilesystemDiffSolver(self.state, action="r")
-            elif selection == "t":
-                diffsolver = StateFilesystemDiffSolver(self.state, action="t")
-            else:
-                diffsolver = StateFilesystemDiffSolver(self.state)
+            diffsolver = StateFilesystemDiffSolver(self.state, action=selection)
             difflog = diffsolver.solve()
             # Execute difflog. First some obligatory checks
             difflog.run_interpreter(
@@ -1042,6 +1038,10 @@ def run_script(name):
                 log_debug(traceback.format_exc())
                 log_error(err.message)
             sys.exit(err.EXITCODE)
+        except NotImplementedError:
+            log_error(traceback.format_exc())
+            logger.critical("Congratulations! You stumbled over a feature"+
+                            " that is not implemented yet.")
         except Exception:
             # This works because all critical parts will catch also all
             # exceptions and convert them into a CustomError

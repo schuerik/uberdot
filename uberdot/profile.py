@@ -40,6 +40,7 @@ from uberdot.errors import GenerationError
 from uberdot.errors import FatalError
 from uberdot.utils import expandpath
 from uberdot.utils import find_target
+from uberdot.utils import inflate_owner
 from uberdot.utils import predict_owner
 from uberdot.utils import import_profile
 from uberdot.utils import log_debug
@@ -299,7 +300,6 @@ class Profile:
                 # make sure that it returns a string
                 try:
                     returnval = attribute()
-                    print(returnval)
                 except Exception as err:
                     err_name = type(err).__name__
                     msg = event_name + " exited with error " + err_name

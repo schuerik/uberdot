@@ -87,8 +87,8 @@ class FatalError(CustomError):
         msg = message
         msg += "\n" + const.col_warning + "This error should NEVER EVER "
         msg += "occur!! The developer fucked this up really hard! Please "
-        msg += "make sure to resolve this issue before using this "
-        msg += "tool again!" + const.col_endc
+        msg += "create an issue on github and wait for a patch before "
+        msg += "using this tool again!" + const.col_endc
         super().__init__(msg)
 
 

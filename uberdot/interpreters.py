@@ -116,6 +116,11 @@ class Interpreter():
         attribute = getattr(self, "_op_" + operation["operation"], None)
         if callable(attribute):
             attribute(operation)
+        else:
+            # Check if this interpreter has implemented _op_fallback, then call
+            attribute = getattr(self, "_op_fallback", None)
+            if callable(attribute):
+                attribute(operation)
 
 
 class PrintPlainInterpreter(Interpreter):
@@ -126,26 +131,7 @@ class PrintPlainInterpreter(Interpreter):
         Maps ``_op_*`` functions to ``print()``.
         """
         super().__init__()
-        self._op_add_p = self._op_remove_p = self._op_update_p = print
-        self._op_add_l = self._op_remove_l = self._op_update_l = print
-        self._op_info = self._op_track_l = self._op_untrack_l = print
-        self._op_update_prop = self._op_restore_l = print
-
-    def _op_start(self, dop):
-        """Print "[" to show the start of an array.
-
-        Args:
-            dop (dict): Unused in this implementation
-        """
-        print("[")
-
-    def _op_fin(self, dop):
-        """Print "]" to show the end of an array.
-
-        Args:
-            dop (dict): Unused in this implementation
-        """
-        print("]")
+        self._op_fallback = print
 
 
 class PrintSummaryInterpreter(Interpreter):
@@ -336,6 +322,7 @@ class DUIStrategyInterpreter(Interpreter):
         self.link_deletes = []
         self.link_updates = []
         self.link_adds = []
+        self.property_updates = []
 
     def _op_add_p(self, dop):
         """Adds the profile-add-operation to ``profile_adds``.
@@ -360,7 +347,7 @@ class DUIStrategyInterpreter(Interpreter):
         self.link_deletes.append(dop)
 
     def _op_restore_l(self, dop):
-        self.link_updates.append(dop)
+        raise NotImplementedError
 
     def _op_update_p(self, dop):
         """Adds the profile-update-operation to ``profile_updates``.
@@ -394,6 +381,9 @@ class DUIStrategyInterpreter(Interpreter):
         """
         self.link_updates.append(dop)
 
+    def _op_update_prop(self, dop):
+        self.property_updates.append(dop)
+
     def _op_fin(self, dop):
         """Merges the collections of operations in the correct order
         and overwrites ``self.data`` to alter the DiffLog
@@ -404,6 +394,7 @@ class DUIStrategyInterpreter(Interpreter):
         merged_list = self.link_deletes + self.profile_deletes
         merged_list += self.profile_updates + self.link_updates
         merged_list += self.profile_adds + self.link_adds
+        merged_list += self.property_updates
         self.data.clear()
         for item in merged_list:
             self.data.append(item)
@@ -733,20 +724,28 @@ class CheckDiffsolverResultInterpreter(Interpreter):
     def __init__(self, state, error_type=FatalError):
         self.state = state
         self.error_type = error_type
+        self.removed_links = []
 
     def _raise(self, msg):
+        print("\n".join([repr(x) for x in self.data]))
         raise self.error_type(msg)
 
-    def is_link_in_state(self, link):
-        for profile in self.state.values():
-            for state_link in profile["links"]:
-                if links_equal(state_link, link):
-                    return True
+    def _op_fallback(self, dop):
+        if dop["operation"] not in ["start", "fin", "info"]:
+            # This is always a FatalError
+            raise FatalError("No check implemented for " + dop["operation"])
+
+    def is_link_in_state(self, profilename, link):
+        if profilename not in self.state:
+            return False
+        for state_link in self.state[profilename]["links"]:
+            if links_equal(state_link, link):
+                return link["from"] not in self.removed_links
         return False
 
     def _op_restore_l(self, dop):
         # Only restore link if it is tracked and differs from the tracked
-        if not self.is_link_in_state(dop["symlink"]):
+        if not self.is_link_in_state(dop["profile"], dop["symlink"]):
             msg = "'" + dop["symlink"]["from"] + "' can not be restored "
             msg += " because it is not tracked."
             self._raise(msg)
@@ -757,9 +756,10 @@ class CheckDiffsolverResultInterpreter(Interpreter):
 
     def _op_untrack_l(self, dop):
         # Only untack link if it is tracked
-        if not self.is_link_in_state(dop["symlink"]):
+        if not self.is_link_in_state(dop["profile"], dop["symlink"]):
             msg = "'" + dop["symlink"]["from"] + "' is not tracked."
             self._raise(msg)
+        self.removed_links.append(dop["symlink"]["from"])
 
     def _op_track_l(self, dop):
         # Only track link if it exists and is not already tracked
@@ -767,7 +767,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             msg = "'" + dop["symlink"]["from"] + "' can not be tracked "
             msg += " because it does not exist."
             self._raise(msg)
-        if self.is_link_in_state(dop["symlink"]):
+        if self.is_link_in_state(dop["profile"], dop["symlink"]):
             msg = "'" + dop["symlink"]["from"] + "' is already tracked."
             self._raise(msg)
 
@@ -777,9 +777,10 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             msg = "'" + dop["symlink"]["from"] + "' can not be removed because"
             msg += " it does not exist."
             self._raise(msg)
-        if not self.is_link_in_state(dop["symlink"]):
+        if not self.is_link_in_state(dop["profile"], dop["symlink"]):
             msg = "'" + dop["symlink"]["from"] + "' is not tracked."
             self._raise(msg)
+        self.removed_links.append(dop["symlink"]["from"])
 
     def _op_update_l(self, dop):
         # Only update link if old link still exists, the target of the
@@ -794,11 +795,13 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             msg += " because '" + dop["symlink2"]["to"]
             msg += "' does not exist in your filesystem."
             self._raise(msg)
-        if not self.is_link_in_state(dop["symlink1"]):
+        if not self.is_link_in_state(dop["profile"], dop["symlink1"]):
             msg = "'" + dop["symlink1"]["from"] + "' is not tracked."
             self._raise(msg)
         if links_equal(dop["symlink1"], dop["symlink2"]):
             self._raise("New symlink is the same as the old symlink.")
+        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:
+            self.removed_links.append(dop["symlink1"]["from"])
 
     def _op_add_l(self, dop):
         # Only create symlink if is not already tracked and only if
@@ -808,7 +811,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             msg += " because it points to '" + dop["symlink"]["to"]
             msg += "' which does not exist in your filesystem."
             self._raise(msg)
-        if self.is_link_in_state(dop["symlink"]):
+        if self.is_link_in_state(dop["profile"], dop["symlink"]):
             msg = "'" + dop["symlink"]["from"] + "' is already tracked."
             self._raise(msg)
 
@@ -834,6 +837,8 @@ class CheckDiffsolverResultInterpreter(Interpreter):
         # Only update property if changed
         msg = "Property '" + dop["key"] + "' of profile '"
         msg += dop["profile"] + "' did not change."
+        if dop["profile"] not in self.state:
+            return
         profile = self.state[dop["profile"]]
         if dop["key"] in profile:
             if dop["value"] == profile[dop["key"]]:
@@ -885,29 +890,31 @@ class CheckFileOverwriteInterpreter(Interpreter):
                 link already exists or the new link points to a non-existent
                 file
         """
-        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:
-            if os.path.lexists(dop["symlink2"]["from"]):
-                if os.path.isdir(dop["symlink2"]["from"]):
+        old_name = dop["symlink1"]["from"]
+        new_name = dop["symlink2"]["from"]
+        if old_name != new_name:
+            if new_name not in self.removed_links and os.path.lexists(new_name):
+                if os.path.isdir(new_name):
                     if not const.force:
-                        msg = "'" + dop["symlink1"]["from"] + "' can not be "
-                        msg += "moved to '" + dop["symlink2"]["from"] + "' "
+                        msg = "'" + old_name + "' can not be "
+                        msg += "moved to '" + new_name + "' "
                         msg += "because it is a directory and would be "
                         msg += "overwritten. You can force to overwrite empty"
                         msg += " directories by setting the --force flag."
                         raise PreconditionError(msg)
-                    if os.listdir(dop["symlink2"]["from"]):
-                        msg = "'" + dop["symlink1"]["from"] + "' can not be "
-                        msg += "moved to '" + dop["symlink2"]["from"] + "' "
+                    if os.listdir(new_name):
+                        msg = "'" + old_name + "' can not be "
+                        msg += "moved to '" + new_name + "' "
                         msg += "because it is a directory and contains files"
                         msg += " that would be overwritten. Please empty the"
                         msg += " directory or remove it entirely."
                         raise PreconditionError(msg)
                 elif not const.force:
-                    msg = "'" + dop["symlink1"]["from"] + "' can not be moved to '"
-                    msg += dop["symlink2"]["from"] + "' because it already exists"
+                    msg = "'" + old_name + "' can not be moved to '"
+                    msg += new_name + "' because it already exists"
                     msg += " on your filesystem and would be overwritten."
                     raise PreconditionError(msg)
-            self.removed_links.append(dop["symlink1"]["from"])
+            self.removed_links.append(old_name)
 
     def _op_add_l(self, dop):
         """Checks if the new link already exists.

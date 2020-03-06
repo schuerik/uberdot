@@ -240,14 +240,21 @@ def predict_owner(filename):
     dirname = os.path.dirname(filename)
     while not os.path.isdir(dirname):
         dirname = os.path.dirname(dirname)
-    return get_owner(dirname)
+    return ids_to_owner_string(get_owner(dirname))
+
+
+def ids_to_owner_string(ids):
+    return get_username(ids[0]) + ":" + get_groupname(ids[1])
+
 
 def get_owner(filename):
     stat = os.lstat(filename)
     return stat.st_uid, stat.st_gid
 
+
 def get_permission(filename):
     return int(oct(os.lstat(filename).st_mode)[-3:])
+
 
 def inflate_owner(owner_string):
     user, group = owner_string.split(":")
@@ -259,8 +266,10 @@ def inflate_owner(owner_string):
         group = get_groupname(get_gid())
     return user + ":" + group
 
+
 def readlink(file):
     return normpath(os.path.join(os.path.dirname(file), os.readlink(file)))
+
 
 def get_linkdescriptor_from_file(file):
     if not os.path.exists(file):
@@ -277,12 +286,12 @@ def get_linkdescriptor_from_file(file):
     props["owner"] = get_username(uid) + ":" + get_groupname(gid)
     props["permission"] = get_permission(target_file)
     if os.path.exists(target_file):
-        props["secure"] = get_owner(file) \
-            == get_owner(target_file)
+        props["secure"] = get_owner(file) == get_owner(target_file)
     else:
         props["secure"] = None
-    props["date"] = os.path.getmtime(file)
+    props["date"] = timestamp_to_string(os.path.getmtime(file))
     return props
+
 
 def has_root_priveleges():
     """Checks if this programm has root priveleges.
@@ -310,9 +319,11 @@ def get_groupname(gid):
     """
     return grp.getgrgid(gid).gr_name
 
+
 def get_owner_ids(owner_string):
     user, group = owner_string.split(":")
     return pwd.getpwnam(user)[2], grp.getgrnam(group)[2]
+
 
 def get_user_env_var(varname, fallback=None):
     """Lookup an environment variable.
@@ -568,33 +579,30 @@ logger = logging.getLogger("root")
 
 
 def links_similar(sym1, sym2):
-    return normpath(sym1["from"]) == normpath(sym2["from"]) or \
-           normpath(sym1["to"]) == normpath(sym2["to"])
+    return sym1["from"] == sym2["from"] or sym1["to"] == sym2["to"]
 
 
 def links_equal(link1, link2):
-    return normpath(link1["from"]) == normpath(link2["from"]) and \
-           normpath(link1["to"]) == normpath(link2["to"]) and \
+    return link1["from"] == link2["from"] and \
+           link1["to"] == link2["to"] and \
            link1["owner"] == link2["owner"] and \
            link1["permission"] == link2["permission"] and \
            link1["secure"] == link2["secure"]
 
 
 def link_exists(link):
-    if not os.path.islink(link["from"]):
+    try:
+        link2 = get_linkdescriptor_from_file(link["from"])
+    except FileNotFoundError:
         return False
-    link2 = get_linkdescriptor_from_file(link["from"])
-    print(link)
-    print(link2)
-    print(links_equal(link, link2))
-    print("####################")
     return links_equal(link, link2)
 
 
 def similar_link_exists(link):
-    if not os.path.islink(link["from"]):
+    try:
+        link2 = get_linkdescriptor_from_file(link["from"])
+    except FileNotFoundError:
         return False
-    link2 = get_linkdescriptor_from_file(link["from"])
     return links_similar(link, link2)
 
 
@@ -622,7 +630,13 @@ def get_date_time_now():
     Returns:
         str: The datetime string
     """
-    return datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return timestamp_to_string(get_timestamp_now())
+
+
+def timestamp_to_string(timestamp):
+    return datetime.datetime.utcfromtimestamp(
+        math.floor(int(timestamp))
+    ).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def log(message, end="\n"):

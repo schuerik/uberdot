@@ -1213,14 +1213,20 @@ DirRegressionTest("Fail: Link moved between profiles",
 DirRegressionTest("Fail: Link moved between profiles",
                   ["update", "SuperProfileTags"],
                   after_tags, before, "nested").fail("run", 102)
+
 # This test needs ticket #42 to be resolved
 # OutputRegressionTest("Output: --show", ["-s"], after_diroptions, "update").success()
+
+# For these tests we should also check the state file
 DirRegressionTest("Autofix: Take over",
-                  ["update", "SuperProfileTags"],
+                  ["--fix", "t", "update", "DirOption"],
                   after_modified, after_modified, "modified").success()
 DirRegressionTest("Autofix: Restore",
-                  ["--fix", "r", "update", "SuperProfileTags"],
+                  ["--fix", "r", "update", "DirOption"],
                   after_modified, after_diroptions, "modified").success()
+DirRegressionTest("Autofix: Untrack",
+                  ["--fix", "u", "update", "DirOption"],
+                  after_modified, after_modified, "modified").success()
 
 # Overall result
 print(LINEWDTH*"=")
