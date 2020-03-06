@@ -672,34 +672,34 @@ class Profile:
         owner = read_opt("owner")
         if owner:
             # Check for the correct format of owner
-            try:
-                user, group = owner.split(":")
-            except ValueError:
+            if not re.fullmatch(r"\w*:\w*", owner):
                 msg = "The owner needs to be specified in the format "
                 self._gen_err(msg + "user:group")
+            owner = inflate_owner(owner)
             try:
-                uid = shutil._get_uid(user)
+                user = owner.split(":")[0]
+                shutil._get_uid(user)
             except LookupError:
                 msg = "You want to set the owner of '" + name + "' to '" + user
                 msg += "', but there is no such user on this system."
                 self._gen_err(msg)
             try:
-                gid = shutil._get_gid(group)
+                group = owner.split(":")[1]
+                shutil._get_gid(group)
             except LookupError:
-                msg = "You want to set the owner of '" + name + "' to '"
+                msg = "You want to set the group owner of '" + name + "' to '"
                 msg += group + "', but there is no such group on this system."
                 self._gen_err(msg)
         else:
             # if no owner was specified, we need to set it
             # to the owner of the dir
-            uid, gid = predict_owner(name)
+            owner = predict_owner(name)
 
         # Finally create the result entry
         linkdescriptor = AutoExpandDict()
         linkdescriptor["from"] = name
         linkdescriptor["to"] = target
-        linkdescriptor["uid"] = uid
-        linkdescriptor["gid"] = gid
+        linkdescriptor["owner"] = owner
         linkdescriptor["permission"] = read_opt("permission")
         linkdescriptor["secure"] = read_opt("secure")
         self.result["links"].append(linkdescriptor)

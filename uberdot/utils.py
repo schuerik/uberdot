@@ -249,6 +249,16 @@ def get_owner(filename):
 def get_permission(filename):
     return int(oct(os.lstat(filename).st_mode)[-3:])
 
+def inflate_owner(owner_string):
+    user, group = owner_string.split(":")
+    user = expandvars(user)
+    group = expandvars(group)
+    if not user:
+        user = const.user
+    if not group:
+        group = get_groupname(get_gid())
+    return user + ":" + group
+
 def readlink(file):
     return normpath(os.path.join(os.path.dirname(file), os.readlink(file)))
 

@@ -362,12 +362,9 @@ class StateFilesystemDiffSolver(DiffSolver):
                 actual_link = get_linkdescriptor_from_file(link["from"])
                 msg = "Properties of link '" + link["from"]
                 msg += "' changed:" + "\n"
-                if actual_link["uid"] != link["uid"]:
-                    msg += "  uid: " + str(link["uid"]) + " -> "
-                    msg += str(actual_link["uid"]) + "\n"
-                if actual_link["gid"] != link["gid"]:
-                    msg += "  gid: " + str(link["gid"]) + " -> "
-                    msg += str(actual_link["gid"]) + "\n"
+                if actual_link["owner"] != link["owner"]:
+                    msg += "  owner: " + link["owner"] + " -> "
+                    msg += actual_link["owner"] + "\n"
                 if actual_link["permission"] != link["permission"]:
                     msg += "  permssion: " + str(link["permission"]) + " -> "
                     msg += str(actual_link["permission"]) + "\n"

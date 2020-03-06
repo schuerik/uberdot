@@ -31,12 +31,14 @@ from collections.abc import MutableSequence
 from uberdot import constants as const
 from uberdot.errors import CustomError
 from uberdot.errors import UnkownError
+from uberdot.errors import FatalError
 from uberdot.errors import PreconditionError
 from uberdot.utils import expandvars
 from uberdot.utils import find_files
 from uberdot.utils import get_gid
 from uberdot.utils import get_groupname
 from uberdot.utils import get_username
+from uberdot.utils import inflate_owner
 from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import log
@@ -123,18 +125,15 @@ class Notifier:
 class AutoExpander(Notifier):
     def getitem(self, key):
         value = self.data[key]
+        # Expand values
         if isinstance(value, str):
+            # Normalize path
             if key in PATH_VALUES:
                 value = normpath(value)
+            # Inflate owner
             elif key == "owner":
-                user, group = value.split(":")
-                user = expandvars(user)
-                group = expandvars(group)
-                if not user:
-                    user = const.user
-                if not group:
-                    group = get_groupname(get_gid())
-                value = user + ":" + group
+                value = inflate_owner(value)
+            # Expand environment vars
             else:
                 value = expandvars(value)
         return value
@@ -152,7 +151,8 @@ class AutoExpander(Notifier):
             value = AutoExpandDict(value)
         elif type(value) == list:
             value = AutoExpandList(value)
-        # If we got a Notifier or wraped a dict or a list, we set the parent
+        # If we got a Notifier or just wraped a dict or a list,
+        # we set this instance as its parent
         if isinstance(value, Notifier):
             value.set_parent(self)
         return value

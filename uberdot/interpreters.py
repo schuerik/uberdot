@@ -278,20 +278,15 @@ class PrintInterpreter(Interpreter):
             log_operation(dop["profile"], dop["symlink1"]["from"] +
                           " points now to " + dop["symlink2"]["to"])
         else:
-            msg_start = dop["symlink1"]["from"] + " has changed "
+            msg_start = "'" + dop["symlink1"]["from"] + "' has changed "
             if dop["symlink2"]["permission"] != dop["symlink1"]["permission"]:
                 msg = msg_start + "permission from "
                 msg += str(dop["symlink1"]["permssion"])
                 msg += " to " + str(dop["symlink2"]["permssion"])
                 log_operation(dop["profile"], msg)
-            if dop["symlink2"]["uid"] != dop["symlink1"]["uid"] or \
-                    dop["symlink2"]["gid"] != dop["symlink1"]["gid"]:
-                user = pwd.getpwuid(dop["symlink1"]["uid"])[0]
-                group = grp.getgrgid(dop["symlink1"]["gid"])[0]
-                msg = msg_start + "owner from " + user + ":" + group
-                user = pwd.getpwuid(dop["symlink2"]["uid"])
-                group = grp.getgrgid(dop["symlink2"]["gid"])
-                msg += " to " + user + ":" + group
+            if dop["symlink1"]["owner"] != dop["symlink2"]["owner"]:
+                msg = msg_start + "owner from " + dop["symlink1"]["owner"]
+                msg += " to " + dop["symlink2"]["owner"].split(":")
                 log_operation(dop["profile"], msg)
             if dop["symlink2"]["secure"] != dop["symlink1"]["secure"]:
                 msg = msg_start + "secure feature from "
@@ -1532,12 +1527,13 @@ class ExecuteInterpreter(Interpreter):
             # Create new symlink
             os.symlink(ldescriptor["to"], ldescriptor["from"])
             # Set owner and permission
-            os.lchown(ldescriptor["from"], ldescriptor["uid"], ldescriptor["gid"])
+            uid, gid = get_owner_ids(ldescriptor["owner"])
+            os.lchown(ldescriptor["from"], uid, gid)
             if ldescriptor["permission"] != 644:
                 os.chmod(ldescriptor["from"], int(str(ldescriptor["permission"]), 8))
             # Set owner of symlink
             if ldescriptor["secure"]:
-                os.chown(ldescriptor["to"], ldescriptor["uid"], ldescriptor["gid"])
+                os.chown(ldescriptor["to"], uid, gid)
             else:
                 os.chown(ldescriptor["to"], get_uid(), get_gid())
         except OSError as err:
@@ -1590,7 +1586,7 @@ class ExecuteInterpreter(Interpreter):
         while not os.path.isdir(dirname):
             dirname = os.path.dirname(dirname)
         # And remember its owner
-        uid, gid = os.stat(dirname).st_uid, os.stat(dirname).st_gid
+        uid, gid = get_owner(dirname)
         top_dir = dirname
         # Then create directories
         dirname = os.path.dirname(filename)
@@ -1633,8 +1629,8 @@ class DetectRootInterpreter(Interpreter):
             dop (dict): The add-operation that will be checked
         """
         name = dop["symlink"]["from"]
-        uid, gid = predict_owner(name)
-        if dop["symlink"]["uid"] != uid or dop["symlink"]["gid"] != gid:
+        owner = predict_owner(name)
+        if dop["symlink"]["owner"] != owner:
             self._root_detected(dop, "change owner of", name)
         elif not self._access(name):
             self._root_detected(dop, "create links in", os.path.dirname(name))
@@ -1661,10 +1657,8 @@ class DetectRootInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be checked
         """
-        # TODO: finish owner
         name = dop["symlink2"]["from"]
-        if dop["symlink1"]["uid"] != dop["symlink2"]["uid"] or \
-                dop["symlink1"]["gid"] != dop["symlink2"]["gid"]:
+        if dop["symlink1"]["owner"] != dop["symlink2"]["owner"]:
             uid, gid = get_owner_ids(dop["symlink2"]["owner"])
             if  uid != get_uid() or gid != get_gid():
                 self._root_detected(dop, "change the owner of", name)
