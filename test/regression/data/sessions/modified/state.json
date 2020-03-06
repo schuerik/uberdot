@@ -5,7 +5,7 @@
         "links": [
             {
                 "to": "test/regression/files/name1",
-                "from": "test/regression/environment-update/name1",
+                "from": "test/regression/environment-modified/name1",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-07-29 15:30:04",
@@ -13,7 +13,7 @@
             },
             {
                 "to": "test/regression/files/name2",
-                "from": "test/regression/environment-update/subdir/name2",
+                "from": "test/regression/environment-modified/subdir/name2",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-07-29 15:30:04",
@@ -21,7 +21,7 @@
             },
             {
                 "to": "test/regression/files/name3",
-                "from": "test/regression/environment-update/subdir/subsubdir/name3",
+                "from": "test/regression/environment-modified/subdir/subsubdir/name3",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-07-29 15:30:04",
@@ -29,7 +29,7 @@
             },
             {
                 "to": "test/regression/files/name4",
-                "from": "test/regression/environment-update/subdir/subsubdir/name4",
+                "from": "test/regression/environment-modified/subdir/subsubdir/name4",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-07-29 15:30:04",
@@ -37,7 +37,7 @@
             },
             {
                 "to": "test/regression/files/name5",
-                "from": "test/regression/environment-update/name5",
+                "from": "test/regression/environment-modified/name5",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-07-29 15:30:04",
@@ -45,7 +45,7 @@
             },
             {
                 "to": "test/regression/files/name6",
-                "from": "test/regression/environment-update/subdir2/name6",
+                "from": "test/regression/environment-modified/subdir2/name6",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-07-29 15:30:04",
@@ -53,7 +53,7 @@
             },
             {
                 "to": "test/regression/files/name7",
-                "from": "test/regression/environment-update/subdir2/name7",
+                "from": "test/regression/environment-modified/subdir2/name7",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-07-29 15:30:04",
