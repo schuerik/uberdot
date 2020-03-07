@@ -1060,6 +1060,7 @@ after_modified = {
 owd = os.getcwd()
 os.chdir(DIRNAME)
 
+# TODO: Rethink argument tests
 DirRegressionTest("Simple",
                   ["update", "NoOptions"],
                   before, after_nooptions).success()
@@ -1219,13 +1220,13 @@ DirRegressionTest("Fail: Link moved between profiles",
 
 # For these tests we should also check the state file
 DirRegressionTest("Autofix: Take over",
-                  ["--fix", "t", "update", "DirOption"],
+                  ["--fix", "t", "show"],
                   after_modified, after_modified, "modified").success()
 DirRegressionTest("Autofix: Restore",
-                  ["--fix", "r", "update", "DirOption"],
+                  ["--fix", "r", "show"],
                   after_modified, after_diroptions, "modified").success()
 DirRegressionTest("Autofix: Untrack",
-                  ["--fix", "u", "update", "DirOption"],
+                  ["--fix", "u", "show"],
                   after_modified, after_modified, "modified").success()
 
 # Overall result

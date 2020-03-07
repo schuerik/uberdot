@@ -49,6 +49,7 @@ from uberdot.utils import log
 from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import normpath
+from uberdot.utils import readlink
 from uberdot.utils import safe_walk
 from uberdot.utils import similar_link_exists
 
@@ -141,8 +142,11 @@ class DiffLog():
         """
         self.__append_data("remove_p", profilename)
 
-    def restore_link(self, profilename, symlink):
-        self.__append_data("restore_l", profilename, symlink=symlink)
+    def restore_link(self, profilename, saved_link, actual_link):
+        self.__append_data("restore_l",
+                           profilename,
+                           saved_link=saved_link,
+                           actual_link=actual_link)
 
     def add_link(self, profilename, symlink):
         """Create an add-link operation.
@@ -335,7 +339,7 @@ class StateFilesystemDiffSolver(DiffSolver):
                 # Check if another symlink exists that has same target
                 for root, name in safe_walk(os.path.dirname(link["from"])):
                     file = os.path.join(root, name)
-                    if os.path.realpath(file) == link["to"]:
+                    if readlink(file) == link["to"]:
                         msg = "Link '" + link["from"] + "' was renamed"
                         msg += " to '" + file + "'."
                         self.fix_link(
@@ -350,9 +354,9 @@ class StateFilesystemDiffSolver(DiffSolver):
                         profilename, link, {}
                     )
             # Check if link still points to same target
-            elif os.path.realpath(link["from"]) != link["to"]:
+            elif readlink(link["from"]) != link["to"]:
                 msg = "Link '" + link["from"] + "' now points to '"
-                msg += os.path.realpath(link["from"]) + "'."
+                msg += readlink(link["from"]) + "'."
                 self.fix_link(
                     msg, profilename, link,
                     get_linkdescriptor_from_file(link["from"])
@@ -391,7 +395,7 @@ class StateFilesystemDiffSolver(DiffSolver):
         if selection == "s":
             return
         elif selection == "r":
-            self.difflog.restore_link(profilename, saved_link)
+            self.difflog.restore_link(profilename, saved_link, actual_link)
         elif selection == "t":
             if not actual_link:
                 self.difflog.untrack_link(profilename, saved_link)

@@ -297,7 +297,7 @@ class PrintInterpreter(Interpreter):
     def _op_restore_l(self, dop):
         log_operation(
             dop["profile"],
-            "Restored tracked file '" + dop["symlink"]["from"] + "'"
+            "Restored tracked file '" + dop["saved_link"]["from"] + "'"
         )
 
 
@@ -421,9 +421,8 @@ class CheckDynamicFilesInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation of the to be removed link
         """
-        self.inspect_file(os.readlink(dop["symlink"]["from"]))
+        self.inspect_file(readlink(dop["symlink"]["from"]))
 
-    # TODO os.readlink, os.realpath or utils.readlink? Evaluate for all occurences
     def inspect_file(self, target):
         """Checks if a file is dynamic and was changed. If so, it
         calls a small UI to store/undo changes.
@@ -671,7 +670,8 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         self.check_blacklist(dop["symlink"]["from"], "overwrite")
 
     def _op_restore_l(self, dop):
-        self.check_blacklist(dop["symlink"]["from"], "overwrite")
+        self.check_blacklist(dop["saved_link"]["from"], "overwrite")
+        self.check_blacklist(dop["actual_link"]["from"], "remove")
 
 
 class CheckLinkDirsInterpreter(Interpreter):
@@ -689,7 +689,7 @@ class CheckLinkDirsInterpreter(Interpreter):
         self.check_dirname(os.path.dirname(dop["symlink"]["from"]))
 
     def _op_restore_l(self, dop):
-        self.check_dirname(os.path.dirname(dop["symlink"]["from"]))
+        self.check_dirname(os.path.dirname(dop["saved_link"]["from"]))
 
     def _op_update_l(self, dop):
         """Checks if the directory of the to be updated link already exists.
@@ -745,12 +745,12 @@ class CheckDiffsolverResultInterpreter(Interpreter):
 
     def _op_restore_l(self, dop):
         # Only restore link if it is tracked and differs from the tracked
-        if not self.is_link_in_state(dop["profile"], dop["symlink"]):
-            msg = "'" + dop["symlink"]["from"] + "' can not be restored "
+        if not self.is_link_in_state(dop["profile"], dop["saved_link"]):
+            msg = "'" + dop["saved_link"]["from"] + "' can not be restored "
             msg += " because it is not tracked."
             self._raise(msg)
-        if link_exists(dop["symlink"]):
-            msg = "'" + dop["symlink"]["from"] + "' can not be restored "
+        if link_exists(dop["saved_link"]):
+            msg = "'" + dop["saved_link"]["from"] + "' can not be restored "
             msg += " because it already exists like this."
             self._raise(msg)
 
@@ -1420,7 +1420,9 @@ class ExecuteInterpreter(Interpreter):
         self.add_to_state(dop["profile"], dop["symlink"])
 
     def _op_restore_l(self, dop):
-        self.create_symlink(dop["symlink"], force=True)
+        if dop["actual_link"]:
+            self.remove_symlink(dop["actual_link"]["from"], cleanup=False)
+        self.create_symlink(dop["saved_link"], force=True)
 
     def _op_update_prop(self, dop):
         """Updates the script_path of the onUninstall-script for a profile.
@@ -1623,10 +1625,9 @@ class DetectRootInterpreter(Interpreter):
         """
         if not path or path == "/":
             return False
-        dirname = os.path.dirname(path)
-        if os.access(dirname, os.W_OK):
-            return True
-        return self._access(dirname)
+        if not os.path.exists(path):
+            return self._access(os.path.dirname(path))
+        return os.access(path, os.W_OK)
 
     def _op_add_l(self, dop):
         """Checks if new links are either created in inaccessible directories
@@ -1649,13 +1650,18 @@ class DetectRootInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be checked
         """
-        try:
-            if not os.access(os.path.dirname(dop["symlink"]["from"]), os.W_OK):
-                self._root_detected(dop, "remove links from",
-                                    os.path.dirname(dop["symlink"]["from"]))
-        except FileNotFoundError:
-            raise FatalError(dop["symlink"]["from"] + " can't be checked " +
-                             "for owner rights because it does not exist.")
+        if not self._access(dop["symlink"]["from"]):
+            self._root_detected(dop, "remove links from",
+                                os.path.dirname(dop["symlink"]["from"]))
+
+    def _op_restore_l(self, dop):
+        if dop["actual_link"] and not self._access(dop["actual_link"]["from"]):
+            self._root_detected(dop, "remove links from",
+                                os.path.dirname(dop["actual_link"]["from"]))
+        if not self._access(dop["saved_link"]["from"]):
+            self._root_detected(dop, "create links in",
+                                os.path.dirname(dop["saved_link"]["from"]))
+
 
     def _op_update_l(self, dop):
         """Checks if to be updated links are owned by other users than

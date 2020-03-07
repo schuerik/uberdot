@@ -488,13 +488,12 @@ class UberDot:
             return
         # For the next modes we need a loaded state
         self.state = State()
+        self.fix()
         if const.mode == "show":
             self.show()
         else:
             # The previous modes just printed stuff, but here we
             # have to actually do something:
-            # 0. Make sure that state file is up to date
-            self.fix()
             # 1. Decide how to solve the differences and setup DiffSolvers
             if const.mode == "remove":
                 log_debug("Calculating operations to remove profiles.")

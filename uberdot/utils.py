@@ -268,7 +268,11 @@ def inflate_owner(owner_string):
 
 
 def readlink(file):
-    return normpath(os.path.join(os.path.dirname(file), os.readlink(file)))
+    if os.path.islink(file):
+        path = os.path.join(os.path.dirname(file), os.readlink(file))
+        path = normpath(path)
+        return path
+    return file
 
 
 def get_linkdescriptor_from_file(file):
