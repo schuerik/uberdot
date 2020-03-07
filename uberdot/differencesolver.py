@@ -176,7 +176,7 @@ class DiffLog():
             symlink_name (str): The absolute path to the symbolic link
             profilename (str): The profile that the link is removed from
         """
-        if link_exists(symlink):
+        if similar_link_exists(symlink):
             self.__append_data("remove_l", profilename, symlink=symlink)
         else:
             self.untrack_link(profilename, symlink)
