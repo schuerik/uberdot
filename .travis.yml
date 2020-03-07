@@ -14,6 +14,9 @@ branches:
 before_install:
   - openssl aes-256-cbc -K $encrypted_b1b55b706fb5_key -iv $encrypted_b1b55b706fb5_iv -in deploy/github-key.enc -out github-key -d
   - chmod 600 github-key
+  - chmod -R 644 test/regression/environment*
+  - chmod -R 644 test/regression/files
+  - chmod -R 644 test/regression/profiles*
 
 # Install dependencies
 install:
@@ -22,7 +25,7 @@ install:
 # Main build phase
 script:
   # Exec tests
-  - ./test/regression/test.py 29 32 37 38
+  - ./test/regression/test.py
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./test/version/test.sh; fi'
   # Generate documentation
   - make -C docs/sphinx html man
