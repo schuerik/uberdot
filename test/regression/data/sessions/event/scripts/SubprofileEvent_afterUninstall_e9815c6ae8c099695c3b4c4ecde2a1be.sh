@@ -4,7 +4,7 @@ echo "$2" >> $1
 }
 
 
-cd /home/god/repos/uberdot/test/regression/environment-event
+cd $UBERDOT_CWD/test/regression/environment-event
 
 if [[ -e name2 ]]; then
 exit 1;

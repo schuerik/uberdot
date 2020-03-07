@@ -96,7 +96,10 @@ class UberDot:
         self.profiles = []
         # Change current working directory to the directory of this module
         newdir = os.path.abspath(sys.modules[__name__].__file__)
-        os.chdir(os.path.dirname(newdir))
+        newdir = os.path.dirname(newdir)
+        os.chdir(newdir)
+        # Set environment to var to be used in configs, scripts, profiles, etc
+        os.environ["UBERDOT_CWD"] = newdir
 
     def parse_arguments(self, arguments=None):
         """Parses the commandline arguments. This function can parse a custom
