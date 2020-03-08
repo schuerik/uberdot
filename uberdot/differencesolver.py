@@ -377,7 +377,7 @@ class StateFilesystemDiffSolver(DiffSolver):
                     msg += "  owner: " + link["owner"] + " -> "
                     msg += actual_link["owner"] + "\n"
                 if actual_link["permission"] != link["permission"]:
-                    msg += "  permssion: " + str(link["permission"]) + " -> "
+                    msg += "  permission: " + str(link["permission"]) + " -> "
                     msg += str(actual_link["permission"]) + "\n"
                 if actual_link["secure"] != link["secure"]:
                     msg += "  secure: " + str(link["secure"]) + " -> "

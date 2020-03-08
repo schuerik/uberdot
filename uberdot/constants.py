@@ -32,6 +32,7 @@ from uberdot.errors import PreconditionError
 from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import get_username
+from uberdot.utils import get_permission
 from uberdot.utils import get_uid
 from uberdot.utils import normpath
 
@@ -92,11 +93,12 @@ def __decode_ansi(string):
 # Initialize loadable constants with defaults
 ############################################################################
 
-# Prepare all non-trivial defaults
+# Directory of the current and all foreign sessions
 session_dir = os.path.join(data_dir, SESSION_SUBDIR)
 session_dirs_foreign = [
     (user, os.path.join(item, SESSION_SUBDIR)) for user, item in data_dirs_foreign
 ]
+# Searchpaths for configs
 cfg_search_paths = [
     "/etc/uberdot",
     os.path.join(
@@ -105,6 +107,10 @@ cfg_search_paths = [
     ),
     os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
 ]
+# Find default permission (umask)
+open("permission_test_file.tmp", "w").close()
+permission = get_permission("permission_test_file.tmp")
+os.remove("permission_test_file.tmp")
 
 # Initialize constants
 values = {
@@ -173,7 +179,7 @@ values = {
     "name"                : ("",                     "Defaults",  "str",  None),
     "optional"            : (False,                  "Defaults",  "bool", None),
     "owner"               : ("",                     "Defaults",  "str",  None),
-    "permission"          : (644,                    "Defaults",  "int",  None),
+    "permission"          : (permission,             "Defaults",  "int",  None),
     "prefix"              : ("",                     "Defaults",  "str",  None),
     "replace"             : ("",                     "Defaults",  "str",  None),
     "replace_pattern"     : ("",                     "Defaults",  "str",  None),

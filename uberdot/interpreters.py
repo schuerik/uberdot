@@ -267,8 +267,8 @@ class PrintInterpreter(Interpreter):
             msg_start = "'" + dop["symlink1"]["from"] + "' has changed "
             if dop["symlink2"]["permission"] != dop["symlink1"]["permission"]:
                 msg = msg_start + "permission from "
-                msg += str(dop["symlink1"]["permssion"])
-                msg += " to " + str(dop["symlink2"]["permssion"])
+                msg += str(dop["symlink1"]["permission"])
+                msg += " to " + str(dop["symlink2"]["perimssion"])
                 log_operation(dop["profile"], msg)
             if dop["symlink1"]["owner"] != dop["symlink2"]["owner"]:
                 msg = msg_start + "owner from " + dop["symlink1"]["owner"]
@@ -1538,7 +1538,7 @@ class ExecuteInterpreter(Interpreter):
             # Set owner and permission
             uid, gid = get_owner_ids(ldescriptor["owner"])
             os.lchown(ldescriptor["from"], uid, gid)
-            if ldescriptor["permission"] != 644:
+            if ldescriptor["permission"]:
                 os.chmod(ldescriptor["from"], int(str(ldescriptor["permission"]), 8))
             # Set owner of symlink
             if ldescriptor["secure"]:

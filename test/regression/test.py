@@ -197,13 +197,13 @@ class RegressionTest():
                          DIRNAME + "/data/sessions/"], stderr=PIPE)
         _, error_msg = process.communicate()
         if process.returncode:  # Exitcode is > 0, so git failed
-            print(error_msg)
+            print(error_msg.decode())
             raise ValueError("git-checkout failed")
         process = Popen(["git", "clean", "-fdq", "--", self.environ,
                          DIRNAME + "/data/sessions/"], stderr=PIPE)
         _, error_msg = process.communicate()
         if process.returncode:  # Exitcode is > 0, so git failed
-            print(error_msg)
+            print(error_msg.decode())
             raise ValueError("git-clean failed")
 
     @abstractmethod
@@ -1057,8 +1057,23 @@ after_modified = {
 # Test execution
 ###############################################################################
 
+# Setup environment
 owd = os.getcwd()
 os.chdir(DIRNAME)
+
+# Fix permissions as they could change when the repo was cloned
+process = Popen(["find", "-L", "(",
+                 "-type", "f", "-path", "./environment*/*", "-or",
+                 "-type", "f", "-path", "./files/*", "-or",
+                 "-type", "f", "-path", "./profiles*/*",
+                 "-not", "-name", "*.pyc", ")",
+                 "-exec", "chmod", "644", "--", "{}", "+" ],
+                stderr=PIPE)
+_, error_msg = process.communicate()
+if process.returncode:
+    print(error_msg.decode())
+    raise ValueError("chmoding test files failed")
+
 
 # TODO: Rethink argument tests
 DirRegressionTest("Simple",
