@@ -246,8 +246,8 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be logged
         """
-        log_operation(dop["profile"], dop["symlink"]["from"] +
-                      " was removed from the system.")
+        log_operation(dop["profile"], "'" + dop["symlink"]["from"] +
+                      "' was removed from the system.")
 
     def _op_update_l(self, dop):
         """Logs/Prints out that a link was updated.

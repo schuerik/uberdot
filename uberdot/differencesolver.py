@@ -196,15 +196,22 @@ class DiffLog():
             new_symlink (dict): A dictionary that describes the symbolic
                 link that will replace the old link
         """
+        # There are multiple cases when updating a symlink
+        # 1. The installed link was already manually removed
         if not os.path.lexists(installed_symlink["from"]):
             self.untrack_link(profilename, installed_symlink)
+            # 1a. The new link already exists
             if link_exists(new_symlink):
                 self.track_link(profilename, new_symlink)
+            # 1b. The new link needs to be created
             else:
                 self.add_link(profilename, new_symlink)
+        # 2. A similar installed link exists but the new link already exists
         elif link_exists(new_symlink):
-            self.remove_link(profilename, installed_symlink)
+            if installed_symlink["from"] != new_symlink["from"]:
+                self.remove_link(profilename, installed_symlink)
             self.track_link(profilename, new_symlink)
+        # 3. A similar installed link exists and new link does not exist
         else:
             new_symlink["date"] = get_date_time_now()
             self.__append_data("update_l", profilename,
@@ -558,7 +565,7 @@ class UpdateDiffSolver(DiffSolver):
         installed_profile = None
         if profile_name in self.state:
             installed_profile = self.state[profile_name]
-            installed_links = copy.deepcopy(installed_profile["links"])
+            installed_links = installed_profile["links"]
         else:
             installed_links = []
             # The profile wasn't installed
