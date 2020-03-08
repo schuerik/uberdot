@@ -14,7 +14,7 @@ DiffLog.
 .. autosummary::
     :nosignatures:
 
-    CheckDiffsolverResult
+    CheckDiffsolverResultInterpreter
     CheckDynamicFilesInterpreter
     CheckFileOverwriteInterpreter
     CheckLinkBlacklistInterpreter
