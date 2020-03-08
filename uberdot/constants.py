@@ -83,13 +83,6 @@ else:
 
 
 ############################################################################
-# Setup mainpulation functions
-############################################################################
-def __decode_ansi(string):
-    return string.encode("utf-8").decode("unicode_escape")
-
-
-############################################################################
 # Initialize loadable constants with defaults
 ############################################################################
 
@@ -108,11 +101,21 @@ cfg_search_paths = [
     os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
 ]
 # Find default permission (umask)
-open("permission_test_file.tmp", "w").close()
-permission = get_permission("permission_test_file.tmp")
-os.remove("permission_test_file.tmp")
+open("/tmp/permission_test_file.tmp", "w").close()
+permission = get_permission("/tmp/permission_test_file.tmp")
+os.remove("/tmp/permission_test_file.tmp")
 
+
+############################################################################
+# Setup mainpulation functions
+############################################################################
+def __decode_ansi(string):
+    return string.encode("utf-8").decode("unicode_escape")
+
+
+############################################################################
 # Initialize constants
+############################################################################
 values = {
     # name: (default value, configsection, type, manipulation function)
     "cfg_files"           : ([],                     None,        "list", None),
