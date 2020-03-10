@@ -192,15 +192,16 @@ class RegressionTest():
 
     def cleanup(self):
         """Resets test environment and installed files"""
+        checkouts = [DIRNAME + "/data/sessions/"]
+        if os.path.exists(self.environ):
+            checkouts.append(self.environ)
         # Reset environment and installed dir with git
-        process = Popen(["git", "checkout", "HEAD", "--", self.environ,
-                         DIRNAME + "/data/sessions/"], stderr=PIPE)
+        process = Popen(["git", "checkout", "HEAD", "--"] + checkouts, stderr=PIPE)
         _, error_msg = process.communicate()
         if process.returncode:  # Exitcode is > 0, so git failed
             print(error_msg.decode())
             raise ValueError("git-checkout failed")
-        process = Popen(["git", "clean", "-fdq", "--", self.environ,
-                         DIRNAME + "/data/sessions/"], stderr=PIPE)
+        process = Popen(["git", "clean", "-fdq", "--"] + checkouts, stderr=PIPE)
         _, error_msg = process.communicate()
         if process.returncode:  # Exitcode is > 0, so git failed
             print(error_msg.decode())
