@@ -414,8 +414,3 @@ class State(MutableMapping, Notifier):
     def notify(self):
         log_debug("Writing changes back to state file.")
         self.write_file()
-
-    def copy(self):
-        clone = deepcopy(self)
-        clone.notify = None
-        return clone
