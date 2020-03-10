@@ -1246,7 +1246,7 @@ DirRegressionTest("Autofix: Untrack",
                   after_modified, after_modified, "modified").success()
 DirRegressionTest("Upgrade",
                   ["show"],
-                  before, before, "upgrade").success()
+                  after_tags, after_tags, "upgrade").success()
 
 # Overall result
 print(LINEWDTH*"=")
