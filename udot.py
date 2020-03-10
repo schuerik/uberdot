@@ -7,9 +7,10 @@ You can run this directly from the CLI with
 
 .. code:: bash
 
-    python ./udot.py <arguments>
+    python udot.py <arguments>
 
-or you can import UberDot for debugging and testing purposes."""
+or you can import UberDot in another script for debugging and testing purposes.
+"""
 
 ###############################################################################
 #
@@ -31,6 +32,26 @@ or you can import UberDot for debugging and testing purposes."""
 # along with uberdot.  If not, see <http://www.gnu.org/licenses/>.
 #
 ###############################################################################
+
+
+import argparse
+import csv
+import grp
+import inspect
+import json
+import logging
+import os
+import pwd
+import shutil
+import sys
+import traceback
+
+
+# Restart coverage if spawned as a subprocess
+if os.getenv("COVERAGE_PROCESS_START"):
+    import coverage
+    coverage.process_startup()
+
 
 from uberdot import constants as const
 from uberdot.interpreters import *
@@ -55,22 +76,6 @@ from uberdot.utils import normpath
 from uberdot.utils import safe_walk
 
 
-import argparse
-import csv
-import grp
-import inspect
-import json
-import logging
-import os
-import pwd
-import shutil
-import sys
-import traceback
-
-if os.getenv("COVERAGE_PROCESS_START"):
-    # Restart coverage if spawned as a subprocess
-    import coverage
-    coverage.process_startup()
 
 class UberDot:
     """Bundles all functionality of uberdot.
@@ -79,10 +84,9 @@ class UberDot:
     printing information and executing profiles.
 
     Attributes:
-        state (State): The state file that is used as a reference
-        profiles (list): A list of the to be installed/updated profiles
+        state (State): The state that is used as a reference
+        profiles (list): A list of (generated) profile objects
         args (argparse): The parsed arguments
-        owd (str): The old working directory uberdot was started from
     """
 
     def __init__(self):
@@ -123,8 +127,8 @@ class UberDot:
         )
         parser_profiles = CustomParser(add_help=False)
         parser_profiles.add_argument(
-            "profilenames",
-            help="do this only for this list of root profiles",
+            "include",
+            help="do everything only for this list of profiles",
             nargs="*"
         )
         # Setup top level arguments
@@ -142,8 +146,8 @@ class UberDot:
             help="specify an action to resolve all fxes with",
         )
         parser.add_argument(
-            "-i", "--ignore",
-            help="ignore this profile in every mode",
+            "-e", "--exclude",
+            help="specify a list of profiles that will be ignored",
             action="append"
         )
         group_log_level = parser.add_mutually_exclusive_group()
@@ -455,9 +459,9 @@ class UberDot:
             return
         # Check if settings are bad
         if not const.target_files:
-            raise UserError("You need to set target_files in your config")
+            raise UserError("You need to set target_files in your config.")
         if not const.profile_files:
-            raise UserError("You need to set profile_files in your config")
+            raise UserError("You need to set profile_files in your config.")
         if const.target_files == const.profile_files:
             msg = "The directories for your profiles and for your dotfiles "
             msg += "are the same."
@@ -470,15 +474,14 @@ class UberDot:
             msg = "The directory for your profiles '" + const.profile_files
             msg += "' does not exist on this system."
             raise UserError(msg)
-        if const.mode in ["update", "remove"] and not const.profilenames:
-            msg = "You need to specify 'profilenames' when using mode"
-            msg += " '" + const.mode + "'."
-            raise UserError(msg)
         # Check if arguments are bad
         if const.fix not in ["", "s", "t", "r", "d", "u"]:
             raise UserError(
                 "'" + const.fix + "' is not a valid fix action."
             )
+        if list(set(const.include) - set(const.exclude)) != const.include:
+            msg = "You can not include and exclude a profile at the same time."
+            raise UserError(msg)
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
@@ -497,13 +500,21 @@ class UberDot:
         else:
             # The previous modes just printed stuff, but here we
             # have to actually do something:
+            # 0. Figure out which profiles we are talking about
+            profilenames = const.include
+            if not profilenames:
+                profilenames = self.state.keys()
+            if not profilenames:
+                msg = "There are no profiles installed and no profiles "
+                msg += "explicitly specified to be included."
+                raise UserError(msg)
             # 1. Decide how to solve the differences and setup DiffSolvers
             if const.mode == "remove":
                 log_debug("Calculating operations to remove profiles.")
-                dfs = UninstallDiffSolver(self.state, const.profilenames)
+                dfs = UninstallDiffSolver(self.state, profilenames)
             elif const.mode == "update":
                 log_debug("Calculating operations to update profiles.")
-                self.execute_profiles()
+                self.execute_profiles(profilenames)
                 profile_results = [p.result for p in self.profiles]
                 dfs = UpdateDiffSolver(self.state,
                                        profile_results,
@@ -592,41 +603,18 @@ class UberDot:
                 raise UnkownError(err, msg)
 
 
-    def execute_profiles(self, profiles=None, options=None, directory=None):
-        """Imports profiles by name and executes them.
-
-        Args:
-            profiles (list): A list of names of profiles that will be executed.
-                If this is None, it will be set to what the user set via cli.
-            options (dict): A dictionary of default options for root profiles.
-                If this is None, it will be set to what the user set via cli.
-            directory (str): A default path in which root profiles start.
-                If this is None, it will be set to what the user set via cli.
-        """
-        # Use user arguments as default (can be overwritten for debugging)
-        if profiles is None:
-            profiles = const.profilenames
-        if options is None:
-            option_list = dict(const.items("Defaults"))
-            del option_list["directory"]
-        if directory is None:
-            directory = const.directory
-
-        # Setting arguments for root profiles
-        pargs = {}
-        pargs["options"] = options
-        pargs["directory"] = directory
-
+    def execute_profiles(self, profilenames):
+        """Imports profiles by name and executes them. """
         # Import and create profiles
-        for profilename in profiles:
-            if profilename in const.ignore:
-                log_debug("'" + profilename + "' is in ignore list." +
+        for profilename in profilenames:
+            if profilename in const.exclude:
+                log_debug("'" + profilename + "' is in exclude list." +
                           " Skipping generation of profile...")
             else:
                 self.profiles.append(
-                    import_profile(profilename)(**pargs)
+                    import_profile(profilename)()
                 )
-        # And execute them
+        # And execute/generate them
         for profile in self.profiles:
             profile.generator()
 
@@ -679,7 +667,7 @@ class UberDot:
                     print(const.col_emph + "User: " + const.col_endc + user)
                 last_user = user
             # Show all profiles that are specified or all if none was specified
-            if not const.profilenames or profile["name"] in const.profilenames:
+            if not const.include or profile["name"] in const.include:
                 self.print_installed(profile)
 
     def print_installed(self, profile):
@@ -688,8 +676,8 @@ class UberDot:
         Args:
             profile (dict): The profile that will be printed
         """
-        if profile["name"] in const.ignore:
-            log_debug("'" + profile["name"] + "' is in ignore list. Skipping...")
+        if profile["name"] in const.exclude:
+            log_debug("'" + profile["name"] + "' is in exclude list. Skipping...")
             return
         tab = "  " if const.users or const.allusers else ""
         if const.profiles or (not const.links and not const.meta):
@@ -765,8 +753,8 @@ class UberDot:
                     highlighted = hlsearch(file, const.searchstr)
                     result += [(file, item) for item in highlighted]
             for file, pname in get_available_profiles():
-                if pname in const.ignore:
-                    log_debug("'" + pname + "' is in ignore list. Skipping...")
+                if pname in const.exclude:
+                    log_debug("'" + pname + "' is in exclude list. Skipping...")
                     continue
                 # Search in names (class names of all available profiles)
                 if const.names or const.all:

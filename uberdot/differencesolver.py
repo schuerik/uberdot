@@ -330,7 +330,7 @@ class StateFilesystemDiffSolver(DiffSolver):
         for user in self.users:
             if user in self.state.get_users():
                 for profile in self.state.get_user_profiles(user).values():
-                    if profile["name"] in const.ignore:
+                    if profile["name"] in const.exclude:
                         continue
                     self.__generate_profile_fix(profile)
 
@@ -465,8 +465,8 @@ class UninstallDiffSolver(DiffSolver):
         Args:
             profile_name (str): Name of the profile that will be removed
         """
-        if profile_name in const.ignore:
-            log_debug("'" + profile_name + "' is in ignore list. Skipping...")
+        if profile_name in const.exclude:
+            log_debug("'" + profile_name + "' is in exclude list. Skipping...")
             # Even though we skip it, we need to make sure that the profile is
             # no longer a subprofile, because at this point profile_name is
             # either a root profile or we will definitely generate the remove
@@ -556,10 +556,10 @@ class UpdateDiffSolver(DiffSolver):
         profile_new = False
         profile_changed = False
 
-        # Checking ignore list
+        # Checking exclude list
         profile_name = profile_result["name"]
-        if profile_name in const.ignore:
-            log_debug("'" + profile_name + "' is in ignore list. Skipping...")
+        if profile_name in const.exclude:
+            log_debug("'" + profile_name + "' is in exclude list. Skipping...")
             return
         # Load profile from state
         installed_profile = None

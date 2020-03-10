@@ -1085,9 +1085,9 @@ DirRegressionTest("Arguments: No mode",
 DirRegressionTest("Arguments: Wrong mode",
                   ["remove", "--parent", "NameOption", "NoOptions"],
                   before, before).fail("run", 101)
-DirRegressionTest("Arguments: No profiles",
-                  ["update"],
-                  before, before).fail("run", 101)
+# DirRegressionTest("Arguments: No profiles",
+#                   ["update"],
+#                   before, before).fail("run", 101)
 DirRegressionTest("Arguments: No makedirs",
                   ["update", "Links"],
                   before, before).fail("run", 103)

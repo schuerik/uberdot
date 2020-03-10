@@ -805,8 +805,8 @@ class Profile:
         for subprofile in profilenames:
             if subprofile == self.name:
                 self._gen_err("Recursive profiles are forbidden!")
-            elif subprofile in const.ignore:
-                log_debug("'" + subprofile + "' is in ignore list." +
+            elif subprofile in const.exclude:
+                log_debug("'" + subprofile + "' is in exclude list." +
                           " Skipping generation of profile...")
             else:
                 if will_create_cycle(subprofile):
