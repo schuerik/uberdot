@@ -85,9 +85,16 @@ def upgrade_stone_age(old_state):
             del link["name"]
             link["to"] = link["target"]
             del link["target"]
-            uid = link["uid"]
             gid = link["gid"]
-            link["owner"] = get_username(uid) + ":" + get_groupname(gid)
+            try:
+                username = get_username(link["uid"])
+            except KeyError:
+                username = ""
+            try:
+                groupname = get_groupname(link["gid"])
+            except KeyError:
+                groupname = ""
+            link["owner"] = username + ":" + groupname
             del link["uid"]
             del link["gid"]
     return old_state
