@@ -1210,8 +1210,8 @@ DirRegressionTest("Update: --dui",
 SimpleOutputTest("Output: --changes",
                  ["update", "--changes", "NoOptions"],
                  before).success()
-SimpleOutputTest("Output: --plain",
-                 ["update", "--plain", "NoOptions"],
+SimpleOutputTest("Output: --debug",
+                 ["update", "--debug", "NoOptions"],
                  before).success()
 SimpleOutputTest("Output: --dryrun",
                  ["update", "-d", "NoOptions"],
