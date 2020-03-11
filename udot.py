@@ -143,7 +143,7 @@ class UberDot:
         )
         parser.add_argument(
             "-f", "--fix",
-            help="specify an action to resolve all fxes with",
+            help="specify an action to resolve all fixes with",
         )
         parser.add_argument(
             "-e", "--exclude",
@@ -158,7 +158,7 @@ class UberDot:
         )
         group_log_level.add_argument(
             "--info",
-            help="print everything but debug messages",
+            help="print everything but debug messages (default)",
             action="store_true"
         )
         group_log_level.add_argument(
@@ -223,7 +223,12 @@ class UberDot:
         )
         group_run_mode.add_argument(
             "-c", "--changes",
-            help="print what changes uberdot will do",
+            help="print out what changes uberdot will try to perform",
+            action="store_true"
+        )
+        parser_run.add_argument(
+            "--short",
+            help="print only a short summary of what actually happens",
             action="store_true"
         )
         parser_run.add_argument(
@@ -232,18 +237,13 @@ class UberDot:
             action="store_true"
         )
         parser_run.add_argument(
-            "--short",
-            help="print only a short summary of what happens",
+            "--superforce",
+            help="overwrite blacklisted/protected files",
             action="store_true"
         )
         parser_run.add_argument(
             "--skiproot",
             help="do nothing that requires root permissions",
-            action="store_true"
-        )
-        parser_run.add_argument(
-            "--superforce",
-            help="overwrite blacklisted/protected files",
             action="store_true"
         )
         parser_run.add_argument(
@@ -263,7 +263,7 @@ class UberDot:
         )
         group_run_mode.add_argument(
             "--debug",
-            help="print the internal DiffLog as plain json",
+            help=argparse.SUPPRESS,
             action="store_true"
         )
         # Setup mode update arguments
@@ -276,11 +276,11 @@ class UberDot:
         )
         parser_update.add_argument(
             "--dui",
-            help="use the DUI strategy for updating links",
+            help="use the Delete/Update/Insert strategy for updating links",
             action="store_true"
         )
         parser_update.add_argument(
-            "--directory", help="set the default directory"
+            "--directory", help="overwrite the starting directory for profiles"
         )
         parser_update.add_argument(
             "-m", "--makedirs",
@@ -289,7 +289,7 @@ class UberDot:
         )
         parser_update.add_argument(
             "--option",
-            help="set options for profiles",
+            help="overwrite default options for profiles",
             dest="opt_dict",
             action=StoreDictKeyPair,
             nargs="+",
@@ -297,7 +297,7 @@ class UberDot:
         )
         parser_update.add_argument(
             "--parent",
-            help="set the parent of the profiles you install"
+            help="overwrite parent profile of profiles"
         )
         # Setup mode remove arguments
         help_text="remove already installed profiles"
@@ -699,10 +699,8 @@ class UberDot:
             for symlink in profile["links"]:
                 print(tab + symlink["from"] + "  →  " + symlink["to"])
                 if const.meta:
-                    user = pwd.getpwuid(symlink["uid"])[0]
-                    group = grp.getgrgid(symlink["gid"])[0]
                     print(
-                        tab + "    Owner: " + user + ":" + group +
+                        tab + "    Owner: " + symlink["owner"] +
                         "   Permission: " + str(symlink["permission"]) +
                         "   Secure: " + "yes" if symlink["secure"] else "no" +
                         "   Updated: " + symlink["date"]
@@ -744,7 +742,7 @@ class UberDot:
 
         result = []
         nothing_selected = (not const.profiles and not const.dotfiles
-                            and not const.tags)
+                            and not const.searchtags)
         # Search for profiles
         if const.profiles or nothing_selected:
             # Search in filename (full paths of files in the profile directory)
@@ -793,7 +791,7 @@ class UberDot:
                         pass
         # Search for tags (this only collects the tags from filenames because
         # it doesn't make sense to search in the content of files or whatever)
-        if const.tags:
+        if const.searchtags:
             tags = []
             sep = const.tag_separator
             # Collect tags first
@@ -1011,13 +1009,13 @@ def run_script(name):
         # Start everything in a try block with pokemon handler
         try:
             # Create UberDot instance and parse arguments
-            uber = UberDot()
-            uber.parse_arguments()
-            uber.check_arguments()
+            udot = UberDot()
+            udot.parse_arguments()
+            udot.check_arguments()
             # Add the users profiles to the python path
             sys.path.append(const.profile_files)
             # Go
-            uber.execute_arguments()
+            udot.execute_arguments()
         except CustomError as err:
             # An error occured that we (more or less) expected.
             # Print error, a stacktrace and exit

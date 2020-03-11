@@ -188,7 +188,10 @@ class RegressionTest():
         exitcode = process.returncode
         if len(sys.argv) > 1:
             print(output.decode(), end="")
-        return not exitcode, exitcode, error_msg
+        return self.run_check(exitcode, output, error_msg)
+
+    def run_check(self, exitcode, msg, error):
+        return not exitcode, exitcode, error.decode()
 
     def cleanup(self):
         """Resets test environment and installed files"""
@@ -238,7 +241,7 @@ class RegressionTest():
             print("\033[1mCause: \033[0m" + str(result["cause"]))
             if "msg" in result:
                 print("\033[1mError Message:\033[0m")
-                print(result["msg"].decode("utf-8"))
+                print(result["msg"])
         global_fails += int(not result["success"])
         self.cleanup()
         return result["success"]
@@ -299,33 +302,39 @@ class DirRegressionTest(RegressionTest):
         return True, ""
 
 
-# class OutputRegressionTest(RegressionTest):
-#     """Regression tests for output."""
-#     def __init__(self, name, cmd_args, before, environ="default"):
-#         super().__init__(name, cmd_args, environ)
-#         self.before = before
-#         # self.output = output
+class OutputTest(RegressionTest):
+    """Regression tests for output."""
+    def __init__(self, name, cmd_args, before, output, session="default"):
+        super().__init__(name, cmd_args, session)
+        self.before = before
+        self.output = output
 
-#     def pre_check(self):
-#         try:
-#             dircheck(self.environ, self.before)
-#         except ValueError as err:
-#             return err.args[0]
-#         return True, ""
+    def pre_check(self):
+        try:
+            dircheck(self.environ, self.before)
+        except ValueError as err:
+            return err.args[0]
+        return True, ""
 
-#     def run(self):
-#         process = Popen(self.cmd_args, stdout=PIPE, stderr=PIPE)
-#         msg, error = process.communicate()
-#         exitcode = process.returncode
-#         if exitcode:
-#             return False, exitcode, error
-#         # if msg != self.output:
-#         #     error = "Output was:\n" + msg
-#         #     return False, "Output is not as expected", error
-#         return True, ""
+    def run_check(self, exitcode, msg, error):
+        if msg.decode() != self.output:
+            error = "Output was:\n" + repr(msg)
+            error += "\nbut should be:\n" + repr(self.output.encode())
+            return False, "Output is not as expected", error
+        return True, ""
 
-#     def post_check(self):
-#         return True, ""
+    def post_check(self):
+        return True, ""
+
+
+class SimpleOutputTest(OutputTest):
+    def __init__(self, name, cmd_args, before, session="default"):
+        super().__init__(name, cmd_args, before, None, session)
+
+    def run_check(self, exitcode, msg, error):
+        if exitcode:
+            return False, "Exited with exitcode " + str(exitcode), error.decode()
+        return True, ""
 
 
 # Test data
@@ -1209,6 +1218,18 @@ DirRegressionTest("Update: --dui",
 #                      ["update", "-d", "NoOptions"],
 #                      before).success()
 # OutputRegressionTest("Output: --debuginfo", ["--debuginfo"], before).success()
+SimpleOutputTest("Output: show",
+                 ["show", "-ampl"],
+                 after_diroptions, "update").success()
+OutputTest("Output: find tags",
+           ["find", "-t"],
+           before, "tag\ntag1\ntag2\ntag3\n").success()
+OutputTest("Output: find profiles",
+           ["find", "-p", "Super"],
+           before, "SuperProfile\nSuperProfileEvent\nSuperProfileTags\n").success()
+OutputTest("Output: find dotfiles",
+           ["find", "-dr", r"name\d{2}"],
+           before, "name10\nname11.file\n").success()
 DirRegressionTest("Fail: Not a profile",
                   ["update", "NotAProfileFail"],
                   before, before).fail("run", 104)
@@ -1231,8 +1252,6 @@ DirRegressionTest("Fail: Link moved between profiles",
                   ["update", "SuperProfileTags"],
                   after_tags, before, "nested").fail("run", 102)
 
-# This test needs ticket #42 to be resolved
-# OutputRegressionTest("Output: --show", ["-s"], after_diroptions, "update").success()
 
 # For these tests we should also check the state file
 DirRegressionTest("Autofix: Take over",
@@ -1244,8 +1263,7 @@ DirRegressionTest("Autofix: Restore",
 DirRegressionTest("Autofix: Untrack",
                   ["--fix", "u", "show"],
                   after_modified, after_modified, "modified").success()
-DirRegressionTest("Upgrade",
-                  ["show"],
+DirRegressionTest("Upgrade", ["show"],
                   after_tags, after_tags, "upgrade").success()
 
 # Overall result
@@ -1265,8 +1283,6 @@ sys.exit(global_fails)
 # TODO: Write tests
 # Already possible
 #    env var substitution
-#    fix state file
-#    upgrade state file
 #    conflicts between users
 # Input needs to be simulated
 #    dynamic files changed
