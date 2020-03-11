@@ -1085,7 +1085,6 @@ if process.returncode:
     raise ValueError("chmoding test files failed")
 
 
-# TODO: Rethink argument tests
 DirRegressionTest("Simple",
                   ["update", "NoOptions"],
                   before, after_nooptions).success()
@@ -1095,9 +1094,9 @@ DirRegressionTest("Arguments: No mode",
 DirRegressionTest("Arguments: Wrong mode",
                   ["remove", "--parent", "NameOption", "NoOptions"],
                   before, before).fail("run", 101)
-# DirRegressionTest("Arguments: No profiles",
-#                   ["update"],
-#                   before, before).fail("run", 101)
+DirRegressionTest("Arguments: No profiles",
+                  ["update"],
+                  before, before).fail("run", 101)
 DirRegressionTest("Arguments: No makedirs",
                   ["update", "Links"],
                   before, before).fail("run", 103)
@@ -1208,16 +1207,18 @@ DirRegressionTest("Update: Uninstall",
 DirRegressionTest("Update: --dui",
                   ["update", "--dui", "SuperProfileTags"],
                   after_tags, after_updatedui, "nested").success()
-# OutputRegressionTest("Output: --changes",
-#                      ["update", "--changes", "NoOptions"],
-#                      before).success()
-# OutputRegressionTest("Output: --plain",
-#                      ["update", "--plain", "NoOptions"],
-#                      before).success()
-# OutputRegressionTest("Output: --dryrun",
-#                      ["update", "-d", "NoOptions"],
-#                      before).success()
-# OutputRegressionTest("Output: --debuginfo", ["--debuginfo"], before).success()
+SimpleOutputTest("Output: --changes",
+                 ["update", "--changes", "NoOptions"],
+                 before).success()
+SimpleOutputTest("Output: --plain",
+                 ["update", "--plain", "NoOptions"],
+                 before).success()
+SimpleOutputTest("Output: --dryrun",
+                 ["update", "-d", "NoOptions"],
+                 before).success()
+SimpleOutputTest("Output: --debuginfo",
+                 ["--debuginfo", "version"],
+                 before).success()
 SimpleOutputTest("Output: show",
                  ["show", "-ampl"],
                  after_diroptions, "update").success()
