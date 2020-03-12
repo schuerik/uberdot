@@ -137,18 +137,19 @@ class UberDot:
             help="specify another config-file to use"
         )
         parser.add_argument(
-            "-d", "--debuginfo",
-            help="show loaded settings and internal values",
-            action="store_true"
-        )
-        parser.add_argument(
-            "-f", "--fix",
-            help="specify an action to resolve all fixes with",
-        )
-        parser.add_argument(
             "-e", "--exclude",
             help="specify a list of profiles that will be ignored",
             action="append"
+        )
+        parser.add_argument(
+            "--skiproot",
+            help="do nothing that requires root permissions",
+            action="store_true"
+        )
+        parser.add_argument(
+            "-s", "--summary",
+            help="print always just a short summary instead of full text",
+            action="store_true"
         )
         group_log_level = parser.add_mutually_exclusive_group()
         group_log_level.add_argument(
@@ -167,7 +168,7 @@ class UberDot:
             action="store_true"
         )
         group_log_level.add_argument(
-            "-s", "--silent",
+            "--silent",
             help="print absolute nothing",
             action="store_true"
         )
@@ -179,6 +180,15 @@ class UberDot:
             "--session",
             help="run uberdot in another session",
             default="default"
+        )
+        parser.add_argument(
+            "-d", "--debuginfo",
+            help="show loaded settings and internal values",
+            action="store_true"
+        )
+        parser.add_argument(
+            "-f", "--fix",
+            help="specify an action to resolve all fixes with",
         )
         # Setup mode show arguments
         help_text = "display various information about installed profiles"
@@ -227,11 +237,6 @@ class UberDot:
             action="store_true"
         )
         parser_run.add_argument(
-            "--short",
-            help="print only a short summary of what actually happens",
-            action="store_true"
-        )
-        parser_run.add_argument(
             "-f", "--force",
             help="overwrite existing files",
             action="store_true"
@@ -239,11 +244,6 @@ class UberDot:
         parser_run.add_argument(
             "--superforce",
             help="overwrite blacklisted/protected files",
-            action="store_true"
-        )
-        parser_run.add_argument(
-            "--skiproot",
-            help="do nothing that requires root permissions",
             action="store_true"
         )
         parser_run.add_argument(
@@ -587,7 +587,7 @@ class UberDot:
             # Finally execute
             try:
                 interpreters = [ExecuteInterpreter(self.state)]
-                if const.short:
+                if const.summary:
                     interpreters.append(PrintSummaryInterpreter())
                 else:
                     interpreters.append(PrintInterpreter())
@@ -911,7 +911,7 @@ class UberDot:
             interpreters = []
             if not const.dryrun:
                 interpreters.append(ExecuteInterpreter(self.state))
-            if const.short:
+            if const.summary:
                 interpreters.append(PrintSummaryInterpreter())
             else:
                 interpreters.append(PrintInterpreter())
@@ -962,7 +962,6 @@ class CustomParser(argparse.ArgumentParser):
 
     def __init__(self, **kwargs):
         if "help" in kwargs:
-            # print(kwargs["help"])
             kwargs["description"] = kwargs["help"]
         super().__init__(**kwargs)
 
@@ -1026,10 +1025,6 @@ def run_script(name):
                 log_debug(traceback.format_exc())
                 log_error(err.message)
             sys.exit(err.EXITCODE)
-        except NotImplementedError:
-            log_error(traceback.format_exc())
-            logger.critical("Congratulations! You stumbled over a feature"+
-                            " that is not implemented yet.")
         except Exception:
             # This works because all critical parts will catch also all
             # exceptions and convert them into a CustomError

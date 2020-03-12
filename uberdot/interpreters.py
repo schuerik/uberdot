@@ -347,7 +347,7 @@ class DUIStrategyInterpreter(Interpreter):
         self.link_deletes.append(dop)
 
     def _op_restore_l(self, dop):
-        raise NotImplementedError
+        self.link_updates.append(dop)
 
     def _op_update_p(self, dop):
         """Adds the profile-update-operation to ``profile_updates``.
@@ -583,10 +583,8 @@ class CheckLinksInterpreter(Interpreter):
     def remove(self, name):
         for item in self.linklist:
             if item[0] == name:
-                break
-        else:
-            raise FatalError("Can't remove link that isn't installed")
-        self.linklist.remove(item)
+                self.linklist.remove(item)
+                return
 
 
 class CheckLinkBlacklistInterpreter(Interpreter):
@@ -1120,6 +1118,7 @@ class EventInterpreter(Interpreter):
                 return result
         raise FatalError("Couldn't find profile '" + profilename + "'")
 
+    @abstractmethod
     def run_script(self, script_path, profilename):
         """Used to handle script execution of an event. Depending on the
         subclass this might execute or just print out the script.
@@ -1150,7 +1149,7 @@ class EventInterpreter(Interpreter):
                 # The script should have already been generated in this run
                 raise FatalError("Generated script couldn't be found")
             # The script was generated in a previous run and was removed
-            # That should not happen in the best case, but its not an error
+            # This should usually not happen, but its not an error
             log_warning(
                 "Unfortunally the generated script was removed. Skipping."
             )
@@ -1731,9 +1730,9 @@ class SkipRootInterpreter(DetectRootInterpreter):
         """
         self.skip.append(dop)
         if os.path.isdir(affected_file):
-            description += " protected directories"
+            description += " directories"
         else:
-            description += " protected files"
+            description += " files"
         if description not in self.skipped_reasons:
             self.skipped_reasons[description] = 1
         else:

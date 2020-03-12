@@ -26,6 +26,7 @@ from abc import abstractmethod
 from shutil import get_terminal_size
 from subprocess import PIPE
 from subprocess import Popen
+from subprocess import TimeoutExpired
 
 
 # Constants and helpers
@@ -184,7 +185,10 @@ class RegressionTest():
         env = os.environ.copy()
         env["UBERDOT_TEST"] = "1"
         process = Popen(self.cmd_args, stdout=PIPE, stderr=PIPE, env=env)
-        output, error_msg = process.communicate()
+        try:
+            output, error_msg = process.communicate(timeout=5)
+        except TimeoutExpired:
+            return False, -1, "Test timed out after 5 seconds."
         exitcode = process.returncode
         if len(sys.argv) > 1:
             print(output.decode(), end="")
@@ -369,6 +373,57 @@ after_nooptions = {
 after_diroptions = {
     ".": {
         "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1",
+            },
+            {
+                "name": "name5",
+                "target": "files/name5",
+            }
+        ],
+    },
+    "subdir": {
+        "links": [
+            {
+                "name": "name2",
+                "target": "files/name2",
+            }
+        ],
+    },
+    "subdir/subsubdir": {
+        "links": [
+            {
+                "name": "name3",
+                "target": "files/name3",
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+            }
+        ],
+    },
+    "subdir2": {
+        "links": [
+            {
+                "name": "name6",
+                "target": "files/name6",
+            },
+            {
+                "name": "name7",
+                "target": "files/name7",
+            }
+        ],
+    }
+}
+
+after_logging = {
+    ".": {
+        "files": [
+            {"name": "untouched.file"},
+            {"name": "log.txt"}
+        ],
         "links": [
             {
                 "name": "name1",
@@ -1111,6 +1166,9 @@ DirRegressionTest("Arguments: --option",
                       "update", "--option", "name=file", "prefix=test",
                       "tags=tag1,notag", "--", "OptionArgument"
                   ], before, after_options).success()
+DirRegressionTest("Arguments: --log",
+                  ["--log", "environment-default/log.txt", "update",  "-m", "DirOption"],
+                  before, after_logging).success()
 DirRegressionTest("Option: name",
                   ["update", "-m", "NameOption"],
                   before, after_nameoptions).success()
@@ -1213,8 +1271,14 @@ SimpleOutputTest("Output: --changes",
 SimpleOutputTest("Output: --debug",
                  ["update", "--debug", "NoOptions"],
                  before).success()
-SimpleOutputTest("Output: --dryrun",
+SimpleOutputTest("Output: --dryrun normal",
                  ["update", "-d", "NoOptions"],
+                 before).success()
+SimpleOutputTest("Output: --dryrun with events",
+                 ["update", "-d", "SuperProfileEvent"],
+                 before).success()
+SimpleOutputTest("Output: --short",
+                 ["update", "--short", "NoOptions"],
                  before).success()
 SimpleOutputTest("Output: --debuginfo",
                  ["--debuginfo", "version"],
@@ -1285,13 +1349,25 @@ sys.exit(global_fails)
 # Already possible
 #    env var substitution
 #    conflicts between users
+#    show
+#    find
+#    print event script
+#    exclude
+#    property changed in fix
+#    --parent
 # Input needs to be simulated
 #    dynamic files changed
+#    overwrite blacklisted
 # Requires an extra user
 #    option secure
 #    option owner
 #    option permission
-# Output must be matched
-#    already implemented tests
-#    show
-#    find
+# Not sure if possible, but still missing
+#    properties of links change
+#    event script output with utf 8 chars
+#    create unsecure link
+#    file overwrites
+#    profile overwrites
+#    event demote()
+#    directory of a profile is always expanded and normalized
+#    various errors in profile

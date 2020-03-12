@@ -153,7 +153,7 @@ values = {
     "regex"               : (False,                  "Arguments", "bool", None),
     "searchstr"           : ("",                     "Arguments", "str",  None),
     "searchtags"          : (False,                  "Arguments", "bool", None),
-    "short"               : (False,                  "Arguments", "bool", None),
+    "summary"             : (False,                  "Arguments", "bool", None),
     "skipafter"           : (False,                  "Arguments", "bool", None),
     "skipbefore"          : (False,                  "Arguments", "bool", None),
     "skipevents"          : (False,                  "Arguments", "bool", None),
