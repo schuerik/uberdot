@@ -1357,7 +1357,7 @@ DirRegressionTest("Event: Fail on timeout",
                   ["update", "TimeoutProfileEvent"],
                   before, before).fail("run", 107)
 DirRegressionTest("Update: Simple",
-                  ["update", "-m", "DirOption"],
+                  ["update", "-m", "--debug", "DirOption"],
                   after_diroptions, after_updatediroptions, "update").success()
 DirRegressionTest("Update: Uninstall",
                   ["remove", "DirOption"],
