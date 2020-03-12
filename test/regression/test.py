@@ -267,7 +267,7 @@ class RegressionTest():
                 print("\033[1mActual error: \033[0m" + str(result["cause"]))
                 if "msg" in result:
                     print("\033[1mError Message:\033[0m")
-                    print(result["msg"].decode("utf-8"))
+                    print(result["msg"])
             else:
                 print('\033[92m' + " Ok" + '\033[0m', end="")
                 print(runtime.rjust(LINEWDTH-len(self.name)-7-len(self.nr)))
@@ -850,6 +850,46 @@ after_superprofile = {
     }
 }
 
+after_superprofile_with_exclusion = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1",
+            },
+            {
+                "name": "name2",
+                "target": "files/name2",
+            },
+            {
+                "name": "name3",
+                "target": "files/name3",
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+            },
+        ],
+    },
+    "subdir": {
+        "links": [
+            {
+                "name": "prefix_name2",
+                "target": "files/name2",
+            },
+            {
+                "name": "prefix_name3",
+                "target": "files/name3",
+            },
+            {
+                "name": "prefix_name4",
+                "target": "files/name4",
+            }
+        ],
+    }
+}
+
 after_tags = {
     ".": {
         "files": [{"name": "untouched.file"}],
@@ -1152,6 +1192,9 @@ DirRegressionTest("Arguments: Wrong mode",
 DirRegressionTest("Arguments: No profiles",
                   ["update"],
                   before, before).fail("run", 101)
+DirRegressionTest("Arguments: Excluded and included same profile",
+                  ["--exclude", "Something", "update", "somenthingelse", "Something"],
+                  before, before).fail("run", 101)
 DirRegressionTest("Arguments: No makedirs",
                   ["update", "Links"],
                   before, before).fail("run", 103)
@@ -1159,13 +1202,16 @@ DirRegressionTest("Arguments: No sudo",
                   ["update", "NeedsRootConflict"],
                   before, before).fail("run", 101)
 DirRegressionTest("Arguments: --skiproot",
-                  ["update", "--skiproot", "NeedsRootConflict"],
+                  ["--skiproot", "update", "NeedsRootConflict"],
                   before, after_skiproot).success()
 DirRegressionTest("Arguments: --option",
                   [
                       "update", "--option", "name=file", "prefix=test",
                       "tags=tag1,notag", "--", "OptionArgument"
                   ], before, after_options).success()
+DirRegressionTest("Arguments: Exclude",
+                  ["--exclude", "Subprofile2", "--exclude", "Subprofile4", "update", "-m", "SuperProfile"],
+                  before, after_superprofile_with_exclusion).success()
 DirRegressionTest("Arguments: --log",
                   ["--log", "environment-default/log.txt", "update",  "-m", "DirOption"],
                   before, after_logging).success()
@@ -1184,6 +1230,9 @@ DirRegressionTest("Option: optional",
 DirRegressionTest("Option: replace",
                   ["update", "-m", "ReplaceOption"],
                   before, after_replace).success()
+SimpleOutputTest("Option: environment vars",
+                 ["update", "-m", "EnvironmentSubstitution"],
+                 before).success()
 DirRegressionTest("Command: links()",
                   ["update", "-m", "Links"],
                   before, after_links).success()
@@ -1226,6 +1275,9 @@ DirRegressionTest("Conflict: Same link created twice",
 DirRegressionTest("Conflict: Link has multiple targets",
                   ["update", "MultipleTargetsConflict"],
                   before, before).fail("run", 102)
+DirRegressionTest("Conflict: Link already installed by another user",
+                  ["update", "-m", "DirOption"],
+                  before, before, "users").fail("run", 102)
 DirRegressionTest("Event: On Install",
                   ["update", "SuperProfileEvent"],
                   before, after_event).success()
@@ -1277,8 +1329,8 @@ SimpleOutputTest("Output: --dryrun normal",
 SimpleOutputTest("Output: --dryrun with events",
                  ["update", "-d", "SuperProfileEvent"],
                  before).success()
-SimpleOutputTest("Output: --short",
-                 ["update", "--short", "NoOptions"],
+SimpleOutputTest("Output: --summary",
+                 ["--summary", "update", "NoOptions"],
                  before).success()
 SimpleOutputTest("Output: --debuginfo",
                  ["--debuginfo", "version"],
@@ -1295,6 +1347,9 @@ OutputTest("Output: find profiles",
 OutputTest("Output: find dotfiles",
            ["find", "-dr", r"name\d{2}"],
            before, "name10\nname11.file\n").success()
+SimpleOutputTest("Output: find all",
+                 ["find", "-ptdali", "name"],
+                 before).success()
 DirRegressionTest("Fail: Not a profile",
                   ["update", "NotAProfileFail"],
                   before, before).fail("run", 104)
@@ -1347,12 +1402,6 @@ sys.exit(global_fails)
 ###############################################################################
 # TODO: Write tests
 # Already possible
-#    env var substitution
-#    conflicts between users
-#    show
-#    find
-#    print event script
-#    exclude
 #    property changed in fix
 #    --parent
 # Input needs to be simulated
@@ -1364,7 +1413,6 @@ sys.exit(global_fails)
 #    option permission
 # Not sure if possible, but still missing
 #    properties of links change
-#    event script output with utf 8 chars
 #    create unsecure link
 #    file overwrites
 #    profile overwrites

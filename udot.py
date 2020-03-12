@@ -46,12 +46,9 @@ import shutil
 import sys
 import traceback
 
-
-# Restart coverage if spawned as a subprocess
-if os.getenv("COVERAGE_PROCESS_START"):
+if os.getenv("COVERAGE_PROCESS_START"):  # pragma: no cover
     import coverage
     coverage.process_startup()
-
 
 from uberdot import constants as const
 from uberdot.interpreters import *

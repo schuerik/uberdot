@@ -35,6 +35,11 @@ class Default(Profile):
         default()
         link("name6")
 
+class EnvironmentSubstitution(Profile):
+    def generate(self):
+        link("name2", name="$LANG")
+        link("name2", directory="$TERM", extension="$USER")
+
 class IgnoreFiles(Profile):
     def generate(self):
         link("ignored.file", ".dotignore", optional=True)

@@ -303,7 +303,7 @@ class State(MutableMapping, Notifier):
         if not os.path.exists(path):
             return
         # Load file
-        dict_ = json.load(open(path))
+        dict_ = AutoExpandDict(json.load(open(path)))
         # If we can't upgrade, ignore this state file
         if is_version_smaller(dict_.get_special("version"), MIN_VERSION):
             msg = "Ignoring state file of user " + user + ". Too old."

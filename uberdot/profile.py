@@ -42,6 +42,7 @@ from uberdot.utils import expandpath
 from uberdot.utils import find_target
 from uberdot.utils import inflate_owner
 from uberdot.utils import predict_owner
+from uberdot.utils import makedirs
 from uberdot.utils import import_profile
 from uberdot.utils import log_debug
 from uberdot.utils import normpath
@@ -265,8 +266,7 @@ class Profile:
             pretty_script = "\n".join(pretty_script.splitlines()[start:end+1])
             # Build path where the script will be stored
             script_dir = os.path.join(const.session_dir, "scripts")
-            if not os.path.exists(script_dir):
-                os.mkdir(script_dir)
+            makedirs(script_dir)
             script_name =  self.name + "_" + event_name
             script_path = script_dir + "/" + script_name
             script_path += "_" + md5(pretty_script) + ".sh"

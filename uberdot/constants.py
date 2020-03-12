@@ -74,7 +74,7 @@ else:
     # so the tests can set back generated files and the logged state
     data_dir = os.path.join(
         os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
-        "test/regression/data/"
+        "test/regression/data"
     )
     # simulating a second user "test"
     data_dirs_foreign = [

@@ -601,7 +601,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         """
         super().__init__()
         self.blacklist = []
-        search_paths = [const.session_dir] + const.cfg_search_paths
+        search_paths = [const.data_dir] + const.cfg_search_paths
         for blfile in find_files("black.list", search_paths):
             with open(blfile, "r") as file:
                 for line in file.readlines():

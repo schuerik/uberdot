@@ -31,6 +31,7 @@ class SuperProfileEvent(Profile):
         function t(){
             echo "$2" >> $1
         }
+        echo -e "\\u2192"
     """
     beforeInstall = """
         t test.file "I come first"
