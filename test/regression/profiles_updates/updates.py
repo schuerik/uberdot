@@ -4,15 +4,16 @@ from uberdot.profile import Profile
 
 class DirOption(Profile):
     def generate(self):
-        link("name1")
+        link("name1", permission=755)
         link("name2", "name3", directory="subdir")
         link("name5", name="file")
+        link("file", name="name11.file")
 
 class SuperProfileTags(Profile):
     def generate(self):
         subprof("Subprofile3")
         tags("tag1", "tag2")
-        link("name1")
+        link("name1", permission=600)
         subprof("Subprofile1")
 
 class Subprofile3(Profile):

@@ -381,6 +381,10 @@ after_diroptions = {
             {
                 "name": "name5",
                 "target": "files/name5",
+            },
+            {
+                "name": "name11.file",
+                "target": "files/name11.file",
             }
         ],
     },
@@ -432,6 +436,10 @@ after_logging = {
             {
                 "name": "name5",
                 "target": "files/name5",
+            },
+            {
+                "name": "name11.file",
+                "target": "files/name11.file",
             }
         ],
     },
@@ -969,6 +977,10 @@ after_updatediroptions = {
             {
                 "name": "file",
                 "target": "files/name5",
+            },
+            {
+                "name": "name11.file",
+                "target": "files/file",
             }
         ],
     },
@@ -1056,6 +1068,39 @@ after_default = {
         ]
     }
 }
+
+
+after_permission = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1"
+            },
+            {
+                "name": "name2",
+                "target": "files/name2",
+                "permission": 600
+            },
+            {
+                "name": "name3",
+                "target": "files/name3",
+                "permission": 755
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+                "permission": 755
+            },
+            {
+                "name": "name5",
+                "target": "files/name5",
+            }
+        ]
+    }
+}
+
 
 after_ignorefiles = {
     ".": {
@@ -1230,6 +1275,9 @@ DirRegressionTest("Option: optional",
 DirRegressionTest("Option: replace",
                   ["update", "-m", "ReplaceOption"],
                   before, after_replace).success()
+DirRegressionTest("Option: permission",
+                  ["update", "-m", "PermissionOption"],
+                  before, after_permission).success()
 SimpleOutputTest("Option: environment vars",
                  ["update", "-m", "EnvironmentSubstitution"],
                  before).success()

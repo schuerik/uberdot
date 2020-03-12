@@ -10,6 +10,7 @@ class DirOption(Profile):
         link("name1")
         link("name2", directory="subdir")
         link("name3", directory="subdir/subsubdir")
+        link("name11.file")
         cd("subdir")
         link("name4", directory="subsubdir")
         link("name5", directory="..")
@@ -33,6 +34,14 @@ class PrefixSuffixExtensionOption(Profile):
         # the expected behaviour
         link("name3", prefix="subdir/")
         link("name4", suffix="/test")
+
+class PermissionOption(Profile):
+    def generate(self):
+        link("name1")
+        link("name2", permission=600)
+        links("name[34]", permission=755)
+        # Testing secure feature here until a proper test exists
+        link("name5", secure=False)
 
 class OptionalOption(Profile):
     def generate(self):

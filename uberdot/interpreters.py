@@ -268,7 +268,7 @@ class PrintInterpreter(Interpreter):
             if dop["symlink2"]["permission"] != dop["symlink1"]["permission"]:
                 msg = msg_start + "permission from "
                 msg += str(dop["symlink1"]["permission"])
-                msg += " to " + str(dop["symlink2"]["perimssion"])
+                msg += " to " + str(dop["symlink2"]["permission"])
                 log_operation(dop["profile"], msg)
             if dop["symlink1"]["owner"] != dop["symlink2"]["owner"]:
                 msg = msg_start + "owner from " + dop["symlink1"]["owner"]
