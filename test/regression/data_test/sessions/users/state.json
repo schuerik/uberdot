@@ -3,16 +3,16 @@
         "name": "NoOptions",
         "links": [
             {
-                "from": "environment-users/name1",
-                "to": "files/name1",
+                "from": "test/regression/environment-users/name1",
+                "to": "test/regression/files/name1",
                 "owner": ":",
                 "permission": 644,
                 "secure": true,
                 "date": "2020-03-12 13:48:41"
             },
             {
-                "from": "environment-users/name2",
-                "to": "files/name2",
+                "from": "test/regression/environment-users/name2",
+                "to": "test/regression/files/name2",
                 "owner": ":",
                 "permission": 644,
                 "secure": true,
@@ -20,7 +20,7 @@
             },
             {
                 "from": "environment-users/name3",
-                "to": "files/name3",
+                "to": "test/regression/files/name3",
                 "owner": ":",
                 "permission": 644,
                 "secure": true,
