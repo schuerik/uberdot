@@ -476,7 +476,8 @@ class UberDot:
             raise UserError(
                 "'" + const.fix + "' is not a valid fix action."
             )
-        if list(set(const.include) - set(const.exclude)) != const.include:
+        profiles_included = list(set(const.include) - set(const.exclude))
+        if sorted(profiles_included) != sorted(const.include):
             msg = "You can not include and exclude a profile at the same time."
             raise UserError(msg)
 

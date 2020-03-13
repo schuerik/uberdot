@@ -26,6 +26,14 @@ class Subprofile1(Profile):
         links("name[34]")
         link("name6")
 
+class Subprofile2(Profile):
+    def generate(self):
+        links("name[56]")
+
+class Subprofile5(Profile):
+    def generate(self):
+        link("name11.file")
+
 class SuperProfileEvent(Profile):
     prepare_script = """
         alias s='echo "Hello" >> '

@@ -898,6 +898,42 @@ after_superprofile_with_exclusion = {
     }
 }
 
+after_parent = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name1",
+            },
+            {
+                "name": "name2",
+                "target": "files/tag1%name2",
+            },
+            {
+                "name": "name3",
+                "target": "files/tag2%name3",
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+            },
+            {
+                "name": "name5",
+                "target": "files/name5",
+            },
+            {
+                "name": "name6",
+                "target": "files/name6",
+            },
+            {
+                "name": "name11.file",
+                "target": "files/name11.file",
+            },
+        ],
+    }
+}
+
 after_tags = {
     ".": {
         "files": [{"name": "untouched.file"}],
@@ -1178,6 +1214,10 @@ after_modified = {
             {
                 "name": "name5",
                 "target": "files/name5",
+            },
+            {
+                "name": "name11.file",
+                "target": "files/name11.file",
             }
         ],
     },
@@ -1254,7 +1294,7 @@ DirRegressionTest("Arguments: --option",
                       "update", "--option", "name=file", "prefix=test",
                       "tags=tag1,notag", "--", "OptionArgument"
                   ], before, after_options).success()
-DirRegressionTest("Arguments: Exclude",
+DirRegressionTest("Arguments: --exclude",
                   ["--exclude", "Subprofile2", "--exclude", "Subprofile4", "update", "-m", "SuperProfile"],
                   before, after_superprofile_with_exclusion).success()
 DirRegressionTest("Arguments: --log",
@@ -1357,11 +1397,14 @@ DirRegressionTest("Event: Fail on timeout",
                   ["update", "TimeoutProfileEvent"],
                   before, before).fail("run", 107)
 DirRegressionTest("Update: Simple",
-                  ["update", "-m", "--debug", "DirOption"],
+                  ["update", "-m", "DirOption"],
                   after_diroptions, after_updatediroptions, "update").success()
 DirRegressionTest("Update: Uninstall",
                   ["remove", "DirOption"],
                   after_diroptions, before, "update").success()
+DirRegressionTest("Update: --parent",
+                  ["update", "--parent", "SuperProfileTags", "-m", "Subprofile2", "Subprofile5"],
+                  after_tags, after_parent, "nested").success()
 DirRegressionTest("Update: --dui",
                   ["update", "--dui", "SuperProfileTags"],
                   after_tags, after_updatedui, "nested").success()
@@ -1450,18 +1493,15 @@ sys.exit(global_fails)
 ###############################################################################
 # TODO: Write tests
 # Already possible
-#    property changed in fix
 #    --parent
 # Input needs to be simulated
 #    dynamic files changed
 #    overwrite blacklisted
-# Requires an extra user
+# Requires testing with root
 #    option secure
 #    option owner
-#    option permission
+#    gain root
 # Not sure if possible, but still missing
-#    properties of links change
-#    create unsecure link
 #    file overwrites
 #    profile overwrites
 #    event demote()
