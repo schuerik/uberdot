@@ -728,7 +728,7 @@ before_dynamicfiles_changes = {
             },
             {
                 "name": "merge2",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
                 "content": "efdb6a5388498d59a2c55499ba5f0ad6"
             },
             {
@@ -750,24 +750,24 @@ after_dynamicfiles_changes = {
         "files": [{"name": "untouched.file"}],
         "links": [
             {
-                "name": "merge2",
+                "name": "merge3",
                 "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
             },
             {
-                "name": "merge1",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "name": "merge4",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
             },
             {
-                "name": "name_encrypt9",
+                "name": "name_encrypt6",
                 "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
             },
             {
-                "name": "name_encrypt8",
+                "name": "name_encrypt7",
                 "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
             },
         ],
     },
-    "data/sessions/dynamic_changes/dynamicfiles/decrypted": {
+    "../data/sessions/dynamic_changes/dynamicfiles/decrypted": {
         "files": [
             {
                 "name": "name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
@@ -787,7 +787,7 @@ after_dynamicfiles_changes = {
             },
         ]
     },
-    "data/sessions/dynamic_changes/dynamicfiles/merged": {
+    "../data/sessions/dynamic_changes/dynamicfiles/merged": {
         "files": [
             {"name": "merge1#6ddb4095eb719e2a9f0a3f95677d24e0.patch"},
             {
@@ -1585,7 +1585,7 @@ DirRegressionTest("Conflict: Link already installed by another user",
 InputDirRegressionTest("Conflict: Dynamicfile was modified",
                        ["update", "DynamicFiles"],
                        before_dynamicfiles_changes, after_dynamicfiles_changes,
-                       "i\nD\nu\np\n\nu", "dynamic_changes").success()
+                       "i\nD\nu\np\n\nI\nu", "dynamic_changes").success()
 DirRegressionTest("Event: On Install",
                   ["update", "SuperProfileEvent"],
                   before, after_event).success()

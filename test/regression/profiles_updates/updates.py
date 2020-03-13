@@ -36,10 +36,10 @@ class Subprofile5(Profile):
 
 class DynamicFiles(Profile):
     def generate(self):
-        link(decrypt("name_encrypt8"), name="name_encrypt9")
-        link(decrypt("name_encrypt9"), name="name_encrypt8")
-        link(merge("merge1", ["name1", "name2"]), name="merge2")
-        link(merge("merge2", ["name1", "name2"]), name="merge1")
+        link(decrypt("name_encrypt8"), name="name_encrypt6")
+        link(decrypt("name_encrypt9"), name="name_encrypt7")
+        link(merge("merge1", ["name1", "name2"]), name="merge3")
+        link(merge("merge2", ["name1", "name2"]), name="merge4")
 
 class SuperProfileEvent(Profile):
     prepare_script = """

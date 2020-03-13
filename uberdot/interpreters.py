@@ -438,7 +438,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
         md5_old = os.path.basename(target)[-32:]
         # Check for changes
         if md5_calc != md5_old:
-            log_warning("You made changes to '" + target + "'. Those changes" +
+            log_warning("You made changes to '" + target + "'. These changes" +
                         " will be lost, if you don't write them back to" +
                         " the original file.")
             self.user_interaction(target)

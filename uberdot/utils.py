@@ -728,7 +728,7 @@ def is_dynamic_file(target):
     dyn_dir = os.path.dirname(os.path.dirname(normpath(target)))
     if os.path.basename(dyn_dir) != "dynamicfiles":
         return False
-    session_dir = os.path.dirname(dyn_dir)
+    session_dir = os.path.dirname(dyn_dir) + "/"
     if session_dir == const.session_dir:
         return True
     for _, dir_foreign in const.session_dirs_foreign:
