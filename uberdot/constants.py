@@ -315,6 +315,7 @@ def load(args):
         # Set argument
         _set(name, value)
     # Update internal values that depend on a loaded config
+    _set("force", get("force") or get("superforce"))
     _set("session_dir", get("session_dir") % get("session"))
     _set("session_dirs_foreign",
          list(map(

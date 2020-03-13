@@ -35,6 +35,13 @@ class Default(Profile):
         default()
         link("name6")
 
+class DynamicFiles(Profile):
+    def generate(self):
+        link(decrypt("name_encrypt8"))
+        link(decrypt("name_encrypt9"))
+        link(merge("merge1", ["name1", "name2"]))
+        link(merge("merge2", ["name1", "name2"]))
+
 class EnvironmentSubstitution(Profile):
     def generate(self):
         link("name2", name="$LANG")

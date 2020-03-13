@@ -386,7 +386,7 @@ class StateFilesystemDiffSolver(DiffSolver):
 
     def fix_link(self, fix_description, profilename, saved_link, actual_link):
         # Setup selection for how to solve the difference
-        selection = self.action
+        selection = self.action if self.action != "d" else ""
         if not selection:
             print(fix_description, end="")
         # Getting selection from user, if no action was predefined

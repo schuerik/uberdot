@@ -240,7 +240,7 @@ class UberDot:
         )
         parser_run.add_argument(
             "--superforce",
-            help="overwrite blacklisted/protected files",
+            help="overwrite existing AND blacklisted/protected files",
             action="store_true"
         )
         parser_run.add_argument(

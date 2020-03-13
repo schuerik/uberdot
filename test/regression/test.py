@@ -21,6 +21,8 @@
 import hashlib
 import os
 import sys
+import pty
+import select
 import time
 from abc import abstractmethod
 from shutil import get_terminal_size
@@ -36,6 +38,8 @@ LINEWDTH = get_terminal_size().columns  # Width of a line
 DIRNAME = os.path.dirname(os.path.abspath(sys.modules[__name__].__file__))
 # Global used to store success of all tests
 global_fails = 0
+# Global to time execution of all tests
+global_time = 0
 # Global to count all tests
 test_nr = 0
 
@@ -199,7 +203,10 @@ class RegressionTest():
 
     def cleanup(self):
         """Resets test environment and installed files"""
-        checkouts = [DIRNAME + "/data/sessions/"]
+        checkouts = [
+            DIRNAME + "/data/sessions/",
+            DIRNAME + "/files/"
+        ]
         if os.path.exists(self.environ):
             checkouts.append(self.environ)
         # Reset environment and installed dir with git
@@ -226,43 +233,49 @@ class RegressionTest():
 
     def success(self):
         """Execute this test. Expect it to be successful"""
-        global global_fails
+        global global_fails, global_time
         self.cleanup()
         now = time.time()
         result = self.start()
-        runtime = str(int((time.time()-now)*1000)) + "ms"
+        runtime_ms = int((time.time()-now)*1000)
+        runtime_str = str(runtime_ms) + "ms"
         print(LINEWDTH*"-")
         print("\033[1m[" + self.nr + "] " + self.name + ":", end="")
         if result["success"]:
             print('\033[92m' + " Ok" + '\033[0m', end="")
-            print(runtime.rjust(LINEWDTH-len(self.name)-7-len(self.nr)))
+            print(runtime_str.rjust(LINEWDTH-len(self.name)-7-len(self.nr)))
         else:
             print('\033[91m\033[1m' + " FAILED" + '\033[0m'
                   + " in " + result["phase"], end="")
-            print(runtime.rjust(
+            print(runtime_str.rjust(
                 LINEWDTH-len(self.name)-len(result["phase"])-15-len(self.nr)
             ))
+            print("\033[1mCall: \033[0m" + " ".join(self.cmd_args))
+            print("\033[1mEnviron: \033[0m" + self.environ)
+            print()
             print("\033[1mCause: \033[0m" + str(result["cause"]))
             if "msg" in result:
                 print("\033[1mError Message:\033[0m")
                 print(result["msg"])
         global_fails += int(not result["success"])
+        global_time += runtime_ms
         self.cleanup()
         return result["success"]
 
     def fail(self, phase, cause):
         """Execute this test. Expect a certain error"""
-        global global_fails
+        global global_fails, global_time
         self.cleanup()
         now = time.time()
         result = self.start()
-        runtime = str(int((time.time()-now)*1000)) + "ms"
+        runtime_ms = int((time.time()-now)*1000)
+        runtime_str = str(runtime_ms) + "ms"
         print(LINEWDTH*"-")
         print("\033[1m[" + self.nr + "] " + self.name + ":", end="")
         if not result["success"]:
             if result["cause"] != cause:
                 print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
-                print(runtime.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
+                print(runtime_str.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
                 print("\033[1mExpected error: \033[0m" + str(cause))
                 print("\033[1mActual error: \033[0m" + str(result["cause"]))
                 if "msg" in result:
@@ -270,15 +283,16 @@ class RegressionTest():
                     print(result["msg"])
             else:
                 print('\033[92m' + " Ok" + '\033[0m', end="")
-                print(runtime.rjust(LINEWDTH-len(self.name)-7-len(self.nr)))
+                print(runtime_str.rjust(LINEWDTH-len(self.name)-7-len(self.nr)))
         else:
             print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
-            print(runtime.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
+            print(runtime_str.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
             print("\033[93m\033[1mExpected error in " + phase + " did not" +
                   " occur!\033[0m")
             print("\033[1mExpected error:\033[0m " + str(cause))
         if result["success"] or result["cause"] != cause:
             global_fails += 1
+        global_time += runtime_ms
         self.cleanup()
         return not result["success"]
 
@@ -339,6 +353,42 @@ class SimpleOutputTest(OutputTest):
         if exitcode:
             return False, "Exited with exitcode " + str(exitcode), error.decode()
         return True, ""
+
+
+class InputDirRegressionTest(DirRegressionTest):
+    def __init__(self, name, cmd_args, before, after, userinput, session="default"):
+        super().__init__(name, cmd_args, before, after, session)
+        self.input = userinput + "\n" + "\004\004"  # ctrl-d x2
+
+    def run(self):
+        env = os.environ.copy()
+        env["UBERDOT_TEST"] = "1"
+        master, slave = pty.openpty()
+        p = Popen(self.cmd_args, stdin=slave, stdout=PIPE, stderr=PIPE, env=env)
+
+        ticks = 0
+        while p.poll() is None and ticks < 5000:
+            # Wait a tick
+            ticks += 1
+            time.sleep(0.001)
+            # Write input if process is ready
+            _, w, _ = select.select([master], [master], [], 0)
+            if w and self.input:
+                self.input = self.input[os.write(master, self.input.encode()):]
+
+        # Check if timeout was reached
+        if ticks >= 5000:
+            p.kill()
+            return False, -1, "Test timed out after 5 seconds."
+
+        output = p.stdout.read()
+        error_msg = p.stderr.read()
+
+        exitcode = p.returncode
+        if len(sys.argv) > 1:
+            print(output.decode(), end="")
+        return self.run_check(exitcode, output, error_msg)
+
 
 
 # Test data
@@ -934,6 +984,22 @@ after_parent = {
     }
 }
 
+after_subprofile2 = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name5",
+                "target": "files/tag3%name5",
+            },
+            {
+                "name": "name6",
+                "target": "files/tag3%name6",
+            }
+        ],
+    }
+}
+
 after_tags = {
     ".": {
         "files": [{"name": "untouched.file"}],
@@ -1202,8 +1268,7 @@ after_updatedui = {
     }
 }
 
-
-after_modified = {
+before_modified = {
     ".": {
         "files": [{"name": "untouched.file"}],
         "links": [
@@ -1238,11 +1303,69 @@ after_modified = {
             {
                 "name": "name4",
                 "target": "files/name4",
-            }
+            },
         ],
     },
 }
 
+after_modified = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name3",
+            },
+            {
+                "name": "name5",
+                "target": "files/name5",
+            },
+            {
+                "name": "name11.file",
+                "target": "files/name11.file",
+            }
+        ],
+    },
+    "subdir": {
+        "links": [
+            {
+                "name": "name2",
+                "target": "files/name2",
+            }
+        ],
+    },
+    "subdir2": {
+        "links": [
+            {
+                "name": "name7",
+                "target": "files/name7",
+            }
+        ],
+    },
+    "subdir/subsubdir": {
+        "links": [
+            {
+                "name": "name6",
+                "target": "files/name3",
+            },
+            {
+                "name": "name4",
+                "target": "files/name4",
+            },
+        ],
+    },
+}
+
+after_blacklisted = {
+    ".": {
+        "links":[
+            {
+                "name": "untouched.file",
+                "target": "files/name1",
+            },
+        ]
+    }
+}
 
 # Test execution
 ###############################################################################
@@ -1333,6 +1456,9 @@ DirRegressionTest("Command: merge()",
 DirRegressionTest("Command: pipe()",
                   ["update", "Pipe"],
                   before, after_pipe).success()
+DirRegressionTest("Command: Nested dynamicfiles",
+                  ["update", "NestedDynamicFile"],
+                  before, after_nesteddynamic).success()
 DirRegressionTest("Command: subprof()",
                   ["update", "-m", "SuperProfile"],
                   before, after_superprofile).success()
@@ -1345,9 +1471,6 @@ DirRegressionTest("Command: extlink()",
 DirRegressionTest("Command: default()",
                   ["update", "Default"],
                   before, after_default).success()
-DirRegressionTest("Command: Nested dynamicfiles",
-                  ["update", "NestedDynamicFile"],
-                  before, after_nesteddynamic).success()
 DirRegressionTest("Command: .dotignore",
                   ["update", "IgnoreFiles"],
                   before, after_ignorefiles).success()
@@ -1402,12 +1525,19 @@ DirRegressionTest("Update: Simple",
 DirRegressionTest("Update: Uninstall",
                   ["remove", "DirOption"],
                   after_diroptions, before, "update").success()
+# TODO: For this test we should also check the state file
+DirRegressionTest("Update: Uninstall with excludes",
+                  ["--exclude", "Subprofile2", "remove", "SuperProfileTags"],
+                  after_tags, after_subprofile2, "nested").success()
 DirRegressionTest("Update: --parent",
                   ["update", "--parent", "SuperProfileTags", "-m", "Subprofile2", "Subprofile5"],
                   after_tags, after_parent, "nested").success()
 DirRegressionTest("Update: --dui",
                   ["update", "--dui", "SuperProfileTags"],
                   after_tags, after_updatedui, "nested").success()
+InputDirRegressionTest("Update: --superforce",
+                       ["update", "--superforce", "OverwriteBlacklisted"],
+                       before, after_blacklisted, "YES").success()
 SimpleOutputTest("Output: --changes",
                  ["update", "--changes", "NoOptions"],
                  before).success()
@@ -1464,25 +1594,31 @@ DirRegressionTest("Fail: Link moved between profiles",
                   after_tags, before, "nested").fail("run", 102)
 
 
-# For these tests we should also check the state file
+# TODO: For these tests we should also check the state file
 DirRegressionTest("Autofix: Take over",
                   ["--fix", "t", "show"],
-                  after_modified, after_modified, "modified").success()
+                  before_modified, before_modified, "modified").success()
 DirRegressionTest("Autofix: Restore",
                   ["--fix", "r", "show"],
-                  after_modified, after_diroptions, "modified").success()
+                  before_modified, after_diroptions, "modified").success()
 DirRegressionTest("Autofix: Untrack",
                   ["--fix", "u", "show"],
-                  after_modified, after_modified, "modified").success()
+                  before_modified, before_modified, "modified").success()
+InputDirRegressionTest("Autofix: Decide",
+                       ["--fix", "d", "show"],
+                       before_modified, after_modified,
+                       "s\nu\nt\nr", "modified").success()
 DirRegressionTest("Upgrade", ["show"],
                   after_tags, after_tags, "upgrade").success()
 
 # Overall result
 print(LINEWDTH*"=")
 if global_fails:
-    print(str(global_fails) + " \033[1mTests \033[91mFAILED\033[0m")
+    msg = str(global_fails) + " \033[1mTests \033[91mFAILED\033[0m"
 else:
-    print("\033[1mTests \033[92msuccessful\033[0m")
+    msg = "\033[1mTests \033[92msuccessful\033[0m"
+print(msg, end="")
+print((str(round(global_time/1000, 2)) + "s").rjust(LINEWDTH-len(msg)+13))
 
 # Exit
 os.chdir(owd)
@@ -1493,17 +1629,14 @@ sys.exit(global_fails)
 ###############################################################################
 # TODO: Write tests
 # Already possible
-#    --parent
-# Input needs to be simulated
 #    dynamic files changed
-#    overwrite blacklisted
 # Requires testing with root
 #    option secure
 #    option owner
 #    gain root
+#    event demote()
 # Not sure if possible, but still missing
 #    file overwrites
 #    profile overwrites
-#    event demote()
 #    directory of a profile is always expanded and normalized
 #    various errors in profile
