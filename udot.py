@@ -120,7 +120,8 @@ class UberDot:
         parser = CustomParser()
         subparsers = parser.add_subparsers(
             parser_class=CustomParser,
-            dest="mode"
+            dest="mode",
+            description="For more help on the subcommands use 'udot.py subcommand -h'"
         )
         parser_profiles = CustomParser(add_help=False)
         parser_profiles.add_argument(
@@ -184,7 +185,7 @@ class UberDot:
             action="store_true"
         )
         parser.add_argument(
-            "-f", "--fix",
+            "--fix",
             help="specify an action to resolve all fixes with",
         )
         # Setup mode show arguments
@@ -473,6 +474,7 @@ class UberDot:
             raise UserError(msg)
         # Check if arguments are bad
         if const.fix not in ["", "s", "t", "r", "d", "u"]:
+            # TODO use argparse for this
             raise UserError(
                 "'" + const.fix + "' is not a valid fix action."
             )

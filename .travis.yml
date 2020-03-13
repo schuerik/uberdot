@@ -22,7 +22,7 @@ install:
 # Main build phase
 script:
   # Exec tests
-  - ./test/regression/test.py
+  - ./test/regression/test.py 35 36 38 39
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./test/version/test.sh; fi'
   # Generate documentation
   - make -C docs/sphinx html man
