@@ -1474,12 +1474,14 @@ process = Popen(["find", "-L", "(",
                  "-type", "f", "-path", "./profiles*/*",
                  "-not", "-name", "*.pyc", ")",
                  "-exec", "chmod", "644", "--", "{}", "+" ],
-                stderr=PIPE, cwd=DIRNAME)
-_, error_msg = process.communicate()
+                stdout=PIPE, stderr=PIPE, cwd=DIRNAME)
+out, error_msg = process.communicate()
+print(out.decode())
 if process.returncode:
     print(error_msg.decode())
     raise ValueError("chmoding test files failed")
 
+sys.exit(2)
 
 DirRegressionTest("Simple",
                   ["update", "NoOptions"],
