@@ -34,6 +34,13 @@ class Subprofile5(Profile):
     def generate(self):
         link("name11.file")
 
+class DynamicFiles(Profile):
+    def generate(self):
+        link(decrypt("name_encrypt8"), name="name_encrypt9")
+        link(decrypt("name_encrypt9"), name="name_encrypt8")
+        link(merge("merge1", ["name1", "name2"]), name="merge2")
+        link(merge("merge2", ["name1", "name2"]), name="merge1")
+
 class SuperProfileEvent(Profile):
     prepare_script = """
         alias s='echo "Hello" >> '

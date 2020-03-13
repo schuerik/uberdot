@@ -421,7 +421,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation of the to be removed link
         """
-        self.inspect_file(readlink(dop["symlink"]["from"]))
+        self.inspect_file(dop["symlink"]["to"])
 
     def inspect_file(self, target):
         """Checks if a file is dynamic and was changed. If so, it
@@ -466,7 +466,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
         done = False
         while not done:
             inp = input("[A]bort / [I]gnore / Show [D]iff " +
-                        "/ Create [P]atch / [U]ndo changes: ")
+                        "/ Create [P]atch / [U]ndo changes: ").upper()
             if inp == "A":
                 raise UserAbortion
             if inp == "I":
@@ -729,7 +729,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
         raise self.error_type(msg)
 
     def _op_fallback(self, dop):
-        if dop["operation"] not in ["start", "fin", "info"]:
+        if dop["operation"] not in ["start", "fin", "info"]:  # pragma: no cover
             # This is always a FatalError
             raise FatalError("No check implemented for " + dop["operation"])
 
@@ -743,39 +743,39 @@ class CheckDiffsolverResultInterpreter(Interpreter):
 
     def _op_restore_l(self, dop):
         # Only restore link if it is tracked and differs from the tracked
-        if not self.is_link_in_state(dop["profile"], dop["saved_link"]):
+        if not self.is_link_in_state(dop["profile"], dop["saved_link"]):  # pragma: no cover
             msg = "'" + dop["saved_link"]["from"] + "' can not be restored "
             msg += " because it is not tracked."
             self._raise(msg)
-        if link_exists(dop["saved_link"]):
+        if link_exists(dop["saved_link"]):  # pragma: no cover
             msg = "'" + dop["saved_link"]["from"] + "' can not be restored "
             msg += " because it already exists like this."
             self._raise(msg)
 
     def _op_untrack_l(self, dop):
         # Only untack link if it is tracked
-        if not self.is_link_in_state(dop["profile"], dop["symlink"]):
+        if not self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
             msg = "'" + dop["symlink"]["from"] + "' is not tracked."
             self._raise(msg)
         self.removed_links.append(dop["symlink"]["from"])
 
     def _op_track_l(self, dop):
         # Only track link if it exists and is not already tracked
-        if not os.path.lexists(dop["symlink"]["from"]):
+        if not os.path.lexists(dop["symlink"]["from"]):  # pragma: no cover
             msg = "'" + dop["symlink"]["from"] + "' can not be tracked "
             msg += " because it does not exist."
             self._raise(msg)
-        if self.is_link_in_state(dop["profile"], dop["symlink"]):
+        if self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
             msg = "'" + dop["symlink"]["from"] + "' is already tracked."
             self._raise(msg)
 
     def _op_remove_l(self, dop):
         # Only remove symlink if it still exists and is tracked
-        if not os.path.lexists(dop["symlink"]["from"]):
+        if not os.path.lexists(dop["symlink"]["from"]):  # pragma: no cover
             msg = "'" + dop["symlink"]["from"] + "' can not be removed because"
             msg += " it does not exist."
             self._raise(msg)
-        if not self.is_link_in_state(dop["profile"], dop["symlink"]):
+        if not self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
             msg = "'" + dop["symlink"]["from"] + "' is not tracked."
             self._raise(msg)
         self.removed_links.append(dop["symlink"]["from"])
@@ -783,51 +783,51 @@ class CheckDiffsolverResultInterpreter(Interpreter):
     def _op_update_l(self, dop):
         # Only update link if old link still exists, the target of the
         # new link exists, the old link is tracked and the links differ
-        if not os.path.lexists(dop["symlink1"]["from"]):
+        if not os.path.lexists(dop["symlink1"]["from"]):  # pragma: no cover
             msg = "'" + dop["symlink1"]["from"] + "' can not be updated"
             msg += " because it does not exist on your filesystem."
             self._raise(msg)
-        if not os.path.exists(dop["symlink2"]["to"]):
+        if not os.path.exists(dop["symlink2"]["to"]):  # pragma: no cover
             msg = "'" + dop["symlink1"]["from"] + "' can not be updated"
             msg += " to point to '" + dop["symlink2"]["to"] + "'"
             msg += " because '" + dop["symlink2"]["to"]
             msg += "' does not exist in your filesystem."
             self._raise(msg)
-        if not self.is_link_in_state(dop["profile"], dop["symlink1"]):
+        if not self.is_link_in_state(dop["profile"], dop["symlink1"]):  # pragma: no cover
             msg = "'" + dop["symlink1"]["from"] + "' is not tracked."
             self._raise(msg)
-        if links_equal(dop["symlink1"], dop["symlink2"]):
+        if links_equal(dop["symlink1"], dop["symlink2"]):  # pragma: no cover
             self._raise("New symlink is the same as the old symlink.")
-        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:
+        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:  # pragma: no cover
             self.removed_links.append(dop["symlink1"]["from"])
 
     def _op_add_l(self, dop):
         # Only create symlink if is not already tracked and only if
         # the file it points to exists
-        if not os.path.exists(dop["symlink"]["to"]):
+        if not os.path.exists(dop["symlink"]["to"]):  # pragma: no cover
             msg = "'" + dop["symlink"]["from"] + "' will not be created"
             msg += " because it points to '" + dop["symlink"]["to"]
             msg += "' which does not exist in your filesystem."
             self._raise(msg)
-        if self.is_link_in_state(dop["profile"], dop["symlink"]):
+        if self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
             msg = "'" + dop["symlink"]["from"] + "' is already tracked."
             self._raise(msg)
 
     def _op_add_p(self, dop):
         # Only add profile if it wasn't installed
-        if dop["profile"] in self.state:
+        if dop["profile"] in self.state:  # pragma: no cover
             msg = "Profile '" + dop["profile"] + "' is already installed."
             self._raise(msg)
 
     def _op_update_p(self, dop):
         # Only update profile if it was in installed
-        if dop["profile"] not in self.state:
+        if dop["profile"] not in self.state:  # pragma: no cover
             msg = "Profile '" + dop["profile"] + "' is not installed."
             self._raise(msg)
 
     def _op_remove_p(self, dop):
         # Only remove profile if it was in installed
-        if dop["profile"] not in self.state:
+        if dop["profile"] not in self.state:  # pragma: no cover
             msg = "Profile '" + dop["profile"] + "' is not installed."
             self._raise(msg)
 
@@ -839,10 +839,10 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             return
         profile = self.state[dop["profile"]]
         if dop["key"] in profile:
-            if dop["value"] == profile[dop["key"]]:
+            if dop["value"] == profile[dop["key"]]:  # pragma: no cover
                 self._raise(msg)
         else:
-            if dop["value"] is None:
+            if dop["value"] is None:  # pragma: no cover
                 self._raise(msg)
 
 

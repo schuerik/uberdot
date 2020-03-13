@@ -717,6 +717,99 @@ after_nesteddynamic = {
     }
 }
 
+before_dynamicfiles_changes = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "merge1",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "content": "b355af425e5c2ca153f5ce92a924fa5c"
+            },
+            {
+                "name": "merge2",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "content": "efdb6a5388498d59a2c55499ba5f0ad6"
+            },
+            {
+                "name": "name_encrypt8",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "content": "a690b594a938eb682af221b92e6e9666"
+            },
+            {
+                "name": "name_encrypt9",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                "content": "90484ee28df5cf7b136a3166349bc9e4"
+            },
+        ],
+    }
+}
+
+after_dynamicfiles_changes = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "merge2",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+            },
+            {
+                "name": "merge1",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+            },
+            {
+                "name": "name_encrypt9",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+            },
+            {
+                "name": "name_encrypt8",
+                "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+            },
+        ],
+    },
+    "data/sessions/dynamic_changes/dynamicfiles/decrypted": {
+        "files": [
+            {
+                "name": "name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "content": "a690b594a938eb682af221b92e6e9666"
+            },
+            {
+                "name": "name_encrypt8#d6eb32081c822ed572b70567826d9d9d.bak",
+                "content": "d6eb32081c822ed572b70567826d9d9d"
+            },
+            {
+                "name": "name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc.bak",
+                "content": "e59ab101cf09636fc06d10bf3d56a5cc"
+            },
+            {
+                "name": "name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                "content": "e59ab101cf09636fc06d10bf3d56a5cc"
+            },
+        ]
+    },
+    "data/sessions/dynamic_changes/dynamicfiles/merged": {
+        "files": [
+            {"name": "merge1#6ddb4095eb719e2a9f0a3f95677d24e0.patch"},
+            {
+                "name": "merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "content": "b355af425e5c2ca153f5ce92a924fa5c"
+            },
+            {
+                "name": "merge1#6ddb4095eb719e2a9f0a3f95677d24e0.bak",
+                "content": "6ddb4095eb719e2a9f0a3f95677d24e0"
+            },
+            {
+                "name": "merge2#6ddb4095eb719e2a9f0a3f95677d24e0.bak",
+                "content": "6ddb4095eb719e2a9f0a3f95677d24e0"
+            },
+            {
+                "name": "merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "content": "6ddb4095eb719e2a9f0a3f95677d24e0"
+            },
+        ]
+    }
+}
+
 after_event = {
     ".": {
         "files": [
@@ -1489,6 +1582,10 @@ DirRegressionTest("Conflict: Link has multiple targets",
 DirRegressionTest("Conflict: Link already installed by another user",
                   ["update", "-m", "DirOption"],
                   before, before, "users").fail("run", 102)
+InputDirRegressionTest("Conflict: Dynamicfile was modified",
+                       ["update", "DynamicFiles"],
+                       before_dynamicfiles_changes, after_dynamicfiles_changes,
+                       "i\nD\nu\np\n\nu", "dynamic_changes").success()
 DirRegressionTest("Event: On Install",
                   ["update", "SuperProfileEvent"],
                   before, after_event).success()
@@ -1607,7 +1704,7 @@ DirRegressionTest("Autofix: Untrack",
 InputDirRegressionTest("Autofix: Decide",
                        ["--fix", "d", "show"],
                        before_modified, after_modified,
-                       "s\nu\nt\nr", "modified").success()
+                       "s\np\nu\nt\nr", "modified").success()
 DirRegressionTest("Upgrade", ["show"],
                   after_tags, after_tags, "upgrade").success()
 
