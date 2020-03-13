@@ -7,7 +7,7 @@
                 "to": "test/regression/files/name1",
                 "from": "test/regression/environment-update/name1",
                 "owner": ":",
-                "permission": 644,
+                "permission": 755,
                 "date": "2019-07-29 15:30:04",
                 "secure": true
             },
