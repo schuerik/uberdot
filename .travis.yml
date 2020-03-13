@@ -22,7 +22,7 @@ install:
 # Main build phase
 script:
   # Exec tests
-  - UBERDOT_TEST=1 python3 udot.py -c test/regression/regressiontest.ini --session event -v update -f SuperProfileEvent
+  - ./test/regression/test.py
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./test/version/test.sh; fi'
   # Generate documentation
   - make -C docs/sphinx html man

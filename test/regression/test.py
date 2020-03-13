@@ -1474,7 +1474,7 @@ process = Popen(["find", "-L", "(",
                  "-type", "f", "-path", "./profiles*/*",
                  "-not", "-name", "*.pyc", ")",
                  "-exec", "chmod", "644", "--", "{}", "+" ],
-                stderr=PIPE)
+                stderr=PIPE, cwd=DIRNAME)
 _, error_msg = process.communicate()
 if process.returncode:
     print(error_msg.decode())
