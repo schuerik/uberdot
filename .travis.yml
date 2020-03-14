@@ -23,8 +23,6 @@ install:
 script:
   # Exec tests
   - ./test/regression/test.py
-  - ls -la ./test/regression/files/
-  - exit 1
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./test/version/test.sh; fi'
   # Generate documentation
   - make -C docs/sphinx html man
