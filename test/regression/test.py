@@ -220,6 +220,18 @@ class RegressionTest():
         if process.returncode:  # Exitcode is > 0, so git failed
             print(error_msg.decode())
             raise ValueError("git-clean failed")
+        # Fix permissions as they could change when the repo was cloned
+        process = Popen(["find", "-L", "(",
+                         "-type", "f", "-path", "./environment*/*", "-or",
+                         "-type", "f", "-path", "./files/*", "-or",
+                         "-type", "f", "-path", "./profiles*/*",
+                         "-not", "-name", "*.pyc", ")",
+                         "-exec", "chmod", "644", "--", "{}", "+" ],
+                        stdout=PIPE, stderr=PIPE, cwd=DIRNAME)
+        _, error_msg = process.communicate()
+        if process.returncode:
+            print(error_msg.decode())
+            raise ValueError("Chmoding test files failed!")
 
     @abstractmethod
     def pre_check(self):
@@ -1467,21 +1479,6 @@ after_blacklisted = {
 owd = os.getcwd()
 os.chdir(DIRNAME)
 
-# Fix permissions as they could change when the repo was cloned
-process = Popen(["find", "-L", "(",
-                 "-type", "f", "-path", "./environment*/*", "-or",
-                 "-type", "f", "-path", "./files/*", "-or",
-                 "-type", "f", "-path", "./profiles*/*",
-                 "-not", "-name", "*.pyc", ")",
-                 "-exec", "chmod", "644", "--", "{}", "+" ],
-                stdout=PIPE, stderr=PIPE, cwd=DIRNAME)
-out, error_msg = process.communicate()
-print(out.decode())
-if process.returncode:
-    print(error_msg.decode())
-    raise ValueError("chmoding test files failed")
-
-sys.exit(2)
 
 DirRegressionTest("Simple",
                   ["update", "NoOptions"],
