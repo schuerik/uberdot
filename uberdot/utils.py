@@ -34,6 +34,7 @@ import os
 import pwd
 import re
 import subprocess
+import sys
 import time
 from uberdot import constants as const
 from uberdot.errors import FatalError
@@ -580,6 +581,50 @@ def get_profile_source(profile_name, file=None):
 ###############################################################################
 
 logger = logging.getLogger("root")
+
+
+def user_choice(*options, abort=False):
+    options = dict(options)
+    if abort:
+        options["A"] = "Abort"
+    for key, text in options.items():
+        idx = text.index(key)
+        options[key] = text[:idx] + "[" + key + "]" + text[idx+1:]
+
+    selection = user_input(" / ".join(options.values()))
+    selection = selection.lower().strip()
+    if selection not in map(str.lower, options.keys()):
+        print("Invalid option.")
+        user_choice(abort, *list(options))
+    elif abort and selection == "a":
+        raise UserAbortion()
+    else:
+        return selection
+
+
+def user_confirmation(challenge):
+    inp = user_input("Type \"" + challenge + "\" to confirm or anything else to abort")
+    if challenge != inp:
+        raise UserAbortion()
+
+
+def user_selection(description, preselect=None):
+    if preselect is not None:
+        description += " " + "[" + " " if not preselect else preselect + "]"
+    inp = user_input(description)
+    if inp:
+        return inp
+    elif preselect:
+        return preselect
+    else:
+        user_selection(description, preselect)
+
+def user_input(txt):
+    inp = input(txt + ": ")
+    if os.environ["UBERDOT_TEST"]:
+        print(inp)
+        sys.stdout.flush()
+    return inp
 
 
 def links_similar(sym1, sym2):

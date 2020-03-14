@@ -465,33 +465,34 @@ class CheckDynamicFilesInterpreter(Interpreter):
         target_bak = target + "." + const.backup_extension
         done = False
         while not done:
-            inp = input("[A]bort / [I]gnore / Show [D]iff " +
-                        "/ Create [P]atch / [U]ndo changes: ").upper()
-            if inp == "A":
-                raise UserAbortion
-            if inp == "I":
+            inp = user_choice(
+                ("I", "Ignore"), ("d", "Show diff"),
+                ("p", "Create patch"), ("U", "Undo changes"),
+                abort=True
+            )
+            if inp == "i":
                 done = True
-            elif inp == "D":
+            elif inp == "d":
                 # Create a colored diff between the file and its original
                 process = Popen(["diff", "--color=auto", target_bak, target])
                 process.communicate()
-            elif inp == "P":
+            elif inp == "p":
                 # Create a git patch with git diff
                 patch_file = os.path.join(const.target_files,
                                           os.path.basename(target))
                 patch_file += ".patch"
-                patch_file = input("Enter filename for patch [" +
-                                   patch_file + "]: ") or patch_file
+                patch_file = user_selection("Enter filename for patch", patch_file)
+                patch_file = normpath(patch_file)
                 args = ["git", "diff", "--no-index", target_bak, target]
                 process = Popen(args, stdout=PIPE)
                 try:
                     with open(patch_file, "wb") as file:
                         file.write(process.stdout.read())
-                    log("Patch file written successfully")
+                    log("Patch file written successfully to '" + patch_file + "'.")
                 except IOError:
                     msg = "Could not write patch file '" + patch_file + "'."
                     raise PreconditionError(msg)
-            elif inp == "U":
+            elif inp == "u":
                 if const.dryrun:
                     log_warning("This does nothing since " +
                                 "this is just a dry-run")
@@ -499,8 +500,6 @@ class CheckDynamicFilesInterpreter(Interpreter):
                     # Copy the original to the changed
                     copyfile(target_bak, target)
                 done = True
-            else:
-                log_warning("Invalid option")
 
 
 class CheckLinksInterpreter(Interpreter):
@@ -626,12 +625,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
                             "' which is blacklisted. It is considered " +
                             "dangerous to " + action + " those files!")
                 if const.superforce:
-                    log_warning("Are you sure that you want to " + action +
-                                " a blacklisted file?")
-                    confirmation = input("Type \"YES\" to confirm or " +
-                                         "anything else to cancel: ")
-                    if confirmation != "YES":
-                        raise UserAbortion
+                    user_confirmation("YES")
                 else:
                     log_warning("If you really want to modify this file" +
                                 " you can use the --superforce flag to" +

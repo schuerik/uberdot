@@ -386,7 +386,15 @@ class InputDirRegressionTest(DirRegressionTest):
             # Write input if process is ready
             _, w, _ = select.select([master], [master], [], 0)
             if w and self.input:
-                self.input = self.input[os.write(master, self.input.encode()):]
+                try:
+                    idx = self.input.index("\n")
+                    line = self.input[:idx]
+                    self.input = self.input[idx+1:]
+                except ValueError:
+                    line = self.input[:]
+                    self.input = ""
+                line = (line + "\n").encode()
+                os.write(master, line)
 
         # Check if timeout was reached
         if ticks >= 5000:

@@ -388,16 +388,11 @@ class StateFilesystemDiffSolver(DiffSolver):
         # Setup selection for how to solve the difference
         selection = self.action if self.action != "d" else ""
         if not selection:
-            print(fix_description, end="")
-        # Getting selection from user, if no action was predefined
-        while not selection:
-            selection = input("(s/r/t/u/?) ").lower().strip()
-            if selection == "?":
-                print("(s)kip / (r)estore link / (t)ake over / (u)ntrack link")
-                selection = ""
-            elif selection not in ["s", "r", "t", "u"]:
-                print("Unkown option")
-                selection = ""
+            print(fix_description)
+            selection = user_selection(
+                ("S", "Skip"), ("R", "Restore link"),
+                ("T", "Take over"), ("U", "Untrack link")
+            )
         # Solve according to the selection
         if selection == "s":
             return
