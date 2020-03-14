@@ -591,15 +591,15 @@ def user_choice(*options, abort=False):
         idx = text.index(key)
         options[key] = text[:idx] + "[" + key + "]" + text[idx+1:]
 
-    selection = user_input(" / ".join(options.values()))
-    selection = selection.lower().strip()
-    if selection not in map(str.lower, options.keys()):
-        print("Invalid option.")
-        user_choice(abort, *list(options))
-    elif abort and selection == "a":
-        raise UserAbortion()
-    else:
-        return selection
+    while True:
+        selection = user_input(" / ".join(options.values()))
+        selection = selection.lower().strip()
+        if selection not in map(str.lower, options.keys()):
+            print("Invalid option.")
+        elif abort and selection == "a":
+            raise UserAbortion()
+        else:
+            return selection
 
 
 def user_confirmation(challenge):
@@ -609,9 +609,10 @@ def user_confirmation(challenge):
 
 
 def user_selection(description, preselect=None):
+    txt = description
     if preselect is not None:
-        description += " " + "[" + " " if not preselect else preselect + "]"
-    inp = user_input(description)
+        txt += " " + "[" + " " if not preselect else preselect + "]"
+    inp = user_input(txt)
     if inp:
         return inp
     elif preselect:

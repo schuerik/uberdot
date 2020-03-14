@@ -50,6 +50,7 @@ from uberdot.utils import log_debug
 from uberdot.utils import log_warning
 from uberdot.utils import normpath
 from uberdot.utils import readlink
+from uberdot.utils import user_choice
 from uberdot.utils import safe_walk
 from uberdot.utils import similar_link_exists
 
@@ -389,7 +390,7 @@ class StateFilesystemDiffSolver(DiffSolver):
         selection = self.action if self.action != "d" else ""
         if not selection:
             print(fix_description)
-            selection = user_selection(
+            selection = user_choice(
                 ("S", "Skip"), ("R", "Restore link"),
                 ("T", "Take over"), ("U", "Untrack link")
             )
