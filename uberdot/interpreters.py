@@ -489,7 +489,8 @@ class CheckDynamicFilesInterpreter(Interpreter):
                     with open(patch_file, "wb") as file:
                         file.write(process.stdout.read())
                     log("Patch file written successfully to '" + patch_file + "'.")
-                except IOError:
+                except OSError
+                :
                     msg = "Could not write patch file '" + patch_file + "'."
                     raise PreconditionError(msg)
             elif inp == "u":
