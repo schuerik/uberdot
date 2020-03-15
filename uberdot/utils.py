@@ -611,7 +611,7 @@ def user_confirmation(challenge):
 def user_selection(description, preselect=None):
     txt = description
     if preselect is not None:
-        txt += " " + "[" + " " if not preselect else preselect + "]"
+        txt += " " + "[" + (" " if not preselect else preselect) + "]"
     inp = user_input(txt)
     if inp:
         return inp

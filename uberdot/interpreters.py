@@ -438,9 +438,9 @@ class CheckDynamicFilesInterpreter(Interpreter):
         md5_old = os.path.basename(target)[-32:]
         # Check for changes
         if md5_calc != md5_old:
-            log_warning("You made changes to '" + target + "'. These changes" +
-                        " will be lost, if you don't write them back to" +
-                        " the original file.")
+            log_warning("You made changes to '" + target + "'.")
+            log_warning("These changes will be lost, if you don't write " +
+                        "them back to the original file.")
             self.user_interaction(target)
 
     def user_interaction(self, target):
@@ -478,9 +478,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
                 process.communicate()
             elif inp == "p":
                 # Create a git patch with git diff
-                patch_file = os.path.join(const.target_files,
-                                          os.path.basename(target))
-                patch_file += ".patch"
+                patch_file = os.path.splitext(target)[0] + ".patch"
                 patch_file = user_selection("Enter filename for patch", patch_file)
                 patch_file = normpath(patch_file)
                 args = ["git", "diff", "--no-index", target_bak, target]

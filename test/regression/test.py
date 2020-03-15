@@ -76,10 +76,13 @@ def dircheck(environ, dir_tree):
         for file in files:
             file_list.append(os.path.abspath(os.path.join(root, file)))
 
+    # TODO for test 33 was no patch file created but test didnt fail
     # Compare dir_tree against actual directory tree in environment
     for dir_name, dir_props in dir_tree.items():
         # Add environment to directory
         dir_name = os.path.normpath(os.path.join(environ, dir_name))
+        file_list += [os.path.join(dir_name, item) for item in next(os.walk(dir_name))[2]]
+        file_list = list(set(file_list))
         # Directory existance
         if not os.path.isdir(dir_name):
             raise ValueError((False, dir_name + " is a not a directory"))
@@ -89,7 +92,6 @@ def dircheck(environ, dir_tree):
         # Directory owner
         check_owner(dir_name, dir_props)
         # Files
-
         if "files" in dir_props:
             for file_props in dir_props["files"]:
                 file_path = os.path.join(dir_name, file_props["name"])
