@@ -119,12 +119,15 @@ def __decode_ansi(string):
 ############################################################################
 # Initialize constants
 ############################################################################
+# TODO: Implement subsections for arguments
 values = {
     # name: (default value, configsection, type, manipulation function)
     "cfg_files"           : ([],                     None,        "list", None),
     "cfg_search_paths"    : (cfg_search_paths,       None,        "list", None),
     "changes"             : (False,                  None,        "bool", None),
     "col_endc"            : ('\x1b[0m',              None,        "str",  None),
+    "data_dir"            : (data_dir,               None,        "path", None),
+    "data_dirs_foreign"   : (data_dirs_foreign,      None,        "list", None),
     "debug"               : (False,                  None,        "bool", None),
     "debuginfo"           : (False,                  None,        "bool", None),
     "dryrun"              : (False,                  None,        "bool", None),
@@ -132,14 +135,17 @@ values = {
     "session_dirs_foreign": (session_dirs_foreign,   None,        "list", None),
     "mode"                : ("",                     None,        "str",  None),
     "owd"                 : (os.getcwd(),            None,        "str",  None),
-    "parent"              : (None,                   None,        "str",  None),
     "session"             : ("default",              None,        "str",  str.lower),
+    "test"                : (test,                   None,        "int",  None),
+    "user"                : (user,                   None,        "str",  None),
+    "users"               : (users,                  None,        "list", None),
     "all"                 : (False,                  "Arguments", "bool", None),
     "allusers"            : (False,                  "Arguments", "bool", None),
     "content"             : (False,                  "Arguments", "bool", None),
     "dotfiles"            : (False,                  "Arguments", "bool", None),
     "dui"                 : (False,                  "Arguments", "bool", None),
     "filename"            : (False,                  "Arguments", "bool", None),
+    "file"                : (None,                   "Arguments", "str",  None),
     "fix"                 : ("",                     "Arguments", "str",  None),
     "force"               : (False,                  "Arguments", "bool", None),
     "exclude"             : ([],                     "Arguments", "list", None),
@@ -152,6 +158,7 @@ values = {
     "meta"                : (False,                  "Arguments", "bool", None),
     "names"               : (True,                   "Arguments", "bool", None),
     "locations"           : (True,                   "Arguments", "bool", None),
+    "parent"              : (None,                   "Arguments", "str",  None),
     "profiles"            : (False,                  "Arguments", "bool", None),
     "regex"               : (False,                  "Arguments", "bool", None),
     "searchstr"           : ("",                     "Arguments", "str",  None),

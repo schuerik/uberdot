@@ -194,16 +194,22 @@ class UberDot:
 
         # Setup mode show arguments
         # TODO: option to show an older state
+        # TODO rename --links to --dotfiles?
         parser_show_selection = CustomParser(add_help=False)
-        parser_show_selection.add_argument(
+        group_display_selection = parser_show_selection.add_mutually_exclusive_group()
+        group_display_selection.add_argument(
             "-u", "--users",
             help="show installed of other users",
             nargs="+"
         )
-        parser_show_selection.add_argument(
+        group_display_selection.add_argument(
             "-a", "--allusers",
             help="show installed of all users",
             action="store_true"
+        )
+        group_display_selection.add_argument(
+            "--file",
+            help="select another state file to show",
         )
         parser_show_selection.add_argument(
             "-l", "--links",
@@ -379,7 +385,6 @@ class UberDot:
         )
 
         # Setup mode timewarp arguments
-        # TODO rename --links to --dotfiles?
         help_text = "revert back to a previous state"
         parser_timewarp = subparsers.add_parser(
             "timewarp",
@@ -574,9 +579,11 @@ class UberDot:
         snapshot = temp_state.get_special("snapshot") if "snapshot" in temp_state.get_specials() else None
         for nr, file in enumerate(statefiles):
             timestamp = file.split("_")[1][:-5]
-            msg = "[" + str(nr+1) + "] ID: "
+            msg = "[" + str(nr+1) + "] "
+            if snapshot==timestamp:
+                msg += const.col_emph + "(current) " + const.col_endc
             temp_state =  State(timestamp)
-            msg += timestamp
+            msg += "ID: " + timestamp
             msg += "  Date: " + timestamp_to_string(timestamp)
             msg += "  Version: " + temp_state.get_special("version")
             root_profiles = filter(lambda x: "parent" not in temp_state[x], temp_state.keys())
@@ -685,32 +692,38 @@ class UberDot:
             else:
                 print(str("   " + name + ": ").ljust(32) + str(value))
 
-    # TODO: options to display snapshots of state
+    # TODO: --file must support more than only id
     def show(self):
         """Print out the state file in a readable format.
 
         Prints only the profiles specified in the commandline arguments. If
         none are specified it prints all profiles of the state file."""
-        last_user = ""
-        for user, profile in self.state.get_profiles():
-            # Skip users that shall not be printed
-            if not const.allusers:
-                if const.users:
-                    if user not in const.users:
+        if const.file is not None:
+            temp_state = State(const.file)
+            for profile in temp_state.values():
+                if not const.include or profile["name"] in const.include:
+                    self.print_profile(profile)
+        else:
+            last_user = ""
+            for user, profile in self.state.get_profiles():
+                # Skip users that shall not be printed
+                if not const.allusers:
+                    if const.users:
+                        if user not in const.users:
+                            continue
+                    elif const.user != user:
                         continue
-                elif const.user != user:
-                    continue
-            # Print the next user
-            if user != last_user:
-                # But only if other users shall be shown
-                if const.allusers or const.users:
-                    print(const.col_emph + "User: " + const.col_endc + user)
-                last_user = user
-            # Show all profiles that are specified or all if none was specified
-            if not const.include or profile["name"] in const.include:
-                self.print_installed(profile)
+                # Print the next user
+                if user != last_user:
+                    # But only if other users shall be shown
+                    if const.allusers or const.users:
+                        print(const.col_emph + "User: " + const.col_endc + user)
+                    last_user = user
+                # Show all profiles that are specified or all if none was specified
+                if not const.include or profile["name"] in const.include:
+                    self.print_profile(profile)
 
-    def print_installed(self, profile):
+    def print_profile(self, profile):
         """Prints a single installed profile.
 
         Args:
