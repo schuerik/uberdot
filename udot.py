@@ -116,12 +116,14 @@ class UberDot:
         """
         if arguments is None:
             arguments = sys.argv[1:]
+
         # Setup parser
         parser = CustomParser()
         subparsers = parser.add_subparsers(
             parser_class=CustomParser,
             dest="mode",
-            description="For more help on the subcommands use 'udot.py subcommand -h'"
+            description="For more help on the subcommands use 'udot.py subcommand -h'",
+            action="extend"
         )
         parser_profiles = CustomParser(add_help=False)
         parser_profiles.add_argument(
@@ -129,6 +131,7 @@ class UberDot:
             help="do everything only for this list of profiles",
             nargs="*"
         )
+
         # Setup top level arguments
         parser.add_argument(
             "-c", "--config",
@@ -184,43 +187,47 @@ class UberDot:
             help="show loaded settings and internal values",
             action="store_true"
         )
+        # TODO: use enum
         parser.add_argument(
             "--fix",
             help="specify an action to resolve all fixes with",
         )
+
         # Setup mode show arguments
-        help_text = "display various information about installed profiles"
-        parser_show = subparsers.add_parser(
-            "show",
-            parents=[parser_profiles],
-            description=help_text,
-            help=help_text
-        )
-        parser_show.add_argument(
+        parser_show_selection = CustomParser(add_help=False)
+        parser_show_selection.add_argument(
             "-u", "--users",
             help="show installed of other users",
             nargs="+"
         )
-        parser_show.add_argument(
+        parser_show_selection.add_argument(
             "-a", "--allusers",
             help="show installed of all users",
             action="store_true"
         )
-        parser_show.add_argument(
+        parser_show_selection.add_argument(
             "-l", "--links",
             help="show installed links",
             action="store_true"
         )
-        parser_show.add_argument(
+        parser_show_selection.add_argument(
             "-p", "--profiles",
             help="show installed profiles",
             action="store_true"
         )
-        parser_show.add_argument(
+        parser_show_selection.add_argument(
             "-m", "--meta",
             help="display meta information of profiles and/or links",
             action="store_true"
         )
+        help_text = "display various information about installed profiles"
+        parser_show = subparsers.add_parser(
+            "show",
+            parents=[parser_show_selection, parser_profiles],
+            description=help_text,
+            help=help_text
+        )
+
         # Setup arguments that are used in both update and remove
         parser_run = CustomParser(add_help=False)
         group_run_mode = parser_run.add_mutually_exclusive_group()
@@ -264,6 +271,7 @@ class UberDot:
             help=argparse.SUPPRESS,
             action="store_true"
         )
+
         # Setup mode update arguments
         help_text="install new or update already installed profiles"
         parser_update = subparsers.add_parser(
@@ -297,6 +305,7 @@ class UberDot:
             "--parent",
             help="overwrite parent profile of profiles"
         )
+
         # Setup mode remove arguments
         help_text="remove already installed profiles"
         parser_remove = subparsers.add_parser(
@@ -305,8 +314,9 @@ class UberDot:
             description=help_text,
             help=help_text
         )
+
         # Setup mode find arguments
-        help_text="helpers to search profiles and dotfiles manually"
+        help_text = "helpers to search profiles and dotfiles manually"
         parser_find = subparsers.add_parser(
             "find",
             description=help_text,
@@ -367,42 +377,54 @@ class UberDot:
             help="a string that will be searched for",
             nargs="?"
         )
-        # help_text="revert back to a prevoius state"
-        # parser_timewarp = subparsers.add_parser(
-        #     "timewarp",
-        #     description=help_text,
-        #     help=help_text
-        # )
-        # parser_timewarp.add_argument(
-        #     "--minutes",
-        #     help="minutes to go back in time",
-        #     action="store"
-        # )
-        # parser_timewarp.add_argument(
-        #     "--hours",
-        #     help="hours to go back in time",
-        #     action="store"
-        # )
-        # parser_timewarp.add_argument(
-        #     "-d", "--days",
-        #     help="days to go back in time",
-        #     action="store"
-        # )
-        # parser_timewarp.add_argument(
-        #     "-m", "--months",
-        #     help="months to go back in time",
-        #     action="store"
-        # )
-        # parser_timewarp.add_argument(
-        #     "--date",
-        #     help="go back to this date",
-        #     action="store"
-        # )
-        # parser_timewarp.add_argument(
-        #     "--file",
-        #     help="go back to a specific installed file",
-        #     action="store"
-        # )
+
+        # Setup mode timewarp arguments
+        # TODO rename --links to --dotfiles?
+        help_text = "revert back to a previous state"
+        parser_timewarp = subparsers.add_parser(
+            "timewarp",
+            description=help_text,
+            help=help_text
+        )
+        group_state_selection = parser_timer.add_mutually_exclusive_group()
+        group_state_selection.add_argument(
+            "--earlier",
+            help="go back in time for a specific time",
+            action="store"
+        )
+        group_state_selection.add_argument(
+            "--later",
+            help="go forward in time for a specific time",
+            action="store"
+        )
+        group_state_selection.add_argument(
+            "--first",
+            help="go back to the first recorded state",
+            action="store_true"
+        )
+        group_state_selection.add_argument(
+            "--last",
+            help="go forward to the last recorded state",
+            action="store_true"
+        )
+        group_state_selection.add_argument(
+            "--date",
+            help="go back (or forward) to this date",
+            action="store"
+        )
+        group_state_selection.add_argument(
+            "--file",
+            help="go back to a specific state file (accepts path, number shown in list, or timestamp)",
+            action="store"
+        )
+
+        # Setup mode history arguments
+        help_text = "list all previous state"
+        parser_timewarp_list = timewarp_subparsers.add_parser(
+            "history",
+            description=help_text,
+            help=help_text
+        )
 
         # Setup mode version arguments
         help_text="show version number"
@@ -556,21 +578,20 @@ class UberDot:
             selection = const.fix
             if not selection:
                 log("How would you like to fix those changes?")
+                selection = user_choice(
+                    ("S", "Skip fixing"), ("T", "Take over all changes"),
+                    ("R", "Restore all links"), ("U", "Untrack all changes"),
+                    ("D", "Decide for each link")
+                )
             else:
                 log("Autofixing using mode " + const.fix + ".")
-            while not selection:
-                msg = "(s)kip fixing / (t)ake over all changes / "
-                msg += "(r)estore all links / (u)ntrack all changes / "
-                msg += "(d)ecide for each link: "
-                selection = input(msg).lower()
-                if selection not in ["s", "r", "t", "d", "u"]:
-                    selection = ""
             # Calculate difflog again depending on selection.
             if selection == "s":
                 return
             diffsolver = StateFilesystemDiffSolver(self.state, action=selection)
             difflog = diffsolver.solve()
             # Execute difflog. First some obligatory checks
+            log_debug("Checking operations for errors and conflicts.")
             difflog.run_interpreter(
                 CheckFileOverwriteInterpreter(),
                 CheckDiffsolverResultInterpreter(self.state)
@@ -578,7 +599,7 @@ class UberDot:
             # Also allow to skip root here
             if const.skiproot:
                 difflog.run_interpreter(SkipRootInterpreter())
-            # Get root if needed
+            # Gain root if needed
             if not has_root_priveleges():
                 log_debug("Checking if root is required for fixing.")
                 difflog.run_interpreter(

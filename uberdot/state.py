@@ -263,17 +263,26 @@ class State(MutableMapping, Notifier):
         for user, session_path in const.session_dirs_foreign:
             self.try_load_user_session(user, session_path)
         # Load state files of current users
-        self.own_file = os.path.join(const.session_dir, const.STATE_NAME)
-        path = self.own_file
-        if timestamp is not None:
-            path, ext = os.path.splitext(self.own_file)
+        path = os.path.join(const.session_dir, const.STATE_NAME)
+        if timestamp is not None:  # Load a previous snapshot
+            path, ext = os.path.splitext(path)
             path += "_" + timestamp + "." + ext
-        # Load file
-        try:
-            self.user_dict = AutoExpandDict(json.load(open(path)))
-        except FileNotFoundError:
-            log_debug("No state file found. Creating new.")
-            self.user_dict = AutoExpandDict(**{"@version": const.VERSION})
+            self.auto_write = False
+            try:
+                self.user_dict = AutoExpandDict(json.load(open(path)))
+                self.user_dict.set_special("snapshot", timestamp)
+            except FileNotFoundError:
+                raise PreconditionError(
+                    "State file '" + self.own_file + "' doesn't exist."
+                )
+        else:  # Load the current state
+            self.auto_write = True
+            try:
+                self.user_dict = AutoExpandDict(json.load(open(path)))
+            except FileNotFoundError:
+                log_debug("No state file found. Creating new.")
+                self.user_dict = AutoExpandDict(**{"@version": const.VERSION})
+        self.own_file = path
         self.loaded[const.user] = self.user_dict
         # Check if we can upgrade
         if is_version_smaller(self.user_dict.get_special("version"), MIN_VERSION):
@@ -419,10 +428,11 @@ class State(MutableMapping, Notifier):
         return iter(self.user_dict)
 
     def notify(self):
-        log_debug("Writing changes back to state file.")
-        self.write_file()
+        if self.auto_write:
+            log_debug("Writing changes back to state file.")
+            self.write_file()
 
     def copy(self):
         clone = super().copy()
-        clone.notify = None
+        clone.auto_write = False
         return clone

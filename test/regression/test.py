@@ -76,7 +76,6 @@ def dircheck(environ, dir_tree):
         for file in files:
             file_list.append(os.path.abspath(os.path.join(root, file)))
 
-    # TODO for test 33 was no patch file created but test didnt fail
     # Compare dir_tree against actual directory tree in environment
     for dir_name, dir_props in dir_tree.items():
         # Add environment to directory
@@ -1711,9 +1710,9 @@ DirRegressionTest("Autofix: Untrack",
                   ["--fix", "u", "show"],
                   before_modified, before_modified, "modified").success()
 InputDirRegressionTest("Autofix: Decide",
-                       ["--fix", "d", "show"],
+                       ["show"],
                        before_modified, after_modified,
-                       "s\np\nu\nt\nr", "modified").success()
+                       "d\ns\np\nu\nt\nr", "modified").success()
 DirRegressionTest("Upgrade", ["show"],
                   after_tags, after_tags, "upgrade").success()
 
