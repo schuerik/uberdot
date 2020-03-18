@@ -123,7 +123,6 @@ class UberDot:
             parser_class=CustomParser,
             dest="mode",
             description="For more help on the subcommands use 'udot.py subcommand -h'",
-            action="extend"
         )
         parser_profiles = CustomParser(add_help=False)
         parser_profiles.add_argument(
@@ -194,6 +193,7 @@ class UberDot:
         )
 
         # Setup mode show arguments
+        # TODO: option to show an older state
         parser_show_selection = CustomParser(add_help=False)
         parser_show_selection.add_argument(
             "-u", "--users",
@@ -386,7 +386,7 @@ class UberDot:
             description=help_text,
             help=help_text
         )
-        group_state_selection = parser_timer.add_mutually_exclusive_group()
+        group_state_selection = parser_timewarp.add_mutually_exclusive_group(required=True)
         group_state_selection.add_argument(
             "--earlier",
             help="go back in time for a specific time",
@@ -419,8 +419,8 @@ class UberDot:
         )
 
         # Setup mode history arguments
-        help_text = "list all previous state"
-        parser_timewarp_list = timewarp_subparsers.add_parser(
+        help_text = "list all previous (or later) states"
+        parser_timewarp_list = subparsers.add_parser(
             "history",
             description=help_text,
             help=help_text
@@ -473,7 +473,7 @@ class UberDot:
     def check_arguments(self):
         """Checks if parsed arguments/settings are bad or incompatible to
         each other. If not, it raises an UserError."""
-        if const.mode == "version":
+        if const.mode in ["version", "history"]:
             # If the user just want to get the version number, we should
             # not force him to setup a proper config
             return
@@ -519,6 +519,8 @@ class UberDot:
         self.fix()
         if const.mode == "show":
             self.show()
+        elif const.mode == "history":
+            self.list_states()
         else:
             # The previous modes just printed stuff, but here we
             # have to actually do something:
@@ -564,6 +566,23 @@ class UberDot:
                 dfl.run_interpreter(PrintInterpreter())
             else:
                 self.run(dfl)
+
+    def list_states(self):
+        statefiles = sorted(map(lambda x: os.path.join(*x), walk(const.session_dir)))
+        current = statefiles.pop(0)
+        temp_state =  State()
+        snapshot = temp_state.get_special("snapshot") if "snapshot" in temp_state.get_specials() else None
+        for nr, file in enumerate(statefiles):
+            timestamp = file.split("_")[1][:-5]
+            msg = "[" + str(nr+1) + "] ID: "
+            temp_state =  State(timestamp)
+            msg += timestamp
+            msg += "  Date: " + timestamp_to_string(timestamp)
+            msg += "  Version: " + temp_state.get_special("version")
+            root_profiles = filter(lambda x: "parent" not in temp_state[x], temp_state.keys())
+            msg += "  Root profiles: " + " ".join(root_profiles)
+            print(msg)
+
 
     def fix(self):
         log_debug("Checking state file consistency.")

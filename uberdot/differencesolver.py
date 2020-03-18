@@ -239,6 +239,9 @@ class DiffLog():
     def untrack_link(self, profilename, symlink):
         self.__append_data("untrack_l", profilename, symlink=symlink)
 
+    def update_tracked(self, profilename, old_symlink, new_symlink):
+        self.__append_data("update_t", profilename, symlink1=old_symlink, symlink2=new_symlink)
+
     def __append_data(self, operation, profilename, **kwargs):
         """Appends a new operation to :attr:`self.data<DiffLog.data>`.
 
@@ -400,10 +403,10 @@ class StateFilesystemDiffSolver(DiffSolver):
         elif selection == "r":
             self.difflog.restore_link(profilename, saved_link, actual_link)
         elif selection == "t":
-            if not actual_link:
-                self.difflog.untrack_link(profilename, saved_link)
+            if actual_link:
+                self.difflog.update_tracked(profilename, saved_link, actual_link)
             else:
-                self.difflog.update_link(profilename, saved_link, actual_link)
+                self.difflog.untrack_link(profilename, saved_link)
         elif selection == "u":
             self.difflog.untrack_link(profilename, saved_link)
 

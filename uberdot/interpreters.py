@@ -145,6 +145,7 @@ class PrintSummaryInterpreter(Interpreter):
         self._op_untrack_l = self.gen_counter("untracked")
         self._op_restore_l = self.gen_counter("restored")
         self._op_update_prop = self.gen_counter("updated properties")
+        self._op_update_t = self.gen_counter("updated")
 
     def gen_counter(self, key):
         def counter(dop):
@@ -300,6 +301,12 @@ class PrintInterpreter(Interpreter):
             "Restored tracked file '" + dop["saved_link"]["from"] + "'"
         )
 
+    def _op_update_t(self, dop):
+        log_operation(
+            dop["profile"],
+            "Updating record of '" + dop["symlink1"]["from"] + "'"
+        )
+
 
 class DUIStrategyInterpreter(Interpreter):
     """Reorders DiffLog so linking won't be in the order of profiles but
@@ -334,6 +341,9 @@ class DUIStrategyInterpreter(Interpreter):
 
     def _op_track_l(self, dop):
         self.link_adds.append(dop)
+
+    def _op_update_t(self, dop):
+        self.link_updates.append(dop)
 
     def _op_remove_p(self, dop):
         """Adds the profile-remove-operation to ``profile_removes``.
@@ -422,6 +432,8 @@ class CheckDynamicFilesInterpreter(Interpreter):
             dop (dict): The remove-operation of the to be removed link
         """
         self.inspect_file(dop["symlink"]["to"])
+
+    # TODO: Inspect file on other operations?
 
     def inspect_file(self, target):
         """Checks if a file is dynamic and was changed. If so, it
@@ -718,7 +730,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
         self.removed_links = []
 
     def _raise(self, msg):
-        print("\n".join([repr(x) for x in self.data]))
+        log_debug("\n".join([repr(x) for x in self.data]))
         raise self.error_type(msg)
 
     def _op_fallback(self, dop):
@@ -733,6 +745,16 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             if links_equal(state_link, link):
                 return link["from"] not in self.removed_links
         return False
+
+    def _op_update_t(self, dop):
+        if not self.is_link_in_state(dop["profile"], dop["symlink1"]):  # pragma: no cover
+            msg = "The record of '" + dop["symlink1"]["from"] + "' can not be updated "
+            msg += " because there is no such record."
+            self._raise(msg)
+        if not link_exists(dop["symlink2"]):  # pragma: no cover
+            msg = "The record of '" + dop["symlink1"]["from"] + "' can not be updated "
+            msg += " because the link doesn't exist."
+            self._raise(msg)
 
     def _op_restore_l(self, dop):
         # Only restore link if it is tracked and differs from the tracked
@@ -1402,6 +1424,10 @@ class ExecuteInterpreter(Interpreter):
             dop (dict): The forget-operation that will be executed
         """
         self.remove_from_state(dop["profile"], dop["symlink"]["from"])
+
+    def _op_update_t(self, dop):
+        self.remove_from_state(dop["profile"], dop["symlink1"]["from"])
+        self.add_to_state(dop["profile"], dop["symlink2"])
 
     def _op_track_l(self, dop):
         """Logs/Prints out that a link will be tracked now.

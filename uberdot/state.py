@@ -266,7 +266,7 @@ class State(MutableMapping, Notifier):
         path = os.path.join(const.session_dir, const.STATE_NAME)
         if timestamp is not None:  # Load a previous snapshot
             path, ext = os.path.splitext(path)
-            path += "_" + timestamp + "." + ext
+            path += "_" + timestamp + ext
             self.auto_write = False
             try:
                 self.user_dict = AutoExpandDict(json.load(open(path)))
@@ -408,6 +408,12 @@ class State(MutableMapping, Notifier):
             for profile in self.loaded[usr]:
                 profiles.append((usr, self.loaded[usr][profile]))
         return profiles
+
+    def get_specials(self):
+        return self.user_dict.get_specials()
+
+    def get_special(self, key):
+        return self.user_dict.get_special(key)
 
     def __setitem__(self, key, value):
         self.user_dict[key] = value

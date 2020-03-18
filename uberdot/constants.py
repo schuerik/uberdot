@@ -62,8 +62,11 @@ def gen_data_dir(user):
 user = get_username(get_uid())
 users = ["root"] + os.listdir("/home")
 users.remove(user)
+
+test = os.getenv("UBERDOT_TEST", 0)
+
 # Build/Prepare paths to stored data
-if not os.getenv("UBERDOT_TEST", 0):
+if not test:
     data_dir = gen_data_dir(user)[1]
     data_dirs_foreign = list(map(gen_data_dir, users))
     data_dirs_foreign = list(
@@ -71,7 +74,7 @@ if not os.getenv("UBERDOT_TEST", 0):
     )
 else:
     # Using a dedicated data_dir that is tracked by git
-    # so the tests can set back generated files and the logged state
+    # so the tests can reset generated files and the logged state
     data_dir = os.path.join(
         os.path.dirname(os.path.dirname(sys.modules[__name__].__file__)),
         "test/regression/data"

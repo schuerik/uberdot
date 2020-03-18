@@ -41,6 +41,7 @@ from uberdot.errors import FatalError
 from uberdot.errors import GenerationError
 from uberdot.errors import PreconditionError
 from uberdot.errors import UnkownError
+from uberdot.errors import UserAbortion
 
 
 # Utils for finding targets
@@ -622,7 +623,7 @@ def user_selection(description, preselect=None):
 
 def user_input(txt):
     inp = input(txt + ": ")
-    if os.environ["UBERDOT_TEST"]:
+    if const.test:
         print(inp)
         sys.stdout.flush()
     return inp

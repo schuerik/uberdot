@@ -289,6 +289,9 @@ class RegressionTest():
             if result["cause"] != cause:
                 print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
                 print(runtime_str.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
+                print("\033[1mCall: \033[0m" + " ".join(self.cmd_args))
+                print("\033[1mEnviron: \033[0m" + self.environ)
+                print()
                 print("\033[1mExpected error: \033[0m" + str(cause))
                 print("\033[1mActual error: \033[0m" + str(result["cause"]))
                 if "msg" in result:
@@ -300,6 +303,9 @@ class RegressionTest():
         else:
             print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
             print(runtime_str.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
+            print("\033[1mCall: \033[0m" + " ".join(self.cmd_args))
+            print("\033[1mEnviron: \033[0m" + self.environ)
+            print()
             print("\033[93m\033[1mExpected error in " + phase + " did not" +
                   " occur!\033[0m")
             print("\033[1mExpected error:\033[0m " + str(cause))
