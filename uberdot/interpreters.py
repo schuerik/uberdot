@@ -585,7 +585,7 @@ class CheckLinksInterpreter(Interpreter):
                 user_msg = "of user " + item[2] if item[2] != const.user else ""
                 msg = "The link '" + name + "' is already" + msg + "by '"
                 msg += item[1] + "' " + user_msg + "and would be overwritten by '"
-                msg += profile + "'. In most cases this error can be "
+                msg += profile + "'. In some cases this error can be "
                 msg += "fixed by setting the --dui flag."
                 raise IntegrityError(msg)
         self.linklist.append((name, profile, const.user, False))

@@ -266,6 +266,8 @@ def load(args):
     config = configparser.ConfigParser()
     try:
         for cfg in cfgs:
+            if not os.path.exists(cfg):
+                raise PreconditionError("The config '" + cfg + "' does not exist.")
             config.read(cfg)
             # We need to normalize all paths here, relatively to
             # the config file which it defined

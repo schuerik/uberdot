@@ -544,9 +544,19 @@ class UberDot:
                                        profile_results,
                                        const.parent)
             elif const.mode == "timewarp":
+                # Get correct state file to warp to
+                if const.state:
+                    new_state = State(const.state)
+                # TODO implement
+                # elif const.date:
+                # elif const.earlier:
+                # elif const.later:
+                elif const.first:
+                    new_state = State(nth(get_statefiles(), 0))
+                elif const.last:
+                    new_state = State(list(get_statefiles())[-1])
                 log_debug("Calculating operations to perform timewarp.")
-                # TODO HistoryDiffSolver
-                raise NotImplementedError
+                dfs = StateDiffSolver(self.state, new_state)
             else:
                 raise FatalError("None of the expected modes were set.")
             # 2. Solve differences
@@ -727,7 +737,8 @@ class UberDot:
             return
         tab = "  " if const.users or const.allusers else ""
         if const.profiles or (not const.links and not const.meta):
-            profile_header = tab + const.col_emph + profile["name"] + const.col_endc
+            col = const.col_emph if const.links or const.meta else ""
+            profile_header = tab + col + profile["name"] + const.col_endc
             if const.links or const.meta:
                 profile_header += ":"
             print(profile_header)

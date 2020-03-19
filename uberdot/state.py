@@ -51,8 +51,13 @@ from uberdot.utils import walk
 
 
 def get_statefiles():
-    return sorted(map(lambda x: os.path.join(*x), walk(const.session_dir)))
-
+    return sorted(filter(
+        os.path.isfile,
+        map(
+            lambda x: os.path.join(const.session_dir, x),
+            os.listdir(const.session_dir)
+        )
+    ))
 
 def get_statefile_path(timestamp=None):
     path = os.path.join(const.session_dir, const.STATE_NAME)
@@ -197,7 +202,7 @@ class AutoExpandDict(MutableMapping, AutoExpander):
             self.set_special(key[1:], value)
         else:
             self.data[key] = self.wrap_value(value)
-        self.notify()
+            self.notify()
 
     def get_specials(self):
         return self.data_specials
@@ -207,6 +212,7 @@ class AutoExpandDict(MutableMapping, AutoExpander):
 
     def set_special(self, key, value):
         self.data_specials[key] = value
+        self.notify()
 
     def __repr__(self):
         def dict_repr(dict_):
