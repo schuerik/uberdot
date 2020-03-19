@@ -25,16 +25,20 @@ overwrite defaults for a specific configuration."""
 
 import configparser
 import csv
+import re
 import os
 import sys
 from copy import deepcopy
 from uberdot.errors import PreconditionError
+from uberdot.state import get_statefiles
+from uberdot.state import get_statefile_path
 from uberdot.utils import find_files
 from uberdot.utils import get_user_env_var
 from uberdot.utils import get_username
 from uberdot.utils import get_permission
 from uberdot.utils import get_uid
 from uberdot.utils import normpath
+from uberdot.utils import nth
 
 # TODO: doc & cleanup
 
@@ -63,7 +67,7 @@ user = get_username(get_uid())
 users = ["root"] + os.listdir("/home")
 users.remove(user)
 
-test = os.getenv("UBERDOT_TEST", 0)
+test = int(os.getenv("UBERDOT_TEST", 0))
 
 # Build/Prepare paths to stored data
 if not test:
@@ -115,6 +119,15 @@ os.remove("/tmp/permission_test_file.tmp")
 def __decode_ansi(string):
     return string.encode("utf-8").decode("unicode_escape")
 
+def __find_state(indicator):
+    if re.fullmatch(r"\d{10}", indicator):
+        # timestamp was provided
+        return get_statefile_path(indicator)
+    elif re.fullmatch(r"\d{1,9}", indicator):
+        # number was provided
+        return nth(get_statefiles(), int(indicator))
+    else:
+        return indicator
 
 ############################################################################
 # Initialize constants
@@ -145,7 +158,6 @@ values = {
     "dotfiles"            : (False,                  "Arguments", "bool", None),
     "dui"                 : (False,                  "Arguments", "bool", None),
     "filename"            : (False,                  "Arguments", "bool", None),
-    "file"                : (None,                   "Arguments", "str",  None),
     "fix"                 : ("",                     "Arguments", "str",  None),
     "force"               : (False,                  "Arguments", "bool", None),
     "exclude"             : ([],                     "Arguments", "list", None),
@@ -163,12 +175,13 @@ values = {
     "regex"               : (False,                  "Arguments", "bool", None),
     "searchstr"           : ("",                     "Arguments", "str",  None),
     "searchtags"          : (False,                  "Arguments", "bool", None),
-    "summary"             : (False,                  "Arguments", "bool", None),
     "skipafter"           : (False,                  "Arguments", "bool", None),
     "skipbefore"          : (False,                  "Arguments", "bool", None),
     "skipevents"          : (False,                  "Arguments", "bool", None),
     "skiproot"            : (False,                  "Arguments", "bool", None),
+    "summary"             : (False,                  "Arguments", "bool", None),
     "superforce"          : (False,                  "Arguments", "bool", None),
+    "state"               : (None,                   "Arguments", "str",  __find_state),
     "users"               : ([],                     "Arguments", "list", None),
     "askroot"             : (True,                   "Settings",  "bool", None),
     "backup_extension"    : ("bak",                  "Settings",  "str",  None),
@@ -210,10 +223,6 @@ for name, props in values.items():
 # Loading and helper function
 ############################################################################
 
-def reset():
-    global values
-    values = dict(defaults)
-
 def _set(name, value):
     global values
     val_props = values[name]
@@ -243,8 +252,16 @@ def load(args):
     if args.config:
        cfgs += [os.path.join(get("owd"), args.config)]
     _set("cfg_files", cfgs)
+    # Setup session
     if args.session:
         _set("session", args.session)
+    _set("session_dir", get("session_dir") % get("session"))
+    _set("session_dirs_foreign",
+         list(map(
+             lambda x: (x[0], x[1] % get("session")),
+             session_dirs_foreign
+         ))
+     )
     # Load configs
     config = configparser.ConfigParser()
     try:
@@ -253,11 +270,11 @@ def load(args):
             # We need to normalize all paths here, relatively to
             # the config file which it defined
             path_values = [
-                "directory", "profile_files", "target_files", "logfile"
+                "directory", "profile_files", "target_files", "logfile", "state"
             ]
             for section in config.sections():
                 for name, value in config.items(section):
-                    if name in path_values:
+                    if name in path_values and not re.fullmatch(r"\d{1,10}", value):
                         config[section][name] = os.path.normpath(
                             os.path.join(os.path.dirname(cfg), value)
                         )
@@ -307,9 +324,6 @@ def load(args):
             for key, val in value.items():
                 _set(key, val)
             continue
-        # Relative paths need to be absolute
-        if arg in ["directory", "log"]:
-            value = os.path.join(get("owd"), value)
         # Little fixes for arguments where the names don't match up
         # with the configuration file argument
         if arg == "log":
@@ -322,14 +336,12 @@ def load(args):
                 continue
         elif arg == "tags":
             name = "searchtags"
+        # Relative paths need to be absolute
+        if values[name][2] == "path":
+            value = os.path.join(get("owd"), value)
+        elif values[name][2] == "int":
+            value = int(value)
         # Set argument
         _set(name, value)
-    # Update internal values that depend on a loaded config
+    # Update values that depend on other values
     _set("force", get("force") or get("superforce"))
-    _set("session_dir", get("session_dir") % get("session"))
-    _set("session_dirs_foreign",
-         list(map(
-             lambda x: (x[0], x[1] % get("session")),
-             session_dirs_foreign
-         ))
-     )

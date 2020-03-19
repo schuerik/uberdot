@@ -1415,7 +1415,8 @@ class ExecuteInterpreter(Interpreter):
         # Only create a snapshot if the difflog contained at least
         # one operation that is not just displaying information
         if len(self.data) > self.info_counter:
-            self.state.create_snapshot()
+            timestamp = self.state.create_snapshot()
+            self.state.set_special("snapshot", timestamp)
 
     def _op_untrack_l(self, dop):
         """Removes link from state file

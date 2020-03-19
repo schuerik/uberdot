@@ -1670,6 +1670,13 @@ SimpleOutputTest("Output: --debuginfo",
 SimpleOutputTest("Output: show",
                  ["show", "-ampl"],
                  after_diroptions, "update").success()
+# TODO tests only load the default state file
+SimpleOutputTest("Output: show other state",
+                 ["show", "--state", "1"],
+                 after_diroptions, "update").success()
+SimpleOutputTest("Output: history",
+                 ["history"],
+                 after_diroptions, "update").success()
 OutputTest("Output: find tags",
            ["find", "-t"],
            before, "tag\ntag1\ntag2\ntag3\n").success()
@@ -1740,7 +1747,6 @@ sys.exit(global_fails)
 ###############################################################################
 # TODO: Write tests
 # Already possible
-#    dynamic files changed
 # Requires testing with root
 #    option secure
 #    option owner

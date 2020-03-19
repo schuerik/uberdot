@@ -58,6 +58,7 @@ from uberdot.errors import PreconditionError
 from uberdot.errors import UnkownError
 from uberdot.errors import UserError
 from uberdot.differencesolver import *
+from uberdot.state import get_statefiles
 from uberdot.state import State
 from uberdot.utils import has_root_priveleges
 from uberdot.utils import get_uid
@@ -186,14 +187,13 @@ class UberDot:
             help="show loaded settings and internal values",
             action="store_true"
         )
-        # TODO: use enum
         parser.add_argument(
             "--fix",
             help="specify an action to resolve all fixes with",
+            choices=["s", "t", "r", "d", "u"]
         )
 
         # Setup mode show arguments
-        # TODO: option to show an older state
         # TODO rename --links to --dotfiles?
         parser_show_selection = CustomParser(add_help=False)
         group_display_selection = parser_show_selection.add_mutually_exclusive_group()
@@ -208,8 +208,8 @@ class UberDot:
             action="store_true"
         )
         group_display_selection.add_argument(
-            "--file",
-            help="select another state file to show",
+            "--state",
+            help="select another state file to show (accepts path, number shown in history or timestamp)",
         )
         parser_show_selection.add_argument(
             "-l", "--links",
@@ -418,8 +418,8 @@ class UberDot:
             action="store"
         )
         group_state_selection.add_argument(
-            "--file",
-            help="go back to a specific state file (accepts path, number shown in list, or timestamp)",
+            "--state",
+            help="go back to a specific state file (accepts path, number shown in history or timestamp)",
             action="store"
         )
 
@@ -500,11 +500,6 @@ class UberDot:
             msg += "' does not exist on this system."
             raise UserError(msg)
         # Check if arguments are bad
-        if const.fix not in ["", "s", "t", "r", "d", "u"]:
-            # TODO use argparse for this
-            raise UserError(
-                "'" + const.fix + "' is not a valid fix action."
-            )
         profiles_included = list(set(const.include) - set(const.exclude))
         if sorted(profiles_included) != sorted(const.include):
             msg = "You can not include and exclude a profile at the same time."
@@ -520,7 +515,7 @@ class UberDot:
             log(const.col_emph + "Version: " + const.col_endc + const.version)
             return
         # For the next modes we need a loaded state
-        self.state = State()
+        self.state = State.current()
         self.fix()
         if const.mode == "show":
             self.show()
@@ -573,16 +568,15 @@ class UberDot:
                 self.run(dfl)
 
     def list_states(self):
-        statefiles = sorted(map(lambda x: os.path.join(*x), walk(const.session_dir)))
+        statefiles = get_statefiles()
         current = statefiles.pop(0)
-        temp_state =  State()
-        snapshot = temp_state.get_special("snapshot") if "snapshot" in temp_state.get_specials() else None
+        snapshot = self.state.get_special("snapshot") if "snapshot" in self.state.get_specials() else None
         for nr, file in enumerate(statefiles):
             timestamp = file.split("_")[1][:-5]
             msg = "[" + str(nr+1) + "] "
             if snapshot==timestamp:
                 msg += const.col_emph + "(current) " + const.col_endc
-            temp_state =  State(timestamp)
+            temp_state =  State.fromTimestamp(timestamp)
             msg += "ID: " + timestamp
             msg += "  Date: " + timestamp_to_string(timestamp)
             msg += "  Version: " + temp_state.get_special("version")
@@ -692,14 +686,13 @@ class UberDot:
             else:
                 print(str("   " + name + ": ").ljust(32) + str(value))
 
-    # TODO: --file must support more than only id
     def show(self):
         """Print out the state file in a readable format.
 
         Prints only the profiles specified in the commandline arguments. If
         none are specified it prints all profiles of the state file."""
-        if const.file is not None:
-            temp_state = State(const.file)
+        if const.state is not None:
+            temp_state = State(const.state)
             for profile in temp_state.values():
                 if not const.include or profile["name"] in const.include:
                     self.print_profile(profile)

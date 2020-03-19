@@ -1,5 +1,3 @@
-"""Provides functionality that is needed in multiple modules.
-E.g. retrieving a environment variable or fixing file permisions."""
 
 ###############################################################################
 #
@@ -36,6 +34,7 @@ import re
 import subprocess
 import sys
 import time
+from itertools import islice
 from uberdot import constants as const
 from uberdot.errors import FatalError
 from uberdot.errors import GenerationError
@@ -583,6 +582,10 @@ def get_profile_source(profile_name, file=None):
 
 logger = logging.getLogger("root")
 
+
+def nth(iterable, n, default=None):
+    "Returns the nth item or a default value"
+    return next(islice(iterable, n, None), default)
 
 def user_choice(*options, abort=False):
     options = dict(options)

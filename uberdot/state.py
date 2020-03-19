@@ -46,6 +46,20 @@ from uberdot.utils import makedirs
 from uberdot.utils import safe_walk
 from uberdot.utils import normpath
 from uberdot.utils import get_timestamp_now
+from uberdot.utils import walk
+
+
+
+def get_statefiles():
+    return sorted(map(lambda x: os.path.join(*x), walk(const.session_dir)))
+
+
+def get_statefile_path(timestamp=None):
+    path = os.path.join(const.session_dir, const.STATE_NAME)
+    if timestamp is not None:  # Load a previous snapshot
+        path, ext = os.path.splitext(path)
+        path += "_" + timestamp + ext
+    return path
 
 
 ###############################################################################
@@ -254,57 +268,67 @@ class AutoExpanderJSONEncoder(json.JSONEncoder):
 # Main class
 ###############################################################################
 
+# TODO verify that the state gets the correct snapshot property and
+# behaves consistent with auto_write
 class State(MutableMapping, Notifier):
-    def __init__(self, timestamp=None):
-        log_debug("Loading state files.")
+    def __init__(self, file, snapshot=None):
         # Setup in-mememory state file
         self.loaded = {}
-        # Load state files of other users
+        # Load current state files of other users
         for user, session_path in const.session_dirs_foreign:
             self.try_load_user_session(user, session_path)
-        # Load state files of current users
-        path = os.path.join(const.session_dir, const.STATE_NAME)
-        if timestamp is not None:  # Load a previous snapshot
-            path, ext = os.path.splitext(path)
-            path += "_" + timestamp + ext
+        # Load state files of current user
+        self.own_file = file
+        log_debug("Loading state file '" + self.own_file + "'.")
+        try:
+            self.user_dict = AutoExpandDict(json.load(open(self.own_file)))
+        except FileNotFoundError:
+            raise PreconditionError(
+                "State file '" + self.own_file + "' doesn't exist."
+            )
+        # Setup auto write and snapshot
+        self.auto_write = True
+        if snapshot is not None:
+            self.user_dict.set_special("snapshot", snapshot)
             self.auto_write = False
-            try:
-                self.user_dict = AutoExpandDict(json.load(open(path)))
-                self.user_dict.set_special("snapshot", timestamp)
-            except FileNotFoundError:
-                raise PreconditionError(
-                    "State file '" + self.own_file + "' doesn't exist."
-                )
-        else:  # Load the current state
-            self.auto_write = True
-            try:
-                self.user_dict = AutoExpandDict(json.load(open(path)))
-            except FileNotFoundError:
-                log_debug("No state file found. Creating new.")
-                self.user_dict = AutoExpandDict(**{"@version": const.VERSION})
-        self.own_file = path
+        # Add state of current user to the other loaded states
         self.loaded[const.user] = self.user_dict
         # Check if we can upgrade
-        if is_version_smaller(self.user_dict.get_special("version"), MIN_VERSION):
+        if is_version_smaller(self.get_special("version"), MIN_VERSION):
             msg = "Your state file is too old to be processed."
             raise PreconditionError(msg)
-        if is_version_smaller(const.VERSION, self.user_dict.get_special("version")):
+        if is_version_smaller(const.VERSION, self.get_special("version")):
             msg = "Your state file was created with a newer version of "
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
         # Upgrade and store in loaded
-        patches = self.get_patches(self.user_dict.get_special("version"))
+        patches = self.get_patches(self.get_special("version"))
         for patch in patches:
-            log("Updating state file to version " + patch[0] + " ... ", end="")
+            log("Upgrading state file to version " + patch[0] + " ... ", end="")
             self.user_dict = self.upgrade(self.user_dict, patch)
             log("Done.")
             self.write_file()
         if not patches:
             # Make sure to update version in case no upgrade was needed
-            self.user_dict.set_special("version", const.VERSION)
+            self.set_special("version", const.VERSION)
         # Connect user_dict to this class, so we get notified whenever the
         # any subdict/sublist is updated
         self.user_dict.set_parent(self)
+
+    @classmethod
+    def fromTimestamp(cls, timestamp):
+        return cls(get_statefile_path(timestamp), timestamp)
+
+    @classmethod
+    def current(cls):
+        path = get_statefile_path()
+        if not os.path.exists(path):
+            log_debug("No state file found. Creating new.")
+            makedirs(os.path.dirname(path))
+            file = open(path, "w")
+            file.write('{"@version": "' + const.VERSION + '"}')
+            file.close()
+        return cls(path)
 
     def try_load_user_session(self, user, session_dir):
         path = os.path.join(session_dir, const.STATE_NAME)
@@ -364,9 +388,11 @@ class State(MutableMapping, Notifier):
 
     def create_snapshot(self):
         path, ext = os.path.splitext(self.own_file)
-        path += "_" + get_timestamp_now() + ext
+        timestamp = get_timestamp_now()
+        path += "_" + timestamp + ext
         log_debug("Creating state file snapshot at '" + path + "'.")
         self.write_file(path)
+        return timestamp
 
     def write_file(self, path=None):
         # Prepare directory
@@ -414,6 +440,9 @@ class State(MutableMapping, Notifier):
 
     def get_special(self, key):
         return self.user_dict.get_special(key)
+
+    def set_special(self, key, value):
+        return self.user_dict.set_special(key, value)
 
     def __setitem__(self, key, value):
         self.user_dict[key] = value

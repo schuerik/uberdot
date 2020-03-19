@@ -488,95 +488,10 @@ class UninstallDiffSolver(DiffSolver):
         self.difflog.remove_profile(profile_name)
 
 
-# class HistoryDiffSolver(DiffSolver):
-
-
-class UpdateDiffSolver(DiffSolver):
-    """This solver determines the differences between an state file
-    and a list of profiles.
-
-    Attributes:
-        state (State): The state file that is used for solving
-        profile_results (dict): The result of the executed profiles
-        parent(str): The name of the parent that all profiles will change
-            its parent to (only set if ``--parent`` was specified)
-    """
-    def __init__(self, state, profile_results, parent):
-        """ Constructor.
-
-        Args:
-            state (State): The state file that is used for solving
-            profile_results (list): A list of the result of the executed
-                profiles
-            parent (str): The value of the cli argument --parent
-        """
-        super().__init__()
-        self.state = state.copy()
-        self.profile_results = profile_results
-        self.parent = parent
-
-    def _generate_operations(self):
-        """Generates operations to update all profiles.
-
-        This function resolves each root profile with their subprofiles
-        separately.
-        """
-        allpnames = []
-
-        def add_profilenames(profile):
-            """Recursively add all names of subprofiles to allpnames"""
-            allpnames.append(profile["name"])
-            for prof in profile["profiles"]:
-                add_profilenames(prof)
-
-        for profile in self.profile_results:
-            add_profilenames(profile)
-        for profile in self.profile_results:
-            # Generate difflog from diff between profile result and state
-            self.__generate_profile_link(profile, allpnames, self.parent)
-
-    def __generate_profile_link(self, profile_result, all_profilenames,
-                                parent_name):
-        """Generate operations for resolving the differences between a single
-        profile and the installed ones and appends the corresponding operations
-        to the DiffLog for those differences. Calls itself recursively for all
-        subprofiles.
-
-        Args:
-            profile_result (dict): The result of an executed profile that will be
-                compared against the state file
-            all_profilenames (list): A list with all profile names (including
-                all sub- and root-profiles)
-            parent_name (str): The name of the profiles (new) parent. If
-                parent_name is ``None``, the profile is treated as a root
-                profile
-        """
-
-        profile_new = False
+class LinkListDiffSolver(DiffSolver):
+    def solve_link_list(self, profile_name, installed_links, new_links):
         profile_changed = False
-
-        # Checking exclude list
-        profile_name = profile_result["name"]
-        if profile_name in const.exclude:
-            log_debug("'" + profile_name + "' is in exclude list. Skipping...")
-            return
-        # Load profile from state
-        installed_profile = None
-        if profile_name in self.state:
-            installed_profile = self.state[profile_name]
-            installed_links = installed_profile["links"]
-        else:
-            installed_links = []
-            # The profile wasn't installed
-            self.difflog.add_profile(profile_name, parent_name)
-            profile_new = True
-        # And from the new profile
-        new_links = copy.deepcopy(profile_result["links"])
-
-        # Now we can compare installed_profile and profile_result and write
-        # the difflog that resolves these differences
-        # To do so we actually compare installed_links with new_links
-        # and check which links
+        # We compare installed_links with new_links and check which links
         #   - didn't changed (must be the same in both)
         #   - are removed (occure only in installed_links)
         #   - are added (occure only in new_links)
@@ -641,6 +556,98 @@ class UpdateDiffSolver(DiffSolver):
                              "installed and the new version of profile " +
                              profile_name)
 
+        return profile_changed
+
+
+class StateDiffSolver(LinkListDiffSolver):
+    def __init__(self, old_state, new_state):
+        super().__init__()
+        self.old_state = old_state.copy()
+        self.new_state = new_state.copy()
+
+    def _generate_operations(self):
+        pass
+
+class UpdateDiffSolver(LinkListDiffSolver):
+    """This solver determines the differences between an state file
+    and a list of profiles.
+
+    Attributes:
+        state (State): The state file that is used for solving
+        profile_results (dict): The result of the executed profiles
+        parent(str): The name of the parent that all profiles will change
+            its parent to (only set if ``--parent`` was specified)
+    """
+    def __init__(self, state, profile_results, parent):
+        """ Constructor.
+
+        Args:
+            state (State): The state file that is used for solving
+            profile_results (list): A list of the result of the executed
+                profiles
+            parent (str): The value of the cli argument --parent
+        """
+        super().__init__()
+        self.state = state.copy()
+        self.profile_results = profile_results
+        self.parent = parent
+
+    def _generate_operations(self):
+        """Generates operations to update all profiles.
+
+        This function resolves each root profile with their subprofiles
+        separately.
+        """
+        for profile in self.profile_results:
+            # Generate difflog from diff between profile result and state
+            self.__generate_profile_link(profile, self.parent)
+
+    def __generate_profile_link(self, profile_result, parent_name,
+                                all_profilenames=[]):
+        """Generate operations for resolving the differences between a single
+        profile and the installed ones and appends the corresponding operations
+        to the DiffLog for those differences. Calls itself recursively for all
+        subprofiles.
+
+        Args:
+            profile_result (dict): The result of an executed profile that will be
+                compared against the state file
+            parent_name (str): The name of the profiles (new) parent. If
+                parent_name is ``None``, the profile is treated as a root
+                profile
+        """
+
+        def add_profilenames(profile):
+            """Recursively add all names of subprofiles to all_profilenames"""
+            all_profilenames.append(profile["name"])
+            for prof in profile["profiles"]:
+                add_profilenames(prof)
+        if not all_profilenames:
+            for profile in self.profile_results:
+                add_profilenames(profile)
+
+        # Checking exclude list
+        profile_name = profile_result["name"]
+        if profile_name in const.exclude:
+            log_debug("'" + profile_name + "' is in exclude list. Skipping...")
+            return
+        # Get profile from state
+        installed_profile = None
+        if profile_name in self.state:
+            installed_profile = self.state[profile_name]
+            installed_links = installed_profile["links"]
+            profile_new = False
+        else:
+            installed_links = []
+            # The profile wasn't installed
+            self.difflog.add_profile(profile_name, parent_name)
+            profile_new = True
+        # And from the new profile
+        new_links = copy.deepcopy(profile_result["links"])
+
+        # Resolve differences betweeen links
+        profile_changed = self.solve_link_list(profile_name, installed_links, new_links)
+
         # Remove all installed subprofiles that doesnt occur in profile anymore
         if installed_profile is not None:
             installed_subprofiles = set()
@@ -697,5 +704,5 @@ class UpdateDiffSolver(DiffSolver):
         if "profiles" in profile_result:
             for subprofile in profile_result["profiles"]:
                 self.__generate_profile_link(subprofile,
-                                             all_profilenames,
-                                             profile_name)
+                                             profile_name,
+                                             all_profilenames)
