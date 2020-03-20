@@ -38,7 +38,7 @@
         "installed": "2019-12-12 16:45:49",
         "updated": "2020-01-13 17:32:27",
         "parent": "SuperProfileEvent",
-        "beforeUninstall": true,
-        "afterUninstall": true
+        "beforeUninstall": "09ffb517508bd4d54cc3fd4beaaed215",
+        "afterUninstall": "e9815c6ae8c099695c3b4c4ecde2a1be"
     }
 }

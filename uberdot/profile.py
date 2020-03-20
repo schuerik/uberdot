@@ -132,12 +132,12 @@ class Profile:
             "parent": self.parent,
             "links": [],
             "profiles": [],
-            "beforeUpdate": None,
-            "beforeInstall": None,
-            "beforeUninstall": None,
-            "afterInstall": None,
-            "afterUpdate": None,
-            "afterUninstall": None
+            "beforeUpdate": "",
+            "beforeInstall": "",
+            "beforeUninstall": "",
+            "afterInstall": "",
+            "afterUpdate": "",
+            "afterUninstall": ""
         }
 
     def __getattr__(self, name):
@@ -286,6 +286,7 @@ class Profile:
             if os.path.exists(link_path):
                 os.remove(link_path)
             os.symlink(script_path, link_path)
+            return md5(pretty_script)
 
         def getscriptattr(event_name):
             # Get event property
@@ -317,10 +318,8 @@ class Profile:
         for event in events:
             script = getscriptattr(event)
             if script is not None:
-                gen_script(event, script)
-                self.result[event] = True
-            else:
-                self.result[event] = False
+                script_hash = gen_script(event, script)
+                self.result[event] = script_hash
 
     def generator(self):
         """This is the wrapper for :func:`generate()`. It overwrites the

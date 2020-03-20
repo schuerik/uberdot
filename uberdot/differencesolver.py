@@ -587,14 +587,21 @@ class StateDiffSolver(LinkListDiffSolver):
         # Then we update all profiles that occure in both
         for profile in self.old_state:
             if profile in self.new_state:
-                # TODO resolve props
+                for prop in self.old_state[profile]:
+                    if prop == "links":
+                        break
+                    if self.old_state[profile][prop] != self.new_state[profile][prop]:
+                        self.difflog.update_property(profile, prop, self.new_state[profile][prop])
                 self.solve_link_list(self.old_state[profile]["links"],
                                      self.new_state[profile]["links"])
         # Last we add profiles that are only in the new state
         for profile in self.new_state:
             if profile not in self.old_state:
-                # TODO
-                # self.difflog.add_profile(profile, ?parent_name*?)
+                self.difflog.add_profile(profile)
+                for prop in self.new_state[profile]:
+                    if prop == "links":
+                        break
+                    self.difflog.update_property(profile, prop, self.new_state[profile][prop])
                 for link in self.new_state[profile]["links"]:
                     self.difflog.add_link(profile, link)
 
@@ -723,10 +730,10 @@ class UpdateDiffSolver(LinkListDiffSolver):
         # Update script properties for uninstall, but only if they changed
         installed_profile = self.state.get(profile_name, {})
         event = "beforeUninstall"
-        if installed_profile.get(event, False) != profile_result[event]:
+        if installed_profile.get(event, "") != profile_result[event]:
             self.difflog.update_property(profile_name, event, profile_result[event])
         event = "afterUninstall"
-        if installed_profile.get(event, False) != profile_result[event]:
+        if installed_profile.get(event, "") != profile_result[event]:
             self.difflog.update_property(profile_name, event, profile_result[event])
 
         # Recursive call for all subprofiles

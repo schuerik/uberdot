@@ -59,6 +59,7 @@ from uberdot.errors import UnkownError
 from uberdot.errors import UserError
 from uberdot.differencesolver import *
 from uberdot.state import get_statefiles
+from uberdot.state import get_timestamp_from_path
 from uberdot.state import State
 from uberdot.utils import has_root_priveleges
 from uberdot.utils import get_uid
@@ -388,6 +389,7 @@ class UberDot:
         help_text = "revert back to a previous state"
         parser_timewarp = subparsers.add_parser(
             "timewarp",
+            parents=[parser_run],
             description=help_text,
             help=help_text
         )
@@ -505,6 +507,24 @@ class UberDot:
             msg = "You can not include and exclude a profile at the same time."
             raise UserError(msg)
 
+    def timewarp(self):
+        # Get correct state file to warp to
+        if const.state:
+            new_state = State(const.state)
+        # TODO implement
+        # elif const.date:
+        # elif const.earlier:
+        # elif const.later:
+        elif const.first:
+            new_state = State(nth(get_statefiles(), 0))
+        elif const.last:
+            new_state = State(list(get_statefiles())[-1])
+        log_debug("Calculating operations to perform timewarp.")
+        difflog = StateDiffSolver(self.state, new_state).solve()
+        # TODO: make events work
+        self.run(difflog)
+        self.state.set_special("snapshot", get_timestamp_from_path(new_state.own_file))
+
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
         # Lets do the easy modes first
@@ -521,10 +541,13 @@ class UberDot:
             self.show()
         elif const.mode == "history":
             self.list_states()
+        elif const.mode == "timewarp":
+            self.timewarp()
         else:
             # The previous modes just printed stuff, but here we
             # have to actually do something:
             # 0. Figure out which profiles we are talking about
+            # TODO profilenames could be used at other places as well
             profilenames = const.include
             if not profilenames:
                 profilenames = self.state.keys()
@@ -543,20 +566,6 @@ class UberDot:
                 dfs = UpdateDiffSolver(self.state,
                                        profile_results,
                                        const.parent)
-            elif const.mode == "timewarp":
-                # Get correct state file to warp to
-                if const.state:
-                    new_state = State(const.state)
-                # TODO implement
-                # elif const.date:
-                # elif const.earlier:
-                # elif const.later:
-                elif const.first:
-                    new_state = State(nth(get_statefiles(), 0))
-                elif const.last:
-                    new_state = State(list(get_statefiles())[-1])
-                log_debug("Calculating operations to perform timewarp.")
-                dfs = StateDiffSolver(self.state, new_state)
             else:
                 raise FatalError("None of the expected modes were set.")
             # 2. Solve differences
@@ -570,10 +579,6 @@ class UberDot:
                 dfl.run_interpreter(SkipRootInterpreter())
             # 4. Simmulate a run, print the result or actually resolve the
             # differences
-            if const.debug:
-                dfl.run_interpreter(PrintPlainInterpreter())
-            elif const.changes:
-                dfl.run_interpreter(PrintInterpreter())
             else:
                 self.run(dfl)
 
@@ -582,7 +587,7 @@ class UberDot:
         current = statefiles.pop(0)
         snapshot = self.state.get_special("snapshot") if "snapshot" in self.state.get_specials() else None
         for nr, file in enumerate(statefiles):
-            timestamp = file.split("_")[1][:-5]
+            timestamp = get_timestamp_from_path(file)
             msg = "[" + str(nr+1) + "] "
             if snapshot==timestamp:
                 msg += const.col_emph + "(current) " + const.col_endc
@@ -895,7 +900,13 @@ class UberDot:
             :class:`~errors.CustomError`: Executed interpreters can and will
                 raise all kinds of :class:`~errors.CustomError`.
         """
-        if const.dryrun:
+        if const.debug:
+            difflog.run_interpreter(PrintPlainInterpreter())
+            return
+        elif const.changes:
+            difflog.run_interpreter(PrintInterpreter())
+            return
+        elif const.dryrun:
             log_warning("This is just a dry-run! Nothing of the following " +
                         "is actually happening.")
         # Run integration tests on difflog
@@ -1072,6 +1083,7 @@ def run_script(name):
             sys.path.append(const.profile_files)
             # Go
             udot.execute_arguments()
+            # TODO shorten logfile
         except CustomError as err:
             # An error occured that we (more or less) expected.
             # Print error, a stacktrace and exit

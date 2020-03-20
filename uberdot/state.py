@@ -66,6 +66,9 @@ def get_statefile_path(timestamp=None):
         path += "_" + timestamp + ext
     return path
 
+def get_timestamp_from_path(path):
+    return path.split("_")[1][:-5]
+
 
 ###############################################################################
 # Upgrades
@@ -295,7 +298,8 @@ class State(MutableMapping, Notifier):
         # Setup auto write and snapshot
         self.auto_write = True
         if snapshot is not None:
-            self.user_dict.set_special("snapshot", snapshot)
+            # TODO why dis?
+            self.set_special("snapshot", snapshot)
             self.auto_write = False
         # Add state of current user to the other loaded states
         self.loaded[const.user] = self.user_dict
@@ -321,6 +325,7 @@ class State(MutableMapping, Notifier):
         # any subdict/sublist is updated
         self.user_dict.set_parent(self)
 
+    # TODO is this even needed?
     @classmethod
     def fromTimestamp(cls, timestamp):
         return cls(get_statefile_path(timestamp), timestamp)
@@ -448,7 +453,7 @@ class State(MutableMapping, Notifier):
         return self.user_dict.get_special(key)
 
     def set_special(self, key, value):
-        return self.user_dict.set_special(key, value)
+        self.user_dict.set_special(key, value)
 
     def __setitem__(self, key, value):
         self.user_dict[key] = value
