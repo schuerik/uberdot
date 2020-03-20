@@ -102,7 +102,7 @@ class DiffLog():
         """
         self.__append_data("info", profilename, message=message)
 
-    def add_profile(self, profilename, parentname=None):
+    def add_profile(self, profilename, event_before, event_after, parentname=None):
         """Create an add-profile operation.
 
         Add-profile operations indicate that a new profile will be
@@ -115,9 +115,9 @@ class DiffLog():
             parentname (str): The name of the parent of the new profile. If
                 ``None`` it will be treated as a root profile
         """
-        self.__append_data("add_p", profilename, parent=parentname)
+        self.__append_data("add_p", profilename, before=event_before, after=event_after, parent=parentname)
 
-    def update_profile(self, profilename):
+    def update_profile(self, profilename, event_before, event_after):
         """Create an update-profile operation.
 
         Update-profile operations indicate that a certain profile will be
@@ -128,9 +128,9 @@ class DiffLog():
         Args:
             profilename (str): The name of the to be updated profile
         """
-        self.__append_data("update_p", profilename)
+        self.__append_data("update_p", profilename, before=event_before, after=event_after)
 
-    def remove_profile(self, profilename):
+    def remove_profile(self, profilename, event_before, event_after):
         """Create a remove-profile operation.
 
         Remove-profile operations indicate that a certain profile will be
@@ -141,7 +141,7 @@ class DiffLog():
         Args:
             profilename (str): The name of the to be removed profile
         """
-        self.__append_data("remove_p", profilename)
+        self.__append_data("remove_p", profilename, before=event_before, after=event_after)
 
     def restore_link(self, profilename, saved_link, actual_link):
         self.__append_data("restore_l",
@@ -457,7 +457,9 @@ class RemoveProfileDiffSolver(DiffSolver):
         for installed_link in self.state[profile_name]["links"]:
             self.difflog.remove_link(profile_name, installed_link)
         # Remove the profile itself
-        self.difflog.remove_profile(profile_name)
+        self.difflog.remove_profile(profile_name,
+                                    self.state[profile_name]["beforeUninstall"],
+                                    self.state[profile_name]["afterUninstall"])
 
 
 class UninstallDiffSolver(RemoveProfileDiffSolver):
@@ -592,12 +594,19 @@ class StateDiffSolver(LinkListDiffSolver):
                         break
                     if self.old_state[profile][prop] != self.new_state[profile][prop]:
                         self.difflog.update_property(profile, prop, self.new_state[profile][prop])
-                self.solve_link_list(self.old_state[profile]["links"],
-                                     self.new_state[profile]["links"])
+                profile_changed = self.solve_link_list(profile,
+                                                       self.old_state[profile]["links"],
+                                                       self.new_state[profile]["links"])
+                if profile_changed:
+                    self.difflog.update_profile(profile,
+                                                self.new_state[profile]["beforeUpdate"],
+                                                self.new_state[profile]["afterUpdate"])
         # Last we add profiles that are only in the new state
         for profile in self.new_state:
             if profile not in self.old_state:
-                self.difflog.add_profile(profile)
+                self.difflog.add_profile(profile,
+                                         self.new_state[profile]["beforeInstall"],
+                                         self.new_state[profile]["afterInstall"])
                 for prop in self.new_state[profile]:
                     if prop == "links":
                         break
@@ -678,7 +687,8 @@ class UpdateDiffSolver(LinkListDiffSolver):
         else:
             installed_links = []
             # The profile wasn't installed
-            self.difflog.add_profile(profile_name, parent_name)
+            self.difflog.add_profile(profile_name, profile_result["beforeInstall"],
+                                     profile_result["afterInstall"], parent_name)
             profile_new = True
 
         # Resolve differences betweeen links
@@ -725,16 +735,17 @@ class UpdateDiffSolver(LinkListDiffSolver):
             if parent_changed:
                 self.difflog.update_property(profile_name, "parent", parent_name)
             elif profile_changed and not profile_new:
-                self.difflog.update_profile(profile_name)
+                self.difflog.update_profile(profile_name,
+                                            profile_result["beforeUpdate"],
+                                            profile_result["afterUpdate"])
 
-        # Update script properties for uninstall, but only if they changed
+        # Update script properties, but only if they changed or the profile is new
         installed_profile = self.state.get(profile_name, {})
-        event = "beforeUninstall"
-        if installed_profile.get(event, "") != profile_result[event]:
-            self.difflog.update_property(profile_name, event, profile_result[event])
-        event = "afterUninstall"
-        if installed_profile.get(event, "") != profile_result[event]:
-            self.difflog.update_property(profile_name, event, profile_result[event])
+        events = ["beforeInstall", "afterInstall", "beforeUpdate",
+                  "afterUpdate", "beforeUninstall", "afterUninstall"]
+        for event in events:
+            if profile_new or installed_profile.get(event, "") != profile_result[event]:
+                self.difflog.update_property(profile_name, event, profile_result[event])
 
         # Recursive call for all subprofiles
         if "profiles" in profile_result:

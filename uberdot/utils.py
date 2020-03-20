@@ -719,7 +719,7 @@ def log_operation(profile_name, message):
                 const.col_endc + message + "\n")
 
 
-def log_warning(message):
+def log_warning(message, end="\n"):
     """Alias for logger.warning() but creates a newline and colorizes output.
 
     Using the log functions, the output will also be printed into a logfile
@@ -728,10 +728,10 @@ def log_warning(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.warning(const.col_warning + message + const.col_endc + "\n")
+    logger.warning(const.col_warning + message + const.col_endc + end)
 
 
-def log_success(message):
+def log_success(message, end="\n"):
     """Alias for logger.info() but creates a newline and colorizes output.
 
     Using the log functions, the output will also be printed into a logfile
@@ -740,10 +740,10 @@ def log_success(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.info(const.col_ok + message + const.col_endc + "\n")
+    logger.info(const.col_ok + message + const.col_endc + end)
 
 
-def log_debug(message):
+def log_debug(message, end="\n"):
     """Alias for logger.debug() but creates a newline and colorizes output.
 
     Using the log functions, the output will also be printed into a logfile
@@ -752,10 +752,10 @@ def log_debug(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.debug(const.col_debug + message + const.col_endc + "\n")
+    logger.debug(const.col_debug + message + const.col_endc + end)
 
 
-def log_error(message):
+def log_error(message, end="\n"):
     """Alias for logger.error() but creates a newline.
 
     Using the log functions, the output will also be printed into a logfile
@@ -764,7 +764,7 @@ def log_error(message):
     Args:
         message (str): The message that will be printed.
     """
-    logger.error(message + "\n")
+    logger.error(message + end)
 
 
 def is_dynamic_file(target):

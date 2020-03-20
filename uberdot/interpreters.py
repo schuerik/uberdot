@@ -1089,7 +1089,7 @@ class EventInterpreter(Interpreter):
             which events this interpreter shall look for
     """
 
-    def __init__(self, profiles, state, event_type):
+    def __init__(self, state, event_type):
         """Constructor.
 
         Sets _op_add_p and _op_update_p depending on event_type.
@@ -1102,36 +1102,10 @@ class EventInterpreter(Interpreter):
                 determines which events this interpreter shall look for
         """
         self.event_type = event_type
-        self.profiles = profiles
         self.state = state
-        self._op_add_p = self.event_handler(self.event_type + "Install")
-        self._op_update_p = self.event_handler(self.event_type + "Update")
-
-    def get_profile(self, profilename):
-        """Gets a profile from :attr:`self.profiles<EventInterpreter.profiles>`
-        by it's name.
-
-        Args:
-            profilename (str): Name of the profile that will be searched for.
-        Returns:
-            Profile: The corresponding profile
-        """
-        def get_subprofile(parent, profilename):
-            for sub in parent.subprofiles:
-                if sub.name == profilename:
-                    return sub
-                subsub = get_subprofile(sub, profilename)
-                if subsub is not None:
-                    return subsub
-            return None
-
-        for profile in self.profiles:
-            if profile.name == profilename:
-                return profile
-            result = get_subprofile(profile, profilename)
-            if result is not None:
-                return result
-        raise FatalError("Couldn't find profile '" + profilename + "'")
+        self._op_add_p = self.event_handler("Install")
+        self._op_update_p = self.event_handler("Update")
+        self._op_remove_p = self.event_handler("Uninstall")
 
     @abstractmethod
     def run_script(self, script_path, profilename):
@@ -1146,33 +1120,7 @@ class EventInterpreter(Interpreter):
         """
         raise NotImplementedError
 
-    def start_event(self, profile_name, event_name):
-        """Finds the generated script for a specific profile and event.
-        Calls run_script() for the found script.
-
-        Args:
-            profile_name (str): The name of the profile for which the
-                generated script is searched
-            event_name (str): The name of the event for which the
-                generated script is searched
-        """
-        log_operation(profile_name, "Running event " + event_name)
-        script_dir = os.path.join(const.session_dir, "scripts") + "/"
-        script_path = script_dir + profile_name + "_" + event_name
-        script_path += "_" + self.state[profile_name][event_name] + ".sh"
-        if not os.path.exists(script_path):
-            if not event_name.endswith("Uninstall"):
-                # The script should have already been generated in this run
-                raise FatalError("Generated script couldn't be found")
-            # The script was generated in a previous run and was removed
-            # This should usually not happen, but its not an error
-            log_warning(
-                "Unfortunally the generated script was removed. Skipping."
-            )
-        else:
-            self.run_script(script_path, profile_name)
-
-    def event_handler(self, event_name):
+    def event_handler(self, name):
         """Returns a function that can be used to interprete add_p- and
         update_p-operations.
 
@@ -1185,22 +1133,22 @@ class EventInterpreter(Interpreter):
                 by the returned function
         """
         def start(dop):
-            profile = self.get_profile(dop["profile"])
-            if profile.result[event_name]:
-                self.start_event(dop["profile"], event_name)
+            event_name = self.event_type + name
+            profile_name = dop["profile"]
+            if dop[self.event_type]:
+                log_operation(profile_name, "Running event " + event_name)
+                script_dir = os.path.join(const.session_dir, "scripts") + "/"
+                script_path = script_dir + profile_name + "_" + event_name
+                script_path +=  "_" + dop[self.event_type] + ".sh"
+                if not os.path.exists(script_path):
+                    # The script was generated in a previous run and was removed
+                    # This should usually not happen, but its not an error
+                    log_warning(
+                        "Unfortunally the generated script was removed. Skipping."
+                    )
+                else:
+                    self.run_script(script_path, dop["profile"])
         return start
-
-    def _op_remove_p(self, dop):
-        """Checks if a profile has an uninstall-event set, that matches
-        event_type. If so, it calls start_event().
-
-        Args:
-            dop (dict): The remove-operation that triggers the event
-        """
-        profile = self.state[dop["profile"]]
-        event_name = self.event_type+"Uninstall"
-        if event_name in profile and profile[event_name]:
-            self.start_event(dop["profile"], event_name)
 
 
 class EventPrintInterpreter(EventInterpreter):
@@ -1234,13 +1182,13 @@ class EventExecInterpreter(EventInterpreter):
         failures (int): Counter that stores how many scripts executed with errors.
     """
 
-    def __init__(self, profiles, state, event_type):
+    def __init__(self, state, event_type):
         """Constructor.
 
         Creates a thread and queues for listening on the shells stdout and
         stderr.
         """
-        super().__init__(profiles, state, event_type)
+        super().__init__(state, event_type)
         self.shell = None
         self.ticks_without_feedback = 0
         self.queue_out = Queue()
@@ -1400,6 +1348,7 @@ class ExecuteInterpreter(Interpreter):
         super().__init__()
         self.state = state
         self.info_counter = 0
+        self.profiles_updated = set()
 
     def _op_info(self, dop):
         self.info_counter += 1
@@ -1413,9 +1362,12 @@ class ExecuteInterpreter(Interpreter):
         log_debug("Executing difflog now.")
 
     def _op_fin(self, dop):
+        log_debug("Updating modification dates of profiles.")
+        for profile in self.profiles_updated:
+            self.state[profile]["updated"] = get_date_time_now()
         # Only create a snapshot if the difflog contained at least
         # one operation that is not just displaying information
-        if len(self.data) > self.info_counter:
+        if len(self.data) > self.info_counter and const.mode != "timewarp":
             timestamp = self.state.create_snapshot()
             self.state.set_special("snapshot", timestamp)
 
@@ -1454,7 +1406,7 @@ class ExecuteInterpreter(Interpreter):
             del self.state[dop["profile"]][dop["key"]]
         else:
             self.state[dop["profile"]][dop["key"]] = dop["value"]
-        self.state[dop["profile"]]["updated"] = get_date_time_now()
+        self.profiles_updated.add(dop["profile"])
 
     def _op_add_p(self, dop):
         """Adds a profile entry of the state-file.
@@ -1484,7 +1436,7 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be executed
         """
-        self.state[dop["profile"]]["updated"] = get_date_time_now()
+        self.profiles_updated.add(dop["profile"])
 
     def _op_add_l(self, dop):
         """Adds a link to the filesystem and adds a link entry of the

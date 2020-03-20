@@ -521,8 +521,9 @@ class UberDot:
             new_state = State(list(get_statefiles())[-1])
         log_debug("Calculating operations to perform timewarp.")
         difflog = StateDiffSolver(self.state, new_state).solve()
-        # TODO: make events work
+        # TODO: timewarp single profiles
         self.run(difflog)
+        # TODO only if no dryrun, changes, debug, etc
         self.state.set_special("snapshot", get_timestamp_from_path(new_state.own_file))
 
     def execute_arguments(self):
@@ -950,7 +951,7 @@ class UberDot:
             if not const.skipevents and not const.skipbefore:
                 inter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    inter(self.profiles, old_state, "before")
+                    inter(old_state, "before")
                 )
                 try:
                     # We need to run this test again because the executed event
@@ -997,7 +998,7 @@ class UberDot:
             if not const.skipevents and not const.skipafter:
                 interpreter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    interpreter(self.profiles, old_state, "after")
+                    interpreter(old_state, "after")
                 )
         except CustomError:
             raise

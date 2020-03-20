@@ -281,11 +281,6 @@ class Profile:
                 log_debug("Generated script '" + script_path + "'")
             else:
                 log_debug("Script already generated at '" + script_path + "'")
-            # Create symlink for easy access of latest generated script for event
-            link_path = script_dir + "/" + script_name
-            if os.path.exists(link_path):
-                os.remove(link_path)
-            os.symlink(script_path, link_path)
             return md5(pretty_script)
 
         def getscriptattr(event_name):

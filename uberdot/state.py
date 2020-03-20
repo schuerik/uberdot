@@ -103,10 +103,12 @@ def upgrade_stone_age(old_state):
     """
     for key in old_state:
         for link in old_state[key]["links"]:
+            # Rename name and target
             link["from"] = link["name"]
             del link["name"]
             link["to"] = link["target"]
             del link["target"]
+            # Convert gid and uid to owner string
             gid = link["gid"]
             try:
                 username = get_username(link["uid"])
@@ -121,9 +123,31 @@ def upgrade_stone_age(old_state):
             del link["gid"]
     return old_state
 
+
+def upgrade_flexible_events(old_state):
+    """Upgrade event properties. Instead of a simple boolean it contains
+    the scripts md5-hash as reference and is now mandantory.
+    """
+    for key in old_state:
+        events = ["beforeInstall", "afterInstall", "beforeUpdate",
+                  "afterUpdate", "beforeUninstall", "afterUninstall"]
+        for event in events:
+            if event not in old_state[key]:
+                old_state[key][event] = ""
+            else:
+                script_dir = os.path.join(const.session_dir, "scripts") + "/"
+                script_link = script_dir + key + "_" + event
+                if os.path.exists(script_link):
+                    script_path = readlink(script_link)
+                    old_state[key][event] = script_path[-35:-3]
+                else:
+                    old_state[key][event] = ""
+    return old_state
+
 MIN_VERSION = "1.12.17_4"
 upgrades = [
     ("1.17.0", upgrade_stone_age),
+    ("1.18.0", upgrade_flexible_events),
 ]
 
 
@@ -295,12 +319,8 @@ class State(MutableMapping, Notifier):
             raise PreconditionError(
                 "State file '" + self.own_file + "' doesn't exist."
             )
-        # Setup auto write and snapshot
-        self.auto_write = True
-        if snapshot is not None:
-            # TODO why dis?
-            self.set_special("snapshot", snapshot)
-            self.auto_write = False
+        # Setup auto write
+        self.auto_write = snapshot is None
         # Add state of current user to the other loaded states
         self.loaded[const.user] = self.user_dict
         # Check if we can upgrade
@@ -312,11 +332,12 @@ class State(MutableMapping, Notifier):
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
         # Upgrade and store in loaded
+        logging_func = log if snapshot is None else log_debug
         patches = self.get_patches(self.get_special("version"))
         for patch in patches:
-            log("Upgrading state file to version " + patch[0] + " ... ", end="")
+            logging_func("Upgrading state file to version " + patch[0] + " ... ", end="")
             self.user_dict = self.upgrade(self.user_dict, patch)
-            log("Done.")
+            logging_func("Done.")
             self.write_file()
         if not patches:
             # Make sure to update version in case no upgrade was needed
@@ -329,6 +350,10 @@ class State(MutableMapping, Notifier):
     @classmethod
     def fromTimestamp(cls, timestamp):
         return cls(get_statefile_path(timestamp), timestamp)
+
+    @classmethod
+    def fromSnapshot(cls, file):
+        return cls(file, get_timestamp_from_path(file))
 
     @classmethod
     def current(cls):

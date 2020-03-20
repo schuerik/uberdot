@@ -46,7 +46,7 @@ from uberdot.utils import nth
 ############################################################################
 # True hardcoded not loadable constants (not visible via --debuginfo)
 ############################################################################
-VERSION = "1.17.0"
+VERSION = "1.18.0"
 STATE_NAME = "state.json"
 DATA_DIR_ROOT = "/root/.uberdot/"
 DATA_DIR_TEMP = "/home/%s/.uberdot/"
