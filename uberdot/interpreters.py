@@ -1159,7 +1159,7 @@ class EventInterpreter(Interpreter):
         log_operation(profile_name, "Running event " + event_name)
         script_dir = os.path.join(const.session_dir, "scripts") + "/"
         script_path = script_dir + profile_name + "_" + event_name
-        script_path += "_" + self.state[profile_name]["event_name"] + ".sh"
+        script_path += "_" + self.state[profile_name][event_name] + ".sh"
         if not os.path.exists(script_path):
             if not event_name.endswith("Uninstall"):
                 # The script should have already been generated in this run

@@ -579,8 +579,7 @@ class UberDot:
                 dfl.run_interpreter(SkipRootInterpreter())
             # 4. Simmulate a run, print the result or actually resolve the
             # differences
-            else:
-                self.run(dfl)
+            self.run(dfl)
 
     def list_states(self):
         statefiles = get_statefiles()
