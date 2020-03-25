@@ -33,27 +33,11 @@ the standart DiffSolver) and their resulting data structure DiffLog.
 import copy
 import os
 from abc import abstractmethod
-from uberdot import constants as const
-from uberdot.errors import FatalError
 from uberdot.state import AutoExpandDict
 from uberdot.interpreters import Interpreter
-from uberdot.utils import get_date_time_now
-from uberdot.utils import import_profile_class
-from uberdot.utils import get_linkdescriptor_from_file
-from uberdot.utils import get_owner
-from uberdot.utils import get_permission
-from uberdot.utils import link_exists
-from uberdot.utils import links_equal
-from uberdot.utils import links_similar
-from uberdot.utils import log
-from uberdot.utils import log_debug
-from uberdot.utils import log_warning
-from uberdot.utils import normpath
-from uberdot.utils import readlink
-from uberdot.utils import user_choice
-from uberdot.utils import safe_walk
-from uberdot.utils import similar_link_exists
+from uberdot.utils import *
 
+const = Const()
 
 class DiffLog():
     """This class stores the operations that were determined by a

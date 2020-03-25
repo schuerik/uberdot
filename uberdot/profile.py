@@ -32,22 +32,12 @@ import re
 import shutil
 from abc import abstractmethod
 from copy import deepcopy
-from uberdot import constants as const
+from uberdot.utils import Const
 from uberdot.dynamicfile import *
 from uberdot.state import AutoExpandDict
-from uberdot.errors import CustomError
-from uberdot.errors import GenerationError
-from uberdot.errors import FatalError
-from uberdot.utils import expandpath
-from uberdot.utils import find_target
-from uberdot.utils import inflate_owner
-from uberdot.utils import predict_owner
-from uberdot.utils import makedirs
-from uberdot.utils import import_profile
-from uberdot.utils import log_debug
-from uberdot.utils import normpath
-from uberdot.utils import walk_dotfiles
+from uberdot.utils import *
 
+const = Const()
 
 custom_builtins = []
 """A list of custom builtins that the profiles will map its functions to

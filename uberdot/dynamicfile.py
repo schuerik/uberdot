@@ -41,15 +41,14 @@ from abc import abstractmethod
 from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
-from uberdot import constants as const
+from uberdot.constants import Const
 from uberdot.utils import makedirs
 from uberdot.utils import md5
 from uberdot.utils import normpath
 from uberdot.utils import log
 from uberdot.utils import log_debug
 
-
-logger = logging.getLogger("root")
+const = Const()
 
 
 class DynamicFile:

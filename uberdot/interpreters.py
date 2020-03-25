@@ -74,12 +74,10 @@ from subprocess import PIPE
 from subprocess import STDOUT
 from subprocess import Popen
 from threading import Thread
-from uberdot import constants as const
-from uberdot.errors import *
 from uberdot.utils import *
 
 
-logger = logging.getLogger("root")
+const = Const()
 
 
 class Interpreter():
@@ -1307,13 +1305,13 @@ class EventExecInterpreter(EventInterpreter):
                     continue
                 oldbyte = b""
                 # Print byte
-                logger.info(byte)
+                log(byte, end="")
                 # Make sure it is printed immediately
                 sys.stdout.flush()
                 last_char = byte
             # Make sure the script output ends with a new line
             if last_char is not None and last_char != "\n":
-                logger.info("\n")
+                log("")
                 sys.stdout.flush()
         except Exception as err:
             self.queue_err.put(err)

@@ -28,26 +28,9 @@ import re
 from copy import deepcopy
 from collections.abc import MutableMapping
 from collections.abc import MutableSequence
-from uberdot import constants as const
-from uberdot.errors import CustomError
-from uberdot.errors import UnkownError
-from uberdot.errors import FatalError
-from uberdot.errors import PreconditionError
-from uberdot.utils import expandvars
-from uberdot.utils import find_files
-from uberdot.utils import get_gid
-from uberdot.utils import get_groupname
-from uberdot.utils import get_username
-from uberdot.utils import inflate_owner
-from uberdot.utils import log_debug
-from uberdot.utils import log_warning
-from uberdot.utils import log
-from uberdot.utils import makedirs
-from uberdot.utils import safe_walk
-from uberdot.utils import normpath
-from uberdot.utils import get_timestamp_now
-from uberdot.utils import walk
+from uberdot.utils import *
 
+const = Const()
 
 
 def get_statefiles():

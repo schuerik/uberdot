@@ -38,7 +38,6 @@ import argparse
 import csv
 import grp
 import inspect
-import json
 import logging
 import os
 import pwd
@@ -50,31 +49,15 @@ if os.getenv("COVERAGE_PROCESS_START"):  # pragma: no cover
     import coverage
     coverage.process_startup()
 
-from uberdot import constants as const
 from uberdot.interpreters import *
-from uberdot.errors import CustomError
-from uberdot.errors import FatalError
-from uberdot.errors import PreconditionError
-from uberdot.errors import UnkownError
-from uberdot.errors import UserError
 from uberdot.differencesolver import *
 from uberdot.state import get_statefiles
 from uberdot.state import get_timestamp_from_path
 from uberdot.state import State
-from uberdot.utils import has_root_priveleges
-from uberdot.utils import get_uid
-from uberdot.utils import get_gid
-from uberdot.utils import import_profile_class
-from uberdot.utils import import_profile
-from uberdot.utils import log
-from uberdot.utils import log_debug
-from uberdot.utils import log_error
-from uberdot.utils import log_success
-from uberdot.utils import log_warning
-from uberdot.utils import normpath
-from uberdot.utils import safe_walk
+from uberdot.utils import *
 
 
+const = Const()
 
 class UberDot:
     """Bundles all functionality of uberdot.
@@ -146,33 +129,41 @@ class UberDot:
         parser.add_argument(
             "--skiproot",
             help="do nothing that requires root permissions",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser.add_argument(
             "-s", "--summary",
             help="print always just a short summary instead of full text",
-            action="store_true"
+            action=StoreBoolAction
         )
         group_log_level = parser.add_mutually_exclusive_group()
         group_log_level.add_argument(
             "-v", "--verbose",
             help="print debug messages and tracebacks",
-            action="store_true"
+            action="store_const",
+            dest="loglevel",
+            const="VERBOSE"
         )
         group_log_level.add_argument(
             "--info",
             help="print everything but debug messages (default)",
-            action="store_true"
+            action="store_const",
+            dest="loglevel",
+            const="INFO"
         )
         group_log_level.add_argument(
             "-q", "--quiet",
             help="print nothing but errors",
-            action="store_true"
+            action="store_const",
+            dest="loglevel",
+            const="QUIET"
         )
         group_log_level.add_argument(
             "--silent",
             help="print absolute nothing",
-            action="store_true"
+            action="store_const",
+            dest="loglevel",
+            const="SILENT"
         )
         parser.add_argument(
             "-l", "--log",
@@ -195,7 +186,6 @@ class UberDot:
         )
 
         # Setup mode show arguments
-        # TODO rename --links to --dotfiles?
         parser_show_selection = CustomParser(add_help=False)
         group_display_selection = parser_show_selection.add_mutually_exclusive_group()
         group_display_selection.add_argument(
@@ -206,7 +196,7 @@ class UberDot:
         group_display_selection.add_argument(
             "-a", "--allusers",
             help="show installed of all users",
-            action="store_true"
+            action=StoreBoolAction
         )
         group_display_selection.add_argument(
             "--state",
@@ -215,17 +205,17 @@ class UberDot:
         parser_show_selection.add_argument(
             "-l", "--links",
             help="show installed links",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_show_selection.add_argument(
             "-p", "--profiles",
             help="show installed profiles",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_show_selection.add_argument(
             "-m", "--meta",
             help="display meta information of profiles and/or links",
-            action="store_true"
+            action=StoreBoolAction
         )
         help_text = "display various information about installed profiles"
         parser_show = subparsers.add_parser(
@@ -241,42 +231,42 @@ class UberDot:
         group_run_mode.add_argument(
             "-d", "--dryrun",
             help="just simulate what would happen",
-            action="store_true"
+            action=StoreBoolAction
         )
         group_run_mode.add_argument(
             "-c", "--changes",
             help="print out what changes uberdot will try to perform",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_run.add_argument(
             "-f", "--force",
             help="overwrite existing files",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_run.add_argument(
             "--superforce",
             help="overwrite existing AND blacklisted/protected files",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_run.add_argument(
             "--skipafter",
             help="do not execute events after linking",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_run.add_argument(
             "--skipbefore",
             help="do not execute events before linking",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_run.add_argument(
             "--skipevents",
             help="do not execute any events",
-            action="store_true"
+            action=StoreBoolAction
         )
         group_run_mode.add_argument(
             "--debug",
             help=argparse.SUPPRESS,
-            action="store_true"
+            action=StoreBoolAction
         )
 
         # Setup mode update arguments
@@ -290,7 +280,7 @@ class UberDot:
         parser_update.add_argument(
             "--dui",
             help="use the Delete/Update/Insert strategy for updating links",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_update.add_argument(
             "--directory", help="overwrite the starting directory for profiles"
@@ -298,7 +288,7 @@ class UberDot:
         parser_update.add_argument(
             "-m", "--makedirs",
             help="create directories automatically if needed",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_update.add_argument(
             "--option",
@@ -332,52 +322,52 @@ class UberDot:
         parser_find.add_argument(
             "-p", "--profiles",
             help="search for profiles",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "-d", "--dotfiles",
             help="search for dotfiles",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "-t", "--tags",
             help="search for tags",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "-c", "--content",
             help="search in file content of profiles/dotfiles",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "-n", "--name",
             help="search in the plain names of profiles/dotfiles/tags",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "-f", "--filename",
             help="search in filenames of profiles/dotfiles",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "-a", "--all",
             help="search everywhere; same as -cnf",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "-i", "--ignorecase",
             help="search caseinsensitv (has no effect with -r)",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "-r", "--regex",
             help="interprete searchstr as regular expression",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "-l", "--locations",
             help="also show the files where something was found",
-            action="store_true"
+            action=StoreBoolAction
         )
         parser_find.add_argument(
             "searchstr",
@@ -393,6 +383,7 @@ class UberDot:
             description=help_text,
             help=help_text
         )
+        # TODO: those should not be settable via config (or not mutually exclusive and required)
         group_state_selection = parser_timewarp.add_mutually_exclusive_group(required=True)
         group_state_selection.add_argument(
             "--earlier",
@@ -458,19 +449,9 @@ class UberDot:
             sys.exit(0)
 
         # Configure logger
-        logging_level_mapping = {
-            "SILENT": logging.CRITICAL,
-            "QUIET": logging.WARNING,
-            "INFO": logging.INFO,
-            "VERBOSE": logging.DEBUG
-        }
-        try:
-            logger.setLevel(logging_level_mapping[const.logginglevel])
-        except KeyError:
-            msg = "Unkown logginglevel '" + const.logginglevel + "'"
-            raise UserError(msg)
-        if const.logfile:
-            ch = logging.FileHandler(const.logfile)
+        logger.setLevel(const.settings.loglevel)
+        if const.settings.logfile:
+            ch = logging.FileHandler(const.settings.logfile)
             ch.setLevel(logging.DEBUG)
             form = '[%(asctime)s] - %(levelname)s - %(message)s'
             formatter = logging.Formatter(form)
@@ -485,57 +466,56 @@ class UberDot:
             # not force him to setup a proper config
             return
         # Check if settings are bad
-        if not const.target_files:
+        if not const.settings.target_files:
             raise UserError("You need to set target_files in your config.")
-        if not const.profile_files:
+        if not const.settings.profile_files:
             raise UserError("You need to set profile_files in your config.")
-        if const.target_files == const.profile_files:
+        if const.settings.target_files == const.settings.profile_files:
             msg = "The directories for your profiles and for your dotfiles "
             msg += "are the same."
             raise UserError(msg)
-        if not os.path.exists(const.target_files):
-            msg = "The directory for your dotfiles '" + const.target_files
+        if not os.path.exists(const.settings.target_files):
+            msg = "The directory for your dotfiles '" + const.settings.target_files
             msg += "' does not exist on this system."
             raise UserError(msg)
-        if not os.path.exists(const.profile_files):
-            msg = "The directory for your profiles '" + const.profile_files
+        if not os.path.exists(const.settings.profile_files):
+            msg = "The directory for your profiles '" + const.settings.profile_files
             msg += "' does not exist on this system."
             raise UserError(msg)
         # Check if arguments are bad
-        profiles_included = list(set(const.include) - set(const.exclude))
-        if sorted(profiles_included) != sorted(const.include):
+        profiles_included = list(set(const.args.include) - set(const.args.exclude))
+        if sorted(profiles_included) != sorted(const.args.include):
             msg = "You can not include and exclude a profile at the same time."
             raise UserError(msg)
 
     def timewarp(self):
         # Get correct state file to warp to
-        if const.state:
-            new_state = State(const.state)
+        if const.timewarp.state:
+            new_state = State(const.timewarp.state)
         # TODO implement
         # elif const.date:
         # elif const.earlier:
         # elif const.later:
-        elif const.first:
+        elif const.timewarp.first:
             new_state = State(nth(get_statefiles(), 0))
-        elif const.last:
+        elif const.timewarp.last:
             new_state = State(list(get_statefiles())[-1])
         log_debug("Calculating operations to perform timewarp.")
         difflog = StateDiffSolver(self.state, new_state).solve()
-        # TODO: timewarp single profiles
+        # TODO: make events work
         self.run(difflog)
-        # TODO only if no dryrun, changes, debug, etc
         self.state.set_special("snapshot", get_timestamp_from_path(new_state.own_file))
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
-        # Lets do the easy modes first
+        # Lets do the easy mode first
         if const.mode == "find":
             self.search()
             return
         if const.mode == "version":
-            log(const.col_emph + "Version: " + const.col_endc + const.version)
+            log(const.settings.col_emph + "Version: " + const.col_endc + const.version)
             return
-        # For the next modes we need a loaded state
+        # For the next mode we need a loaded state
         self.state = State.current()
         self.fix()
         if const.mode == "show":
@@ -545,11 +525,11 @@ class UberDot:
         elif const.mode == "timewarp":
             self.timewarp()
         else:
-            # The previous modes just printed stuff, but here we
+            # The previous mode just printed stuff, but here we
             # have to actually do something:
             # 0. Figure out which profiles we are talking about
             # TODO profilenames could be used at other places as well
-            profilenames = const.include
+            profilenames = const.args.include
             if not profilenames:
                 profilenames = self.state.keys()
             if not profilenames:
@@ -566,16 +546,17 @@ class UberDot:
                 profile_results = [p.result for p in self.profiles]
                 dfs = UpdateDiffSolver(self.state,
                                        profile_results,
-                                       const.parent)
+                                       const.update.parent)
             else:
                 raise FatalError("None of the expected modes were set.")
             # 2. Solve differences
             dfl = dfs.solve()
             # 3. Eventually manipulate the result
-            if const.dui:
-                log_debug("Reordered operations to use DUI-strategy.")
-                dfl.run_interpreter(DUIStrategyInterpreter())
-            if const.skiproot:
+            if const.mode == "update":
+                if const.update.dui:
+                    log_debug("Reordered operations to use DUI-strategy.")
+                    dfl.run_interpreter(DUIStrategyInterpreter())
+            if const.args.skiproot:
                 log_debug("Removing operations that require root.")
                 dfl.run_interpreter(SkipRootInterpreter())
             # 4. Simmulate a run, print the result or actually resolve the
@@ -590,7 +571,7 @@ class UberDot:
             timestamp = get_timestamp_from_path(file)
             msg = "[" + str(nr+1) + "] "
             if snapshot==timestamp:
-                msg += const.col_emph + "(current) " + const.col_endc
+                msg += const.settings.col_emph + "(current) " + const.col_endc
             temp_state =  State.fromTimestamp(timestamp)
             msg += "ID: " + timestamp
             msg += "  Date: " + timestamp_to_string(timestamp)
@@ -610,7 +591,7 @@ class UberDot:
             # Print summary to give user an idea of what have changed
             difflog.run_interpreter(PrintInterpreter())
             # Get selection from user
-            selection = const.fix
+            selection = const.args.fix
             if not selection:
                 log("How would you like to fix those changes?")
                 selection = user_choice(
@@ -619,7 +600,7 @@ class UberDot:
                     ("D", "Decide for each link")
                 )
             else:
-                log("Autofixing using mode " + const.fix + ".")
+                log("Autofixing using mode " + const.args.fix + ".")
             # Calculate difflog again depending on selection.
             if selection == "s":
                 return
@@ -632,7 +613,7 @@ class UberDot:
                 CheckDiffsolverResultInterpreter(self.state)
             )
             # Also allow to skip root here
-            if const.skiproot:
+            if const.args.skiproot:
                 difflog.run_interpreter(SkipRootInterpreter())
             # Gain root if needed
             if not has_root_priveleges():
@@ -643,7 +624,7 @@ class UberDot:
             # Finally execute
             try:
                 interpreters = [ExecuteInterpreter(self.state)]
-                if const.summary:
+                if const.args.summary:
                     interpreters.append(PrintSummaryInterpreter())
                 else:
                     interpreters.append(PrintInterpreter())
@@ -663,7 +644,7 @@ class UberDot:
         """Imports profiles by name and executes them. """
         # Import and create profiles
         for profilename in profilenames:
-            if profilename in const.exclude:
+            if profilename in const.args.exclude:
                 log_debug("'" + profilename + "' is in exclude list." +
                           " Skipping generation of profile...")
             else:
@@ -680,13 +661,13 @@ class UberDot:
         This includes search paths of configs, loaded configs,
         parsed commandline arguments and settings.
         """
-
+        # TODO: use with new const class
         old_section = ""
         for section, name in const.vals():
             if section is None:
                 section = "Internal"
             if old_section != section:
-                print(const.col_emph + section + ":" + const.col_endc)
+                print(const.settings.col_emph + section + ":" + const.col_endc)
                 old_section = section
             if name == "col_endc":
                 continue
@@ -706,29 +687,29 @@ class UberDot:
 
         Prints only the profiles specified in the commandline arguments. If
         none are specified it prints all profiles of the state file."""
-        if const.state is not None:
-            temp_state = State(const.state)
+        if const.show.state is not None:
+            temp_state = State(const.show.state)
             for profile in temp_state.values():
-                if not const.include or profile["name"] in const.include:
+                if not const.args.include or profile["name"] in const.args.include:
                     self.print_profile(profile)
         else:
             last_user = ""
             for user, profile in self.state.get_profiles():
                 # Skip users that shall not be printed
-                if not const.allusers:
-                    if const.users:
-                        if user not in const.users:
+                if not const.show.allusers:
+                    if const.show.users:
+                        if user not in const.show.users:
                             continue
-                    elif const.user != user:
+                    elif const.show.user != user:
                         continue
                 # Print the next user
                 if user != last_user:
                     # But only if other users shall be shown
-                    if const.allusers or const.users:
-                        print(const.col_emph + "User: " + const.col_endc + user)
+                    if const.show.allusers or const.show.users:
+                        print(const.settings.col_emph + "User: " + const.col_endc + user)
                     last_user = user
                 # Show all profiles that are specified or all if none was specified
-                if not const.include or profile["name"] in const.include:
+                if not const.args.include or profile["name"] in const.args.include:
                     self.print_profile(profile)
 
     def print_profile(self, profile):
@@ -737,18 +718,18 @@ class UberDot:
         Args:
             profile (dict): The profile that will be printed
         """
-        if profile["name"] in const.exclude:
+        if profile["name"] in const.args.exclude:
             log_debug("'" + profile["name"] + "' is in exclude list. Skipping...")
             return
-        tab = "  " if const.users or const.allusers else ""
-        if const.profiles or (not const.links and not const.meta):
-            col = const.col_emph if const.links or const.meta else ""
+        tab = "  " if const.show.users or const.show.allusers else ""
+        if const.show.profiles or (not const.show.links and not const.show.meta):
+            col = const.settings.col_emph if const.show.links or const.show.meta else ""
             profile_header = tab + col + profile["name"] + const.col_endc
-            if const.links or const.meta:
+            if const.show.links or const.show.meta:
                 profile_header += ":"
             print(profile_header)
             tab += "  "
-            if const.meta:
+            if const.show.meta:
                 print(tab + "Installed: " + profile["installed"])
                 print(tab + "Updated: " + profile["updated"])
                 if "parent" in profile:
@@ -757,10 +738,10 @@ class UberDot:
                     print(tab + "Has Subprofiles: " + ", ".join(
                         [s["name"] for s in profile["profiles"]]
                     ))
-        if const.links or (not const.profiles and not const.meta):
+        if const.show.links or (not const.show.profiles and not const.show.meta):
             for symlink in profile["links"]:
                 print(tab + symlink["from"] + "  →  " + symlink["to"])
-                if const.meta:
+                if const.show.meta:
                     print(
                         tab + "    Owner: " + symlink["owner"] +
                         "   Permission: " + str(symlink["permission"]) +
@@ -951,7 +932,7 @@ class UberDot:
             if not const.skipevents and not const.skipbefore:
                 inter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    inter(old_state, "before")
+                    inter(self.profiles, old_state, "before")
                 )
                 try:
                     # We need to run this test again because the executed event
@@ -998,7 +979,7 @@ class UberDot:
             if not const.skipevents and not const.skipafter:
                 interpreter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    interpreter(old_state, "after")
+                    interpreter(self.profiles, old_state, "after")
                 )
         except CustomError:
             raise
@@ -1035,6 +1016,51 @@ class CustomParser(argparse.ArgumentParser):
 
     def error(self, message):
         raise UserError(message)
+
+    def parse_args(self, args=None, namespace=None):
+        if args is None:
+            args = sys.argv[1:]
+        if namespace is None:
+            namespace = argparse.Namespace()
+        # Divide argv by commands
+        split_argv = [[]]
+        for c in sys.argv[1:]:
+            if c in self._subparsers._actions[1].choices:
+                split_argv.append([c])
+            else:
+                split_argv[-1].append(c)
+        # Initialize namespace and parse until first subcommand
+        result = self.parse_command(split_argv[0])
+        # Parse each subcommand
+        for argv in split_argv[1:]:
+            self._subparsers.choices[argv[0]].parse_command(argv, namespace=result)
+        return result
+
+    def parse_command(self, argv, result=None):
+        n = argparse.Namespace()
+        if result is not None:
+            setattr(result, argv[0], n)
+        setattr(n, "mode", argv[0])
+        super().parse_args(argv[1:], namespace=n)
+        return n
+
+
+class StoreBoolAction(argparse._StoreAction):
+    def __init__(self, option_strings, dest, **kwargs):
+        kwargs["type"] = StoreBoolAction.convert_str_to_bool
+        kwargs["nargs"] = "?"
+        kwargs["metavar"] = "bool"
+        kwargs["default"] = kwargs["const"] = True
+        super().__init__(option_strings, dest, **kwargs)
+
+    @staticmethod
+    def convert_str_to_bool(string):
+        if string.lower() in ["0", "off", "no", "false"]:
+            return False
+        elif string.lower() in ["1", "on", "yes", "true"]:
+            return True
+        else:
+            raise argparse.ArgumentTypeError("invalid value. Choose from 0, 1, off, on, no, yes, false or true.")
 
 
 class StdoutFilter(logging.Filter):
@@ -1080,7 +1106,7 @@ def run_script(name):
             udot.parse_arguments()
             udot.check_arguments()
             # Add the users profiles to the python path
-            sys.path.append(const.profile_files)
+            sys.path.append(const.settings.profile_files)
             # Go
             udot.execute_arguments()
             # TODO shorten logfile

@@ -27,8 +27,9 @@ import os
 import re
 import shutil
 import platform
-from uberdot import constants
+from uberdot.utils import Const
 
+const = Const()
 
 def distribution():
     """Returns the current running distribution.
@@ -92,4 +93,4 @@ def username():
     Returns:
         str: Username of current user
     """
-    return constants.user
+    return const.user
