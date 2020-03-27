@@ -1,5 +1,5 @@
 {
-    "@version": "1.17.0",
+    "@version": "1.18.0",
     "SuperProfileEvent": {
         "name": "SuperProfileEvent",
         "links": [
@@ -13,7 +13,13 @@
             }
         ],
         "installed": "2019-12-12 16:45:49",
-        "updated": "2019-12-12 16:45:49"
+        "updated": "2019-12-12 16:45:49",
+        "beforeInstall": "",
+        "afterInstall": "",
+        "beforeUpdate": "",
+        "afterUpdate": "",
+        "beforeUninstall": "",
+        "afterUninstall": ""
     },
     "SubprofileEvent": {
         "name": "SubprofileEvent",
