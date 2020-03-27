@@ -1647,7 +1647,7 @@ DirRegressionTest("Update: --dui",
                   ["update", "--dui", "SuperProfileTags"],
                   after_tags, after_updatedui, "nested").success()
 InputDirRegressionTest("Update: --superforce",
-                       ["update", "--superforce", "OverwriteBlacklisted"],
+                       ["update", "--superforce", "-f", "OverwriteBlacklisted"],
                        before, after_blacklisted, "YES").success()
 SimpleOutputTest("Output: --changes",
                  ["update", "--changes", "NoOptions"],

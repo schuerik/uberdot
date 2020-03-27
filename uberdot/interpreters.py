@@ -472,7 +472,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
             UserAbortion: The user decided to abort the whole process
             PreconditionError: The patch file could not be written
         """
-        target_bak = target + "." + const.backup_extension
+        target_bak = target + "." + const.settings.backup_extension
         done = False
         while not done:
             inp = user_choice(
@@ -502,12 +502,12 @@ class CheckDynamicFilesInterpreter(Interpreter):
                     msg += str(err)
                     raise PreconditionError(msg)
             elif inp == "u":
-                if const.dryrun:
-                    log_warning("This does nothing since " +
-                                "this is just a dry-run")
-                else:
-                    # Copy the original to the changed
-                    copyfile(target_bak, target)
+                # TODO this should be reimplemented, but properly. dryrun shouldnt be handled here
+                    # if const.dryrun:
+                    #     log_warning("This does nothing since " +
+                    #                 "this is just a dry-run")
+                # Copy the original to the changed
+                copyfile(target_bak, target)
                 done = True
 
 
@@ -633,7 +633,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
                 log_warning("You are trying to " + action + " '" + file_name +
                             "' which is blacklisted. It is considered " +
                             "dangerous to " + action + " those files!")
-                if const.superforce:
+                if const.get(const.args.mode).superforce:
                     user_confirmation("YES")
                 else:
                     log_warning("If you really want to modify this file" +
@@ -709,7 +709,7 @@ class CheckLinkDirsInterpreter(Interpreter):
             PreconditionError: The directory doesn't exist and ``makedirs``
                 isn't set
         """
-        if not const.makedirs:
+        if not const.get(const.args.mode).makedirs:
             if not os.path.isdir(dirname):
                 msg = "The directory '" + dirname + "/' needs to be created "
                 msg += "in order to perform this action, but "
@@ -906,7 +906,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
         if old_name != new_name:
             if new_name not in self.removed_links and os.path.lexists(new_name):
                 if os.path.isdir(new_name):
-                    if not const.force:
+                    if not const.get(const.args.mode).force:
                         msg = "'" + old_name + "' can not be "
                         msg += "moved to '" + new_name + "' "
                         msg += "because it is a directory and would be "
@@ -920,7 +920,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
                         msg += " that would be overwritten. Please empty the"
                         msg += " directory or remove it entirely."
                         raise PreconditionError(msg)
-                elif not const.force:
+                elif not const.get(const.args.mode).force:
                     msg = "'" + old_name + "' can not be moved to '"
                     msg += new_name + "' because it already exists"
                     msg += " on your filesystem and would be overwritten."
@@ -939,7 +939,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
         name = dop["symlink"]["from"]
         if name not in self.removed_links and os.path.lexists(name):
             if os.path.isdir(name):
-                if not const.force:
+                if not const.get(const.args.mode).force:
                     msg = "'" + name + "' is a directory and would be"
                     msg += " overwritten. You can force to overwrite empty"
                     msg += " directories by setting the --force flag."
@@ -949,7 +949,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
                     msg += " that would be overwritten. Please empty the"
                     msg += " directory or remove it entirely."
                     raise PreconditionError(msg)
-            elif not const.force:
+            elif not const.get(const.args.mode).force:
                 msg = "'" + name + "' already exists and would be"
                 msg += " overwritten by '" + dop["symlink"]["to"]
                 msg += " '. You can force to overwrite the"
@@ -1051,7 +1051,7 @@ class CheckProfilesInterpreter(Interpreter):
             # Just make sure the parent is really updated
             if known[1] != dop["parent"]:
                 # If the user set the new parent manually, overwrites are ok
-                if const.parent == dop["parent"]:
+                if const.get(const.args.mode).parent == dop["parent"]:
                     return
                 # Detaching a profile from a parent is also allowed
                 if dop["parent"] is None:
@@ -1231,7 +1231,7 @@ class EventExecInterpreter(EventInterpreter):
         # Now the critical part start
         try:
             # Start the shell and start thread to listen to stdout and stderr
-            cmd = [const.shell] + const.shell_args.split() + [script_path]
+            cmd = [const.settings.shell] + const.settings.shell_args.split() + [script_path]
             log_debug(" ".join(cmd))
             self.shell = Popen(
                 cmd, stdout=PIPE, stderr=STDOUT,
@@ -1243,11 +1243,11 @@ class EventExecInterpreter(EventInterpreter):
             self.ticks_without_feedback = 0
             while self.shell.poll() is None:
                 self.ticks_without_feedback += 1
-                if (self.ticks_without_feedback > const.shell_timeout * 1000 \
-                        and const.shell_timeout > 0):
+                if (self.ticks_without_feedback > const.settings.shell_timeout * 1000 \
+                        and const.settings.shell_timeout > 0):
                     stop_execution("Timeout reached!")
                     msg = "Script timed out after "
-                    msg += str(const.shell_timeout) + " seconds"
+                    msg += str(const.settings.shell_timeout) + " seconds"
                     raise GenerationError(profilename, msg)
                 # Just wait a tick
                 time.sleep(.001)
@@ -1360,12 +1360,13 @@ class ExecuteInterpreter(Interpreter):
         log_debug("Executing difflog now.")
 
     def _op_fin(self, dop):
-        log_debug("Updating modification dates of profiles.")
+        if self.profiles_updated:
+            log_debug("Updating modification dates of profiles.")
         for profile in self.profiles_updated:
             self.state[profile]["updated"] = get_date_time_now()
         # Only create a snapshot if the difflog contained at least
         # one operation that is not just displaying information
-        if len(self.data) > self.info_counter and const.mode != "timewarp":
+        if len(self.data) > self.info_counter and const.args.mode != "timewarp":
             timestamp = self.state.create_snapshot()
             self.state.set_special("snapshot", timestamp)
 
@@ -1498,7 +1499,7 @@ class ExecuteInterpreter(Interpreter):
             UnkownError: The link could not be created
         """
         if force is None:
-            force = const.force
+            force = const.get(const.args.mode).force
         if not os.path.isdir(os.path.dirname(ldescriptor["from"])):
             self._makedirs(ldescriptor["from"])
         self.remove_symlink(ldescriptor["from"], cleanup=False)
@@ -1778,7 +1779,7 @@ class GainRootInterpreter(RootNeededInterpreter):
             dop (dict): Unused in this implementation
         """
         if self.logged:
-            if const.askroot:
+            if const.settings.askroot:
                 args = [sys.executable] + sys.argv
                 call_msg = "'sudo " + " ".join(args) + "'"
                 log_debug("Replacing process with " + call_msg + ".")

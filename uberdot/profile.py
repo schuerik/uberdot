@@ -103,12 +103,12 @@ class Profile:
         :attr:`self.directory<Profile.directory>` if ``directory`` is ``None``.
         """
         if options is None:
-            self.options = deepcopy(dict(const.items("Defaults")))
+            self.options = deepcopy(dict(const.defaults.items()))
             del self.options["directory"]
         else:
             self.options = deepcopy(dict(options))
         if directory is None:
-            self.directory = const.directory
+            self.directory = const.defaults.directory
         else:
             self.directory = directory
         self.__old_builtins = {}
@@ -234,7 +234,7 @@ class Profile:
 
             # Change dir automatically if enabled and the main script doesn't
             # start with a cd command
-            if const.smart_cd:
+            if const.settings.smart_cd:
                 if not script.strip().startswith("cd "):
                     script = "\ncd " + self.directory + "\n" + script
             # Prepend prepare_scripts
@@ -543,8 +543,8 @@ class Profile:
         # them by there name without tag
         for root, name in walk_dotfiles():
             tag, base = (None, os.path.basename(name))
-            if const.tag_separator in base:
-                tag, base = base.split(const.tag_separator, 1)
+            if const.settings.tag_separator in base:
+                tag, base = base.split(const.settings.tag_separator, 1)
             if re.fullmatch(target_pattern, base) is not None:
                 if base not in target_dir:
                     target_dir[base] = []
@@ -620,8 +620,8 @@ class Profile:
                 base = name
             else:
                 base = os.path.basename(target)
-            if const.tag_separator in base:
-                base = base.split(const.tag_separator, 1)[1]
+            if const.settings.tag_separator in base:
+                base = base.split(const.settings.tag_separator, 1)[1]
             name = re.sub(replace_pattern, replace, base)
         elif name:
             name = expandpath(name)
@@ -632,7 +632,7 @@ class Profile:
             # "name" wasn't set by the user,
             # so fallback to use the target name (but without the tag)
             name = os.path.basename(
-                target.split(const.tag_separator, 1)[-1]
+                target.split(const.settings.tag_separator, 1)[-1]
             )
 
         # Add prefix an suffix to name
@@ -699,7 +699,7 @@ class Profile:
             directory (str): The path to switch to
         """
         if directory is None:
-            self.directory = const.directory
+            self.directory = const.defaults.directory
         else:
             self.directory = os.path.join(self.directory, directory)
 
@@ -713,11 +713,11 @@ class Profile:
             *options (list): A list of options that will be reset
         """
         if not options:
-            self.options = deepcopy(dict(const.items("Defaults")))
+            self.options = deepcopy(dict(const.defaults.items()))
             del self.options["directory"]
         else:
             for item in options:
-                self.options[item] = const.get(item)
+                self.options[item] = const.defaults.get(item).value
 
     @command
     def rmtags(self, *tags):
@@ -789,7 +789,7 @@ class Profile:
         for subprofile in profilenames:
             if subprofile == self.name:
                 self._gen_err("Recursive profiles are forbidden!")
-            elif subprofile in const.exclude:
+            elif subprofile in const.args.exclude:
                 log_debug("'" + subprofile + "' is in exclude list." +
                           " Skipping generation of profile...")
             else:

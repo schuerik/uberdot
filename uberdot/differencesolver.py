@@ -318,7 +318,7 @@ class StateFilesystemDiffSolver(DiffSolver):
         for user in self.users:
             if user in self.state.get_users():
                 for profile in self.state.get_user_profiles(user).values():
-                    if profile["name"] in const.exclude:
+                    if profile["name"] in const.args.exclude:
                         continue
                     self.__generate_profile_fix(profile)
 
@@ -465,7 +465,7 @@ class UninstallDiffSolver(RemoveProfileDiffSolver):
         Args:
             profile_name (str): Name of the profile that will be removed
         """
-        if profile_name in const.exclude:
+        if profile_name in const.args.exclude:
             log_debug("'" + profile_name + "' is in exclude list. Skipping...")
             # Even though we skip it, we need to make sure that the profile is
             # no longer a subprofile, because at this point profile_name is
@@ -659,7 +659,7 @@ class UpdateDiffSolver(LinkListDiffSolver):
 
         # Checking exclude list
         profile_name = profile_result["name"]
-        if profile_name in const.exclude:
+        if profile_name in const.args.exclude:
             log_debug("'" + profile_name + "' is in exclude list. Skipping...")
             return
         # Get profile from state

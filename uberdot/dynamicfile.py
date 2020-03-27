@@ -41,7 +41,7 @@ from abc import abstractmethod
 from shutil import copyfile
 from subprocess import PIPE
 from subprocess import Popen
-from uberdot.constants import Const
+from uberdot.utils import Const
 from uberdot.utils import makedirs
 from uberdot.utils import md5
 from uberdot.utils import normpath
@@ -113,7 +113,7 @@ class DynamicFile:
             file.flush()
             # Also create a backup that can be used to restore the original
             copyfile(self.getpath(),
-                     self.getpath() + "." + const.backup_extension)
+                     self.getpath() + "." + const.settings.backup_extension)
 
     def getpath(self):
         """Gets the path of the generated file
@@ -123,7 +123,7 @@ class DynamicFile:
         """
         # Dynamicfiles are stored with its md5sum in the name to detect chages
         return os.path.join(self.getdir(),
-                            self.name + const.hash_separator + self.md5sum)
+                            self.name + const.settings.hash_separator + self.md5sum)
 
     def getdir(self):
         """Gets the path of the directory that is used to store the generated
@@ -158,10 +158,10 @@ class EncryptedFile(DynamicFile):
         # Set arguments for OpenPGP
         args = ["gpg", "-q", "-d", "--yes"]
         strargs = " ".join(args)
-        if const.decrypt_pwd:
-            args += ["--batch", "--passphrase", const.decrypt_pwd]
+        if const.settings.decrypt_pwd:
+            args += ["--batch", "--passphrase", const.settings.decrypt_pwd]
             strargs += " " + " ".join(args[-3:-1]) + " "
-            strargs += "*" * len(const.decrypt_pwd)
+            strargs += "*" * len(const.settings.decrypt_pwd)
         else:
             log("Tipp: You can set a password in uberdots " +
                 "config that will be used for all encrypted files.")

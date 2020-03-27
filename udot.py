@@ -35,6 +35,7 @@ or you can import UberDot in another script for debugging and testing purposes.
 
 
 import argparse
+from distutils.util import strtobool
 import csv
 import grp
 import inspect
@@ -383,7 +384,6 @@ class UberDot:
             description=help_text,
             help=help_text
         )
-        # TODO: those should not be settable via config (or not mutually exclusive and required)
         group_state_selection = parser_timewarp.add_mutually_exclusive_group(required=True)
         group_state_selection.add_argument(
             "--earlier",
@@ -449,7 +449,7 @@ class UberDot:
             sys.exit(0)
 
         # Configure logger
-        logger.setLevel(const.settings.loglevel)
+        logger.setLevel(const.args.loglevel)
         if const.settings.logfile:
             ch = logging.FileHandler(const.settings.logfile)
             ch.setLevel(logging.DEBUG)
@@ -461,7 +461,7 @@ class UberDot:
     def check_arguments(self):
         """Checks if parsed arguments/settings are bad or incompatible to
         each other. If not, it raises an UserError."""
-        if const.mode in ["version", "history"]:
+        if const.args.mode in ["version", "history"]:
             # If the user just want to get the version number, we should
             # not force him to setup a proper config
             return
@@ -493,13 +493,14 @@ class UberDot:
         if const.timewarp.state:
             new_state = State(const.timewarp.state)
         # TODO implement
-        # elif const.date:
-        # elif const.earlier:
-        # elif const.later:
+        # elif const.timewarp.date:
+        # elif const.timewarp.earlier:
+        # elif const.timewarp.later:
         elif const.timewarp.first:
             new_state = State(nth(get_statefiles(), 0))
         elif const.timewarp.last:
             new_state = State(list(get_statefiles())[-1])
+        # TODO make this work with include
         log_debug("Calculating operations to perform timewarp.")
         difflog = StateDiffSolver(self.state, new_state).solve()
         # TODO: make events work
@@ -509,20 +510,20 @@ class UberDot:
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
         # Lets do the easy mode first
-        if const.mode == "find":
+        if const.args.mode == "find":
             self.search()
             return
-        if const.mode == "version":
-            log(const.settings.col_emph + "Version: " + const.col_endc + const.version)
+        if const.args.mode == "version":
+            log(const.settings.col_emph + "Version: " + const.col_endc + const.VERSION)
             return
         # For the next mode we need a loaded state
         self.state = State.current()
         self.fix()
-        if const.mode == "show":
+        if const.args.mode == "show":
             self.show()
-        elif const.mode == "history":
+        elif const.args.mode == "history":
             self.list_states()
-        elif const.mode == "timewarp":
+        elif const.args.mode == "timewarp":
             self.timewarp()
         else:
             # The previous mode just printed stuff, but here we
@@ -537,10 +538,10 @@ class UberDot:
                 msg += "explicitly specified to be included."
                 raise UserError(msg)
             # 1. Decide how to solve the differences and setup DiffSolvers
-            if const.mode == "remove":
+            if const.args.mode == "remove":
                 log_debug("Calculating operations to remove profiles.")
                 dfs = UninstallDiffSolver(self.state, profilenames)
-            elif const.mode == "update":
+            elif const.args.mode == "update":
                 log_debug("Calculating operations to update profiles.")
                 self.execute_profiles(profilenames)
                 profile_results = [p.result for p in self.profiles]
@@ -552,7 +553,7 @@ class UberDot:
             # 2. Solve differences
             dfl = dfs.solve()
             # 3. Eventually manipulate the result
-            if const.mode == "update":
+            if const.args.mode == "update":
                 if const.update.dui:
                     log_debug("Reordered operations to use DUI-strategy.")
                     dfl.run_interpreter(DUIStrategyInterpreter())
@@ -661,17 +662,17 @@ class UberDot:
         This includes search paths of configs, loaded configs,
         parsed commandline arguments and settings.
         """
-        # TODO: use with new const class
         old_section = ""
-        for section, name in const.vals():
-            if section is None:
+        for name, props in const.get_constants(mutable=0):
+            section = props.section
+            if props.section is None:
                 section = "Internal"
             if old_section != section:
                 print(const.settings.col_emph + section + ":" + const.col_endc)
                 old_section = section
             if name == "col_endc":
                 continue
-            value = const.get(name)
+            value = props.value
             if name.startswith("col_"):
                 value = value + value.encode("unicode_escape").decode("utf-8")
                 value += const.col_endc
@@ -756,12 +757,12 @@ class UberDot:
             # Returns always the full line where something was found, but
             # colors the found substring red
             for line in text.split("\n"):
-                if const.regex:
+                if const.find.regex:
                     # Searching with regex
                     match = re.search(pattern, line)
                     if match:
                         # Colorize match in line and add to results
-                        result = line[:match.start()] + const.col_fail
+                        result = line[:match.start()] + const.settings.col_fail
                         result += line[match.start():match.end()]
                         result += const.col_endc + line[match.end():]
                         all_results.append(result)
@@ -769,7 +770,7 @@ class UberDot:
                     # Plain search
                     # Lowers text and pattern if ignorecase was set
                     try:
-                        if const.ignorecase:
+                        if const.find.ignorecase:
                             idx = line.lower().index(pattern.lower())
                         else:
                             idx = line.index(pattern)
@@ -777,82 +778,82 @@ class UberDot:
                         # Nothing was found in this line
                         continue
                     # Colorize match in line and add to results
-                    result = line[:idx] + const.col_fail
+                    result = line[:idx] + const.settings.col_fail
                     result += line[idx:idx+len(pattern)]
                     result += const.col_endc + line[idx+len(pattern):]
                     all_results.append(result)
             return all_results
 
         result = []
-        nothing_selected = (not const.profiles and not const.dotfiles
-                            and not const.searchtags)
+        nothing_selected = (not const.find.profiles and not const.find.dotfiles
+                            and not const.find.tags)
         # Search for profiles
-        if const.profiles or nothing_selected:
+        if const.find.profiles or nothing_selected:
             # Search in filename (full paths of files in the profile directory)
-            if const.filename or const.all:
+            if const.find.filename or const.find.all:
                 for file in walk_profiles():
-                    highlighted = hlsearch(file, const.searchstr)
+                    highlighted = hlsearch(file, const.find.searchstr)
                     result += [(file, item) for item in highlighted]
             for file, pname in get_available_profiles():
-                if pname in const.exclude:
+                if pname in const.args.exclude:
                     log_debug("'" + pname + "' is in exclude list. Skipping...")
                     continue
                 # Search in names (class names of all available profiles)
-                if const.names or const.all:
-                    highlighted = hlsearch(pname, const.searchstr)
+                if const.find.name or const.find.all:
+                    highlighted = hlsearch(pname, const.find.searchstr)
                     result += [(file, item) for item in highlighted]
                 # Search in content (source code of each available profile)
-                if const.content or const.all:
+                if const.find.content or const.find.all:
                     source = "".join(get_profile_source(pname, file))
-                    highlighted = hlsearch(source, const.searchstr)
+                    highlighted = hlsearch(source, const.find.searchstr)
                     result += [(file, item) for item in highlighted]
 
         # Search for dotfiles
-        if const.dotfiles or nothing_selected:
+        if const.find.dotfiles or nothing_selected:
             for root, name in walk_dotfiles():
                 file = os.path.join(root, name)
                 # Search in names (only file basenames, without tag)
-                if const.names or const.all:
+                if const.find.name or const.find.all:
                     searchtext = name
-                    if const.tag_separator in searchtext:
-                        idx = searchtext.index(const.tag_separator)
+                    if const.settings.tag_separator in searchtext:
+                        idx = searchtext.index(const.settings.tag_separator)
                         searchtext = searchtext[idx+1:]
-                    highlighted = hlsearch(searchtext, const.searchstr)
+                    highlighted = hlsearch(searchtext, const.find.searchstr)
                     result += [(file, item) for item in highlighted]
                 # Search in filename (full paths of dotfiles)
-                if const.filename or const.all:
-                    highlighted = hlsearch(file, const.searchstr)
+                if const.find.filename or const.find.all:
+                    highlighted = hlsearch(file, const.find.searchstr)
                     result += [(file, item) for item in highlighted]
                 # Search in content (full content of each dotfile)
-                if const.content or const.all:
+                if const.find.content or const.find.all:
                     try:
                         searchtext = open(file).read()
-                        highlighted = hlsearch(searchtext, const.searchstr)
+                        highlighted = hlsearch(searchtext, const.find.searchstr)
                         result += [(file, item) for item in highlighted]
                     except UnicodeDecodeError:
                         # This is not a text file (maybe an image or encrypted)
                         pass
         # Search for tags (this only collects the tags from filenames because
         # it doesn't make sense to search in the content of files or whatever)
-        if const.searchtags:
+        if const.find.tags:
             tags = []
-            sep = const.tag_separator
+            sep = const.settings.tag_separator
             # Collect tags first
             for root, name in walk_dotfiles():
                 file = os.path.join(root, name)
                 if sep in name:
                     tag = name[:name.index(sep)+len(sep)-1]
-                    if const.locations:
-                        highlighted = hlsearch(tag, const.searchstr)
+                    if const.find.locations:
+                        highlighted = hlsearch(tag, const.find.searchstr)
                         result += [(file, item) for item in highlighted]
                     elif tag not in tags:
                         tags.append(tag)
             for tag in tags:
-                highlighted = hlsearch(tag, const.searchstr)
+                highlighted = hlsearch(tag, const.find.searchstr)
                 result += [(file, item) for item in highlighted]
 
         # Print all the results
-        if const.locations:
+        if const.find.locations:
             # Either with file paths (in the order that we found them)
             for i, item in enumerate(result):
                 if item in result[i+1:]:
@@ -881,13 +882,14 @@ class UberDot:
             :class:`~errors.CustomError`: Executed interpreters can and will
                 raise all kinds of :class:`~errors.CustomError`.
         """
-        if const.debug:
+        const_mode = const.get(const.args.mode)
+        if const_mode.debug:
             difflog.run_interpreter(PrintPlainInterpreter())
             return
-        elif const.changes:
+        elif const_mode.changes:
             difflog.run_interpreter(PrintInterpreter())
             return
-        elif const.dryrun:
+        elif const_mode.dryrun:
             log_warning("This is just a dry-run! Nothing of the following " +
                         "is actually happening.")
         # Run integration tests on difflog
@@ -909,7 +911,7 @@ class UberDot:
         # Gain root if needed
         if not has_root_priveleges():
             log_debug("Checking if root is required.")
-            if const.dryrun:
+            if const_mode.dryrun:
                 difflog.run_interpreter(RootNeededInterpreter())
             else:
                 difflog.run_interpreter(GainRootInterpreter())
@@ -929,10 +931,10 @@ class UberDot:
         old_state = self.state.copy()
         # Execute all events before linking and print them
         try:
-            if not const.skipevents and not const.skipbefore:
-                inter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
+            if not const_mode.skipevents and not const_mode.skipbefore:
+                inter = EventPrintInterpreter if const_mode.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    inter(self.profiles, old_state, "before")
+                    inter(old_state, "before")
                 )
                 try:
                     # We need to run this test again because the executed event
@@ -958,9 +960,9 @@ class UberDot:
         try:
             # Execute all operations of the difflog and print them
             interpreters = []
-            if not const.dryrun:
+            if not const_mode.dryrun:
                 interpreters.append(ExecuteInterpreter(self.state))
-            if const.summary:
+            if const.args.summary:
                 interpreters.append(PrintSummaryInterpreter())
             else:
                 interpreters.append(PrintInterpreter())
@@ -976,10 +978,10 @@ class UberDot:
             raise UnkownError(err, msg)
         # Execute all events after linking and print them
         try:
-            if not const.skipevents and not const.skipafter:
-                interpreter = EventPrintInterpreter if const.dryrun else EventExecInterpreter
+            if not const_mode.skipevents and not const_mode.skipafter:
+                interpreter = EventPrintInterpreter if const_mode.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
-                    interpreter(self.profiles, old_state, "after")
+                    interpreter(old_state, "after")
                 )
         except CustomError:
             raise
@@ -1005,6 +1007,24 @@ class StoreDictKeyPair(argparse.Action):
         setattr(namespace, self.dest, opt_dict)
 
 
+class StoreBoolAction(argparse.Action):
+    def __init__(self, option_strings, dest, **kwargs):
+        for option in option_strings:
+            if option.startswith("--"):
+                option_strings.append("--no-" + option[2:])
+                break
+        kwargs["nargs"] = 0
+        kwargs["metavar"] = "bool"
+        kwargs["default"] = False
+        super().__init__(option_strings, dest, **kwargs)
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        if option_string.startswith("--no-"):
+            setattr(namespace, self.dest, False)
+        else:
+            setattr(namespace, self.dest, True)
+
+
 class CustomParser(argparse.ArgumentParser):
     """Custom argument parser that raises an UserError instead of writing
     the error to stderr and exiting by itself."""
@@ -1022,45 +1042,56 @@ class CustomParser(argparse.ArgumentParser):
             args = sys.argv[1:]
         if namespace is None:
             namespace = argparse.Namespace()
+        subparsers = self._subparsers._actions[1].choices
         # Divide argv by commands
         split_argv = [[]]
+        max_arg_count = 0
+        subp = self
         for c in sys.argv[1:]:
-            if c in self._subparsers._actions[1].choices:
-                split_argv.append([c])
-            else:
+            if c.startswith("-"):
+                # stop counting arguments of previous option
+                max_arg_count = 0
                 split_argv[-1].append(c)
+                if c != "--":
+                    com = c
+                    if c[1] != "-":  # short option
+                        com = "-" + c[-1]
+                    nargs = subp._optionals._option_string_actions[com].nargs
+                    if isinstance(nargs, int):
+                        max_arg_count = nargs
+                    elif nargs == "?":
+                        max_arg_count = 1
+                    else:
+                        max_arg_count = -1
+            else:
+                if max_arg_count != 0:
+                    split_argv[-1].append(c)
+                    max_arg_count -= 1
+                elif c in subparsers:
+                    split_argv.append([c])
+                    subp = subparsers[c]
+                    max_arg_count = -1
+                else:
+                    # TODO check that c is no positional
+                    raise UserError("No such subcommand: " + c)
+        print(split_argv)
         # Initialize namespace and parse until first subcommand
-        result = self.parse_command(split_argv[0])
+        result = self.parse_command(split_argv[0], subparsers.keys())
         # Parse each subcommand
+        ns = result
         for argv in split_argv[1:]:
-            self._subparsers.choices[argv[0]].parse_command(argv, namespace=result)
+            ns = subparsers[argv[0]].parse_command(argv, subparsers.keys(), result=ns)
         return result
 
-    def parse_command(self, argv, result=None):
+    def parse_command(self, argv, modes, result=None):
         n = argparse.Namespace()
         if result is not None:
             setattr(result, argv[0], n)
-        setattr(n, "mode", argv[0])
-        super().parse_args(argv[1:], namespace=n)
+        if argv and argv[0] in modes:
+            setattr(result, "mode", argv[0])
+            argv = argv[1:]
+        super().parse_args(argv, namespace=n)
         return n
-
-
-class StoreBoolAction(argparse._StoreAction):
-    def __init__(self, option_strings, dest, **kwargs):
-        kwargs["type"] = StoreBoolAction.convert_str_to_bool
-        kwargs["nargs"] = "?"
-        kwargs["metavar"] = "bool"
-        kwargs["default"] = kwargs["const"] = True
-        super().__init__(option_strings, dest, **kwargs)
-
-    @staticmethod
-    def convert_str_to_bool(string):
-        if string.lower() in ["0", "off", "no", "false"]:
-            return False
-        elif string.lower() in ["1", "on", "yes", "true"]:
-            return True
-        else:
-            raise argparse.ArgumentTypeError("invalid value. Choose from 0, 1, off, on, no, yes, false or true.")
 
 
 class StdoutFilter(logging.Filter):
