@@ -487,6 +487,11 @@ class UberDot:
         if sorted(profiles_included) != sorted(const.args.include):
             msg = "You can not include and exclude a profile at the same time."
             raise UserError(msg)
+        if const.args.mode == "find":
+            if (not const.find.name and not const.find.filename \
+                    and not const.find.content and not const.find.all):
+                msg = "You need to set at least one of -n/-f/-c/-a."
+                raise UserError(msg)
 
     def timewarp(self):
         # Get correct state file to warp to
@@ -1038,43 +1043,82 @@ class CustomParser(argparse.ArgumentParser):
         raise UserError(message)
 
     def parse_args(self, args=None, namespace=None):
+        # Prepare function arguments
         if args is None:
             args = sys.argv[1:]
         if namespace is None:
             namespace = argparse.Namespace()
+        # Parse commandline like usually just to make sure the user entered
+        # a valid combition of arguments and subcommands
+        super().parse_args(args, namespace)
+        # Then we prepare argv for the actual parsing. Therefore we will
+        # devide it by subcommands and parse them individual.
+        # First initialize some stuff that we will need for this
         subparsers = self._subparsers._actions[1].choices
-        # Divide argv by commands
-        split_argv = [[]]
+        def max_count(nargs):
+            # Returns the maximal number of arguments for a nargs value
+            # Returns -1 if infinite arguments are allowed
+            if isinstance(nargs, int):
+                return nargs
+            if nargs == "?" or nargs is None:
+                return 1
+            return -1
+        split_argv = [[]]  # This is where we store the prepared argv
         max_arg_count = 0
         subp = self
+        # Store for each positional of the current subparser how many
+        # arguments are allowed at max
+        positional_arg_counts = [
+            max_count(action.nargs) for action in subp._actions
+            if not action.option_strings
+        ]
+        # Stores wether a positional was read at last
+        reading_positional = False
         for c in sys.argv[1:]:
+            # is optional
             if c.startswith("-"):
                 # stop counting arguments of previous option
                 max_arg_count = 0
+                # add argument to last subparsers arguments
                 split_argv[-1].append(c)
+                # if we read a positional previously, we can stop now
+                if reading_positional:
+                    positional_arg_counts.pop(0)
+                reading_positional = False
                 if c != "--":
+                    # This is not only the end of some option, but a new option
                     com = c
                     if c[1] != "-":  # short option
+                        # get the last short option incase options are chained together
                         com = "-" + c[-1]
+                    # determine the new maximal count of arguments for this optional
                     nargs = subp._optionals._option_string_actions[com].nargs
-                    if isinstance(nargs, int):
-                        max_arg_count = nargs
-                    elif nargs == "?":
-                        max_arg_count = 1
-                    else:
-                        max_arg_count = -1
+                    max_arg_count = max_count(nargs)
+            # is postional
             else:
                 if max_arg_count != 0:
+                    # this belongs to a previous optional
                     split_argv[-1].append(c)
                     max_arg_count -= 1
                 elif c in subparsers:
+                    # this is a new subcommand
                     split_argv.append([c])
+                    # reset the current subparser, argument_count and positionals
                     subp = subparsers[c]
-                    max_arg_count = -1
+                    max_arg_count = 0
+                    reading_positional = False
+                    positional_arg_counts = [
+                        max_count(action.nargs) for action in subp._actions
+                        if not action.option_strings
+                    ]
                 else:
-                    # TODO check that c is no positional
-                    raise UserError("No such subcommand: " + c)
-        print(split_argv)
+                    if positional_arg_counts and positional_arg_counts[0] != 0:
+                        # this belongs to a postional
+                        split_argv[-1].append(c)
+                        positional_arg_counts[0] -= 1
+                        reading_positional = True
+                    else:
+                        raise UserError("No such subcommand: " + c)
         # Initialize namespace and parse until first subcommand
         result = self.parse_command(split_argv[0], subparsers.keys())
         # Parse each subcommand

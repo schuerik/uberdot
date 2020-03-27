@@ -196,7 +196,8 @@ class RegressionTest():
             return False, -1, "Test timed out after 5 seconds."
         exitcode = process.returncode
         if len(sys.argv) > 1:
-            print(output.decode(), end="")
+            print(output.decode(), end="\n" if error_msg else "")
+            print(error_msg.decode(), end="")
         return self.run_check(exitcode, output, error_msg)
 
     def run_check(self, exitcode, msg, error):
@@ -354,6 +355,8 @@ class OutputTest(RegressionTest):
         return True, ""
 
     def run_check(self, exitcode, msg, error):
+        if exitcode:
+            return False, "Exited with exitcode " + str(exitcode), error.decode()
         if msg.decode() != self.output:
             error = "Output was:\n" + repr(msg)
             error += "\nbut should be:\n" + repr(self.output.encode())
@@ -1670,7 +1673,6 @@ SimpleOutputTest("Output: --debuginfo",
 SimpleOutputTest("Output: show",
                  ["show", "-ampl"],
                  after_diroptions, "update").success()
-# TODO tests only load the default state file
 SimpleOutputTest("Output: show other state",
                  ["show", "--state", "1"],
                  after_diroptions, "update").success()
@@ -1678,13 +1680,13 @@ SimpleOutputTest("Output: history",
                  ["history"],
                  after_diroptions, "update").success()
 OutputTest("Output: find tags",
-           ["find", "-t"],
+           ["find", "-tn"],
            before, "tag\ntag1\ntag2\ntag3\n").success()
 OutputTest("Output: find profiles",
-           ["find", "-p", "Super"],
+           ["find", "-pn", "Super"],
            before, "SuperProfile\nSuperProfileEvent\nSuperProfileTags\n").success()
 OutputTest("Output: find dotfiles",
-           ["find", "-dr", r"name\d{2}"],
+           ["find", "-dnr", r"name\d{2}"],
            before, "name10\nname11.file\n").success()
 SimpleOutputTest("Output: find all",
                  ["find", "-ptdali", "name"],

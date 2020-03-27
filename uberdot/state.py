@@ -106,7 +106,6 @@ def upgrade_stone_age(old_state):
             del link["gid"]
     return old_state
 
-
 def upgrade_flexible_events(old_state):
     """Upgrade event properties. Instead of a simple boolean it contains
     the scripts md5-hash as reference and is now mandantory.
@@ -118,6 +117,7 @@ def upgrade_flexible_events(old_state):
             if event not in old_state[key]:
                 old_state[key][event] = ""
             else:
+                # TODO test this upgrade
                 script_dir = os.path.join(const.session_dir, "scripts") + "/"
                 script_link = script_dir + key + "_" + event
                 if os.path.exists(script_link):
@@ -235,7 +235,7 @@ class AutoExpandDict(MutableMapping, AutoExpander):
             return rep
         data_result = dict_repr(self)
         special_result = dict_repr(self.data_specials)
-        result = "{" + special_result
+        result = "AutoExpandDict{" + special_result
         if special_result and data_result:
             result += ", "
         result += data_result
@@ -262,7 +262,7 @@ class AutoExpandList(MutableSequence, AutoExpander):
         self.notify()
 
     def __repr__(self):
-        rep = "["
+        rep = "AutoExpandList["
         for item in self[:-1]:
             rep += repr(item) + ", "
         if self.len():
