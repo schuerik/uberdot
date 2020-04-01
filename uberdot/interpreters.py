@@ -290,7 +290,8 @@ class PrintInterpreter(Interpreter):
         else:
             log_operation(
                 dop["profile"],
-                "Set '" + dop["key"] + "' to '" + str(dop["value"]) + "'"
+                "Set '" + dop["key"] + "' to '" + str(dop["value"]) + "'",
+                debug=True
             )
 
     def _op_restore_l(self, dop):
@@ -633,7 +634,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
                 log_warning("You are trying to " + action + " '" + file_name +
                             "' which is blacklisted. It is considered " +
                             "dangerous to " + action + " those files!")
-                if const.get(const.args.mode).superforce:
+                if const.subcommand.superforce:
                     user_confirmation("YES")
                 else:
                     log_warning("If you really want to modify this file" +
@@ -709,7 +710,7 @@ class CheckLinkDirsInterpreter(Interpreter):
             PreconditionError: The directory doesn't exist and ``makedirs``
                 isn't set
         """
-        if not const.get(const.args.mode).makedirs:
+        if not const.subcommand.makedirs:
             if not os.path.isdir(dirname):
                 msg = "The directory '" + dirname + "/' needs to be created "
                 msg += "in order to perform this action, but "
@@ -906,7 +907,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
         if old_name != new_name:
             if new_name not in self.removed_links and os.path.lexists(new_name):
                 if os.path.isdir(new_name):
-                    if not const.get(const.args.mode).force:
+                    if not const.subcommand.force:
                         msg = "'" + old_name + "' can not be "
                         msg += "moved to '" + new_name + "' "
                         msg += "because it is a directory and would be "
@@ -920,7 +921,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
                         msg += " that would be overwritten. Please empty the"
                         msg += " directory or remove it entirely."
                         raise PreconditionError(msg)
-                elif not const.get(const.args.mode).force:
+                elif not const.subcommand.force:
                     msg = "'" + old_name + "' can not be moved to '"
                     msg += new_name + "' because it already exists"
                     msg += " on your filesystem and would be overwritten."
@@ -939,7 +940,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
         name = dop["symlink"]["from"]
         if name not in self.removed_links and os.path.lexists(name):
             if os.path.isdir(name):
-                if not const.get(const.args.mode).force:
+                if not const.subcommand.force:
                     msg = "'" + name + "' is a directory and would be"
                     msg += " overwritten. You can force to overwrite empty"
                     msg += " directories by setting the --force flag."
@@ -949,7 +950,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
                     msg += " that would be overwritten. Please empty the"
                     msg += " directory or remove it entirely."
                     raise PreconditionError(msg)
-            elif not const.get(const.args.mode).force:
+            elif not const.subcommand.force:
                 msg = "'" + name + "' already exists and would be"
                 msg += " overwritten by '" + dop["symlink"]["to"]
                 msg += " '. You can force to overwrite the"
@@ -1051,7 +1052,7 @@ class CheckProfilesInterpreter(Interpreter):
             # Just make sure the parent is really updated
             if known[1] != dop["parent"]:
                 # If the user set the new parent manually, overwrites are ok
-                if const.get(const.args.mode).parent == dop["parent"]:
+                if const.subcommand.parent == dop["parent"]:
                     return
                 # Detaching a profile from a parent is also allowed
                 if dop["parent"] is None:
@@ -1360,8 +1361,7 @@ class ExecuteInterpreter(Interpreter):
         log_debug("Executing difflog now.")
 
     def _op_fin(self, dop):
-        if self.profiles_updated:
-            log_debug("Updating modification dates of profiles.")
+        log_debug("Updating modification dates of profiles.")
         for profile in self.profiles_updated:
             self.state[profile]["updated"] = get_date_time_now()
         # Only create a snapshot if the difflog contained at least
@@ -1499,7 +1499,7 @@ class ExecuteInterpreter(Interpreter):
             UnkownError: The link could not be created
         """
         if force is None:
-            force = const.get(const.args.mode).force
+            force = const.subcommand.force
         if not os.path.isdir(os.path.dirname(ldescriptor["from"])):
             self._makedirs(ldescriptor["from"])
         self.remove_symlink(ldescriptor["from"], cleanup=False)

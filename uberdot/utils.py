@@ -574,7 +574,7 @@ def log(message, end="\n"):
     logger.info(message + end)
 
 
-def log_operation(profile_name, message):
+def log_operation(profile_name, message, debug=False):
     """Logs/Prints out a message for a profile.
 
     Using the log functions, the output will also be printed into a logfile
@@ -584,8 +584,9 @@ def log_operation(profile_name, message):
         profile_name (str): The name of the profile that triggered the operation.
         message (str): The message that will be logged
     """
-    logger.info(const.settings.col_emph + "[" + profile_name + "]: " +
-                const.col_endc + message + "\n")
+    _log = log_debug if debug else log
+    _log(const.settings.col_emph + "[" + profile_name + "]: " +
+         const.col_noemph + message)
 
 
 def log_warning(message, end="\n"):
@@ -889,7 +890,8 @@ class UserError(CustomError):
         Args:
             message (str): The error message
         """
-        message += "\nUse --help for more information on how to use this tool."
+        message += "\nUse 'udot --help' or 'udot {mode} --help' for a short overview of the CLI."
+        message += "\nUse 'udot help' to display the man page."
         super().__init__(message)
 
 
@@ -993,11 +995,19 @@ class Constant:
     MUTABLE=1
     CONFIGABLE=2
     def __init__(self, value, section, type, func, mutable):
-        self.value = value
+        self.__dict__["value"] = value
         self.section = section
         self.type = type
         self.func = func
         self.mutable = mutable
+
+    def __setattr__(self, name, value):
+        if name == "value":
+            if not self.mutable:
+                raise ValueError(name + " is immutable")
+            if self.func is not None:
+                value = self.func(value)
+        super().__setattr__(name, value)
 
     def __repr__(self):
         rep = "{"
@@ -1009,24 +1019,25 @@ class Constant:
         rep += "}"
         return rep
 
+
 class Container:
     def __init__(self, root=None):
         if root is None:
             root = self
         self.root = root
+        self.subcommand_container = self
+        self.subcommand = None
 
     def __setattr__(self, name, value):
         if hasattr(self, name):
             attr = super().__getattribute__(name)
             if isinstance(attr, Constant):
-                if not attr.mutable:
-                    raise ValueError(name + " is immutable")
-                val = value
-                if attr.func is not None:
-                    val = attr.func(value)
-                super().__setattr__(name, Constant(val, attr.section, attr.type, attr.func, attr.mutable))
-                return
-        elif isinstance(value, Container) or isinstance(value, Constant):
+                attr.value = value
+                if name == "mode":
+                    self.subcommand_container.subcommand = self.subcommand_container.__getattribute__(value)
+            else:
+                super().__setattr__(name, value)
+        elif isinstance(value, Container) or isinstance(value, Constant) or value is None:
             super().__setattr__(name, value)
         else:
             raise AttributeError("Container has no attribute " + name)
@@ -1043,7 +1054,7 @@ class Container:
             if isinstance(attr, Constant):
                 if attr.mutable >= mutable:
                     result.append((name, attr))
-            elif isinstance(attr, Container) and attr.root != attr:
+            elif isinstance(attr, Container) and attr.root != attr and name != "subcommand_container":
                 result.extend(attr.get_constants(mutable))
         return result
 
@@ -1056,7 +1067,7 @@ class Container:
         for name, attr in self.__dict__.items():
             if isinstance(attr, Constant):
                 fields.append((name, attr))
-            elif isinstance(attr, Container) and attr.root != attr:
+            elif isinstance(attr, Container) and name != "root":
                 rep += name + ": " + repr(attr) + ", "
         rep += ", ".join([
             name + ": " + repr(attr) for name, attr in fields
@@ -1115,6 +1126,12 @@ class Container:
             container.set(arg, value)
 
 
+class OutsourcedContainer(Container):
+    def __init__(self, parent, root=None):
+        super().__init__(root)
+        self.subcommand_container = parent
+
+
 class Singleton(type):
     _instances = {}
     def __call__(cls, *args, **kwargs):
@@ -1133,6 +1150,7 @@ class Const(Container, metaclass=Singleton):
         "show": "Arguments:Show",
         "find": "Arguments:Find",
         "history": "Arguments:History",
+        "help": "Arguments:help",
         "version": "Arguments:Version",
         "settings": "Settings",
         "defaults": "ProfileDefaults",
@@ -1140,11 +1158,12 @@ class Const(Container, metaclass=Singleton):
     def __init__(self, **kwargs):
         super().__init__()
         # arguments for dot
-        self.args = Container(self)
+        self.args = OutsourcedContainer(self, self)
         # arguments, depending on mode
         self.update = Container(self)
         self.remove = Container(self)
         self.find = Container(self)
+        self.help = Container(self)  # Unused atm
         self.history = Container(self)  # Unused atm
         self.timewarp = Container(self)
         self.show = Container(self)
@@ -1157,20 +1176,22 @@ class Const(Container, metaclass=Singleton):
         # create internal constants
         self.add("cfg_files", [], type="list", mutable=Constant.MUTABLE)
         self.add("cfg_search_paths", kwargs["cfg_search_paths"], type="list")
-        self.add("col_endc", '\x1b[0m', type="str", mutable=Constant.MUTABLE)
+        self.add("col_endc", '\x1b[0m')
+        self.add("col_noemph", '\x1b[22m')
         self.add("data_dir", kwargs["data_dir"], type="path")
         self.add("data_dirs_foreign", kwargs["data_dirs_foreign"], type="list")
         self.add("owd", os.getcwd(), type="path")
         self.add("session_dir", kwargs["session_dir"], type="path", mutable=Constant.MUTABLE)
         self.add("session_dirs_foreign", kwargs["session_dirs_foreign"], type="list", mutable=True)
         self.add("test", kwargs["test"], type="int")
-        self.add("user", kwargs["user"], type="str")
+        self.add("user", kwargs["user"])
         self.add("users", kwargs["users"], type="list")
-        self.add("VERSION", kwargs["VERSION"], type="list")
-        self.add("STATE_NAME", kwargs["STATE_NAME"], type="list")
-        self.add("DATA_DIR_ROOT", kwargs["DATA_DIR_ROOT"], type="list")
-        self.add("DATA_DIR_TEMP", kwargs["DATA_DIR_TEMP"], type="list")
-        self.add("SESSION_SUBDIR", kwargs["SESSION_SUBDIR"], type="list")
+        # TODO: shadow these from --debuginfo
+        self.add("VERSION", kwargs["VERSION"])
+        self.add("STATE_NAME", kwargs["STATE_NAME"])
+        self.add("DATA_DIR_ROOT", kwargs["DATA_DIR_ROOT"])
+        self.add("DATA_DIR_TEMP", kwargs["DATA_DIR_TEMP"])
+        self.add("SESSION_SUBDIR", kwargs["SESSION_SUBDIR"])
 
         # create constants for arguments of dot
         add = self.add_factory(False, "args", "bool")
@@ -1180,15 +1201,14 @@ class Const(Container, metaclass=Singleton):
         self.add("fix", "", "args")
         self.add("mode", None, "args", mutable=Constant.MUTABLE)
         self.add("include", [], "args", "list")
-        self.add("loglevel", logging.INFO, "args", "str", self.__convert_loglevel)
+        self.add("loglevel", logging.INFO, "args", func=self.__convert_loglevel)
         self.add("session", "default", "args", func=str.lower, mutable=Constant.MUTABLE)
-
 
         # create constants for arguments of parser_run
         add = self.add_factory(False, ["update", "remove", "timewarp"], "bool")
         add(
             "changes", "dryrun", "force", "skipafter",
-            "skipbefore", "superforce", "debug"
+            "skipbefore", "superforce", "debug", "makedirs"
         )
         add("skipevents", section=["update", "remove"])
         add("skipevents", value=True, section="timewarp")
@@ -1196,7 +1216,6 @@ class Const(Container, metaclass=Singleton):
         # create constants for arguments of update mode
         self.add("directory", "", "update", "path")
         self.add("dui", False, "update")
-        self.add("makedirs", False, "update")
         self.add("parent", None, "update", "str")
 
         # create constants for arguments of show mode
@@ -1282,7 +1301,6 @@ class Const(Container, metaclass=Singleton):
                 self.add(name, **params)
         return add
 
-
     ### Manipulation functions
     @staticmethod
     def __decode_ansi(string):
@@ -1302,6 +1320,7 @@ class Const(Container, metaclass=Singleton):
 
     @staticmethod
     def __convert_loglevel(level):
+        level = level.upper()
         if level == "SILENT":
             return logging.CRITICAL
         elif level == "QUIET":
@@ -1349,7 +1368,7 @@ class Const(Container, metaclass=Singleton):
             raise PreconditionError(msg)
         # Write all values from config
         for name, props in self.get_constants():
-            # Skip all values don't belong to any section in the config file
+            # Skip all internal values
             if props.section is None:
                 continue
             # Set getter for config depending on value type

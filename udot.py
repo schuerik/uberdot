@@ -120,21 +120,21 @@ class UberDot:
         # Setup top level arguments
         parser.add_argument(
             "-c", "--config",
-            help="specify another config-file to use"
+            help="load an additional config"
         )
         parser.add_argument(
             "-e", "--exclude",
-            help="specify a list of profiles that will be ignored",
+            help="specify a profile that will be ignored in any operations",
             action="append"
         )
         parser.add_argument(
             "--skiproot",
-            help="do nothing that requires root permissions",
+            help="wether all operations that require root permission shall be skiped",
             action=StoreBoolAction
         )
         parser.add_argument(
             "-s", "--summary",
-            help="print always just a short summary instead of full text",
+            help="wether just short summaries shall be printed instead of all information",
             action=StoreBoolAction
         )
         group_log_level = parser.add_mutually_exclusive_group()
@@ -205,17 +205,17 @@ class UberDot:
         )
         parser_show_selection.add_argument(
             "-l", "--links",
-            help="show installed links",
+            help="wether installed links shall be shown",
             action=StoreBoolAction
         )
         parser_show_selection.add_argument(
             "-p", "--profiles",
-            help="show installed profiles",
+            help="wether installed profiles shall be shown",
             action=StoreBoolAction
         )
         parser_show_selection.add_argument(
             "-m", "--meta",
-            help="display meta information of profiles and/or links",
+            help="wether meta information of profiles and links shall be shown",
             action=StoreBoolAction
         )
         help_text = "display various information about installed profiles"
@@ -240,28 +240,33 @@ class UberDot:
             action=StoreBoolAction
         )
         parser_run.add_argument(
+            "-m", "--makedirs",
+            help="create directories automatically if needed",
+            action=StoreBoolAction
+        )
+        parser_run.add_argument(
             "-f", "--force",
             help="overwrite existing files",
             action=StoreBoolAction
         )
         parser_run.add_argument(
             "--superforce",
-            help="overwrite existing AND blacklisted/protected files",
+            help="overwrite blacklisted/protected files",
             action=StoreBoolAction
         )
         parser_run.add_argument(
             "--skipafter",
-            help="do not execute events after linking",
+            help="wether events after any change shall be skiped",
             action=StoreBoolAction
         )
         parser_run.add_argument(
             "--skipbefore",
-            help="do not execute events before linking",
+            help="wether events before any change shall be skiped",
             action=StoreBoolAction
         )
         parser_run.add_argument(
             "--skipevents",
-            help="do not execute any events",
+            help="wether all events shall be skiped",
             action=StoreBoolAction
         )
         group_run_mode.add_argument(
@@ -285,11 +290,6 @@ class UberDot:
         )
         parser_update.add_argument(
             "--directory", help="overwrite the starting directory for profiles"
-        )
-        parser_update.add_argument(
-            "-m", "--makedirs",
-            help="create directories automatically if needed",
-            action=StoreBoolAction
         )
         parser_update.add_argument(
             "--option",
@@ -411,7 +411,7 @@ class UberDot:
             action="store"
         )
         group_state_selection.add_argument(
-            "--state",
+            "-s", "--state",
             help="go back to a specific state file (accepts path, number shown in history or timestamp)",
             action="store"
         )
@@ -420,6 +420,14 @@ class UberDot:
         help_text = "list all previous (or later) states"
         parser_timewarp_list = subparsers.add_parser(
             "history",
+            description=help_text,
+            help=help_text
+        )
+
+        # Setup mode help arguments
+        help_text="show man page"
+        parser_version = subparsers.add_parser(
+            "help",
             description=help_text,
             help=help_text
         )
@@ -461,7 +469,7 @@ class UberDot:
     def check_arguments(self):
         """Checks if parsed arguments/settings are bad or incompatible to
         each other. If not, it raises an UserError."""
-        if const.args.mode in ["version", "history"]:
+        if const.args.mode in ["version", "history", "help"]:
             # If the user just want to get the version number, we should
             # not force him to setup a proper config
             return
@@ -505,7 +513,7 @@ class UberDot:
             new_state = State(nth(get_statefiles(), 0))
         elif const.timewarp.last:
             new_state = State(list(get_statefiles())[-1])
-        # TODO make this work with include
+        # TODO make this work with include and exclude
         log_debug("Calculating operations to perform timewarp.")
         difflog = StateDiffSolver(self.state, new_state).solve()
         # TODO: make events work
@@ -521,6 +529,8 @@ class UberDot:
         if const.args.mode == "version":
             log(const.settings.col_emph + "Version: " + const.col_endc + const.VERSION)
             return
+        if const.args.mode == "help":
+            os.execvp("man", ["-l", normpath("docs/sphinx/build/man/uberdot.1")])
         # For the next mode we need a loaded state
         self.state = State.current()
         self.fix()
@@ -706,7 +716,7 @@ class UberDot:
                     if const.show.users:
                         if user not in const.show.users:
                             continue
-                    elif const.show.user != user:
+                    elif const.user != user:
                         continue
                 # Print the next user
                 if user != last_user:
@@ -729,7 +739,7 @@ class UberDot:
             return
         tab = "  " if const.show.users or const.show.allusers else ""
         if const.show.profiles or (not const.show.links and not const.show.meta):
-            col = const.settings.col_emph if const.show.links or const.show.meta else ""
+            col = const.settings.col_emph if const.show.links or const.show.meta or not const.show.profiles else ""
             profile_header = tab + col + profile["name"] + const.col_endc
             if const.show.links or const.show.meta:
                 profile_header += ":"
@@ -887,14 +897,13 @@ class UberDot:
             :class:`~errors.CustomError`: Executed interpreters can and will
                 raise all kinds of :class:`~errors.CustomError`.
         """
-        const_mode = const.get(const.args.mode)
-        if const_mode.debug:
+        if const.subcommand.debug:
             difflog.run_interpreter(PrintPlainInterpreter())
             return
-        elif const_mode.changes:
+        elif const.subcommand.changes:
             difflog.run_interpreter(PrintInterpreter())
             return
-        elif const_mode.dryrun:
+        elif const.subcommand.dryrun:
             log_warning("This is just a dry-run! Nothing of the following " +
                         "is actually happening.")
         # Run integration tests on difflog
@@ -916,7 +925,7 @@ class UberDot:
         # Gain root if needed
         if not has_root_priveleges():
             log_debug("Checking if root is required.")
-            if const_mode.dryrun:
+            if const.subcommand.dryrun:
                 difflog.run_interpreter(RootNeededInterpreter())
             else:
                 difflog.run_interpreter(GainRootInterpreter())
@@ -936,8 +945,8 @@ class UberDot:
         old_state = self.state.copy()
         # Execute all events before linking and print them
         try:
-            if not const_mode.skipevents and not const_mode.skipbefore:
-                inter = EventPrintInterpreter if const_mode.dryrun else EventExecInterpreter
+            if not const.subcommand.skipevents and not const.subcommand.skipbefore:
+                inter = EventPrintInterpreter if const.subcommand.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
                     inter(old_state, "before")
                 )
@@ -965,7 +974,7 @@ class UberDot:
         try:
             # Execute all operations of the difflog and print them
             interpreters = []
-            if not const_mode.dryrun:
+            if not const.subcommand.dryrun:
                 interpreters.append(ExecuteInterpreter(self.state))
             if const.args.summary:
                 interpreters.append(PrintSummaryInterpreter())
@@ -983,8 +992,8 @@ class UberDot:
             raise UnkownError(err, msg)
         # Execute all events after linking and print them
         try:
-            if not const_mode.skipevents and not const_mode.skipafter:
-                interpreter = EventPrintInterpreter if const_mode.dryrun else EventExecInterpreter
+            if not const.subcommand.skipevents and not const.subcommand.skipafter:
+                interpreter = EventPrintInterpreter if const.subcommand.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
                     interpreter(old_state, "after")
                 )
