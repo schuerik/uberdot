@@ -34,7 +34,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from uberdot.utils import Const
 from uberdot.dynamicfile import *
-from uberdot.state import AutoExpandDict
+from uberdot.state import AutoExpandDict, AutoExpandList
 from uberdot.utils import *
 
 const = Const()
@@ -111,6 +111,7 @@ class Profile:
             self.directory = const.defaults.directory
         else:
             self.directory = directory
+        self.directory = normpath(self.directory)
         self.__old_builtins = {}
         self.name = self.__class__.__name__
         self.executed = False
@@ -120,7 +121,7 @@ class Profile:
         self.result = {
             "name": self.name,
             "parent": self.parent,
-            "links": [],
+            "links": AutoExpandList(),
             "profiles": [],
             "beforeUpdate": "",
             "beforeInstall": "",
@@ -701,7 +702,7 @@ class Profile:
         if directory is None:
             self.directory = const.defaults.directory
         else:
-            self.directory = os.path.join(self.directory, directory)
+            self.directory = os.path.join(self.directory, normpath(directory))
 
     @command
     def default(self, *options):

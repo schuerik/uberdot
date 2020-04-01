@@ -263,7 +263,7 @@ class PrintInterpreter(Interpreter):
             log_operation(dop["profile"], dop["symlink1"]["from"] +
                           " points now to " + dop["symlink2"]["to"])
         else:
-            msg_start = "'" + dop["symlink1"]["from"] + "' has changed "
+            msg_start = dop["symlink1"]["from"] + " has changed "
             if dop["symlink2"]["permission"] != dop["symlink1"]["permission"]:
                 msg = msg_start + "permission from "
                 msg += str(dop["symlink1"]["permission"])

@@ -1004,7 +1004,7 @@ class Constant:
     def __setattr__(self, name, value):
         if name == "value":
             if not self.mutable:
-                raise ValueError(name + " is immutable")
+                raise ValueError("Constant is immutable")
             if self.func is not None:
                 value = self.func(value)
         super().__setattr__(name, value)
@@ -1052,7 +1052,7 @@ class Container:
         result = []
         for name, attr in self.__dict__.items():
             if isinstance(attr, Constant):
-                if attr.mutable >= mutable:
+                if attr.mutable >= mutable and not name.isupper():
                     result.append((name, attr))
             elif isinstance(attr, Container) and attr.root != attr and name != "subcommand_container":
                 result.extend(attr.get_constants(mutable))
@@ -1087,7 +1087,7 @@ class Container:
     def load_args(self, args, container=None):
         if container is None:
             container = self
-        if hasattr(args, "mode"):
+        if hasattr(args, "mode") and args.mode is not None:
             container.mode = args.mode
         # Write arguments
         for arg, value in vars(args).items():
@@ -1176,8 +1176,8 @@ class Const(Container, metaclass=Singleton):
         # create internal constants
         self.add("cfg_files", [], type="list", mutable=Constant.MUTABLE)
         self.add("cfg_search_paths", kwargs["cfg_search_paths"], type="list")
-        self.add("col_endc", '\x1b[0m')
-        self.add("col_noemph", '\x1b[22m')
+        self.add("col_endc", '\x1b[0m', mutable=Constant.MUTABLE)
+        self.add("col_noemph", '\x1b[22m', mutable=Constant.MUTABLE)
         self.add("data_dir", kwargs["data_dir"], type="path")
         self.add("data_dirs_foreign", kwargs["data_dirs_foreign"], type="list")
         self.add("owd", os.getcwd(), type="path")
@@ -1186,7 +1186,6 @@ class Const(Container, metaclass=Singleton):
         self.add("test", kwargs["test"], type="int")
         self.add("user", kwargs["user"])
         self.add("users", kwargs["users"], type="list")
-        # TODO: shadow these from --debuginfo
         self.add("VERSION", kwargs["VERSION"])
         self.add("STATE_NAME", kwargs["STATE_NAME"])
         self.add("DATA_DIR_ROOT", kwargs["DATA_DIR_ROOT"])
@@ -1253,6 +1252,7 @@ class Const(Container, metaclass=Singleton):
         self.add("col_debug", '\x1b[90m', "settings", "str", self.__decode_ansi)
         self.add("decrypt_pwd", None, "settings", "str")
         self.add("logfile", None, "settings", "path")
+        self.add("logfilesize", 1000, "settings", "int")
         self.add("hash_separator", "#", "settings", "str")
         self.add("profile_files", "", "settings", "path")
         self.add("shell", "/bin/bash", "settings", "path")
@@ -1361,7 +1361,7 @@ class Const(Container, metaclass=Singleton):
                     for name, value in config.items(section):
                         if name in path_values and not re.fullmatch(r"\d{1,10}", value):
                             config[section][name] = os.path.normpath(
-                                os.path.join(os.path.dirname(cfg), value)
+                                os.path.join(os.path.dirname(cfg), expandpath(value))
                             )
         except configparser.Error as err:
             msg = "Can't parse config at '" + cfg + "'. " + err.message

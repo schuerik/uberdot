@@ -486,6 +486,7 @@ class UninstallDiffSolver(RemoveProfileDiffSolver):
 
 class LinkListDiffSolver(DiffSolver):
     def solve_link_list(self, profile_name, installed_links, new_links):
+        # TODO paths are not normalized properly
         installed_links = installed_links.copy()
         new_links = new_links.copy()
         profile_changed = False

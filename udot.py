@@ -459,7 +459,7 @@ class UberDot:
         # Configure logger
         logger.setLevel(const.args.loglevel)
         if const.settings.logfile:
-            ch = logging.FileHandler(const.settings.logfile)
+            ch = MaxSizeFileHandler(const.settings.logfile)
             ch.setLevel(logging.DEBUG)
             form = '[%(asctime)s] - %(levelname)s - %(message)s'
             formatter = logging.Formatter(form)
@@ -685,7 +685,7 @@ class UberDot:
             if old_section != section:
                 print(const.settings.col_emph + section + ":" + const.col_endc)
                 old_section = section
-            if name == "col_endc":
+            if name in ["col_endc", "col_noemph"]:
                 continue
             value = props.value
             if name.startswith("col_"):
@@ -1158,6 +1158,23 @@ class StdoutFilter(logging.Filter):
         return record.levelno <= logging.WARNING
 
 
+class MaxSizeFileHandler(logging.Handler):
+    def __init__(self, filename):
+        super().__init__()
+        self.filename = filename
+
+    def emit(self, record):
+        msg = self.format(record).splitlines(True)
+        content = []
+        if os.path.exists(self.filename):
+            with open(self.filename, "r") as fin:
+                content = fin.read().splitlines(True)
+        content = content + msg
+        content = content[-const.settings.logfilesize:]
+        with open(self.filename, "w") as fout:
+            fout.writelines(content)
+
+
 def run_script(name):
     """Act like a script if this was invoked like a script.
     This is needed, because otherwise everything below couldn't
@@ -1193,7 +1210,6 @@ def run_script(name):
             sys.path.append(const.settings.profile_files)
             # Go
             udot.execute_arguments()
-            # TODO shorten logfile
         except CustomError as err:
             # An error occured that we (more or less) expected.
             # Print error, a stacktrace and exit
