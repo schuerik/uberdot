@@ -1361,14 +1361,18 @@ class ExecuteInterpreter(Interpreter):
         log_debug("Executing difflog now.")
 
     def _op_fin(self, dop):
-        log_debug("Updating modification dates of profiles.")
-        for profile in self.profiles_updated:
-            self.state[profile]["updated"] = get_date_time_now()
-        # Only create a snapshot if the difflog contained at least
+        # Only update the state if the difflog contained at least
         # one operation that is not just displaying information
-        if len(self.data) > self.info_counter and const.args.mode != "timewarp":
-            timestamp = self.state.create_snapshot()
-            self.state.set_special("snapshot", timestamp)
+        if len(self.data) > self.info_counter:
+            if const.args.mode != "timewarp":
+                if self.profiles_updated:
+                    log_debug("Updating modification dates of profiles.")
+                for profile in self.profiles_updated:
+                    self.state[profile]["updated"] = get_date_time_now()
+                self.state.create_snapshot()
+                log_success("Profiles updated successfully.")
+            else:
+                log_success("Timewarp was successful.")
 
     def _op_untrack_l(self, dop):
         """Removes link from state file
@@ -1416,7 +1420,7 @@ class ExecuteInterpreter(Interpreter):
         new_profile = {}
         new_profile["name"] = dop["profile"]
         new_profile["links"] = []
-        new_profile["state"] = new_profile["updated"] = get_date_time_now()
+        new_profile["installed"] = new_profile["updated"] = get_date_time_now()
         if dop["parent"] is not None:
             new_profile["parent"] = dop["parent"]
         self.state[new_profile["name"]] = new_profile

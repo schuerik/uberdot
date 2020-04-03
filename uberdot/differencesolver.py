@@ -486,7 +486,6 @@ class UninstallDiffSolver(RemoveProfileDiffSolver):
 
 class LinkListDiffSolver(DiffSolver):
     def solve_link_list(self, profile_name, installed_links, new_links):
-        # TODO paths are not normalized properly
         installed_links = installed_links.copy()
         new_links = new_links.copy()
         profile_changed = False
@@ -544,7 +543,10 @@ class LinkListDiffSolver(DiffSolver):
                 # There was no similar installed link, so we need to create an
                 # add operation in the difflog
                 profile_changed = True
-                self.difflog.add_link(profile_name, new_link)
+                if link_exists(new_link):
+                    self.difflog.track_link(profile_name, new_link)
+                else:
+                    self.difflog.add_link(profile_name, new_link)
                 new_links.remove(new_link)
 
         # We removed every symlink from new_links and installed_links when
@@ -581,13 +583,6 @@ class StateDiffSolver(LinkListDiffSolver):
         RemoveProfileDiffSolver(self.old_state, old_profiles).solve(self.difflog)
         return old_profiles
 
-    def solve_included(self):
-        # We begin with removing all profiles that are not in the new state
-        old_profiles = self._remove_old_profiles(const.args.include)
-        # Then we update all other profiles
-        other_profiles = list(set(const.args.include) - set(old_profiles))
-        self._update_profiles(other_profiles)
-
     def _update_profiles(self, profiles):
         for profile in profiles:
             if profile in const.args.exclude:
@@ -606,25 +601,39 @@ class StateDiffSolver(LinkListDiffSolver):
                                             self.new_state[profile]["beforeUpdate"],
                                             self.new_state[profile]["afterUpdate"])
 
-    def solve_all(self):
-        # TODO when switching from 7 to 4, installed prop was renamed to state O_o
-        # We begin with removing all profiles that are not in the new state
-        old_profiles = self._remove_old_profiles(self.old_state.keys())
-        # Then we update all profiles that occure in both
-        other_profiles = list(set(self.old_state.keys()) - set(old_profiles))
-        self._update_profiles(other_profiles)
-        # Last we add profiles that are only in the new state
-        for profile in self.new_state:
+    def _add_profiles(self, profiles):
+        for profile in profiles:
+            if profile in const.args.exclude:
+                log_debug("'" + profile + "' is in exclude list. Skipping...")
+                continue
             if profile not in self.old_state:
                 self.difflog.add_profile(profile,
                                          self.new_state[profile]["beforeInstall"],
                                          self.new_state[profile]["afterInstall"])
                 for prop in self.new_state[profile]:
                     if prop == "links":
-                        break
+                        continue
                     self.difflog.update_property(profile, prop, self.new_state[profile][prop])
                 for link in self.new_state[profile]["links"]:
                     self.difflog.add_link(profile, link)
+
+    def solve_included(self):
+        # We begin with removing all profiles that are not in the new state
+        old_profiles = self._remove_old_profiles(const.args.include)
+        # Then we update all other profiles
+        other_profiles = list(set(const.args.include) - set(old_profiles) - set(self.new_state.keys()))
+        self._update_profiles(other_profiles)
+        # Last we add profiles that are only in the new state
+        self._add_profiles([p for p in const.args.include if p in self.new_state])
+
+    def solve_all(self):
+        # We begin with removing all profiles that are not in the new state
+        old_profiles = self._remove_old_profiles(self.old_state.keys())
+        # Then we update all profiles that occure in both
+        other_profiles = list(set(self.old_state.keys()) - set(old_profiles))
+        self._update_profiles(other_profiles)
+        # Last we add profiles that are only in the new state
+        self._add_profiles(self.new_state)
 
 
 class UpdateDiffSolver(LinkListDiffSolver):

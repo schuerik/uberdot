@@ -217,7 +217,9 @@ class AutoExpandDict(MutableMapping, AutoExpander):
     def get_specials(self):
         return self.data_specials
 
-    def get_special(self, key):
+    def get_special(self, key, default=None):
+        if default is not None and not key in self.data_specials:
+            return default
         return self.data_specials[key]
 
     def set_special(self, key, value):
@@ -226,13 +228,9 @@ class AutoExpandDict(MutableMapping, AutoExpander):
 
     def __repr__(self):
         def dict_repr(dict_):
-            rep = ""
-            for key in list(dict_.keys())[:-1]:
-                rep += repr(key) + ": " + repr(dict_[key]) + ", "
-            if len(dict_):
-                last_key = list(dict_.keys())[-1]
-                rep += repr(last_key) + ": " + repr(dict_[last_key])
-            return rep
+            return ", ".join(
+                [repr(key) + ": " + repr(dict_[key]) for key in dict_]
+            )
         data_result = dict_repr(self)
         special_result = dict_repr(self.data_specials)
         result = "AutoExpandDict{" + special_result
@@ -290,6 +288,7 @@ class State(MutableMapping, Notifier):
     def __init__(self, file, snapshot=None):
         # Setup in-mememory state file
         self.loaded = {}
+        self.snapshot = snapshot
         # Load current state files of other users
         for user, session_path in const.session_dirs_foreign:
             self.try_load_user_session(user, session_path)
@@ -298,6 +297,10 @@ class State(MutableMapping, Notifier):
         log_debug("Loading state file '" + self.own_file + "'.")
         try:
             self.user_dict = AutoExpandDict(json.load(open(self.own_file)))
+        except json.decoder.JSONDecodeError as err:
+            raise PreconditionError(
+                "Can not parse '" + self.own_file + "'. " + str(err)
+            )
         except FileNotFoundError:
             raise PreconditionError(
                 "State file '" + self.own_file + "' doesn't exist."
@@ -329,14 +332,18 @@ class State(MutableMapping, Notifier):
         # any subdict/sublist is updated
         self.user_dict.set_parent(self)
 
-    # TODO is this even needed?
     @classmethod
     def fromTimestamp(cls, timestamp):
         return cls(get_statefile_path(timestamp), timestamp)
 
     @classmethod
-    def fromSnapshot(cls, file):
+    def fromFile(cls, file):
         return cls(file, get_timestamp_from_path(file))
+
+    @staticmethod
+    def fromNumber(number):
+        file = nth(get_statefiles(), number)
+        return State.fromFile(file)
 
     @classmethod
     def current(cls):
@@ -410,6 +417,7 @@ class State(MutableMapping, Notifier):
         timestamp = get_timestamp_now()
         path += "_" + timestamp + ext
         log_debug("Creating state file snapshot at '" + path + "'.")
+        self.set_special("snapshot", timestamp)
         self.write_file(path)
         return timestamp
 
@@ -457,8 +465,8 @@ class State(MutableMapping, Notifier):
     def get_specials(self):
         return self.user_dict.get_specials()
 
-    def get_special(self, key):
-        return self.user_dict.get_special(key)
+    def get_special(self, key, default=None):
+        return self.user_dict.get_special(key, default)
 
     def set_special(self, key, value):
         self.user_dict.set_special(key, value)

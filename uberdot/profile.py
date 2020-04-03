@@ -702,7 +702,7 @@ class Profile:
         if directory is None:
             self.directory = const.defaults.directory
         else:
-            self.directory = os.path.join(self.directory, normpath(directory))
+            self.directory = os.path.join(self.directory, expandpath(directory))
 
     @command
     def default(self, *options):

@@ -108,7 +108,7 @@ class UberDot:
         subparsers = parser.add_subparsers(
             parser_class=CustomParser,
             dest="mode",
-            description="For more help on the subcommands use 'udot.py subcommand -h'",
+            description="For more help on the modes use 'udot.py <mode> -h'",
         )
         parser_profiles = CustomParser(add_help=False)
         parser_profiles.add_argument(
@@ -200,7 +200,7 @@ class UberDot:
             action=StoreBoolAction
         )
         group_display_selection.add_argument(
-            "--state",
+            "-s", "--state",
             help="select another state file to show (accepts path, number shown in history or timestamp)",
         )
         parser_show_selection.add_argument(
@@ -380,21 +380,21 @@ class UberDot:
         help_text = "revert back to a previous state"
         parser_timewarp = subparsers.add_parser(
             "timewarp",
-            parents=[parser_run],
+            parents=[parser_run, parser_profiles],
             description=help_text,
             help=help_text
         )
         group_state_selection = parser_timewarp.add_mutually_exclusive_group(required=True)
-        group_state_selection.add_argument(
-            "--earlier",
-            help="go back in time for a specific time",
-            action="store"
-        )
-        group_state_selection.add_argument(
-            "--later",
-            help="go forward in time for a specific time",
-            action="store"
-        )
+        # group_state_selection.add_argument(
+        #     "--earlier",
+        #     help="go back in time for a specific time",
+        #     action="store"
+        # )
+        # group_state_selection.add_argument(
+        #     "--later",
+        #     help="go forward in time for a specific time",
+        #     action="store"
+        # )
         group_state_selection.add_argument(
             "--first",
             help="go back to the first recorded state",
@@ -405,11 +405,11 @@ class UberDot:
             help="go forward to the last recorded state",
             action="store_true"
         )
-        group_state_selection.add_argument(
-            "--date",
-            help="go back (or forward) to this date",
-            action="store"
-        )
+        # group_state_selection.add_argument(
+        #     "--date",
+        #     help="go back (or forward) to this date",
+        #     action="store"
+        # )
         group_state_selection.add_argument(
             "-s", "--state",
             help="go back to a specific state file (accepts path, number shown in history or timestamp)",
@@ -457,11 +457,12 @@ class UberDot:
             sys.exit(0)
 
         # Configure logger
+        # TODO add customizable format: logger needs to be initialized properly
         logger.setLevel(const.args.loglevel)
         if const.settings.logfile:
             ch = MaxSizeFileHandler(const.settings.logfile)
             ch.setLevel(logging.DEBUG)
-            form = '[%(asctime)s] - %(levelname)s - %(message)s'
+            form = '[%(asctime)s] [%(session)s] [%(levelname)s] - %(message)s'
             formatter = logging.Formatter(form)
             ch.setFormatter(formatter)
             logger.addHandler(ch)
@@ -491,6 +492,8 @@ class UberDot:
             msg += "' does not exist on this system."
             raise UserError(msg)
         # Check if arguments are bad
+        if const.args.mode is None:
+            raise UserError("No mode selected.")
         profiles_included = list(set(const.args.include) - set(const.args.exclude))
         if sorted(profiles_included) != sorted(const.args.include):
             msg = "You can not include and exclude a profile at the same time."
@@ -504,21 +507,34 @@ class UberDot:
     def timewarp(self):
         # Get correct state file to warp to
         if const.timewarp.state:
-            new_state = State(const.timewarp.state)
+            new_state = State.fromFile(const.timewarp.state)
         # TODO implement
         # elif const.timewarp.date:
         # elif const.timewarp.earlier:
         # elif const.timewarp.later:
         elif const.timewarp.first:
-            new_state = State(nth(get_statefiles(), 0))
+            new_state = State.fromNumber(0)
         elif const.timewarp.last:
-            new_state = State(list(get_statefiles())[-1])
-        # TODO make this work with include and exclude
+            new_state = State.fromNumber(len(get_statefiles())-1)
+        if self.state.get_special("snapshot") == new_state.snapshot:
+            raise PreconditionError("You are already on this state.")
         log_debug("Calculating operations to perform timewarp.")
         difflog = StateDiffSolver(self.state, new_state).solve()
+        # TODO: verify update and install dates a
         # TODO: make events work
         self.run(difflog)
-        self.state.set_special("snapshot", get_timestamp_from_path(new_state.own_file))
+        # Last we update the snapshots
+        if const.timewarp.dryrun or const.timewarp.changes or const.timewarp.debug:
+            # But skip if run() didn't modify the state file
+            return
+        if const.args.include or const.args.exclude:
+            # State was modified only partly, so this is a completly new snapshot
+            self.state.create_snapshot()
+        else:
+            # State was modified entirely to match new_state, so we
+            # update its snapshot reference
+            snapshot = get_timestamp_from_path(new_state.own_file)
+            self.state.set_special("snapshot", snapshot)
 
     def execute_arguments(self):
         """Executes whatever was specified via commandline arguments."""
@@ -1028,8 +1044,6 @@ class StoreBoolAction(argparse.Action):
                 option_strings.append("--no-" + option[2:])
                 break
         kwargs["nargs"] = 0
-        kwargs["metavar"] = "bool"
-        kwargs["default"] = False
         super().__init__(option_strings, dest, **kwargs)
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -1127,7 +1141,8 @@ class CustomParser(argparse.ArgumentParser):
                         positional_arg_counts[0] -= 1
                         reading_positional = True
                     else:
-                        raise UserError("No such subcommand: " + c)
+                        # TODO does this ever trigger?
+                        raise UserError("No such mode: " + c)
         # Initialize namespace and parse until first subcommand
         result = self.parse_command(split_argv[0], subparsers.keys())
         # Parse each subcommand
@@ -1164,7 +1179,16 @@ class MaxSizeFileHandler(logging.Handler):
         self.filename = filename
 
     def emit(self, record):
-        msg = self.format(record).splitlines(True)
+        print(record.__dict__)
+        msg = self.format(record)
+        # Remove all color codes
+        msg = msg.replace(const.col_endc, "")
+        msg = msg.replace(const.col_noemph, "")
+        for name, attr in const.settings.get_constants():
+            if name.startswith("col_"):
+                msg = msg.replace(attr.value, "")
+        # Write into file, but make sure not to exceed logfilesize
+        msg = msg.splitlines(True)
         content = []
         if os.path.exists(self.filename):
             with open(self.filename, "r") as fin:
@@ -1175,6 +1199,14 @@ class MaxSizeFileHandler(logging.Handler):
             fout.writelines(content)
 
 
+class CustomRecordLogger(logging.Logger):
+    def makeRecord(self, *args, **kwargs):
+        if "extra" not in kwargs or kwargs["extra"] is None:
+            kwargs["extra"] = {}
+        kwargs["extra"]["session"] = const.args.session
+        super().makeRecord(*args, **kwargs)
+
+
 def run_script(name):
     """Act like a script if this was invoked like a script.
     This is needed, because otherwise everything below couldn't
@@ -1183,7 +1215,9 @@ def run_script(name):
     if name == "__main__":
         # Init the logger, further configuration is done when we parse the
         # commandline arguments
+        logging.setLoggerClass(CustomRecordLogger)
         logger = logging.getLogger("root")
+        print(type(logger))
         logger.setLevel(logging.INFO)
         ch_out = logging.StreamHandler(stream=sys.stdout)
         ch_out.terminator = ""

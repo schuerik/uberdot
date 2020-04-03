@@ -1054,7 +1054,7 @@ class Container:
             if isinstance(attr, Constant):
                 if attr.mutable >= mutable and not name.isupper():
                     result.append((name, attr))
-            elif isinstance(attr, Container) and attr.root != attr and name != "subcommand_container":
+            elif isinstance(attr, Container) and attr.root != attr and name != "subcommand_container" and name != "subcommand":
                 result.extend(attr.get_constants(mutable))
         return result
 
@@ -1238,7 +1238,8 @@ class Const(Container, metaclass=Singleton):
         )
         add("first", "last")
         add = self.add_factory(section="timewarp", mutable=Constant.MUTABLE)
-        add("earlier", "later", "date")
+        # add("earlier", "later")
+        # add("date")
         add("state", func=self.__find_state)
 
         # create constants for settings
@@ -1313,6 +1314,7 @@ class Const(Container, metaclass=Singleton):
             # timestamp was provided
             return get_statefile_path(indicator)
         elif re.fullmatch(r"\d{1,9}", indicator):
+            # TODO accept negative numbers
             # number was provided
             return nth(get_statefiles(), int(indicator))
         else:
