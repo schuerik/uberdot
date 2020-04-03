@@ -560,7 +560,6 @@ def nth(iterable, n, default=None):
 
 # Userinput and output
 ###############################################################################
-logger = logging.getLogger("root")
 
 def log(message, end="\n"):
     """Alias for logger.info() but creates a newline.
@@ -571,6 +570,7 @@ def log(message, end="\n"):
     Args:
         message: The message that will be logged
     """
+    logger = logging.getLogger("root")
     logger.info(message + end)
 
 
@@ -598,6 +598,7 @@ def log_warning(message, end="\n"):
     Args:
         message (str): The message that will be printed.
     """
+    logger = logging.getLogger("root")
     logger.warning(const.settings.col_warning + message + const.col_endc + end)
 
 
@@ -610,6 +611,7 @@ def log_success(message, end="\n"):
     Args:
         message (str): The message that will be printed.
     """
+    logger = logging.getLogger("root")
     logger.info(const.settings.col_ok + message + const.col_endc + end)
 
 
@@ -622,6 +624,7 @@ def log_debug(message, end="\n"):
     Args:
         message (str): The message that will be printed.
     """
+    logger = logging.getLogger("root")
     logger.debug(const.settings.col_debug + message + const.col_endc + end)
 
 
@@ -634,6 +637,7 @@ def log_error(message, end="\n"):
     Args:
         message (str): The message that will be printed.
     """
+    logger = logging.getLogger("root")
     logger.error(message + end)
 
 
@@ -1222,7 +1226,6 @@ class Const(Container, metaclass=Singleton):
         add("allusers", "links", "profiles", "meta")
         add("state", value=None, type="str", func=self.__find_state)
         add("users", value=[], type="list")
-        add("user", value="", type="str")
 
         # create constants for arguments of find mode
         add = self.add_factory(False, "find", "bool")
@@ -1238,28 +1241,29 @@ class Const(Container, metaclass=Singleton):
         )
         add("first", "last")
         add = self.add_factory(section="timewarp", mutable=Constant.MUTABLE)
-        # add("earlier", "later")
+        add("earlier", "later", func=self.__convert_interval)
         # add("date")
         add("state", func=self.__find_state)
 
         # create constants for settings
         add = self.add_factory(True, "settings", type="bool")
         add("askroot", "color", "smart_cd")
-        self.add("backup_extension", "bak", "settings", "str"),
+        self.add("backup_extension", "bak", "settings"),
         self.add("col_emph", '\x1b[1m', "settings", "str", self.__decode_ansi)
         self.add("col_fail", '\x1b[91m', "settings", "str", self.__decode_ansi)
         self.add("col_ok", '\x1b[92m', "settings", "str", self.__decode_ansi)
         self.add("col_warning", '\x1b[93m', "settings", "str", self.__decode_ansi)
         self.add("col_debug", '\x1b[90m', "settings", "str", self.__decode_ansi)
-        self.add("decrypt_pwd", None, "settings", "str")
+        self.add("decrypt_pwd", None, "settings")
         self.add("logfile", None, "settings", "path")
-        self.add("logfilesize", 1000, "settings", "int")
-        self.add("hash_separator", "#", "settings", "str")
+        self.add("logfileformat", "[%(asctime)s] [%(session)s] [%(levelname)s] - %(message)s", "settings")
+        self.add("logfilesize", 0, "settings", "int")
+        self.add("hash_separator", "#", "settings")
         self.add("profile_files", "", "settings", "path")
         self.add("shell", "/bin/bash", "settings", "path")
-        self.add("shell_args", "-e -O expand_aliases", "settings", "str")
+        self.add("shell_args", "-e -O expand_aliases", "settings")
         self.add("shell_timeout", 60, "settings", "int")
-        self.add("tag_separator", "%", "settings", "str")
+        self.add("tag_separator", "%", "settings")
         self.add("target_files", "", "settings", "path")
 
         # create constants for profile defaults
@@ -1309,16 +1313,43 @@ class Const(Container, metaclass=Singleton):
 
     @staticmethod
     def __find_state(indicator):
-        from uberdot.state import get_statefiles, get_statefile_path
+        from uberdot.state import get_statefiles, build_statefile_path
         if re.fullmatch(r"\d{10}", indicator):
             # timestamp was provided
-            return get_statefile_path(indicator)
-        elif re.fullmatch(r"\d{1,9}", indicator):
-            # TODO accept negative numbers
+            return build_statefile_path(indicator)
+        elif re.fullmatch(r"-?\d{1,9}", indicator):
             # number was provided
-            return nth(get_statefiles(), int(indicator))
+            number = int(indicator)
+            if number == 0 or abs(number) >= len(get_statefiles()):
+                raise UserError("Invalid state number.")
+            elif number > 0:
+                return nth(get_statefiles(), number-1)
+            else:
+                return nth(reversed(get_statefiles()), -number-1)
         else:
             return indicator
+
+    @staticmethod
+    def __convert_interval(string):
+        if not re.fullmatch(r"(\d+[YMDhms])+", string):
+            raise UserError("Invalid interval string")
+        bits = re.findall(r"(\d+\w)", string)
+        seconds = 0
+        for bit in bits:
+            val = int(bit[:-1])
+            if bit[-1] == "Y":
+                seconds += 60*60*24*30*12*val
+            elif bit[-1] == "M":
+                seconds += 60*60*24*30*val
+            elif bit[-1] == "D":
+                seconds += 60*60*24*val
+            elif bit[-1] == "h":
+                seconds += 60*60*val
+            elif bit[-1] == "m":
+                seconds += 60*val
+            elif bit[-1] == "s":
+                seconds += val
+        return seconds
 
     @staticmethod
     def __convert_loglevel(level):
@@ -1348,7 +1379,7 @@ class Const(Container, metaclass=Singleton):
             map(lambda x: (x[0], x[1] % self.args.session), self.session_dirs_foreign)
         )
         # Load configs
-        config = configparser.ConfigParser()
+        config = configparser.ConfigParser(interpolation=None)
         try:
             for cfg in cfgs:
                 if not os.path.exists(cfg):

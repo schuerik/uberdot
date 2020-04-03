@@ -59,6 +59,8 @@ from uberdot.utils import *
 
 
 const = Const()
+logger = None
+
 
 class UberDot:
     """Bundles all functionality of uberdot.
@@ -385,16 +387,16 @@ class UberDot:
             help=help_text
         )
         group_state_selection = parser_timewarp.add_mutually_exclusive_group(required=True)
-        # group_state_selection.add_argument(
-        #     "--earlier",
-        #     help="go back in time for a specific time",
-        #     action="store"
-        # )
-        # group_state_selection.add_argument(
-        #     "--later",
-        #     help="go forward in time for a specific time",
-        #     action="store"
-        # )
+        group_state_selection.add_argument(
+            "--earlier",
+            help="go back in time for a specific time",
+            action="store"
+        )
+        group_state_selection.add_argument(
+            "--later",
+            help="go forward in time for a specific time",
+            action="store"
+        )
         group_state_selection.add_argument(
             "--first",
             help="go back to the first recorded state",
@@ -457,13 +459,11 @@ class UberDot:
             sys.exit(0)
 
         # Configure logger
-        # TODO add customizable format: logger needs to be initialized properly
         logger.setLevel(const.args.loglevel)
         if const.settings.logfile:
             ch = MaxSizeFileHandler(const.settings.logfile)
             ch.setLevel(logging.DEBUG)
-            form = '[%(asctime)s] [%(session)s] [%(levelname)s] - %(message)s'
-            formatter = logging.Formatter(form)
+            formatter = logging.Formatter(const.settings.logfileformat)
             ch.setFormatter(formatter)
             logger.addHandler(ch)
 
@@ -510,7 +510,9 @@ class UberDot:
             new_state = State.fromFile(const.timewarp.state)
         # TODO implement
         # elif const.timewarp.date:
-        # elif const.timewarp.earlier:
+        elif const.timewarp.earlier:
+            time = int(get_timestamp_now()) - const.timewarp.earlier
+            new_state = State.fromTimestampBefore(time)
         # elif const.timewarp.later:
         elif const.timewarp.first:
             new_state = State.fromNumber(0)
@@ -597,7 +599,6 @@ class UberDot:
 
     def list_states(self):
         statefiles = get_statefiles()
-        current = statefiles.pop(0)
         snapshot = self.state.get_special("snapshot") if "snapshot" in self.state.get_specials() else None
         for nr, file in enumerate(statefiles):
             timestamp = get_timestamp_from_path(file)
@@ -1099,7 +1100,7 @@ class CustomParser(argparse.ArgumentParser):
         reading_positional = False
         for c in sys.argv[1:]:
             # is optional
-            if c.startswith("-"):
+            if c.startswith("-") and not c[1:].isdigit():
                 # stop counting arguments of previous option
                 max_arg_count = 0
                 # add argument to last subparsers arguments
@@ -1179,7 +1180,6 @@ class MaxSizeFileHandler(logging.Handler):
         self.filename = filename
 
     def emit(self, record):
-        print(record.__dict__)
         msg = self.format(record)
         # Remove all color codes
         msg = msg.replace(const.col_endc, "")
@@ -1187,24 +1187,37 @@ class MaxSizeFileHandler(logging.Handler):
         for name, attr in const.settings.get_constants():
             if name.startswith("col_"):
                 msg = msg.replace(attr.value, "")
-        # Write into file, but make sure not to exceed logfilesize
+        # Get previous contnent of logfile and append new message
         msg = msg.splitlines(True)
         content = []
         if os.path.exists(self.filename):
             with open(self.filename, "r") as fin:
                 content = fin.read().splitlines(True)
         content = content + msg
-        content = content[-const.settings.logfilesize:]
+        # Trim file, if logfilesize is set, so that contet has
+        # maximal logfilesize lines. When logfilesize is equal to
+        # or less than zero, the logfile will grow infinitly
+        if const.settings.logfilesize > 0:
+            content = content[-const.settings.logfilesize:]
+        # Write file
         with open(self.filename, "w") as fout:
             fout.writelines(content)
 
 
 class CustomRecordLogger(logging.Logger):
-    def makeRecord(self, *args, **kwargs):
-        if "extra" not in kwargs or kwargs["extra"] is None:
-            kwargs["extra"] = {}
-        kwargs["extra"]["session"] = const.args.session
-        super().makeRecord(*args, **kwargs)
+    def makeRecord(self, name, level, fn, lno, msg, args, exc_info,
+                   func=None, extra=None, sinfo=None):
+        # Add custom attributes to LogRecords, so that they can be
+        # used in format strings
+        if extra is None:
+            extra = {}
+        extra["session"] = const.args.session
+        extra["test"] = const.test
+        extra["user"] = const.user
+        extra["version"] = const.VERSION
+        return super().makeRecord(
+            name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
+        )
 
 
 def run_script(name):
@@ -1213,12 +1226,12 @@ def run_script(name):
     be traced by coverage."""
 
     if name == "__main__":
+        global logger
         # Init the logger, further configuration is done when we parse the
         # commandline arguments
         logging.setLoggerClass(CustomRecordLogger)
         logger = logging.getLogger("root")
-        print(type(logger))
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.DEBUG)
         ch_out = logging.StreamHandler(stream=sys.stdout)
         ch_out.terminator = ""
         ch_out.setLevel(logging.DEBUG)

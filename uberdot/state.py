@@ -28,21 +28,24 @@ import re
 from copy import deepcopy
 from collections.abc import MutableMapping
 from collections.abc import MutableSequence
+from itertools import islice
 from uberdot.utils import *
 
 const = Const()
 
 
 def get_statefiles():
+    # TODO: filter file names, in case there are also other files in the session dir
+    # TODO: this returns a list, so there is no need to use nth everywhere
     return sorted(filter(
         os.path.isfile,
         map(
             lambda x: os.path.join(const.session_dir, x),
             os.listdir(const.session_dir)
         )
-    ))
+    ))[1:]
 
-def get_statefile_path(timestamp=None):
+def build_statefile_path(timestamp=None):
     path = os.path.join(const.session_dir, const.STATE_NAME)
     if timestamp is not None:  # Load a previous snapshot
         path, ext = os.path.splitext(path)
@@ -50,7 +53,7 @@ def get_statefile_path(timestamp=None):
     return path
 
 def get_timestamp_from_path(path):
-    return path.split("_")[1][:-5]
+    return int(path.split("_")[1][:-5])
 
 
 ###############################################################################
@@ -332,9 +335,17 @@ class State(MutableMapping, Notifier):
         # any subdict/sublist is updated
         self.user_dict.set_parent(self)
 
+    #TODO error handling if state files doesn't exist
     @classmethod
     def fromTimestamp(cls, timestamp):
-        return cls(get_statefile_path(timestamp), timestamp)
+        return cls(build_statefile_path(timestamp), timestamp)
+
+    @staticmethod
+    def fromTimestampBefore(timestamp):
+        for n, file in enumerate(get_statefiles()):
+            if get_timestamp_from_path(file) > timestamp:
+                break
+        return State.fromIndex(n-1)
 
     @classmethod
     def fromFile(cls, file):
@@ -342,12 +353,16 @@ class State(MutableMapping, Notifier):
 
     @staticmethod
     def fromNumber(number):
-        file = nth(get_statefiles(), number)
+        return State.fromIndex(number-1)
+
+    @staticmethod
+    def fromIndex(index):
+        file = nth(get_statefiles(), index)
         return State.fromFile(file)
 
     @classmethod
     def current(cls):
-        path = get_statefile_path()
+        path = build_statefile_path()
         if not os.path.exists(path):
             log_debug("No state file found. Creating new.")
             makedirs(os.path.dirname(path))
