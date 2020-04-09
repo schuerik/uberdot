@@ -24,8 +24,8 @@ copyright = '2019, Erik Schulz'
 author = 'Erik Schulz'
 
 # Load version
-from uberdot import constants
-release = version = constants.VERSION
+from uberdot.utils import Const
+release = version = Const().VERSION
 
 
 # -- General configuration ---------------------------------------------------
