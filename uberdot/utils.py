@@ -201,6 +201,18 @@ def find_files(filename, paths):
     return [os.path.join(path, filename) for path in paths
             if os.path.isfile(os.path.join(path, filename))]
 
+def listdirs(dirname):
+    return filter(
+        os.path.isdir,
+        map(lambda x: os.path.join(dirname, x), os.listdir(dirname))
+    )
+
+def listfiles(dirname):
+    return filter(
+        os.path.isfile,
+        map(lambda x: os.path.join(dirname, x), os.listdir(dirname))
+    )
+
 # Utils for permissions and user
 ###############################################################################
 
@@ -1313,19 +1325,20 @@ class Const(Container, metaclass=Singleton):
 
     @staticmethod
     def __find_state(indicator):
-        from uberdot.state import get_statefiles, build_statefile_path
+        from uberdot.state import State, build_statefile_path
         if re.fullmatch(r"\d{10}", indicator):
             # timestamp was provided
             return build_statefile_path(indicator)
         elif re.fullmatch(r"-?\d{1,9}", indicator):
             # number was provided
             number = int(indicator)
-            if number == 0 or abs(number) >= len(get_statefiles()):
+            snapshots = State._get_snapshots(const.session_dir)
+            if number == 0 or abs(number) >= len(snapshots):
                 raise UserError("Invalid state number.")
             elif number > 0:
-                return nth(get_statefiles(), number-1)
+                return snapshots[number-1]
             else:
-                return nth(reversed(get_statefiles()), -number-1)
+                return nth(reversed(snapshots), -number-1)
         else:
             return indicator
 

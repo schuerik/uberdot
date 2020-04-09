@@ -52,13 +52,14 @@ if os.getenv("COVERAGE_PROCESS_START"):  # pragma: no cover
 
 from uberdot.interpreters import *
 from uberdot.differencesolver import *
-from uberdot.state import get_statefiles
 from uberdot.state import get_timestamp_from_path
 from uberdot.state import State
+from uberdot.state import GlobalState
 from uberdot.utils import *
 
 
 const = Const()
+globalstate = GlobalState()
 logger = None
 
 
@@ -80,6 +81,7 @@ class UberDot:
         Initializes attributes and changes the working directory to the
         directory where this module is stored."""
         # Initialise fields
+        self.globalstate = None
         self.state = None
         self.args = None
         self.profiles = []
@@ -517,7 +519,7 @@ class UberDot:
         elif const.timewarp.first:
             new_state = State.fromNumber(0)
         elif const.timewarp.last:
-            new_state = State.fromNumber(len(get_statefiles())-1)
+            new_state = State.fromNumber(len(State._get_snapshots())-1)
         if self.state.get_special("snapshot") == new_state.snapshot:
             raise PreconditionError("You are already on this state.")
         log_debug("Calculating operations to perform timewarp.")
@@ -550,7 +552,8 @@ class UberDot:
         if const.args.mode == "help":
             os.execvp("man", ["-l", normpath("docs/sphinx/build/man/uberdot.1")])
         # For the next mode we need a loaded state
-        self.state = State.current()
+        self.globalstate = GlobalState()
+        self.state = self.globalstate.current
         self.fix()
         if const.args.mode == "show":
             self.show()
@@ -598,9 +601,8 @@ class UberDot:
             self.run(dfl)
 
     def list_states(self):
-        statefiles = get_statefiles()
         snapshot = self.state.get_special("snapshot") if "snapshot" in self.state.get_specials() else None
-        for nr, file in enumerate(statefiles):
+        for nr, file in enumerate(self.state.get_snapshots()):
             timestamp = get_timestamp_from_path(file)
             msg = "[" + str(nr+1) + "] "
             if snapshot==timestamp:
@@ -618,7 +620,7 @@ class UberDot:
         log_debug("Checking state file consistency.")
         # Calc difflog between state and filesystem to figure out
         # if there are inconsistencies
-        difflog = StateFilesystemDiffFinder(self.state).solve()
+        difflog = StateFilesystemDiffFinder().solve()
         if difflog:
             log_warning("Some tracked links were manually changed.")
             # Print summary to give user an idea of what have changed
@@ -727,7 +729,7 @@ class UberDot:
                     self.print_profile(profile)
         else:
             last_user = ""
-            for user, profile in self.state.get_profiles():
+            for user, profile in self.globalstate.get_profiles():
                 # Skip users that shall not be printed
                 if not const.show.allusers:
                     if const.show.users:
@@ -1253,6 +1255,7 @@ def run_script(name):
             udot = UberDot()
             udot.parse_arguments()
             udot.check_arguments()
+            globalstate.load()
             # Add the users profiles to the python path
             sys.path.append(const.settings.profile_files)
             # Go

@@ -34,10 +34,12 @@ import copy
 import os
 from abc import abstractmethod
 from uberdot.state import AutoExpandDict
+from uberdot.state import GlobalState
 from uberdot.interpreters import Interpreter
 from uberdot.utils import *
 
 const = Const()
+globalstate = GlobalState()
 
 class DiffLog():
     """This class stores the operations that were determined by a
@@ -307,20 +309,16 @@ class DiffSolver():
 
 
 class StateFilesystemDiffSolver(DiffSolver):
-    def __init__(self, state, users=[const.user], action=""):
+    def __init__(self, action=""):
         super().__init__()
-        self.state = state.copy()
-        self.users = users
         self.action = action
 
     def _generate_operations(self):
-        # Go through state files of users and generate operations for each of them
-        for user in self.users:
-            if user in self.state.get_users():
-                for profile in self.state.get_user_profiles(user).values():
-                    if profile["name"] in const.args.exclude:
-                        continue
-                    self.__generate_profile_fix(profile)
+        # Go through profiles and generate operations for each of them
+        for profile in globalstate.current.values():
+            if profile["name"] in const.args.exclude:
+                continue
+            self.__generate_profile_fix(profile)
 
     def __generate_profile_fix(self, profile):
         for link in profile["links"]:
@@ -335,7 +333,7 @@ class StateFilesystemDiffSolver(DiffSolver):
                 dirname = os.path.dirname(link["from"])
                 renamed = False
                 if os.path.exists(dirname):
-                    for file in map(lambda x: os.path.join(dirname, x), os.listdir(dirname)):
+                    for file in listfiles(dirname):
                         if readlink(file) == link["to"]:
                             msg = "Link '" + link["from"] + "' was renamed"
                             msg += " to '" + file + "'."
@@ -399,8 +397,8 @@ class StateFilesystemDiffSolver(DiffSolver):
 
 
 class StateFilesystemDiffFinder(StateFilesystemDiffSolver):
-    def __init__(self, state, users=[const.user]):
-        super().__init__(state, users, "t")
+    def __init__(self):
+        super().__init__("t")
 
     def fix_link(self, fix_description, profilename, saved_link, actual_link):
         self.difflog.show_info(profilename, fix_description)
@@ -455,6 +453,8 @@ class UninstallDiffSolver(RemoveProfileDiffSolver):
         state (State): The state file that is used for solving
         profile_names (list): A list of profile names that will be uninstalled
     """
+    def __init__(self, profilenames):
+        super().__init__(globalstate.current, profilenames)
 
     def generate_profile_remove(self, profile_name):
         """Generate operations to remove a single installed profile.
@@ -637,7 +637,7 @@ class StateDiffSolver(LinkListDiffSolver):
 
 
 class UpdateDiffSolver(LinkListDiffSolver):
-    """This solver determines the differences between an state file
+    """This solver determines the differences between treh current state file
     and a list of profiles.
 
     Attributes:
@@ -646,17 +646,16 @@ class UpdateDiffSolver(LinkListDiffSolver):
         parent(str): The name of the parent that all profiles will change
             its parent to (only set if ``--parent`` was specified)
     """
-    def __init__(self, state, profile_results, parent):
+    def __init__(self, profile_results, parent):
         """ Constructor.
 
         Args:
-            state (State): The state file that is used for solving
             profile_results (list): A list of the result of the executed
                 profiles
             parent (str): The value of the cli argument --parent
         """
         super().__init__()
-        self.state = state.copy()
+        self.state = globalstate.current.copy()
         self.profile_results = profile_results
         self.parent = parent
 

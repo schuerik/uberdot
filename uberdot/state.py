@@ -28,22 +28,10 @@ import re
 from copy import deepcopy
 from collections.abc import MutableMapping
 from collections.abc import MutableSequence
-from itertools import islice
 from uberdot.utils import *
 
 const = Const()
 
-
-def get_statefiles():
-    # TODO: filter file names, in case there are also other files in the session dir
-    # TODO: this returns a list, so there is no need to use nth everywhere
-    return sorted(filter(
-        os.path.isfile,
-        map(
-            lambda x: os.path.join(const.session_dir, x),
-            os.listdir(const.session_dir)
-        )
-    ))[1:]
 
 def build_statefile_path(timestamp=None):
     path = os.path.join(const.session_dir, const.STATE_NAME)
@@ -145,12 +133,20 @@ upgrades = [
 PATH_VALUES = ["from", "to"]
 
 class Notifier:
+    def __init__(self):
+        # Activte notify on end of init. That way subclasses can initialize
+        # themself without triggering notify
+        self.notify = self._notify
+
     def set_parent(self, parent):
         if parent is not None and not isinstance(parent, Notifier):
             raise FatalError(str(parent) + " needs to be Notifier")
         self.parent = parent
 
     def notify(self):
+        pass
+
+    def _notify(self):
         if hasattr(self, "parent") and self.parent is not None:
             if hasattr(self.parent, "notify") and self.parent.notify is not None:
                 self.parent.notify()
@@ -202,6 +198,7 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         self.data = {}
         self.data_specials = {}
         self.update(args, **kwargs)
+        super().__init__()
 
     def __getitem__(self, key): return self.getitem(key)
     def __delitem__(self, key): self.delitem(key)
@@ -230,12 +227,12 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         self.notify()
 
     def __repr__(self):
-        def dict_repr(dict_):
+        def dict_repr(dict_, prefix=""):
             return ", ".join(
-                [repr(key) + ": " + repr(dict_[key]) for key in dict_]
+                [prefix + repr(key) + ": " + repr(dict_[key]) for key in dict_]
             )
         data_result = dict_repr(self)
-        special_result = dict_repr(self.data_specials)
+        special_result = dict_repr(self.data_specials, "@")
         result = "AutoExpandDict{" + special_result
         if special_result and data_result:
             result += ", "
@@ -249,6 +246,7 @@ class AutoExpandList(MutableSequence, AutoExpander):
         # Init fields and load data
         self.data = []
         self.extend(args)
+        super().__init__()
 
     def __getitem__(self, index): return self.getitem(index)
     def __delitem__(self, index): self.delitem(index)
@@ -282,74 +280,103 @@ class AutoExpanderJSONEncoder(json.JSONEncoder):
 
 
 ###############################################################################
-# Main class
+# Main classes
 ###############################################################################
 
-# TODO verify that the state gets the correct snapshot property and
-# behaves consistent with auto_write
-class State(MutableMapping, Notifier):
-    def __init__(self, file, snapshot=None):
-        # Setup in-mememory state file
-        self.loaded = {}
-        self.snapshot = snapshot
+class GlobalState(metaclass=Singleton):
+    def load(self):
+        # Load current state file of current user
+        self.states = {}
+        self.states[const.user] = State.current()
         # Load current state files of other users
         for user, session_path in const.session_dirs_foreign:
             self.try_load_user_session(user, session_path)
-        # Load state files of current user
-        self.own_file = file
-        log_debug("Loading state file '" + self.own_file + "'.")
+
+    def try_load_user_session(self, user, session_dir):
+        path = os.path.join(session_dir, const.STATE_NAME)
+        # Ignore this user, if he has no state file
+        if not os.path.exists(path):
+            return
+        # Load file
+        state = State.fromFile(path, auto_upgrade=False)
+        # If we can't upgrade, ignore this state file
+        if is_version_smaller(state.get_special("version"), MIN_VERSION):
+            msg = "Ignoring state file of user " + user + ". Too old."
+            log_warning(msg)
+            return
+        if is_version_smaller(const.VERSION, state.get_special("version")):
+            msg = "Ignoring state file of user " + user + "."
+            msg += " uberdot is too old."
+            log_warning(msg)
+            return
+        # Upgrade and store in loaded
         try:
-            self.user_dict = AutoExpandDict(json.load(open(self.own_file)))
+            state.full_upgrade()
+            self.states[user] = state
+        except CustomError as err:
+            msg = "An error occured when upgrading the state file of user "
+            msg += user + ". Ignoring."
+            log_warning(msg)
+            # We shouldn't ignore it if we are testing at the moment
+            if const.test:
+                raise err
+
+    def get_users(self):
+        return self.states.keys()
+
+    def get_user_state(self, user):
+        return self.states[user]
+
+    def get_profiles(self):
+        profiles = []
+        for usr in self.get_users():
+            for profile in self.states[usr]:
+                profiles.append((usr, self.states[usr][profile]))
+        return profiles
+
+    @property
+    def current(self):
+        return self.states[const.user]
+
+
+# TODO verify that the state gets the correct snapshot property and
+# behaves consistent with auto_write
+class State(AutoExpandDict):
+    def __init__(self, file, auto_write=False, auto_upgrade=True):
+        # Setup in-mememory state file
+        self.file = file
+        # Load state files of current user
+        log_debug("Loading state file '" + self.file + "'.")
+        try:
+            super().__init__(json.load(open(self.file)))
         except json.decoder.JSONDecodeError as err:
             raise PreconditionError(
-                "Can not parse '" + self.own_file + "'. " + str(err)
+                "Can not parse '" + self.file + "'. " + str(err)
             )
         except FileNotFoundError:
             raise PreconditionError(
-                "State file '" + self.own_file + "' doesn't exist."
+                "State file '" + self.file + "' doesn't exist."
             )
         # Setup auto write
-        self.auto_write = snapshot is None
-        # Add state of current user to the other loaded states
-        self.loaded[const.user] = self.user_dict
-        # Check if we can upgrade
-        if is_version_smaller(self.get_special("version"), MIN_VERSION):
-            msg = "Your state file is too old to be processed."
-            raise PreconditionError(msg)
-        if is_version_smaller(const.VERSION, self.get_special("version")):
-            msg = "Your state file was created with a newer version of "
-            msg += "uberdot. Please update uberdot before you continue."
-            raise PreconditionError(msg)
-        # Upgrade and store in loaded
-        logging_func = log if snapshot is None else log_debug
-        patches = self.get_patches(self.get_special("version"))
-        for patch in patches:
-            logging_func("Upgrading state file to version " + patch[0] + " ... ", end="")
-            self.user_dict = self.upgrade(self.user_dict, patch)
-            logging_func("Done.")
-            self.write_file()
-        if not patches:
-            # Make sure to update version in case no upgrade was needed
-            self.set_special("version", const.VERSION)
-        # Connect user_dict to this class, so we get notified whenever the
-        # any subdict/sublist is updated
-        self.user_dict.set_parent(self)
+        self.auto_write = auto_write
+        # Upgrade
+        if auto_upgrade:
+            self.full_upgrade()
 
-    #TODO error handling if state files doesn't exist
     @classmethod
     def fromTimestamp(cls, timestamp):
-        return cls(build_statefile_path(timestamp), timestamp)
+        return cls(build_statefile_path(timestamp))
 
     @staticmethod
     def fromTimestampBefore(timestamp):
-        for n, file in enumerate(get_statefiles()):
+        for n, file in enumerate(State._get_snapshots(const.session_dir)):
             if get_timestamp_from_path(file) > timestamp:
                 break
         return State.fromIndex(n-1)
 
     @classmethod
-    def fromFile(cls, file):
-        return cls(file, get_timestamp_from_path(file))
+    def fromFile(cls, file, auto_upgrade):
+        return cls(file, auto_upgrade=auto_upgrade)
 
     @staticmethod
     def fromNumber(number):
@@ -357,7 +384,7 @@ class State(MutableMapping, Notifier):
 
     @staticmethod
     def fromIndex(index):
-        file = nth(get_statefiles(), index)
+        file = State._get_snapshots(const.session_dir)[index]
         return State.fromFile(file)
 
     @classmethod
@@ -369,66 +396,78 @@ class State(MutableMapping, Notifier):
             file = open(path, "w")
             file.write('{"@version": "' + const.VERSION + '"}')
             file.close()
-        return cls(path)
+        return cls(path, auto_write=True)
 
-    def try_load_user_session(self, user, session_dir):
-        path = os.path.join(session_dir, const.STATE_NAME)
-        # Ignore this user, if he has no state file
-        if not os.path.exists(path):
-            return
-        # Load file
-        dict_ = AutoExpandDict(json.load(open(path)))
-        # If we can't upgrade, ignore this state file
-        if is_version_smaller(dict_.get_special("version"), MIN_VERSION):
-            msg = "Ignoring state file of user " + user + ". Too old."
-            log_warning(msg)
-            return
-        if is_version_smaller(const.VERSION, dict_.get_special("version")):
-            msg = "Ignoring state file of user " + user + "."
-            msg += " uberdot is too old."
-            log_warning(msg)
-            return
-        # Upgrade and store in loaded
-        try:
-            dict_ = self.full_upgrade(dict_)
-            self.loaded[user] = dict_
-        except CustomError as err:
-            msg = "An error occured when upgrading the state file of user "
-            msg += user + ". Ignoring."
-            log_warning(msg)
-            # We shouldn't ignore it if we are testing at the moment
-            if os.getenv("UBERDOT_TEST", 0):
-                raise err
+    @staticmethod
+    def _get_snapshots(state_dir):
+        snapshots = []
+        for file in listfiles(state_dir):
+            if re.fullmatch(r".*/state_\d{10}\.json", file):
+                snapshots.append(file)
+        return sorted(snapshots)
 
-    def upgrade(self, state, patch):
+    def get_snapshots(self):
+        return State._get_snapshots(os.path.dirname(self.file))
+
+    def upgrade(self, patch):
         try:
-            state = patch[1](state)
-            state.set_special("version", patch[0])
+            self.loaded = patch[1](self.loaded)
+            self.loaded.set_special("version", patch[0])
         except CustomError:
             raise
         except Exception as err:
             msg = "An unkown error occured when trying to upgrade the "
-            msg += "state file. Please resolve this error first."
+            msg += "state. Please resolve this error first."
             raise UnkownError(err, msg)
-        return state
 
-    def full_upgrade(self, state):
-        # Apply patches in order
-        for patch in self.get_patches(state.get_special("version")):
-            state = self.upgrade(state, patch)
-        return state
+    def full_upgrade(self):
+        # Check if we can upgrade
+        if is_version_smaller(self.get_special("version"), MIN_VERSION):
+            msg = "Your state file is too old to be processed."
+            raise PreconditionError(msg)
+        if is_version_smaller(const.VERSION, self.get_special("version")):
+            msg = "Your state file was created with a newer version of "
+            msg += "uberdot. Please update uberdot before you continue."
+            raise PreconditionError(msg)
+        # Turn of auto_write temporarily
+        auto_write = self.auto_write
+        self.auto_write = False
+        # Upgrade and store in loaded
+        patches = self.get_patches()
+        if auto_write:
+            for patch in patches:
+                log(
+                    "Upgrading state file to version " + patch[0] + " ... ",
+                    end=""
+                )
+                self.upgrade(patch)
+                self.write_file()
+                log("Done.")
+        else:
+            log_debug(
+                "Upgrading state file to version " + patches[-1][0]  + " ... ",
+                end=""
+            )
+            for patch in patches:
+                self.upgrade(patch)
+            log_debug("Done.")
+        if not patches:
+            # Make sure to update version in case no upgrade was performed
+            self.set_special("version", const.VERSION)
+        # Restore auto_write
+        self.auto_write = auto_write
 
-    def get_patches(self, version):
+    def get_patches(self):
         patches = []
         # Skip all upgrades for smaller versions
         for i, upgrade in enumerate(upgrades):
-            if is_version_smaller(version, upgrade[0]):
+            if is_version_smaller(self.get_special("version"), upgrade[0]):
                 patches = upgrades[i:]
                 break
         return patches
 
     def create_snapshot(self):
-        path, ext = os.path.splitext(self.own_file)
+        path, ext = os.path.splitext(self.file)
         timestamp = get_timestamp_now()
         path += "_" + timestamp + ext
         log_debug("Creating state file snapshot at '" + path + "'.")
@@ -439,16 +478,16 @@ class State(MutableMapping, Notifier):
     def write_file(self, path=None):
         # Prepare directory
         if path is None:
-            path = self.own_file
+            path = self.file
         makedirs(os.path.dirname(path))
         # Merge user_dict with specials
         new_dict = {}
-        new_dict.update(self.user_dict)
+        new_dict.update(self)
         new_dict.update(
             map(
                 # Prepend the removed @ signs to special values
                 lambda x: ("@"+x[0], x[1]),
-                self.user_dict.get_specials().items()
+                self.get_specials().items()
             )
         )
         # Write content to file
@@ -464,47 +503,7 @@ class State(MutableMapping, Notifier):
         finally:
             file.close()
 
-    def get_users(self):
-        return self.loaded.keys()
-
-    def get_user_profiles(self, user):
-        return self.loaded[user]
-
-    def get_profiles(self):
-        profiles = []
-        for usr in self.get_users():
-            for profile in self.loaded[usr]:
-                profiles.append((usr, self.loaded[usr][profile]))
-        return profiles
-
-    def get_specials(self):
-        return self.user_dict.get_specials()
-
-    def get_special(self, key, default=None):
-        return self.user_dict.get_special(key, default)
-
-    def set_special(self, key, value):
-        self.user_dict.set_special(key, value)
-
-    def __setitem__(self, key, value):
-        self.user_dict[key] = value
-
-    def __delitem__(self, key):
-        del self.user_dict[key]
-
-    def __getitem__(self, key):
-        return self.user_dict[key]
-
-    def __len__(self):
-        return len(self.user_dict)
-
-    def __repr__(self):
-        return repr(self.user_dict)
-
-    def __iter__(self):
-        return iter(self.user_dict)
-
-    def notify(self):
+    def _notify(self):
         if self.auto_write:
             log_debug("Writing changes back to state file.")
             self.write_file()
