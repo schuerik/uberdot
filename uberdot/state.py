@@ -41,7 +41,7 @@ def build_statefile_path(timestamp=None):
     return path
 
 def get_timestamp_from_path(path):
-    return int(path.split("_")[1][:-5])
+    return path.split("_")[1][:-5]
 
 
 ###############################################################################
@@ -402,7 +402,7 @@ class State(AutoExpandDict):
     def _get_snapshots(state_dir):
         snapshots = []
         for file in listfiles(state_dir):
-            if re.fullmatch(r".*/state_\d{10}\.json", file):
+            if re.fullmatch(r".*/state_\d{9}\.json", file):
                 snapshots.append(file)
         return sorted(snapshots)
 
@@ -411,8 +411,8 @@ class State(AutoExpandDict):
 
     def upgrade(self, patch):
         try:
-            self.loaded = patch[1](self.loaded)
-            self.loaded.set_special("version", patch[0])
+            self = patch[1](self)
+            self.set_special("version", patch[0])
         except CustomError:
             raise
         except Exception as err:

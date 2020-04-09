@@ -75,9 +75,11 @@ from subprocess import STDOUT
 from subprocess import Popen
 from threading import Thread
 from uberdot.utils import *
+from uberdot.state import GlobalState
 
 
 const = Const()
+globalstate = GlobalState()
 
 
 class Interpreter():
@@ -522,7 +524,7 @@ class CheckLinksInterpreter(Interpreter):
             profiles and if they are already installed. Links that are already
             installed and won't be removed, will end up twice in this list.
     """
-    def __init__(self, state):
+    def __init__(self):
         """Constructor.
 
         Initializes ``linklist`` with all links from the state file.
@@ -535,7 +537,7 @@ class CheckLinksInterpreter(Interpreter):
         # Setup linklist to store/lookup which links are modified
         # Stores for any link: (linkname, profile, user, is_installed)
         self.linklist = []
-        for user, profile in state.get_profiles():
+        for user, profile in globalstate.get_profiles():
             for link in profile["links"]:
                 self.linklist.append((link["from"], profile["name"], user, True))
         # Track and untrack do the same as add and remove
@@ -723,8 +725,8 @@ class CheckDiffsolverResultInterpreter(Interpreter):
     if a remove operation for a specific path is in the difflog the file
     needs to exist. Otherwise it should have been an untrack operation.
     """
-    def __init__(self, state, error_type=FatalError):
-        self.state = state
+    def __init__(self, error_type=FatalError):
+        self.state = globalstate.current
         self.error_type = error_type
         self.removed_links = []
 
@@ -967,7 +969,7 @@ class CheckProfilesInterpreter(Interpreter):
             and if they are already installed. Profiles that are still
             installed in the end, will end up twice in this list.
     """
-    def __init__(self, state):
+    def __init__(self):
         """Constructor.
 
         Initializes ``profile_list`` with all profiles from the state file.
@@ -980,7 +982,7 @@ class CheckProfilesInterpreter(Interpreter):
         super().__init__()
         self.profile_list = []
         # profile_list contains: (profile name, parent name, is installed)
-        for profile in state.values():
+        for profile in globalstate.current.values():
             self.profile_list.append(
                     (
                         profile["name"],
@@ -1335,7 +1337,7 @@ class ExecuteInterpreter(Interpreter):
     Attributes:
         state (dict): The state-file that will be updated
     """
-    def __init__(self, state):
+    def __init__(self):
         """Constructor.
 
         Updates the version number of the state-file.
@@ -1345,7 +1347,7 @@ class ExecuteInterpreter(Interpreter):
             force (bool): The value of ``--force``
         """
         super().__init__()
-        self.state = state
+        self.state = globalstate.current
         self.info_counter = 0
         self.profiles_updated = set()
 

@@ -81,7 +81,6 @@ class UberDot:
         Initializes attributes and changes the working directory to the
         directory where this module is stored."""
         # Initialise fields
-        self.globalstate = None
         self.state = None
         self.args = None
         self.profiles = []
@@ -463,7 +462,7 @@ class UberDot:
         # Configure logger
         logger.setLevel(const.args.loglevel)
         if const.settings.logfile:
-            ch = MaxSizeFileHandler(const.settings.logfile)
+            ch = NoColorFileHandler(const.settings.logfile)
             ch.setLevel(logging.DEBUG)
             formatter = logging.Formatter(const.settings.logfileformat)
             ch.setFormatter(formatter)
@@ -552,8 +551,8 @@ class UberDot:
         if const.args.mode == "help":
             os.execvp("man", ["-l", normpath("docs/sphinx/build/man/uberdot.1")])
         # For the next mode we need a loaded state
-        self.globalstate = GlobalState()
-        self.state = self.globalstate.current
+        globalstate.load()
+        self.state = globalstate.current
         self.fix()
         if const.args.mode == "show":
             self.show()
@@ -576,13 +575,12 @@ class UberDot:
             # 1. Decide how to solve the differences and setup DiffSolvers
             if const.args.mode == "remove":
                 log_debug("Calculating operations to remove profiles.")
-                dfs = UninstallDiffSolver(self.state, profilenames)
+                dfs = UninstallDiffSolver(profilenames)
             elif const.args.mode == "update":
                 log_debug("Calculating operations to update profiles.")
                 self.execute_profiles(profilenames)
                 profile_results = [p.result for p in self.profiles]
-                dfs = UpdateDiffSolver(self.state,
-                                       profile_results,
+                dfs = UpdateDiffSolver(profile_results,
                                        const.update.parent)
             else:
                 raise FatalError("None of the expected modes were set.")
@@ -604,7 +602,7 @@ class UberDot:
         snapshot = self.state.get_special("snapshot") if "snapshot" in self.state.get_specials() else None
         for nr, file in enumerate(self.state.get_snapshots()):
             timestamp = get_timestamp_from_path(file)
-            msg = "[" + str(nr+1) + "] "
+            msg = "[" + str(int(nr)+1) + "] "
             if snapshot==timestamp:
                 msg += const.settings.col_emph + "(current) " + const.col_endc
             temp_state =  State.fromTimestamp(timestamp)
@@ -639,13 +637,13 @@ class UberDot:
             # Calculate difflog again depending on selection.
             if selection == "s":
                 return
-            diffsolver = StateFilesystemDiffSolver(self.state, action=selection)
+            diffsolver = StateFilesystemDiffSolver(action=selection)
             difflog = diffsolver.solve()
             # Execute difflog. First some obligatory checks
             log_debug("Checking operations for errors and conflicts.")
             difflog.run_interpreter(
                 CheckFileOverwriteInterpreter(),
-                CheckDiffsolverResultInterpreter(self.state)
+                CheckDiffsolverResultInterpreter()
             )
             # Also allow to skip root here
             if const.args.skiproot:
@@ -658,7 +656,7 @@ class UberDot:
                 )
             # Finally execute
             try:
-                interpreters = [ExecuteInterpreter(self.state)]
+                interpreters = [ExecuteInterpreter()]
                 if const.args.summary:
                     interpreters.append(PrintSummaryInterpreter())
                 else:
@@ -729,7 +727,7 @@ class UberDot:
                     self.print_profile(profile)
         else:
             last_user = ""
-            for user, profile in self.globalstate.get_profiles():
+            for user, profile in globalstate.get_profiles():
                 # Skip users that shall not be printed
                 if not const.show.allusers:
                     if const.show.users:
@@ -930,12 +928,12 @@ class UberDot:
         # These tests should be run before the other tests, because they
         # would fail anyway if these tests don't pass
         difflog.run_interpreter(
-            CheckDiffsolverResultInterpreter(self.state),
-            CheckProfilesInterpreter(self.state)
+            CheckDiffsolverResultInterpreter(),
+            CheckProfilesInterpreter()
         )
         # Run the rest of the tests
         tests = [
-            CheckLinksInterpreter(self.state),
+            CheckLinksInterpreter(),
             CheckLinkDirsInterpreter(),
             CheckFileOverwriteInterpreter(),
             CheckDynamicFilesInterpreter()
@@ -974,7 +972,7 @@ class UberDot:
                     # might have fucked with some links
                     difflog.run_interpreter(
                         CheckDiffsolverResultInterpreter(
-                            self.state, error_type=PreconditionError
+                            error_type=PreconditionError
                         ),
                         CheckFileOverwriteInterpreter()
                     )
@@ -994,7 +992,7 @@ class UberDot:
             # Execute all operations of the difflog and print them
             interpreters = []
             if not const.subcommand.dryrun:
-                interpreters.append(ExecuteInterpreter(self.state))
+                interpreters.append(ExecuteInterpreter())
             if const.args.summary:
                 interpreters.append(PrintSummaryInterpreter())
             else:
@@ -1165,63 +1163,6 @@ class CustomParser(argparse.ArgumentParser):
         return n
 
 
-class StdoutFilter(logging.Filter):
-    """Custom logging filter that filters all error messages from a stream.
-    Used to filter stdout, because otherwise every error would be pushed to
-    stdout AND stderr."""
-
-    def filter(self, record):
-        """Returns True for all records that have a logging level of
-        WARNING or less."""
-        return record.levelno <= logging.WARNING
-
-
-class MaxSizeFileHandler(logging.Handler):
-    def __init__(self, filename):
-        super().__init__()
-        self.filename = filename
-
-    def emit(self, record):
-        msg = self.format(record)
-        # Remove all color codes
-        msg = msg.replace(const.col_endc, "")
-        msg = msg.replace(const.col_noemph, "")
-        for name, attr in const.settings.get_constants():
-            if name.startswith("col_"):
-                msg = msg.replace(attr.value, "")
-        # Get previous contnent of logfile and append new message
-        msg = msg.splitlines(True)
-        content = []
-        if os.path.exists(self.filename):
-            with open(self.filename, "r") as fin:
-                content = fin.read().splitlines(True)
-        content = content + msg
-        # Trim file, if logfilesize is set, so that contet has
-        # maximal logfilesize lines. When logfilesize is equal to
-        # or less than zero, the logfile will grow infinitly
-        if const.settings.logfilesize > 0:
-            content = content[-const.settings.logfilesize:]
-        # Write file
-        with open(self.filename, "w") as fout:
-            fout.writelines(content)
-
-
-class CustomRecordLogger(logging.Logger):
-    def makeRecord(self, name, level, fn, lno, msg, args, exc_info,
-                   func=None, extra=None, sinfo=None):
-        # Add custom attributes to LogRecords, so that they can be
-        # used in format strings
-        if extra is None:
-            extra = {}
-        extra["session"] = const.args.session
-        extra["test"] = const.test
-        extra["user"] = const.user
-        extra["version"] = const.VERSION
-        return super().makeRecord(
-            name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
-        )
-
-
 def run_script(name):
     """Act like a script if this was invoked like a script.
     This is needed, because otherwise everything below couldn't
@@ -1255,11 +1196,21 @@ def run_script(name):
             udot = UberDot()
             udot.parse_arguments()
             udot.check_arguments()
-            globalstate.load()
             # Add the users profiles to the python path
             sys.path.append(const.settings.profile_files)
             # Go
             udot.execute_arguments()
+            # Crop the logfile if there was a limit set
+            if const.settings.logfilesize > 0:
+                # Read previous file
+                content = []
+                if os.path.exists(const.settings.logfile):
+                    with open(const.settings.logfile, "r") as fin:
+                        content = fin.read().splitlines(True)
+                content = content[-const.settings.logfilesize:]
+                # Write file
+                with open(const.settings.logfile, "w") as fout:
+                    fout.writelines(content)
         except CustomError as err:
             # An error occured that we (more or less) expected.
             # Print error, a stacktrace and exit
@@ -1278,5 +1229,6 @@ def run_script(name):
                         " I did nothing critical at the time :)")
             sys.exit(100)
 
-
+# import IPython
+# IPython.embed()
 run_script(__name__)

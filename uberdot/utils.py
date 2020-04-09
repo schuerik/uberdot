@@ -573,6 +573,49 @@ def nth(iterable, n, default=None):
 # Userinput and output
 ###############################################################################
 
+class StdoutFilter(logging.Filter):
+    """Custom logging filter that filters all error messages from a stream.
+    Used to filter stdout, because otherwise every error would be pushed to
+    stdout AND stderr."""
+
+    def filter(self, record):
+        """Returns True for all records that have a logging level of
+        WARNING or less."""
+        return record.levelno <= logging.WARNING
+
+
+class NoColorFileHandler(logging.FileHandler):
+    def __init__(self, filename):
+        super().__init__(filename)
+
+    def emit(self, record):
+        msg = record.msg
+        # Remove all color codes
+        msg = msg.replace(const.col_endc, "")
+        msg = msg.replace(const.col_noemph, "")
+        for name, attr in const.settings.get_constants():
+            if name.startswith("col_"):
+                msg = msg.replace(attr.value, "")
+        record.msg = msg
+        super().emit(record)
+
+
+class CustomRecordLogger(logging.Logger):
+    def makeRecord(self, name, level, fn, lno, msg, args, exc_info,
+                   func=None, extra=None, sinfo=None):
+        # Add custom attributes to LogRecords, so that they can be
+        # used in format strings
+        if extra is None:
+            extra = {}
+        extra["session"] = const.args.session
+        extra["test"] = const.test
+        extra["user"] = const.user
+        extra["version"] = const.VERSION
+        return super().makeRecord(
+            name, level, fn, lno, msg, args, exc_info, func, extra, sinfo
+        )
+
+
 def log(message, end="\n"):
     """Alias for logger.info() but creates a newline.
 
@@ -753,6 +796,8 @@ def links_equal(link1, link2):
 def link_exists(link):
     try:
         link2 = get_linkdescriptor_from_file(link["from"])
+    except NotImplementedError:
+        return False
     except FileNotFoundError:
         return False
     return links_equal(link, link2)
@@ -761,6 +806,8 @@ def link_exists(link):
 def similar_link_exists(link):
     try:
         link2 = get_linkdescriptor_from_file(link["from"])
+    except NotImplementedError:
+        return False
     except FileNotFoundError:
         return False
     return links_similar(link, link2)
