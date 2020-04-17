@@ -370,12 +370,12 @@ class State(AutoExpandDict):
     @staticmethod
     def fromTimestampBefore(timestamp):
         for n, file in enumerate(State._get_snapshots(const.session_dir)):
-            if get_timestamp_from_path(file) > timestamp:
+            if int(get_timestamp_from_path(file)) > int(timestamp):
                 break
         return State.fromIndex(n-1)
 
     @classmethod
-    def fromFile(cls, file, auto_upgrade):
+    def fromFile(cls, file, auto_upgrade=True):
         return cls(file, auto_upgrade=auto_upgrade)
 
     @staticmethod
@@ -402,7 +402,7 @@ class State(AutoExpandDict):
     def _get_snapshots(state_dir):
         snapshots = []
         for file in listfiles(state_dir):
-            if re.fullmatch(r".*/state_\d{9}\.json", file):
+            if re.fullmatch(r".*/state_\d{10}\.json", file):
                 snapshots.append(file)
         return sorted(snapshots)
 
@@ -443,7 +443,7 @@ class State(AutoExpandDict):
                 self.upgrade(patch)
                 self.write_file()
                 log("Done.")
-        else:
+        elif patches:
             log_debug(
                 "Upgrading state file to version " + patches[-1][0]  + " ... ",
                 end=""

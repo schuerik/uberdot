@@ -408,11 +408,11 @@ class UberDot:
             help="go forward to the last recorded state",
             action="store_true"
         )
-        # group_state_selection.add_argument(
-        #     "--date",
-        #     help="go back (or forward) to this date",
-        #     action="store"
-        # )
+        group_state_selection.add_argument(
+            "--date",
+            help="go back (or forward) to this date",
+            action="store"
+        )
         group_state_selection.add_argument(
             "-s", "--state",
             help="go back to a specific state file (accepts path, number shown in history or timestamp)",
@@ -506,37 +506,40 @@ class UberDot:
                 raise UserError(msg)
 
     def timewarp(self):
+        cst = const.timewarp
         # Get correct state file to warp to
-        if const.timewarp.state:
-            new_state = State.fromFile(const.timewarp.state)
-        # TODO implement
-        # elif const.timewarp.date:
-        elif const.timewarp.earlier:
-            time = int(get_timestamp_now()) - const.timewarp.earlier
+        if cst.state:
+            new_state = State.fromFile(cst.state)
+        elif cst.date:
+            new_state = State.fromTimestampBefore(cst.date)
+        elif cst.earlier or cst.later:
+            delta = cst.earlier if cst.earlier else -cst.later
+            if "snapshot" in self.state.get_specials():
+                time = int(self.state.get_special("snapshot")) - delta
+            else:
+                time = int(get_timestamp_now()) - delta
             new_state = State.fromTimestampBefore(time)
-        # elif const.timewarp.later:
-        elif const.timewarp.first:
-            new_state = State.fromNumber(0)
-        elif const.timewarp.last:
-            new_state = State.fromNumber(len(State._get_snapshots())-1)
-        if self.state.get_special("snapshot") == new_state.snapshot:
+        elif cst.first:
+            new_state = State.fromIndex(0)
+        elif cst.last:
+            new_state = State.fromIndex(-1)
+        if self.state.get_special("snapshot") == new_state.get_special("snapshot"):
             raise PreconditionError("You are already on this state.")
         log_debug("Calculating operations to perform timewarp.")
         difflog = StateDiffSolver(self.state, new_state).solve()
-        # TODO: verify update and install dates a
-        # TODO: make events work
         self.run(difflog)
         # Last we update the snapshots
-        if const.timewarp.dryrun or const.timewarp.changes or const.timewarp.debug:
+        if cst.dryrun or cst.changes or cst.debug:
             # But skip if run() didn't modify the state file
             return
+        # TODO the following is still critical but doesnt handle unexpected errors
         if const.args.include or const.args.exclude:
             # State was modified only partly, so this is a completly new snapshot
             self.state.create_snapshot()
         else:
             # State was modified entirely to match new_state, so we
             # update its snapshot reference
-            snapshot = get_timestamp_from_path(new_state.own_file)
+            snapshot = get_timestamp_from_path(new_state.file)
             self.state.set_special("snapshot", snapshot)
 
     def execute_arguments(self):

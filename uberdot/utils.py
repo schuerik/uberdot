@@ -21,9 +21,10 @@
 ###############################################################################
 
 
-import datetime
+from datetime import datetime
 import csv
 from argparse import Namespace
+import shutil
 import hashlib
 import inspect
 import grp
@@ -35,6 +36,7 @@ import pwd
 import re
 import subprocess
 import sys
+import stat
 import time
 import configparser
 from itertools import islice
@@ -745,6 +747,18 @@ def user_input(txt):
 # Misc
 ###############################################################################
 
+def create_backup(filename):
+    backupfile = filename + "." + const.settings.backup_extension
+    try:
+        shutil.copyfile(filename, backupfile)
+        os.chmod(backupfile, 0o444)
+    except Exception as err:
+        msg = "An unkown error occured when trying to create a backup of '"
+        msg += filename + "'."
+        raise UnkownError(err, msg)
+    return backupfile
+
+
 def get_profile_source(profile_name, file=None):
     if file is None:
         for path, name in get_available_profiles():
@@ -841,7 +855,7 @@ def get_date_time_now():
 
 
 def timestamp_to_string(timestamp):
-    return datetime.datetime.utcfromtimestamp(
+    return datetime.utcfromtimestamp(
         math.floor(int(timestamp))
     ).strftime("%Y-%m-%d %H:%M:%S")
 
@@ -1301,7 +1315,7 @@ class Const(Container, metaclass=Singleton):
         add("first", "last")
         add = self.add_factory(section="timewarp", mutable=Constant.MUTABLE)
         add("earlier", "later", func=self.__convert_interval)
-        # add("date")
+        add("date", func=self.__parse_date)
         add("state", func=self.__find_state)
 
         # create constants for settings
@@ -1380,7 +1394,7 @@ class Const(Container, metaclass=Singleton):
             # number was provided
             number = int(indicator)
             snapshots = State._get_snapshots(const.session_dir)
-            if number == 0 or abs(number) >= len(snapshots):
+            if number == 0 or abs(number) > len(snapshots):
                 raise UserError("Invalid state number.")
             elif number > 0:
                 return snapshots[number-1]
@@ -1388,6 +1402,21 @@ class Const(Container, metaclass=Singleton):
                 return nth(reversed(snapshots), -number-1)
         else:
             return indicator
+
+    @staticmethod
+    def __parse_date(string):
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}-\d{2}:\d{2}:\d{2}", string):
+            return int(datetime.strptime(string, "%Y-%m-%d-%H:%M:%S").timestamp())
+        elif re.fullmatch(r"\d{4}-\d{2}-\d{2}-\d{2}:\d{2}", string):
+            return int(datetime.strptime(string, "%Y-%m-%d-%H:%M").timestamp())
+        elif re.fullmatch(r"\d{4}-\d{2}-\d{2}", string):
+            return int(datetime.strptime(string, "%Y-%m-%d").timestamp())
+        elif re.fullmatch(r"\d{4}-\d{2}", string):
+            return int(datetime.strptime(string, "%Y-%m").timestamp())
+        elif re.fullmatch(r"\d{4}", string):
+            return int(datetime.strptime(string, "%Y").timestamp())
+        else:
+            raise UserError("Invalid datetime string")
 
     @staticmethod
     def __convert_interval(string):
