@@ -76,6 +76,9 @@ Other features
 - Go back in time to a previous setup
 - Logging
 - Split files
+- Helpers to find dotfiles
+- Sessions
+- multiple users
 - Events
 
 
