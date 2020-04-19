@@ -1691,6 +1691,36 @@ OutputTest("Output: find dotfiles",
 SimpleOutputTest("Output: find all",
                  ["find", "-ptdali", "name"],
                  before).success()
+# DirRegressionTest("Timewarp: --state number",
+#                   ["timewarp", "--state", "", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
+# DirRegressionTest("Timewarp: --state path",
+#                   ["timewarp", "--state", "", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
+# DirRegressionTest("Timewarp: --state timestamp",
+#                   ["timewarp", "--state", "", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
+# DirRegressionTest("Timewarp: --earlier",
+#                   ["timewarp", "--state", "", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
+# DirRegressionTest("Timewarp: --later",
+#                   ["timewarp", "--state", "", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
+# DirRegressionTest("Timewarp: --date",
+#                   ["timewarp", "--date", "", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
+# DirRegressionTest("Timewarp: --first",
+#                   ["timewarp", "--first", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
+# DirRegressionTest("Timewarp: --last",
+#                   ["timewarp", "--last", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
+# DirRegressionTest("Timewarp: partly",
+#                   ["timewarp", "--last", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
+# DirRegressionTest("Timewarp: partly with exclude",
+#                   ["timewarp", "--last", "SuperProfileTags"],
+#                   after_tags, after_updatedui, "warped").success()
 DirRegressionTest("Fail: Not a profile",
                   ["update", "NotAProfileFail"],
                   before, before).fail("run", 104)
@@ -1712,8 +1742,6 @@ DirRegressionTest("Fail: Link moved between profiles",
 DirRegressionTest("Fail: Link moved between profiles",
                   ["update", "SuperProfileTags"],
                   after_tags, before, "nested").fail("run", 102)
-
-
 # TODO: For these tests we should also check the state file
 DirRegressionTest("Autofix: Take over",
                   ["--fix", "t", "show"],

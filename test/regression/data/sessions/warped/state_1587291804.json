@@ -1,0 +1,83 @@
+{
+    "NestedDynamicFile": {
+        "name": "NestedDynamicFile",
+        "links": [
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/merge1",
+                "to": "/home/god/repos/uberdot/test/regression/data/sessions/warped/dynamicfiles/merged/merge1#526f328977744debf953a2c76c2c6169",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:09:47"
+            },
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/merge2",
+                "to": "/home/god/repos/uberdot/test/regression/data/sessions/warped/dynamicfiles/piped/merge2#0281651775d0a19e648acf333cabac2f",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:09:47"
+            }
+        ],
+        "installed": "2020-04-19 10:09:47",
+        "updated": "2020-04-19 10:09:47",
+        "beforeInstall": "",
+        "afterInstall": "",
+        "beforeUpdate": "",
+        "afterUpdate": "",
+        "beforeUninstall": "",
+        "afterUninstall": ""
+    },
+    "Pipe": {
+        "name": "Pipe",
+        "links": [
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/.file",
+                "to": "/home/god/repos/uberdot/test/regression/data/sessions/warped/dynamicfiles/piped/file#fdb6e0c029299e6aabca0963120f0fa0",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:17:21"
+            }
+        ],
+        "installed": "2020-04-19 10:17:21",
+        "updated": "2020-04-19 10:17:21",
+        "beforeInstall": "",
+        "afterInstall": "",
+        "beforeUpdate": "",
+        "afterUpdate": "",
+        "beforeUninstall": "",
+        "afterUninstall": ""
+    },
+    "Merge": {
+        "name": "Merge",
+        "links": [
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/.merge1",
+                "to": "/home/god/repos/uberdot/test/regression/data/sessions/warped/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:17:21"
+            },
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/.merge3",
+                "to": "/home/god/repos/uberdot/test/regression/data/sessions/warped/dynamicfiles/merged/merge2#04b6c550264c39e8b533d7f7b977415e",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:17:21"
+            }
+        ],
+        "installed": "2020-04-19 10:17:21",
+        "updated": "2020-04-19 10:17:21",
+        "beforeInstall": "",
+        "afterInstall": "",
+        "beforeUpdate": "",
+        "afterUpdate": "",
+        "beforeUninstall": "",
+        "afterUninstall": ""
+    },
+    "@version": "1.18.0",
+    "@snapshot": "1587291804"
+}

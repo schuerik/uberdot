@@ -1,0 +1,70 @@
+{
+    "OptionArgument": {
+        "name": "OptionArgument",
+        "links": [
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/name1",
+                "to": "/home/god/repos/uberdot/test/regression/files/name1",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:05:41"
+            },
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/name2",
+                "to": "/home/god/repos/uberdot/test/regression/files/name2",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:05:41"
+            },
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/file2",
+                "to": "/home/god/repos/uberdot/test/regression/files/name6",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:05:41"
+            }
+        ],
+        "installed": "2020-04-19 10:05:41",
+        "updated": "2020-04-19 10:05:41",
+        "beforeInstall": "",
+        "afterInstall": "",
+        "beforeUpdate": "",
+        "afterUpdate": "",
+        "beforeUninstall": "",
+        "afterUninstall": ""
+    },
+    "NestedDynamicFile": {
+        "name": "NestedDynamicFile",
+        "links": [
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/merge1",
+                "to": "/home/god/repos/uberdot/test/regression/data/sessions/warped/dynamicfiles/merged/merge1#526f328977744debf953a2c76c2c6169",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:09:47"
+            },
+            {
+                "from": "/home/god/repos/uberdot/test/regression/environment-warped/merge2",
+                "to": "/home/god/repos/uberdot/test/regression/data/sessions/warped/dynamicfiles/piped/merge2#0281651775d0a19e648acf333cabac2f",
+                "owner": "god:users",
+                "permission": 644,
+                "secure": true,
+                "date": "2020-04-19 10:09:47"
+            }
+        ],
+        "installed": "2020-04-19 10:09:47",
+        "updated": "2020-04-19 10:09:47",
+        "beforeInstall": "",
+        "afterInstall": "",
+        "beforeUpdate": "",
+        "afterUpdate": "",
+        "beforeUninstall": "",
+        "afterUninstall": ""
+    },
+    "@version": "1.18.0",
+    "@snapshot": "1587290987"
+}

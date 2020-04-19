@@ -769,7 +769,7 @@ def get_profile_source(profile_name, file=None):
             msg = "Could not find module for '" + profile_name + "'"
             raise PreconditionError(msg)
 
-    # This is a modified version inspect.getsource() because
+    # This is a modified version of inspect.getsource() because
     # the way we import profiles on-demand fucks with inspect,
     # so that it can't find the module of the profiles
     pat = re.compile(r'^(\s*)class\s*' + profile_name + r'\b')
@@ -1467,6 +1467,11 @@ class Const(Container, metaclass=Singleton):
         self.session_dirs_foreign = list(
             map(lambda x: (x[0], x[1] % self.args.session), self.session_dirs_foreign)
         )
+        # Prepare config load
+        all_constants = self.get_constants()
+        path_values = [
+            "directory", "profile_files", "target_files", "logfile", "state"
+        ]
         # Load configs
         config = configparser.ConfigParser(interpolation=None)
         try:
@@ -1474,13 +1479,16 @@ class Const(Container, metaclass=Singleton):
                 if not os.path.exists(cfg):
                     raise PreconditionError("The config '" + cfg + "' does not exist.")
                 config.read(cfg)
-                # We need to normalize all paths here, relatively to
-                # the config file which it defined
-                path_values = [
-                    "directory", "profile_files", "target_files", "logfile", "state"
-                ]
+                # Check and normalize the read config
                 for section in config.sections():
                     for name, value in config.items(section):
+                        # Verify that only valid properties are used in the configs
+                        const_sections = [props.section for cname, props in all_constants if name == cname]
+                        if section[section.rfind(".")+1:] not in const_sections:
+                            msg = "Error in '" + cfg + "': Section '" + section + "' has no property '" + name + "'."
+                            raise PreconditionError(msg)
+                        # We need to normalize all paths here, relatively to
+                        # the config file which it defined
                         if name in path_values and not re.fullmatch(r"\d{1,10}", value):
                             config[section][name] = os.path.normpath(
                                 os.path.join(os.path.dirname(cfg), expandpath(value))
@@ -1489,7 +1497,7 @@ class Const(Container, metaclass=Singleton):
             msg = "Can't parse config at '" + cfg + "'. " + err.message
             raise PreconditionError(msg)
         # Write all values from config
-        for name, props in self.get_constants():
+        for name, props in all_constants:
             # Skip all internal values
             if props.section is None:
                 continue
