@@ -40,6 +40,7 @@ import os
 from abc import abstractmethod
 from subprocess import PIPE
 from subprocess import Popen
+from uberdot.state import AutoExpandDict
 from uberdot.utils import create_backup
 from uberdot.utils import Const
 from uberdot.utils import makedirs
@@ -91,11 +92,20 @@ class DynamicFile:
         """
 
     # TODO reverse dynamicfiles, new mode
-    @abstractmethod
     def _generate_sources(self):
-        """This abstract method is used to re-generate the sources from an
-        already generated (altered) file.
+        """This method is used to re-generate the sources from an
+        already generated (altered) content.
         """
+        raise UnsupportedError("")
+
+    def get_linkdescriptor(self):
+        return AutoExpandDict(
+            {
+                "from": self.sources,
+                "to": self.getpath(),
+                "md5": self.md5sum
+            }
+        )
 
     def add_source(self, target):
         """Adds a source path and normalizes it.
@@ -109,7 +119,7 @@ class DynamicFile:
         """Generates the newest version of the file and writes it
         if it is not in its subdir yet."""
         # Generate file and calc checksum
-        file_bytes = self._generate_file()
+        file_bytes = self._generate_content()
         self.md5sum = md5(file_bytes)
         # If this version of the file (with same checksum) doesn't exist,
         # write it to the correct location
@@ -143,6 +153,26 @@ class DynamicFile:
         return path
 
 
+class StaticFile(DynamicFile):
+    """This implementation of a dynamic files is used to store static
+    copies of the original target files.
+    """
+
+    SUBDIR = "static"
+    """Subdirectory used by StaticFile"""
+
+    def _generate_content(self):
+        """Returns the contents of the source file.
+
+        Returns:
+            bytearray: The raw file content
+        """
+        return open(self.sources[0], "rb").read()
+
+    def _generate_sources(self):
+        raise NotImplementedError
+
+
 class EncryptedFile(DynamicFile):
     """This implementation of a dynamic files allows to decrypt
     encrypted files.
@@ -151,7 +181,7 @@ class EncryptedFile(DynamicFile):
     SUBDIR = "decrypted"
     """Subdirectory used by EncryptedFile"""
 
-    def _generate_file(self):
+    def _generate_content(self):
         """Decrypts the first file in :attr:`self.sources<dyanmicfile.sources>`
         using gpg.
 
@@ -203,7 +233,7 @@ class FilteredFile(DynamicFile):
         super().__init__(name)
         self.shell_command = shell_command
 
-    def _generate_file(self):
+    def _generate_content(self):
         """Pipes the content of the first file in
         :attr:`self.sources<dyanmicfile.sources>` into the specified
         shell comand.
@@ -225,7 +255,7 @@ class SplittedFile(DynamicFile):
     SUBDIR = "merged"
     """Subdirectory used by SplittedFile"""
 
-    def _generate_file(self):
+    def _generate_content(self):
         """Merges all files from ``:class:`~interpreters.self`.sources``
         in order.
 

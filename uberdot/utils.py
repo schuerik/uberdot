@@ -94,13 +94,12 @@ def walk(path):
 def safe_walk(path, ignorelist=[], joined=False):
     return iter(SafeWalker(path, ignorelist, joined))
 
-def find_target(target, tags):
+def find_target_with_tags(target, tags):
     """Finds the correct target version in the repository to link to.
 
     This will search :const:`~constants.TARGET_FILES` for files that match the
     naming schema `<any string>%<target>` and returns the file whose
-    `<any string>` occurs first in ``tags``. If no file is found the return
-    value of :func:`find_exact_target()` is returned.
+    `<any string>` occurs first in ``tags``.
 
     Args:
         target (str): The filename that will be searched for
@@ -119,20 +118,24 @@ def find_target(target, tags):
             if name == tag + const.settings.tag_separator + target:
                 targets.append(os.path.join(root, name))
     if not targets:
-        # Seems like nothing was found, but we searched only files
-        # with tags so far. Trying without tags as fallback
-        return find_exact_target(target)
-    # Return found target. Because we found files with tags, we use
-    # the file that matches the earliest defined tag
+        return None
+    # Find the file that matches the earliest defined tag
+    result_tag = None
     for tag in tags:
         for tmp_target in targets:
             if os.path.basename(tmp_target).startswith(tag):
-                return tmp_target
-    raise FatalError("No target was found even though there seems to " +
-                     "exist one. That's strange...")
+                result_tag = tag
+    # Check that only one file was found
+    results = list(filter(lambda x: os.path.basename(x).startswith(result_tag), targets))
+    if len(results) > 1:
+        msg = "There are multiple targets that match: '" + target + "'"
+        for tmp_target in results:
+            msg += "\n  " + tmp_target
+        raise ValueError(msg)
+    return results[0]
 
 
-def find_exact_target(target):
+def find_target_exact(target):
     """Finds the exact target in the repository to link to.
 
     This will search :const:`~constants.TARGET_FILES` for files that match
@@ -158,7 +161,6 @@ def find_exact_target(target):
             msg += "\n  " + tmp_target
         raise ValueError(msg)
     if not targets:
-        # Ooh, nothing found
         return None
     # Return found target
     return targets[0]
@@ -1013,8 +1015,30 @@ class GenerationError(CustomError):
             profile_name (str): Name of the profile that triggered the error
             message (str): The error message
         """
-        super().__init__(const.settings.col_emph + "[" + profile_name + "]: " +
-                         const.col_endc + message)
+        if hasattr(sys, "_getframe"):
+            # We can figure out the line number where the error occured
+            frameinfo = None
+            c = 1
+            while frameinfo is None:
+                try:
+                    frame = sys._getframe(c)
+                except ValueError:
+                    break
+                if frame.f_code.co_filename.startswith(const.settings.profile_files):
+                    frameinfo = frame.f_code.co_filename, frame.f_lineno
+                c += 1
+        # Prepend the origin of the error to the message
+        msg = ""
+        # If we could figure out the correct frame that triggered the exception
+        # we use the file and line number from the frame as origin
+        if frameinfo is not None:
+            msg += "in '" + frameinfo[0] + "' in class '" + profile_name
+            msg += "' line " + str(frameinfo[1]) + ": "
+        # Otherwise we will only use the name of the profile
+        else:
+            msg += const.settings.col_emph + "[" + profile_name + "]: " + const.col_endc
+        msg += message
+        super().__init__(msg)
 
 
 class UnkownError(CustomError):
@@ -1063,6 +1087,13 @@ class SystemAbortion(CustomError):
 
     EXITCODE = 107
     """The exitcode for a SystemAbortion"""
+
+
+class UnsupportedError(CustomError):
+    """Used whenever a feature is not supported."""
+
+    EXITCODE = 108
+    """The exitcode for a UnsupportedError."""
 
 
 # Constants and loaded settings

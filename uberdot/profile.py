@@ -374,7 +374,7 @@ class Profile:
         raise GenerationError(self.name, msg)
 
     @command
-    def find(self, target):
+    def find(self, target, must_exist=True):
         """Find a dotfile in :const:`~const.target_files`. Depends on the
         current set tags.
 
@@ -390,7 +390,12 @@ class Profile:
             str: The full path of the file or ``None`` if no file was found
         """
         try:
-            return find_target(target, self.options["tags"])
+            found_target = find_target_with_tags(target, self.options["tags"])
+            if not found_target:
+                found_target = find_target_exact(target)
+            if must_exist and not found_target:
+                self._gen_err("Couldn't find target '" + target + "'.")
+            return found_target
         except ValueError as err:
             self._gen_err(err)
 
@@ -491,12 +496,9 @@ class Profile:
                 if "name" not in kwargs:
                     kwargs["name"] = target.name
             else:
-                found_target = self.find(target)
+                found_target = self.find(target, not read_opt("optional"))
             if found_target:
                 self.__create_link_descriptor(found_target, **kwargs)
-            elif not read_opt("optional"):
-                msg = "There is no target that matches: '" + target + "'"
-                self._gen_err(msg)
 
     @command
     def extlink(self, path, **kwargs):
@@ -626,9 +628,6 @@ class Profile:
             name = re.sub(replace_pattern, replace, base)
         elif name:
             name = expandpath(name)
-            # And prevent exceptions in os.symlink()
-            if name[-1:] == "/":
-                self._gen_err("name mustn't represent a directory")
         else:
             # "name" wasn't set by the user,
             # so fallback to use the target name (but without the tag)
@@ -652,10 +651,14 @@ class Profile:
         # when executing as root, otherwise ~ will be expanded to the home
         # directory of the root user (/root)
         name = normpath(os.path.join(directory, name))
+        # Prevent exceptions in os.symlink()
+        if name[-1:] == "/":
+            self._gen_err("name mustn't represent a directory")
 
         # Get user and group id of owner
         owner = read_opt("owner")
         if owner:
+            # TODO: can't this be done by autoexpansion?
             # Check for the correct format of owner
             if not re.fullmatch(r"\w*:\w*", owner):
                 msg = "The owner needs to be specified in the format "

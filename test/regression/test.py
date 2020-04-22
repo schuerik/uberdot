@@ -1777,6 +1777,7 @@ sys.exit(global_fails)
 ###############################################################################
 # TODO: Write tests
 # Already possible
+#    various generation errors
 # Requires testing with root
 #    option secure
 #    option owner
