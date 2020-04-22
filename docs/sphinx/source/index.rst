@@ -17,7 +17,7 @@ uberdot
 .. image:: https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8-blue.svg
 
 
-uberdot is a tool to manage different versions of dotfiles/configs on different hosts. You can define little profiles
+uberdot is a tool to manage different versions of dotfiles/configs on different hosts. You can define small profiles
 that specify which configuration files shall be symlinked.
 
 Contents
@@ -32,6 +32,57 @@ Contents
 
 Why uberdot?
 ------------
+
+Like probably most of the people that get into customizing/riceing linux, I started out with a few configuration files
+for bash and some other tools. Soon I collected all of my configuration file in a repository and wrote a little script
+that would create symlinks for me. But after some time my setup got more complex again and I ended up rewriting the script
+several times. At this point I just wanted to have a more sophisticated program that could do everything that my script
+could do. Indeed there are a ton of programs out there, that would do exactly this, but all of them seem to have forgotten
+for whom those programs were made: People that want absolute control over their device. While it is nice to have a program
+that does everything for you, needs (almost) no configuration and integrates into 3rd-party-software, those programs
+take my beloved control. This is the key difference between uberdot and all other dotfile managers. uberdot is desinged
+to give you maximal control, while trying to be as simple as possible and providing all features that other programs have.
+
+
+Key feature
+-----------
+
+Like some of the more sophisticated dotfile managers uberdot will allow you to create profiles. Profiles define a set of
+symbolic links that shall exist on your device. With other programs you would create a static json or yaml file in which
+you basically hardcode which symblic links shall be created. Some programs support simple nesting of profiles, some
+have feature like regular expression and some have more advanced features like templates to fight redundancies. The problem
+I had with this approach was that after some time my setup eventually got more complex, so either I couldn't use the
+dotfile manager anymore or I had to manually workaround the problem.
+This is not the case with uberdot because profiles will be written in python. A very simple and small API will help you create
+all the symlinks that you want. You can eliminate redundancies fully, nest profiles indefinitly, create blueprints
+by utilizing inheritance, change the behaviour of profiles entirely and automate all workarounds directly within the profiles.
+Furthermore there are a lot of settings and all defaults are customizable.
+
+
+Other features
+--------------
+
+- Only a few to no tweaks needed to you dotfiles to start out
+- Store your dotfiles wherever you like (simple directory, repository, cloud, usb drive, etc)
+- Use multiple versions of a single dotfile
+- Create links anywhere in the filesystem
+- Create links that point anywhere in the filesystem (not exclusively to files in your repository)
+- Set owner and permission for links
+- Find and rename dotfiles using regular expressions
+- Use encrypted dotfiles
+- Split any dotfile in multiple parts where each part can have multiple versions
+- You can simulate (dry run) everything to see if your self written profiles behave like you expect
+- Advanced error handling and automatic integration tests on your self written profiles (even some semantic checks)
+- Go back in time to a previous setup
+- Logging
+- Split files
+- Helpers to find dotfiles
+- Sessions
+- multiple users
+- Events
+
+
+You don't even need to know python or any programming language to use uberdot.
 
 I created uberdot because none of the existing configuration/dotfile managers satisfied my needs. Either there were
 essential features missing right away or after some time my setup got more complex and I ended up using the configuration
