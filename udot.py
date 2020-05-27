@@ -419,6 +419,8 @@ class UberDot:
             action="store"
         )
 
+        # TODO new mode to sync files back to target_dir
+
         # Setup mode history arguments
         help_text = "list all previous (or later) states"
         parser_timewarp_list = subparsers.add_parser(

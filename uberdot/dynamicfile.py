@@ -139,13 +139,11 @@ class AbstractFile:
     def _check_source_type(self, source):
         raise NotImplementedError
 
-    # TODO reverse dynamicfiles, new mode
     def _generate_source_content(self):
         """This method is used to re-generate the sources from an
         already generated (altered) content.
         """
-        # TODO add descriptive error message here
-        raise UnsupportedError("")
+        raise NotImplementedError
 
     def getpath(self):
         """Gets the path of the generated file
@@ -310,8 +308,8 @@ class StaticFile(AbstractFile):
         """
         return open(self.source, "rb").read()
 
-    def _generate_source(self):
-        return self._content
+    def _generate_source_content(self):
+        return self.content
 
     def get_file_descriptor(self):
         file_descriptor =  super().get_file_descriptor()
@@ -333,11 +331,15 @@ class EncryptedFile(DynamicFile):
         Returns:
             bytearray: The content of the decrypted file
         """
-        # Get sources and temp file
-        encryped_file = self.sources[0]
-        tmp = os.path.join(self.getdir(), self.name)
+        return self._invoke_gnupg(self.source.content)
+
+    def _generate_source_content(self):
+        return self._invoke_gnupg(self.content, ["-e", "--symmetric"])
+
+    def _invoke_gnupg(self, input_content, custom_args=["-d"]):
+        tmp = os.path.join(self.getdir(), self.name, ".tmp")
         # Set arguments for OpenPGP
-        args = ["gpg", "-q", "-d", "--yes"]
+        args = ["gpg", "-q", "--yes"] + custom_args
         strargs = " ".join(args)
         if const.settings.decrypt_pwd:
             args += ["--batch", "--passphrase", const.settings.decrypt_pwd]
@@ -346,12 +348,12 @@ class EncryptedFile(DynamicFile):
         else:
             log("Tipp: You can set a password in uberdots " +
                 "config that will be used for all encrypted files.")
-        args += ["-o", tmp, encryped_file]
-        strargs += " " + " ".join(args[-3:])
+        args += ["-o", tmp]
+        strargs += " " + " ".join(args[-2:])
         log_debug("Invoking OpenPGP with '" + strargs + "'")
         # Use OpenPGP to decrypt the file
         process = Popen(args, stdin=PIPE)
-        process.communicate()
+        process.communicate(input=input_content)
         # Remove the decrypted file. It will be written by the update function
         # of the super class to its correct location.
         result = open(tmp, "rb").read()
@@ -394,6 +396,10 @@ class FilteredFile(DynamicFile):
         result, _ = process.communicate()
         return result
 
+    def _generate_source_content(self):
+        # TODO: More info about the file that needs to be fixed manually
+        raise UnsupportedError("FilteredFiles can not reverse its modifications. Fix it yourself.")
+
 
 class SplittedFile(MultipleSourceDynamicFile):
     """This is of a dynamic files allows to join multiple dotfiles
@@ -415,11 +421,40 @@ class SplittedFile(MultipleSourceDynamicFile):
             bytearray: The content of all files merged together
         """
         result = bytearray()
-        for file in self.sources:
-            lines = open(file, "rb").read().split(b"\n")
+        for file in self.source:
+            lines = open(file.getpath(), "rb").read().split(b"\n")
             self.file_lengths.append(len(lines))
             result.extend(b"\n".join(lines))
         return result
 
-    def get_file_info(self):
+    def _generate_source_content(self):
+        current = self.content.encode()
+        previous = "".join([open(file, "r").read() for file in self.source])
+        # Calculate diff to figure out the new file_lengths
+        seqm = SequenceMatcher(None, previous.split(), current.split(), False)
+        file_idx = 0
+        file_lengths = self.file_lengths[:]
+        for tag, i1, i2, j1, j2 in s.get_optcode():
+            # TODO increment file_idx
+            linecount_old = i2-i1
+            linecount_new = j2-j1
+            if tag == "equal":
+                continue
+            elif tag == "delete":
+                file_lengths[file_idx] -= linecount_old
+            elif tag == "insert":
+                file_lengths[file_idx] += linecount_new
+            else:  # tag == "replace"
+                file_lengths[file_idx] -= linecount_old
+                file_lengths[file_idx] += linecount_new
+        # Create result for sources depending on the current content and the
+        # new file_lengths
+        used_lines = 0
+        result = []
+        for i, file in self.source:
+            result.append(current[used_lines:file_lengths[i]].decode())
+            used_lines += file_lengths[i]
+        return result
+
+    def get_file_descriptor(self):
         return super().get_file_info().extend({"file_lengths": self.file_lengths})

@@ -290,7 +290,7 @@ class StaticAutoExpandDict(AutoExpandDict):
 
 
 class LinkDescriptor(StaticAutoExpandDict):
-    def __init__(args={}, **kwargs):
+    def __init__(self, args={}, **kwargs):
         self.data["from"] = None
         self.data["to"] = None
         self.data["secure"] = None
@@ -302,7 +302,7 @@ class LinkDescriptor(StaticAutoExpandDict):
 
 
 class FileDescriptor(StaticAutoExpandDict):
-    def __init__(args={}, **kwargs):
+    def __init__(self, args={}, **kwargs):
         self.data["path"] = None
         self.data["source"] = None
         self.data["type"] = None

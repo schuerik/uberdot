@@ -51,8 +51,6 @@ that shall become a custom builtin.
 """
 
 
-
-
 # Abstract class that implements the absolute minimum of profiles
 class ProfileSkeleton:
     def __init__(self, parent=None):
@@ -104,6 +102,7 @@ class ProfileSkeleton:
             self._after_generation()
         return self.result
 
+    @abstractmethod
     def generate(self):
         raise NotImplementedError
 
@@ -274,6 +273,7 @@ class BaseProfile(ProfileSkeleton):
                 self.result[event] = script_hash
 
 
+
 # Pythonic profile
 class Profile(BaseProfile):
     def __init__(self, parent=None, options=None, directory=None):
@@ -306,7 +306,33 @@ class Profile(BaseProfile):
             return self.options[opt_name]
         return read_opt
 
+    def find(self, target, must_exist=True):
+        """Find a dotfile in :const:`~const.target_files`. Depends on the
+        current set tags.
+
+        This can be overwritten to change the searching behaviour of a profile.
+        Furthermore it can be used by the user to just find a dotfile without
+        linking it directly.
+
+        Args:
+            target (str): A filename, without preceding tag
+        Raises:
+            :class:`~errors.GenerationError`: More than one file was found
+        Return:
+            str: The full path of the file or ``None`` if no file was found
+        """
+        try:
+            found_target = find_target_with_tags(target, self.options["tags"])
+            if not found_target:
+                found_target = find_target_exact(target)
+            if must_exist and not found_target:
+                self._gen_err("Couldn't find target '" + target + "'.")
+            return found_target
+        except ValueError as err:
+            self._gen_err(err)
+
     # TODO make this properly usable
+    # TODO rethink this to make use of dynamicfiles simple
     def __create_link_descriptor(self, target, directory="", extra_data={}, **kwargs):
         """Creates an entry in ``self.result["links"]`` with current options
         and a given target.
@@ -411,7 +437,6 @@ class Profile(BaseProfile):
         self.result["links"].append(linkdescriptor)
 
 
-
 # Abstract class that provides commands mechanics
 class CommandProfile(Profile):
     def __init__(self, parent=None, options=None, directory=None):
@@ -476,8 +501,8 @@ class CommandProfile(Profile):
         return func
 
 # The current profile
-class SimpleProfile(CommandProfile):
-    @command
+class EasyProfile(CommandProfile):
+    @CommandProfile.command
     def find(self, target, must_exist=True):
         """Find a dotfile in :const:`~const.target_files`. Depends on the
         current set tags.
@@ -493,17 +518,9 @@ class SimpleProfile(CommandProfile):
         Return:
             str: The full path of the file or ``None`` if no file was found
         """
-        try:
-            found_target = find_target_with_tags(target, self.options["tags"])
-            if not found_target:
-                found_target = find_target_exact(target)
-            if must_exist and not found_target:
-                self._gen_err("Couldn't find target '" + target + "'.")
-            return found_target
-        except ValueError as err:
-            self._gen_err(err)
+        return super().find(target, must_exist)
 
-    @command
+    @CommandProfile.command
     def decrypt(self, target):
         """Creates an :class:`~dynamicfile.EncryptedFile` instance from a
         target, updates and returns it.
@@ -529,7 +546,7 @@ class SimpleProfile(CommandProfile):
         encrypt.update()
         return encrypt
 
-    @command
+    @CommandProfile.command
     def merge(self, name, targets):
         """Creates a :class:`~dynamicfile.SplittedFile` instance from a list of
         targets, updates and returns it.
@@ -557,7 +574,7 @@ class SimpleProfile(CommandProfile):
         split.update()
         return split
 
-    @command
+    @CommandProfile.command
     def pipe(self, target, shell_command):
         """Creates a :class:`~dynamicfile.FilteredFile` instance from a target,
         updates and returns it.
@@ -581,7 +598,7 @@ class SimpleProfile(CommandProfile):
         filtered.update()
         return filtered
 
-    @command
+    @CommandProfile.command
     def link(self, *targets, **kwargs):
         """Link one ore more targets with current options.
 
@@ -604,7 +621,7 @@ class SimpleProfile(CommandProfile):
             if found_target:
                 self.__create_link_descriptor(found_target, **kwargs)
 
-    @command
+    @CommandProfile.command
     def extlink(self, path, **kwargs):
         """Link any file specified by its absolute path.
 
@@ -621,7 +638,7 @@ class SimpleProfile(CommandProfile):
             self._gen_err("Target path '" + path +
                           "' does not exist on your filesystem!")
 
-    @command
+    @CommandProfile.command
     def links(self, target_pattern, encrypted=False, **kwargs):
         """Calls :func:`link()` for all targets matching a pattern.
 
@@ -693,7 +710,7 @@ class SimpleProfile(CommandProfile):
                     kwargs["name"] = file_name
                 self.__create_link_descriptor(target, **kwargs)
 
-    @command
+    @CommandProfile.command
     def cd(self, directory=None):
         """Sets :attr:`self.directory<Profile.directory>`. Unix-like cd.
 
@@ -708,7 +725,7 @@ class SimpleProfile(CommandProfile):
         else:
             self.directory = os.path.join(self.directory, expandpath(directory))
 
-    @command
+    @CommandProfile.command
     def default(self, *options):
         """Resets :attr:`self.options<Profile.options>` back to
         :const:`constants.DEFAULTS`. If called without arguments,
@@ -724,7 +741,7 @@ class SimpleProfile(CommandProfile):
             for item in options:
                 self.options[item] = const.defaults.get(item).value
 
-    @command
+    @CommandProfile.command
     def rmtags(self, *tags):
         """Removes a list of tags.
 
@@ -735,7 +752,7 @@ class SimpleProfile(CommandProfile):
             if self.has_tag(tag):
                 self.options["tags"].remove(tag)
 
-    @command
+    @CommandProfile.command
     def tags(self, *tags):
         """Adds a list of tags.
 
@@ -746,7 +763,7 @@ class SimpleProfile(CommandProfile):
             if tag not in self.options["tags"]:
                 self.options["tags"].append(tag)
 
-    @command
+    @CommandProfile.command
     def has_tag(self, tag):
         """Returns true if a tag is set.
 
@@ -757,7 +774,7 @@ class SimpleProfile(CommandProfile):
         """
         return tag in self.options["tags"]
 
-    @command
+    @CommandProfile.command
     def opt(self, **kwargs):
         """Sets options permanently. The set options will be used in all future
         calls of commands and subprofiles as long as the commands don't
@@ -775,7 +792,7 @@ class SimpleProfile(CommandProfile):
             else:
                 self._gen_err("There is no option called " + key)
 
-    @command
+    @CommandProfile.command
     def subprof(self, *profilenames, **kwargs):
         """Executes a list of profiles by name.
 
@@ -816,3 +833,14 @@ class SimpleProfile(CommandProfile):
 
 # Profile that loads the result from a static json file
 class StaticJSONProfile(ProfileSkeleton):
+    def generate(self):
+        # TODO: Error handling
+        # TODO: Make sure to expand vars properly
+        for file in safe_walk(const.settings.profile_files, [r".*[^j][^s][^o][^n]$"], joined=True):
+            if os.path.splitext(os.path.basename(file))[0] == self.name:
+                self.profile_results = json.load(open(self.file))
+                subprofiles = self.profile_results["profiles"][:]
+                self.profile_results.clear()
+                for profile in subprofiles:
+                    sjprofile = StaticJSONProfile(parent=self)
+                    self.profile_results["profiles"].append(sjprofile.generator())
