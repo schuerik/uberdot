@@ -521,18 +521,20 @@ def import_profile_class(class_name, file):
     from uberdot.profile import Profile
     try:
         module = import_module(file, supress=False)
+    except CustomError as err:
+        raise err
     except Exception as err:
-        raise GenerationError(class_name, "The module '" + file +
+        raise GenerationError("The module '" + file +
                               "' contains an error and therefor " +
                               "can't be imported. The error was:" +
-                              "\n   " + str(err))
+                              "\n   " + str(err), profile=class_name)
     # Return the class if it is in this module
     if class_name in module.__dict__:
         if issubclass(module.__dict__[class_name], Profile):
             return module.__dict__[class_name]
         msg = "The class '" + class_name + "' does not inherit from"
         msg += " Profile and therefore can't be imported."
-        raise GenerationError(class_name, msg)
+        raise GenerationError(msg, profile=class_name)
 
 
 def import_module(file, supress=True):
@@ -755,8 +757,30 @@ def create_backup(filename):
         shutil.copyfile(filename, backupfile)
         os.chmod(backupfile, 0o444)
     except Exception as err:
-        msg = "An unkown error occured when trying to create a backup of '"
+        msg = "An unknown error occurred when trying to create a backup of '"
         msg += filename + "'."
+        raise UnkownError(err, msg)
+    return backupfile
+
+
+def create_tmp_backup(filename):
+    backupfile = filename + "." + const.settings.backup_extension
+    try:
+        shutil.copyfile(filename, backupfile)
+    except Exception as err:
+        msg = "An unknown error occurred when trying to create a temporary "
+        msg += "backup of '" + filename + "'."
+        raise UnkownError(err, msg)
+    return backupfile
+
+
+def remove_tmp_backup(filename):
+    backupfile = filename + "." + const.settings.backup_extension
+    try:
+        os.remove(backupfile)
+    except Exception as err:
+        msg = "An unknown error occurred when trying to remove a temporary "
+        msg += "backup of '" + filename + "'."
         raise UnkownError(err, msg)
     return backupfile
 
@@ -997,6 +1021,8 @@ class PreconditionError(CustomError):
     """The exitcode for a PreconditionError"""
 
 
+# TODO unify all generation error messages
+# a lot of times the orginal exception get shadowed and does not show line number
 class GenerationError(CustomError):
     """A custom exception for all errors that occur during generation.
 
@@ -1006,7 +1032,7 @@ class GenerationError(CustomError):
     EXITCODE = 104
     """The exitcode for a GenerationError"""
 
-    def __init__(self, profile_name, message):
+    def __init__(self, message, profile=None):
         """Constructor.
 
         Adds the name of the profile that triggered the error to the message.
@@ -1032,11 +1058,13 @@ class GenerationError(CustomError):
         # If we could figure out the correct frame that triggered the exception
         # we use the file and line number from the frame as origin
         if frameinfo is not None:
-            msg += "in '" + frameinfo[0] + "' in class '" + profile_name
-            msg += "' line " + str(frameinfo[1]) + ": "
+            msg += "in '" + frameinfo[0] + "'"
+            if profile is not None:
+                msg += " in class '" + profile + "'"
+            msg += "line " + str(frameinfo[1]) + ": "
         # Otherwise we will only use the name of the profile
-        else:
-            msg += const.settings.col_emph + "[" + profile_name + "]: " + const.col_endc
+        elif profile is not None:
+            msg += const.settings.col_emph + "[" + profile + "]: " + const.col_endc
         msg += message
         super().__init__(msg)
 

@@ -39,6 +39,9 @@ from uberdot.utils import *
 
 const = Const()
 
+original_builtins = list(builtins.__dict__.keys())
+"""A list of the builtins before they were modified in any way"""
+
 custom_builtins = []
 """A list of custom builtins that the profiles will map its functions to
 before executing :func:`~Profile.generate()`.
@@ -48,30 +51,437 @@ that shall become a custom builtin.
 """
 
 
-def command(func):
-    """Adding this decorator to a function will make it available
-    in :func:`generate()` as a builtin.
 
-    Furthermore this adds some documentation to the function.
 
-    Args:
-        func (function): The function that will become a command
+# Abstract class that implements the absolute minimum of profiles
+class ProfileSkeleton:
+    def __init__(self, parent=None):
+        self.executed = False
+        self.name = self.__class__.__name__
+        self.parent = parent
+        self.subprofiles = []
+        self.result = {
+            "name": self.name,
+            "parent": self.parent,
+            "links": AutoExpandList(),
+            "profiles": [],
+            "beforeUpdate": "",
+            "beforeInstall": "",
+            "beforeUninstall": "",
+            "afterInstall": "",
+            "afterUpdate": "",
+            "afterUninstall": ""
+        }
+
+    def generator(self):
+        """This is the wrapper for :func:`generate()`. It overwrites the
+        builtins and maps it own commands to them. :func:`generate()` must not
+        be called without this wrapper.
+
+        .. warning:: Do NOT call this from within the same profile, only
+            from outside!!
+
+        Returns:
+            dict: The result dictionary :attr:`self.result<Profile.result>`
+        """
+        if self.executed:
+            self._gen_err("A profile can be only generated " +
+                          "one time to prevent side-effects!")
+        self.executed = True
+        self._before_generation()
+        try:
+            log_debug("Generating event scripts for profile '" + self.name + "'.")
+            self._generate_scripts()
+            log_debug("Generating profile '" + self.name + "'.")
+            self.generate()
+            log_debug("Successfully generated profile '" + self.name + "'.")
+        except Exception as err:
+            if isinstance(err, CustomError):
+                raise
+            msg = "An unkown error occured in your generate() function: "
+            self._gen_err(msg + type(err).__name__ + ": " + str(err))
+        finally:
+            self._after_generation()
+        return self.result
+
+    def generate(self):
+        raise NotImplementedError
+
+    def _before_generation(self):
+        pass
+
+    def _after_generation(self):
+        pass
+
+    def _generate_scripts(self):
+        raise NotImplementedError
+
+    def _gen_err(self, msg):
+        """A wrapper to raise a :class:`~errors.GenerationError` with the
+        profilename.
+        """
+        raise GenerationError(msg, profile=self.name)
+
+
+# Abstract class that implements useful stuff for all profiles
+class BaseProfile(ProfileSkeleton):
+    beforeInstall = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed before the profile gets installed for the first time.
     """
-    # Add function to custom builtins
-    custom_builtins.append(func.__name__)
 
-    # Add documentation to function
-    docs = func.__doc__.split("\n\n")
-    new_doc = docs[0]
-    new_doc += "\n\n        .. note:: "
-    new_doc += "This function is a command. It can be called "
-    new_doc += "without the use of ``self`` within :func:`generate()`."
-    for i in range(1, len(docs)):
-        new_doc += "\n\n" + docs[i]
-    func.__doc__ = new_doc
+    beforeUpdate = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed before the profile gets updated and only if the profile was
+    already installed.
+    """
 
-    # Return modified function
-    return func
+    beforeUninstall = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed before the profile gets uninstalled.
+    """
+
+    afterInstall = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed after the profile gets installed for the first time.
+    """
+
+    afterUpdate = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed after the profile gets updated and only if the profile was
+    already installed.
+    """
+
+    afterUninstall = None
+    """This field can be implemented/set by the user. This has to be a string
+    or a function that return a string. The string will be stored as shell
+    script (only if it doesn't equal the last script stored) and will be
+    executed after the profile gets uninstalled.
+    """
+
+    prepare_script = None
+    """This field can be set by the user. This has to be a string and will be
+    prepended to the event scripts of this profile or any of its subprofiles.
+    """
+
+    def getscriptattr(self, event_name):
+        # Get event property
+        attribute = getattr(self, event_name, None)
+        if attribute is None:
+            return None
+        # Check for correct type
+        if isinstance(attribute, str):
+            return attribute
+        if callable(attribute):
+            # If attribute is a function we need to execute it safely and
+            # make sure that it returns a string
+            try:
+                returnval = attribute()
+            except Exception as err:
+                err_name = type(err).__name__
+                msg = event_name + " exited with error " + err_name
+                self._gen_err(msg + ": " + str(err))
+            # Again type checking
+            if isinstance(returnval, str):
+                return returnval
+            self._gen_err(event_name + "() needs to return a string")
+        self._gen_err(event_name + " needs to be a string or function")
+
+    def gen_script(self, event_name):
+        def get_prepare_scripts(profile=self, profilename=self.name):
+            result = ""
+            # First check if prepare_script is available and is a string
+            if profile.prepare_script is not None:
+                if isinstance(profile.prepare_script, str):
+                    # Save prepare_script as result
+                    result = profile.prepare_script
+                else:
+                    self._gen_err("prepare_script of " + profilename +
+                                  " needs to be a string.")
+            # Prepend prepare_scripts of parents to result
+            if profile.parent is not None:
+                result = get_prepare_scripts(profile.parent, profilename
+                ) + result
+            return result
+        # Change dir automatically if enabled and the main script doesn't
+        # start with a cd command
+        if const.settings.smart_cd:
+            if not script.strip().startswith("cd "):
+                script = "\ncd " + self.directory + "\n" + script
+        # Prepend prepare_scripts
+        script = get_prepare_scripts() + "\n" + script
+        # Prettify script a little bit
+        pretty_script = ""
+        start = 0
+        end = 0
+        i = 0
+        for line in script.splitlines():
+            line = line.strip()
+            if line:
+                if start == 0:
+                    start = i
+                end = i
+            pretty_script += line + "\n"
+            i +=1
+        # Remove empty lines at beginning and end of script
+        pretty_script = "\n".join(pretty_script.splitlines()[start:end+1])
+        # Build path where the script will be stored
+        script_dir = os.path.join(const.session_dir, "scripts")
+        makedirs(script_dir)
+        script_name =  self.name + "_" + event_name
+        script_path = script_dir + "/" + script_name
+        script_path += "_" + md5(pretty_script) + ".sh"
+        # Write new script to file
+        if not os.path.exists(script_path):
+            try:
+                script_file = open(script_path, "w")
+                script_file.write(pretty_script)
+                script_file.close()
+            except IOError:
+                self._gen_err("Could not write file '" + script_path + "'")
+            log_debug("Generated script '" + script_path + "'")
+        else:
+            log_debug("Script already generated at '" + script_path + "'")
+        return md5(pretty_script)
+
+    def _generate_scripts(self):
+        """Generates event scripts from attributes. Stores them as shell scripts
+        if they changed.
+
+        Raises
+            :class:`~errors.GenerationError`: One of the attributes isn't a
+                string nor a function that returned a string
+        """
+
+        events = [
+            "beforeInstall", "beforeUpdate", "beforeUninstall",
+            "afterInstall", "afterUpdate", "afterUninstall"
+        ]
+        for event in events:
+            script = getscriptattr(event)
+            if script is not None:
+                script_hash = gen_script(event, script)
+                self.result[event] = script_hash
+
+
+# Pythonic profile
+class Profile(BaseProfile):
+    def __init__(self, parent=None, options=None, directory=None):
+        if options is None:
+            self.options = deepcopy(dict(const.defaults.items()))
+            del self.options["directory"]
+        else:
+            self.options = deepcopy(dict(options))
+        if directory is None:
+            self.directory = const.defaults.directory
+        else:
+            self.directory = directory
+        self.directory = normpath(self.directory)
+        super().__init__(parent)
+
+    def _make_read_opt(self, kwargs):
+        """Creates a function that looks up options but prefers options of
+        kwargs.
+
+        Args:
+            kwargs (dict): kwargs of a command
+        Returns:
+            function: A function that looks up and returns the value for a key
+            in kwargs. If the key is not in kwargs it uses
+            :attr:`self.options<Profile.options>` for look up.
+        """
+        def read_opt(opt_name):
+            if opt_name in kwargs:
+                return kwargs[opt_name]
+            return self.options[opt_name]
+        return read_opt
+
+    # TODO make this properly usable
+    def __create_link_descriptor(self, target, directory="", extra_data={}, **kwargs):
+        """Creates an entry in ``self.result["links"]`` with current options
+        and a given target.
+
+        Furthermore lets you set the directory like :func:`cd()`.
+
+        Args:
+            target (str): Full path to target file
+            directory (str): A path to change the cwd
+            kwargs (dict): A set of options that will be overwritten just for
+                this call
+        Raises:
+            :class:`~errors.GenerationError`: One or more options were misused
+        """
+        read_opt = self._make_read_opt(kwargs)
+
+        # First generate the correct name for the symlink
+        replace = read_opt("replace")
+        name = read_opt("name")
+        if replace:  # When using regex pattern, name property is ignored
+            replace_pattern = read_opt("replace_pattern")
+            if not replace_pattern:
+                msg = "You are trying to use 'replace', but no "
+                msg += "'replace_pattern' was set."
+                self._gen_err(msg)
+            if name:
+                # Usually it makes no sense to set a name when "replace" is
+                # used, but commands might set this if they got an
+                # dynamicfile, because otherwise you would have to match
+                # against the hash too
+                base = name
+            else:
+                base = os.path.basename(target)
+            if const.settings.tag_separator in base:
+                base = base.split(const.settings.tag_separator, 1)[1]
+            name = re.sub(replace_pattern, replace, base)
+        elif name:
+            name = expandpath(name)
+        else:
+            # "name" wasn't set by the user,
+            # so fallback to use the target name (but without the tag)
+            name = os.path.basename(
+                target.split(const.settings.tag_separator, 1)[-1]
+            )
+
+        # Add prefix an suffix to name
+        base, ext = os.path.splitext(os.path.basename(name))
+        if read_opt("extension"):
+            ext = "." + read_opt("extension")
+        name = os.path.join(os.path.dirname(name), read_opt("prefix") +
+                            base + read_opt("suffix") + ext)
+
+        # Put together the path of the dir we create the link in
+        if not directory:
+            directory = self.directory  # Use the current dir
+        else:
+            directory = os.path.join(self.directory, expandpath(directory))
+        # Concat directory and name. The users $HOME needs to be set for this
+        # when executing as root, otherwise ~ will be expanded to the home
+        # directory of the root user (/root)
+        name = normpath(os.path.join(directory, name))
+        # Prevent exceptions in os.symlink()
+        if name[-1:] == "/":
+            self._gen_err("name mustn't represent a directory")
+
+        # Get user and group id of owner
+        owner = read_opt("owner")
+        if owner:
+            # TODO: can't this be done by autoexpansion?
+            # Check for the correct format of owner
+            if not re.fullmatch(r"\w*:\w*", owner):
+                msg = "The owner needs to be specified in the format "
+                self._gen_err(msg + "user:group")
+            owner = inflate_owner(owner)
+            try:
+                user = owner.split(":")[0]
+                shutil._get_uid(user)
+            except LookupError:
+                msg = "You want to set the owner of '" + name + "' to '" + user
+                msg += "', but there is no such user on this system."
+                self._gen_err(msg)
+            try:
+                group = owner.split(":")[1]
+                shutil._get_gid(group)
+            except LookupError:
+                msg = "You want to set the group owner of '" + name + "' to '"
+                msg += group + "', but there is no such group on this system."
+                self._gen_err(msg)
+        else:
+            # if no owner was specified, we need to set it
+            # to the owner of the dir
+            owner = predict_owner(name)
+
+        # Finally create the result entry
+        linkdescriptor = AutoExpandDict()
+        linkdescriptor["from"] = name
+        linkdescriptor["to"] = target
+        linkdescriptor["owner"] = owner
+        linkdescriptor["permission"] = read_opt("permission")
+        linkdescriptor["secure"] = read_opt("secure")
+        linkdescriptor.extend(extra_data)
+        self.result["links"].append(linkdescriptor)
+
+
+
+# Abstract class that provides commands mechanics
+class CommandProfile(Profile):
+    def __init__(self, parent=None, options=None, directory=None):
+        self.__old_builtins = {}
+        self.builtins_overwritten = False
+        super().__init__(parent, options, directory)
+
+    def __set_builtins(self):
+        """Maps functions from :const:`custom_builtins` to builtins,
+        so commands don't need to be called using ``self`` everytime.
+        """
+        if self.builtins_overwritten:
+            raise FatalError("Builtins are already overwritten")
+        for item in custom_builtins:
+            if item in builtins.__dict__:
+                self.__old_builtins[item] = builtins.__dict__[item]
+            builtins.__dict__[item] = self.__getattribute__(item)
+        self.builtins_overwritten = True
+
+    def __reset_builtins(self):
+        """Restores old Builtin mappings."""
+        if not self.builtins_overwritten:
+            raise FatalError("Builtins weren't overwritten yet")
+        for key, val in self.__old_builtins.items():
+            builtins.__dict__[key] = val
+        self.builtins_overwritten = False
+
+    def _before_generation(self):
+        self.__set_builtins()
+
+    def _after_generation(self):
+        self.__reset_builtins()
+
+    @staticmethod
+    def command(func):
+        """Adding this decorator to a function will make it available
+        in :func:`generate()` as a builtin.
+
+        Furthermore this adds some documentation to the function.
+
+        Args:
+            func (function): The function that will become a command
+        """
+        # Check that we don't accidentally shadow an real builtin
+        if func.__name__ in original_builtins:
+            msg = func.__name__ + "() is a builtin and therefore can't be a command."
+            raise GenerationError(msg)
+        # Add function to custom builtins
+        custom_builtins.append(func.__name__)
+
+        # Add documentation to function
+        docs = func.__doc__.split("\n\n")
+        new_doc = docs[0]
+        new_doc += "\n\n        .. note:: "
+        new_doc += "This function is a command. It can be called "
+        new_doc += "without the use of ``self`` within :func:`generate()`."
+        for i in range(1, len(docs)):
+            new_doc += "\n\n" + docs[i]
+        func.__doc__ = new_doc
+
+        # Return modified function
+        return func
+
+# The current profile
+class SimpleProfile(CommandProfile):
+# Profile that loads the result from a static json file
+class StaticJSONProfile(ProfileSkeleton):
+
+
+
 
 
 class Profile:
@@ -131,6 +541,7 @@ class Profile:
             "afterUninstall": ""
         }
 
+    # TODO this should be done with a property
     def __getattr__(self, name):
         """Getter for :attr:`self.directory<Profile.directory>`.
 
@@ -371,7 +782,7 @@ class Profile:
         """A wrapper to raise a :class:`~errors.GenerationError` with the
         profilename.
         """
-        raise GenerationError(self.name, msg)
+        raise GenerationError(msg, profile=self.name)
 
     @command
     def find(self, target, must_exist=True):
@@ -589,8 +1000,7 @@ class Profile:
                     kwargs["name"] = file_name
                 self.__create_link_descriptor(target, **kwargs)
 
-
-    def __create_link_descriptor(self, target, directory="", **kwargs):
+    def __create_link_descriptor(self, target, directory="", extra_data={}, **kwargs):
         """Creates an entry in ``self.result["links"]`` with current options
         and a given target.
 
@@ -690,6 +1100,7 @@ class Profile:
         linkdescriptor["owner"] = owner
         linkdescriptor["permission"] = read_opt("permission")
         linkdescriptor["secure"] = read_opt("secure")
+        linkdescriptor.extend(extra_data)
         self.result["links"].append(linkdescriptor)
 
     @command

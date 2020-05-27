@@ -200,12 +200,14 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         self.update(args, **kwargs)
         super().__init__()
 
-    def __getitem__(self, key): return self.getitem(key)
+    def __getitem__(self, key):
+        if key[0] == "@":
+            return self.get_special(key)
+        return self.getitem(key)
+
     def __delitem__(self, key): self.delitem(key)
     def __len__(self): return self.len()
-
-    def __iter__(self):
-        return iter(self.data)
+    def __iter__(self): return iter(self.data)
 
     def __setitem__(self, key, value):
         if key[0] == "@":
@@ -233,7 +235,7 @@ class AutoExpandDict(MutableMapping, AutoExpander):
             )
         data_result = dict_repr(self)
         special_result = dict_repr(self.data_specials, "@")
-        result = "AutoExpandDict{" + special_result
+        result = type(self).__name__ + "{" + special_result
         if special_result and data_result:
             result += ", "
         result += data_result
@@ -277,6 +279,35 @@ class AutoExpanderJSONEncoder(json.JSONEncoder):
         if isinstance(obj, AutoExpandList):
             return list(obj)
         return super().default(obj)
+
+# TODO: Is this really useful? Check where this could be used
+class StaticAutoExpandDict(AutoExpandDict):
+    def __setitem__(self, key, value):
+        if key in self:
+            super().__setitem__(key, value)
+        else:
+            raise FatalError("Cannot create new keys in a StaticAutoExpandDict")
+
+
+class LinkDescriptor(StaticAutoExpandDict):
+    def __init__(args={}, **kwargs):
+        self.data["from"] = None
+        self.data["to"] = None
+        self.data["secure"] = None
+        self.data["permission"] = None
+        self.data["owner"] = None
+        self.data["updated"] = None
+        self.data["created"] = None
+        super().__init__(args, **kwargs)
+
+
+class FileDescriptor(StaticAutoExpandDict):
+    def __init__(args={}, **kwargs):
+        self.data["path"] = None
+        self.data["source"] = None
+        self.data["type"] = None
+        self.data["extra"] = None
+        super().__init__(args, **kwargs)
 
 
 ###############################################################################

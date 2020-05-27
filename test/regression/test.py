@@ -155,7 +155,7 @@ class RegressionTest():
         global test_nr
         self.nr = str(test_nr).rjust(2, "0")
         test_nr += 1
-        if len(sys.argv) > 1 and self.nr not in sys.argv[1:]:
+        if len(sys.argv) > 1 and str(test_nr) not in sys.argv[1:]:
             # if specific test was set by commandline and this is
             # not the correct test, do nothing
             self.success = self.dummy

@@ -42,6 +42,8 @@ from subprocess import PIPE
 from subprocess import Popen
 from uberdot.state import AutoExpandDict
 from uberdot.utils import create_backup
+from uberdot.utils import create_tmp_backup
+from uberdot.utils import remove_tmp_backup
 from uberdot.utils import Const
 from uberdot.utils import makedirs
 from uberdot.utils import md5
@@ -52,25 +54,67 @@ from uberdot.utils import log_debug
 const = Const()
 
 
-class DynamicFile:
-    """The abstract base class for any dynamic generated file.
-    It provides the update functionality and some basic information.
+def getClassByName(name):
+    # TODO is self referncing the current module in this context?
+    return getattr(self, name)
 
-    Attributes:
-        name (str): Name of the file
-        md5sum (str): A checksum of the contents of the file
-        sources (list): A list of paths of files that are used as source to
-            generate the dynmaic file
-    """
-    def __init__(self, name):
-        """Constructor
+def load(cls, linkdescriptor):
+    return getClassByName(linkdescriptor["type"]).load(linkdescriptor)
+
+
+class AbstractFile:
+    def __init__(self, name, md5sum=None, source=None, content=None):
+        """Base constructor. Do not use.
+
+        This creates only a frame that can be empty, uninitalised or
+        outdated. Use new() and load() to create proper instances.
 
         Args:
             name (str): Name of the file
         """
         self.name = name
-        self.md5sum = None
-        self.sources = []
+        self.md5sum = md5sum
+        self._content = content
+        self._source = source
+
+    @classmethod
+    def load(cls, linkdescriptor):
+        """Creates a new instance from a linkdescriptor
+
+        Args:
+            linkdescriptor (AutoExpandDict): Info about the link
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def new(cls, name, source):
+        obj = cls(name, source=source)
+        obj.update_from_source()
+        return obj
+
+    @property
+    def source(self):
+        return self._source
+
+    @source.setter
+    def source(self, source):
+        # First check the type of new source
+        if source is None:
+            raise UnsupportedError("source cannot be unset")
+        self._check_source_type(source)
+        # Set source and invoke update
+        self._source = source
+        self.update_from_source()
+
+    @property
+    def content(self):
+        return self._content
+
+    @content.setter
+    def content(self, content):
+        self._content = content
+        if content is not None:
+            self.update_from_content()
 
     @property
     @abstractmethod
@@ -83,7 +127,7 @@ class DynamicFile:
         raise NotImplementedError
 
     @abstractmethod
-    def _generate_file(self):
+    def _generate_content(self):
         """This abstract method is used to generate the contents of the
         DynamicFile from sources.
 
@@ -91,45 +135,17 @@ class DynamicFile:
             bytearray: The raw generated content
         """
 
+    @abstractmethod
+    def _check_source_type(self, source):
+        raise NotImplementedError
+
     # TODO reverse dynamicfiles, new mode
-    def _generate_sources(self):
+    def _generate_source_content(self):
         """This method is used to re-generate the sources from an
         already generated (altered) content.
         """
+        # TODO add descriptive error message here
         raise UnsupportedError("")
-
-    def get_linkdescriptor(self):
-        return AutoExpandDict(
-            {
-                "from": self.sources,
-                "to": self.getpath(),
-                "md5": self.md5sum
-            }
-        )
-
-    def add_source(self, target):
-        """Adds a source path and normalizes it.
-
-        Args:
-            target (str): A path to a file that will be used as source
-        """
-        self.sources.append(normpath(target))
-
-    def update(self):
-        """Generates the newest version of the file and writes it
-        if it is not in its subdir yet."""
-        # Generate file and calc checksum
-        file_bytes = self._generate_content()
-        self.md5sum = md5(file_bytes)
-        # If this version of the file (with same checksum) doesn't exist,
-        # write it to the correct location
-        if not os.path.isfile(self.getpath()):
-            log_debug("Writing dynamic file '" + self.getpath() + "'.")
-            file = open(self.getpath(), "wb")
-            file.write(file_bytes)
-            file.flush()
-            # Also create a backup that can be used to restore the original
-            create_backup(self.getpath())
 
     def getpath(self):
         """Gets the path of the generated file
@@ -138,8 +154,10 @@ class DynamicFile:
             str: The full path to the generated file
         """
         # Dynamicfiles are stored with its md5sum in the name to detect chages
-        return os.path.join(self.getdir(),
-                            self.name + const.settings.hash_separator + self.md5sum)
+        return os.path.join(
+            self.getdir(),
+            self.name + const.settings.hash_separator + self.md5sum
+        )
 
     def getdir(self):
         """Gets the path of the directory that is used to store the generated
@@ -148,12 +166,112 @@ class DynamicFile:
         Returns:
             str: The path to the directory
         """
-        path = os.path.join(const.session_dir, "dynamicfiles", self.SUBDIR)
+        path = os.path.join(const.session_dir, "files", self.SUBDIR)
         makedirs(path)
         return path
 
+    def update_from_source(self):
+        """Generates the newest version of the file from sources and writes it
+        if it is not in its subdir yet."""
+        # Generate file and calc checksum
+        self._content = self._generate_content()
+        self.write()
 
-class StaticFile(DynamicFile):
+    def write(self):
+        # Refresh md5sum, so we are writing to the correct file
+        self.md5sum = md5(self._content)
+        # Check if this version of the file (with same checksum) already exists
+        if not os.path.isfile(self.getpath()):
+            log_debug("Writing " + type(self).__name__ + " to " + self.getpath() + "'.")
+            file = open(self.getpath(), "wb")
+            file.write(self._content)
+            file.flush()
+            # Also create a backup that can be used to restore the original
+            create_backup(self.getpath())
+
+    def update_from_content(self):
+        raise NotImplementedError
+
+    def get_file_descriptor(self):
+        return FileDescriptor({"path": self.getpath(), "type": type(self).__name__})
+
+
+class DynamicFile(AbstractFile):
+    @classmethod
+    def load(cls, linkdescriptor):
+        path = linkdescriptor["path"]
+        basename = os.path.basename(path)
+        name, md5sum = basename.split(const.hash_separator)
+        source = getClassByName(linkdescriptor["source"]["type"]).load(linkdescriptor["source"])
+        return cls(name, md5sum=md5sum, source=linkdescriptor["source"])
+
+    def _check_source_type(self, source):
+        if not isinstance(source, AbstractFile):
+            msg = "source must be an instance of AbstractFile, not "
+            msg += type(source).__name__
+            raise TypeError(msg)
+
+    def update_from_content(self):
+        file_bytes = self._generate_source_content()
+        checksum = md5(file_bytes)
+        # Recursive call
+        if self.source.md5sum != checksum:
+            self.source.content = file_bytes
+        self.write()
+
+    def get_file_descriptor(self):
+        file_descriptor =  super().get_file_descriptor()
+        file_descriptor.update(source=self.source.get_file_descriptor())
+        return file_descriptor
+
+class MultipleSourceDynamicFile(AbstractFile):
+    """The abstract base class for any dynamic generated file.
+    It provides the update functionality and some basic information.
+
+    Attributes:
+        name (str): Name of the file
+        md5sum (str): A checksum of the contents of the file
+        sources (list): A list of dynamic files that are used as source to
+            generate the new dynamic file
+    """
+    @classmethod
+    def load(cls, linkdescriptor):
+        path = linkdescriptor["path"]
+        basename = os.path.basename(path)
+        name, md5sum = basename.split(const.hash_separator)
+        source = []
+        for src in linkdescriptor["source"]:
+            source.append(
+                getClassByName(src["type"]).load(linkdescriptor["source"])
+            )
+        return cls(name, md5sum=md5sum, source=source)
+
+    def update_from_content(self):
+        files_bytes = self._generate_source_content()
+        for i, file_bytes in enumerate(files_bytes):
+            checksum = md5(file_bytes)
+            # Recursive call
+            if self.source[i].md5sum != checksum:
+                self.source[i].content = file_bytes
+        self.write()
+
+    def _check_source_type(self, source):
+        if not isinstance(source, list):
+            msg = "source must be a list, not " + type(source).__name__
+            raise TypeError(msg)
+        for src in source:
+            if not isinstance(src, AbstractFile):
+                msg = "sources contains an object that is not instance of"
+                msg += "AbstractFile, but " + type(src).__name__
+                raise TypeError(msg)
+
+    def get_file_descriptor(self):
+        file_descriptor =  super().get_file_descriptor()
+        file_descriptor.update(source=[src.get_file_info() for src in self.source])
+        return file_descriptor
+
+
+class StaticFile(AbstractFile):
     """This implementation of a dynamic files is used to store static
     copies of the original target files.
     """
@@ -161,17 +279,44 @@ class StaticFile(DynamicFile):
     SUBDIR = "static"
     """Subdirectory used by StaticFile"""
 
+    @classmethod
+    def load(cls, linkdescriptor):
+        path = linkdescriptor["path"]
+        basename = os.path.basename(path)
+        name, md5sum = basename.split(const.hash_separator)
+        return cls(name, md5sum=md5sum, source=linkdescriptor["source"])
+
+    def update_from_content(self):
+        # Check if original file changed
+        old_bytes = open(self.source, "wb").read()
+        new_bytes = self._generate_content()
+        if md5(old_bytes) == self.md5sum:
+            create_tmp_backup(self.source)
+            open(self.source, "wb").write(new_bytes)
+            remove_tmp_backup(self.source)
+        else:
+            # TODO resolve conflict
+            pass
+
+    def _check_source_type(self, source):
+        if not isinstance(source, str):
+            raise TypeError("source needs to be of type string, not " + type(source).__name__)
+
     def _generate_content(self):
         """Returns the contents of the source file.
 
         Returns:
             bytearray: The raw file content
         """
-        return open(self.sources[0], "rb").read()
+        return open(self.source, "rb").read()
 
-    def _generate_sources(self):
-        raise NotImplementedError
+    def _generate_source(self):
+        return self._content
 
+    def get_file_descriptor(self):
+        file_descriptor =  super().get_file_descriptor()
+        file_descriptor.update(source=self.source)
+        return file_descriptor
 
 class EncryptedFile(DynamicFile):
     """This implementation of a dynamic files allows to decrypt
@@ -233,6 +378,9 @@ class FilteredFile(DynamicFile):
         super().__init__(name)
         self.shell_command = shell_command
 
+    def get_file_info(self):
+        return super().get_file_info().extend({"command": self.shell_command})
+
     def _generate_content(self):
         """Pipes the content of the first file in
         :attr:`self.sources<dyanmicfile.sources>` into the specified
@@ -247,13 +395,17 @@ class FilteredFile(DynamicFile):
         return result
 
 
-class SplittedFile(DynamicFile):
+class SplittedFile(MultipleSourceDynamicFile):
     """This is of a dynamic files allows to join multiple dotfiles
     together to one dotfile.
     """
 
     SUBDIR = "merged"
     """Subdirectory used by SplittedFile"""
+
+    def __init__(self, name):
+        super().__init__(name)
+        self.file_lengths = []
 
     def _generate_content(self):
         """Merges all files from ``:class:`~interpreters.self`.sources``
@@ -264,5 +416,10 @@ class SplittedFile(DynamicFile):
         """
         result = bytearray()
         for file in self.sources:
-            result.extend(open(file, "rb").read())
+            lines = open(file, "rb").read().split(b"\n")
+            self.file_lengths.append(len(lines))
+            result.extend(b"\n".join(lines))
         return result
+
+    def get_file_info(self):
+        return super().get_file_info().extend({"file_lengths": self.file_lengths})
