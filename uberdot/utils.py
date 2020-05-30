@@ -296,32 +296,13 @@ def inflate_owner(owner_string):
 
 def readlink(file):
     if os.path.islink(file):
+        # Return original path
         path = os.path.join(os.path.dirname(file), os.readlink(file))
         path = normpath(path)
         return path
-    return file
-
-
-def get_linkdescriptor_from_file(file):
-    if not os.path.exists(file):
-        raise FileNotFoundError
-    if not os.path.islink(file):
-        # This should be possible later on when hardlinks are supported
-        raise NotImplementedError
-    from uberdot.state import AutoExpandDict
-    props = AutoExpandDict()
-    target_file = readlink(file)
-    props["from"] = file
-    props["to"] = target_file
-    uid, gid = get_owner(file)
-    props["owner"] = get_username(uid) + ":" + get_groupname(gid)
-    props["permission"] = get_permission(target_file)
-    if os.path.exists(target_file):
-        props["secure"] = get_owner(file) == get_owner(target_file)
     else:
-        props["secure"] = None
-    props["date"] = timestamp_to_string(os.path.getmtime(file))
-    return props
+        # file is hardlink, so return the inode number as reference for the original
+        return os.stat(file).st_ino
 
 
 def has_root_priveleges():
@@ -821,38 +802,6 @@ def get_profile_source(profile_name, file=None):
     return inspect.getblock(lines[start:])
 
 
-def links_similar(sym1, sym2):
-    return sym1["from"] == sym2["from"] or sym1["to"] == sym2["to"]
-
-
-def links_equal(link1, link2):
-    return link1["from"] == link2["from"] and \
-           link1["to"] == link2["to"] and \
-           link1["owner"] == link2["owner"] and \
-           link1["permission"] == link2["permission"] and \
-           link1["secure"] == link2["secure"]
-
-
-def link_exists(link):
-    try:
-        link2 = get_linkdescriptor_from_file(link["from"])
-    except NotImplementedError:
-        return False
-    except FileNotFoundError:
-        return False
-    return links_equal(link, link2)
-
-
-def similar_link_exists(link):
-    try:
-        link2 = get_linkdescriptor_from_file(link["from"])
-    except NotImplementedError:
-        return False
-    except FileNotFoundError:
-        return False
-    return links_similar(link, link2)
-
-
 def makedirs(dir_):
     if not os.path.exists(os.path.dirname(dir_)):
         makedirs(os.path.dirname(dir_))
@@ -1127,23 +1076,38 @@ class UnsupportedError(CustomError):
 # Constants and loaded settings
 ###############################################################################
 class Constant:
+    # Constant can't be changed after initialization
     FINAL=0
-    MUTABLE=1
-    CONFIGABLE=2
+    # Constant can be changed after initialization, but only once (to be read from a config)
+    CONFIGABLE=1
+    # Constant can be changed whithout restrictions (acts like a global variable)
+    VARIABLE=2
     def __init__(self, value, section, type, func, mutable):
-        self.__dict__["value"] = value
+        self._value = value
         self.section = section
         self.type = type
         self.func = func
-        self.mutable = mutable
+        self.__mutable = mutable
+        self.__modification_counter = 0
 
-    def __setattr__(self, name, value):
-        if name == "value":
-            if not self.mutable:
-                raise ValueError("Constant is immutable")
-            if self.func is not None:
-                value = self.func(value)
-        super().__setattr__(name, value)
+    @property
+    def mutable(self):
+        return self.__mutable
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        if not self.__mutable:
+            raise ValueError("Constant is immutable")
+        if self.__mutable == CONFIGABLE and self.__modification_counter > 0:
+            raise ValueError("Constant was already modified")
+        if self.func is not None:
+            value = self.func(value)
+        self._value = value
+        self.__modification_counter += 1
 
     def __repr__(self):
         rep = "{"
@@ -1184,7 +1148,7 @@ class Container:
             return attribute.value
         return attribute
 
-    def get_constants(self, mutable=Constant.CONFIGABLE):
+    def get_constants(self, mutable=Constant.VARIABLE):
         result = []
         for name, attr in self.__dict__.items():
             if isinstance(attr, Constant):
@@ -1276,6 +1240,8 @@ class Singleton(type):
         return cls._instances[cls]
 
 
+# TODO: add a way to add constants from a profile at runtime, so people can extend the config for themself
+# TODO: maybe even add a option to create completly new sections
 class Const(Container, metaclass=Singleton):
     section_mapping = {
         None: None,
@@ -1310,15 +1276,15 @@ class Const(Container, metaclass=Singleton):
         self.defaults = Container(self)
 
         # create internal constants
-        self.add("cfg_files", [], type="list", mutable=Constant.MUTABLE)
+        self.add("cfg_files", [], type="list", mutable=Constant.CONFIGABLE)
         self.add("cfg_search_paths", kwargs["cfg_search_paths"], type="list")
-        self.add("col_endc", '\x1b[0m', mutable=Constant.MUTABLE)
-        self.add("col_noemph", '\x1b[22m', mutable=Constant.MUTABLE)
+        self.add("col_endc", '\x1b[0m', mutable=Constant.CONFIGABLE)
+        self.add("col_noemph", '\x1b[22m', mutable=Constant.CONFIGABLE)
         self.add("data_dir", kwargs["data_dir"], type="path")
         self.add("data_dirs_foreign", kwargs["data_dirs_foreign"], type="list")
         self.add("owd", os.getcwd(), type="path")
-        self.add("session_dir", kwargs["session_dir"], type="path", mutable=Constant.MUTABLE)
-        self.add("session_dirs_foreign", kwargs["session_dirs_foreign"], type="list", mutable=True)
+        self.add("session_dir", kwargs["session_dir"], type="path", mutable=Constant.CONFIGABLE)
+        self.add("session_dirs_foreign", kwargs["session_dirs_foreign"], type="list", mutable=Constant.CONFIGABLE)
         self.add("test", kwargs["test"], type="int")
         self.add("user", kwargs["user"])
         self.add("users", kwargs["users"], type="list")
@@ -1330,22 +1296,29 @@ class Const(Container, metaclass=Singleton):
 
         # create constants for arguments of dot
         add = self.add_factory(False, "args", "bool")
-        add("skiproot", "summary")
-        add("debuginfo", mutable=Constant.MUTABLE)
+        add("debuginfo", "skiproot", "summary")
         self.add("exclude", [], "args", "list")
         self.add("fix", "", "args")
-        self.add("mode", None, "args", mutable=Constant.MUTABLE)
+        self.add("mode", None, "args")
         self.add("include", [], "args", "list")
         self.add("loglevel", logging.INFO, "args", func=self.__convert_loglevel)
-        self.add("session", "default", "args", func=str.lower, mutable=Constant.MUTABLE)
+        self.add("session", "default", "args", func=str.lower)
 
         # create constants for arguments of parser_run
-        add = self.add_factory(False, ["update", "remove", "timewarp"], "bool")
-        add(
+        # these are variable, so that the user can overwrite them from a profile
+        shared_consts = [
             "changes", "dryrun", "force", "skipafter",
             "skipbefore", "superforce", "debug", "makedirs"
+        ]
+
+        add = self.add_factory(
+            False, ["update", "remove"], "bool", mutable=Constant.VARIABLE
         )
+        add(*shared_consts)
         add("skipevents", section=["update", "remove"])
+        # timewarp also uses the arguments of parser_run, but slightly different
+        add = self.add_factory(False, "timewarp", "bool")
+        add(*shared_consts)
         add("skipevents", value=True, section="timewarp")
 
         # create constants for arguments of update mode
@@ -1368,11 +1341,9 @@ class Const(Container, metaclass=Singleton):
         self.add("searchstr", section="find")
 
         # create constants for arguments of timewarp mode
-        add = self.add_factory(
-            False, "timewarp", "bool", mutable=Constant.MUTABLE
-        )
+        add = self.add_factory(False, "timewarp", "bool")
         add("first", "last")
-        add = self.add_factory(section="timewarp", mutable=Constant.MUTABLE)
+        add = self.add_factory(section="timewarp", mutable=Constant.CONFIGABLE)
         add("earlier", "later", func=self.__convert_interval)
         add("date", func=self.__parse_date)
         add("state", func=self.__find_state)

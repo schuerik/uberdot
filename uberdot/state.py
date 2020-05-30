@@ -290,24 +290,68 @@ class StaticAutoExpandDict(AutoExpandDict):
 
 
 class LinkDescriptor(StaticAutoExpandDict):
-    def __init__(args={}, **kwargs):
+    def __init__(self, args={}, **kwargs):
         self.data["from"] = None
         self.data["to"] = None
-        self.data["secure"] = None
         self.data["permission"] = None
         self.data["owner"] = None
+        self.data["hard"] = None
+        self.data["secure"] = None
+        self.data["extra"] = None
         self.data["updated"] = None
         self.data["created"] = None
         super().__init__(args, **kwargs)
 
+    @classmethod
+    def from_file(cls, path):
+        if not os.path.exists(path):
+            raise FileNotFoundError
+        props = {}
+        props["from"] = path
+        target = readlink(path)
+        props["to"] = readlink(path)
+        uid, gid = get_owner(path)
+        props["owner"] = get_username(uid) + ":" + get_groupname(gid)
+        props["permission"] = get_permission(path)
+        if os.path.islink(path):
+            props["hard"] = False
+            if os.path.exists(target):
+                props["secure"] = get_owner(path) == get_owner(target)
+            else:
+                props["secure"] = None
+        else:
+            props["hard"] = True
+            props["secure"] = True
+        props["updated"] = timestamp_to_string(os.path.getmtime(path))
+        props["created"] = timestamp_to_string(os.path.getctime(path))
+        return cls(props)
 
-class FileDescriptor(StaticAutoExpandDict):
-    def __init__(args={}, **kwargs):
-        self.data["path"] = None
-        self.data["source"] = None
-        self.data["type"] = None
-        self.data["extra"] = None
-        super().__init__(args, **kwargs)
+    def exists(self):
+        try:
+            return self.is_same(get_linkdescriptor_from_file(self["from"]))
+        except NotImplementedError:
+            return False
+        except FileNotFoundError:
+            return False
+
+    def similar_exists(self):
+        try:
+            return self.is_similar(get_linkdescriptor_from_file(self["from"]))
+        except NotImplementedError:
+            return False
+        except FileNotFoundError:
+            return False
+
+    def is_similar(self, link):
+        return self["from"] == link["from"] or self["to"] == link["to"]
+
+    def is_same(self, link):
+        return self["from"] == link["from"] and \
+               self["to"] == link["to"] and \
+               self["owner"] == link["owner"] and \
+               self["permission"] == link["permission"] and \
+               self["hard"] == link["hard"] and \
+               self["secure"] == link["secure"]
 
 
 ###############################################################################
