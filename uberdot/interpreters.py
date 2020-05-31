@@ -1089,7 +1089,7 @@ class EventExecInterpreter(EventInterpreter):
         # Now the critical part start
         try:
             # Start the shell and start thread to listen to stdout and stderr
-            cmd = ["/bin/sudo", "-u", get_username(get_uid()), "--", constants.SHELL] + constants.SHELL_ARGS.split() + [script_path]
+            cmd = ["sudo", "-u", get_username(get_uid()), "--", constants.SHELL] + constants.SHELL_ARGS.split() + [script_path]
             log_debug(" ".join(cmd))
             self.shell = Popen(
                 cmd, stdout=PIPE, stderr=STDOUT
