@@ -261,6 +261,15 @@ def get_user_env_var(varname, fallback=None):
     Returns:
         str: The value of the variable
     """
+    try:
+        return get_user_env()[varname]
+    except KeyError:
+        if fallback is not None:
+            return fallback
+        raise PreconditionError("There is no environment varibable set " +
+                                "with the name: '" + varname + "'")
+
+def get_user_env():
     if has_root_priveleges():
         # Looks like we have to load the environment vars by ourself
         user_environ = {}
@@ -272,24 +281,9 @@ def get_user_env_var(varname, fallback=None):
         for line in proc.stdout.splitlines():
             key, val = line.decode().split("=", 1)
             user_environ[key] = val
-        # User environ is loaded, so we can lookup
-        try:
-            return user_environ[varname]
-        except KeyError:
-            if fallback is not None:
-                return fallback
-            msg = "There is no environment varibable set for user '"
-            msg += get_current_username() + "' with the name: '"
-            msg += varname + "'"
-            raise PreconditionError(msg)
+        return user_environ
     # A normal user can access its own variables
-    try:
-        return os.environ[varname]
-    except KeyError:
-        if fallback is not None:
-            return fallback
-        raise PreconditionError("There is no environment varibable set " +
-                                "with the name: '" + varname + "'")
+    return os.environ
 
 
 def expandvars(path):

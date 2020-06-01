@@ -1086,21 +1086,17 @@ class EventExecInterpreter(EventInterpreter):
                 stop_execution("Error detected!")
                 raise self.queue_err.get()
 
-        def demote(uid, gid):
-            # Changes the current user to original one that started this program
-            def result():
-                os.setgid(gid)
-                os.setuid(uid)
-            return result
-
         # Now the critical part start
         try:
+            cmd = []
+            if has_root_priveleges():
+                # Relog into the original user to start the script
+                cmd += ["/bin/sudo", "-u", get_username(get_uid()), "--"]
             # Start the shell and start thread to listen to stdout and stderr
-            cmd = [constants.SHELL] + constants.SHELL_ARGS.split() + [script_path]
+            cmd += [constants.SHELL] + constants.SHELL_ARGS.split() + [script_path]
             log_debug(" ".join(cmd))
             self.shell = Popen(
-                cmd, stdout=PIPE, stderr=STDOUT,
-                preexec_fn=demote(get_uid(), get_gid())
+                cmd, stdout=PIPE, stderr=STDOUT
             )
             thread_out.start()
 

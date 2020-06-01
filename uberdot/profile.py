@@ -526,7 +526,7 @@ class Profile:
                           "' does not exist on your filesystem!")
 
     @command
-    def links(self, target_pattern, encrypted=False, **kwargs):
+    def links(self, target_pattern, encrypted=False, match_path=False, **kwargs):
         """Calls :func:`link()` for all targets matching a pattern.
 
         Furthermore it allows to ommit the ``replace_pattern`` in favor of the
@@ -551,12 +551,17 @@ class Profile:
             kwargs["replace_pattern"] = target_pattern
 
         # Find all files that match target_pattern and index
-        # them by there name without tag
+        # them by their name without tag
         for root, name in walk_dotfiles():
             tag, base = (None, os.path.basename(name))
             if constants.TAG_SEPARATOR in base:
                 tag, base = base.split(constants.TAG_SEPARATOR, 1)
-            if re.fullmatch(target_pattern, base) is not None:
+            match = None
+            if match_path:
+                match = re.search(target_pattern, os.path.join(root, base))
+            else:
+                match = re.fullmatch(target_pattern, base)
+            if match is not None:
                 if base not in target_dir:
                     target_dir[base] = []
                 target_dir[base].append((tag, os.path.join(root, name)))
