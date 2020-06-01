@@ -1088,8 +1088,12 @@ class EventExecInterpreter(EventInterpreter):
 
         # Now the critical part start
         try:
+            cmd = []
+            if has_root_priveleges():
+                # Relog into the original user to start the script
+                cmd += ["/bin/sudo", "-u", get_username(get_uid()), "--"]
             # Start the shell and start thread to listen to stdout and stderr
-            cmd = ["sudo", "-u", get_username(get_uid()), "--", constants.SHELL] + constants.SHELL_ARGS.split() + [script_path]
+            cmd += [constants.SHELL] + constants.SHELL_ARGS.split() + [script_path]
             log_debug(" ".join(cmd))
             self.shell = Popen(
                 cmd, stdout=PIPE, stderr=STDOUT
