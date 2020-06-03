@@ -1,4 +1,6 @@
 # Set up build environment
+os: linux
+dist: xenial
 language: python
 python:
   - 3.5
@@ -47,15 +49,15 @@ jobs:
       deploy:
         # Upload documentation to github pages
         - provider: pages
-          github-token: $GITHUB_TOKEN
-          keep-history: true
-          skip-cleanup: true
-          local-dir: docs/sphinx/build/html
+          token: $GITHUB_TOKEN
+          keep_history: true
+          cleanup: true
+          local_dir: docs/sphinx/build/html
         # Autotagging commits
         - provider: script
-          skip-cleanup: true
+          cleanup: true
           script: ./deploy/autotagging.sh
         # Build and commit manpage
         - provider: script
-          skip-cleanup: true
+          cleanup: true
           script: ./deploy/update-manpage.sh
