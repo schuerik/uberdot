@@ -332,6 +332,9 @@ class DUIStrategyInterpreter(Interpreter):
         self.link_adds = []
         self.property_updates = []
 
+    def _op_start(self, dop):
+        log_debug("Reordering operations to use DUI-strategy.")
+
     def _op_add_p(self, dop):
         """Adds the profile-add-operation to ``profile_adds``.
 
@@ -1695,6 +1698,9 @@ class SkipRootInterpreter(DetectRootInterpreter):
         super().__init__()
         self.skip = []
         self.skipped_reasons = {}
+
+    def _op_start(self, dop):
+        log_debug("Removing operations that require root.")
 
     def _root_detected(self, dop, description, affected_file):
         """Stores which operations needs to be skipped.

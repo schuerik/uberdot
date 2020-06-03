@@ -456,8 +456,8 @@ class UberDot:
 
         if args.debuginfo:
             # At this point everything is loaded, so we print debuginfo
-            # immediatly so no exception that might occurs later due to
-            # inproper configuration won't "shadow" this
+            # immediatly so no exception that might occur later on
+            # won't "shadow" this output
             self.print_debuginfo()
             sys.exit(0)
 
@@ -555,9 +555,10 @@ class UberDot:
             return
         if const.args.mode == "help":
             os.execvp("man", ["-l", normpath("docs/sphinx/build/man/uberdot.1")])
-        # For the next mode we need a loaded state
+        # For the remaining modes we need a loaded state
         globalstate.load()
         self.state = globalstate.current
+        # And we fix it, to make sure it matches the actual state of the filesystem
         self.fix()
         if const.args.mode == "show":
             self.show()
@@ -577,7 +578,9 @@ class UberDot:
                 msg = "There are no profiles installed and no profiles "
                 msg += "explicitly specified to be included."
                 raise UserError(msg)
-            # 1. Decide how to solve the differences and setup DiffSolvers
+            # 1. Decide how to solve the differences between the
+            # actual state on the filesystem and the desired state
+            # and setup DiffSolvers accordingly
             if const.args.mode == "remove":
                 log_debug("Calculating operations to remove profiles.")
                 dfs = UninstallDiffSolver(profilenames)
@@ -594,10 +597,8 @@ class UberDot:
             # 3. Eventually manipulate the result
             if const.args.mode == "update":
                 if const.update.dui:
-                    log_debug("Reordered operations to use DUI-strategy.")
                     dfl.run_interpreter(DUIStrategyInterpreter())
             if const.args.skiproot:
-                log_debug("Removing operations that require root.")
                 dfl.run_interpreter(SkipRootInterpreter())
             # 4. Simmulate a run, print the result or actually resolve the
             # differences
@@ -1080,7 +1081,7 @@ class CustomParser(argparse.ArgumentParser):
         # Parse commandline like usually just to make sure the user entered
         # a valid combition of arguments and subcommands
         super().parse_args(args, namespace)
-        # Then we prepare argv for the actual parsing. Therefore we will
+        # Then we prepare args for the actual parsing. Therefore we will
         # devide it by subcommands and parse them individual.
         # First initialize some stuff that we will need for this
         subparsers = self._subparsers._actions[1].choices
@@ -1092,7 +1093,7 @@ class CustomParser(argparse.ArgumentParser):
             if nargs == "?" or nargs is None:
                 return 1
             return -1
-        split_argv = [[]]  # This is where we store the prepared argv
+        split_argv = [[]]  # This is where we store the prepared args
         max_arg_count = 0
         subp = self
         # Store for each positional of the current subparser how many
@@ -1212,6 +1213,7 @@ def run_script(name):
                 if os.path.exists(const.settings.logfile):
                     with open(const.settings.logfile, "r") as fin:
                         content = fin.read().splitlines(True)
+                # Resize log
                 content = content[-const.settings.logfilesize:]
                 # Write file
                 with open(const.settings.logfile, "w") as fout:
@@ -1233,6 +1235,7 @@ def run_script(name):
             log_warning("The error above was unexpected. But it's fine," +
                         " I did nothing critical at the time :)")
             sys.exit(100)
+
 
 # import IPython
 # IPython.embed()
