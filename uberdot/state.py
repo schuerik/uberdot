@@ -298,7 +298,7 @@ class LinkDescriptor(StaticAutoExpandDict):
         self.data["owner"] = None
         self.data["hard"] = None
         self.data["secure"] = None
-        self.data["extra"] = None
+        self.data["buildup"] = None
         self.data["updated"] = None
         self.data["created"] = None
         super().__init__(args, **kwargs)

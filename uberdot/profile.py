@@ -71,7 +71,7 @@ class ProfileSkeleton:
             "afterUninstall": ""
         }
 
-    def generator(self):
+    def start_generation(self):
         """This is the wrapper for :func:`generate()`. It overwrites the
         builtins and maps it own commands to them. :func:`generate()` must not
         be called without this wrapper.
@@ -86,34 +86,37 @@ class ProfileSkeleton:
             self._gen_err("A profile can be only generated " +
                           "one time to prevent side-effects!")
         self.executed = True
-        self._before_generation()
+        self._prepare_generation()
         try:
-            log_debug("Generating event scripts for profile '" + self.name + "'.")
-            self._generate_scripts()
+            self.before_generation()
             log_debug("Generating profile '" + self.name + "'.")
             self.generate()
             log_debug("Successfully generated profile '" + self.name + "'.")
+            self.after_generation()
         except Exception as err:
             if isinstance(err, CustomError):
                 raise
             msg = "An unkown error occured in your generate() function: "
             self._gen_err(msg + type(err).__name__ + ": " + str(err))
         finally:
-            self._after_generation()
+            self._cleanup_generation()
         return self.result
 
     @abstractmethod
     def generate(self):
         raise NotImplementedError
 
-    def _before_generation(self):
+    def _prepare_generation(self):
         pass
 
-    def _after_generation(self):
+    def _cleanup_generation(self):
         pass
 
-    def _generate_scripts(self):
-        raise NotImplementedError
+    def before_generation(self):
+        pass
+
+    def after_generation(self):
+        pass
 
     def _gen_err(self, msg):
         """A wrapper to raise a :class:`~errors.GenerationError` with the
@@ -253,7 +256,7 @@ class BaseProfile(ProfileSkeleton):
             log_debug("Script already generated at '" + script_path + "'")
         return md5(pretty_script)
 
-    def _generate_scripts(self):
+    def before_generation(self):
         """Generates event scripts from attributes. Stores them as shell scripts
         if they changed.
 
@@ -262,6 +265,7 @@ class BaseProfile(ProfileSkeleton):
                 string nor a function that returned a string
         """
 
+        log_debug("Generating event scripts for profile '" + self.name + "'.")
         events = [
             "beforeInstall", "beforeUpdate", "beforeUninstall",
             "afterInstall", "afterUpdate", "afterUninstall"
@@ -273,20 +277,14 @@ class BaseProfile(ProfileSkeleton):
                 self.result[event] = script_hash
 
 
-
 # Pythonic profile
+# TODO: get rid of directory as standalone property
 class Profile(BaseProfile):
-    def __init__(self, parent=None, options=None, directory=None):
+    def __init__(self, parent=None, options=None):
         if options is None:
             self.options = deepcopy(dict(const.defaults.items()))
-            del self.options["directory"]
         else:
             self.options = deepcopy(dict(options))
-        if directory is None:
-            self.directory = const.defaults.directory
-        else:
-            self.directory = directory
-        self.directory = normpath(self.directory)
         super().__init__(parent)
 
     def _make_read_opt(self, kwargs):
@@ -436,13 +434,24 @@ class Profile(BaseProfile):
         linkdescriptor.extend(extra_data)
         self.result["links"].append(linkdescriptor)
 
+    def add_link(self, source, target, buildup=None, **kwargs):
+        read_opt = self._make_read_opt(kwargs)
+        linkdescr = LinkDescriptor()
+        linkdescr["from"] = source
+        linkdescr["to"] = target
+        linkdescr["owner"] = read_opt("owner")
+        linkdescr["permission"] = read_opt("permission")
+        linkdescr["secure"] = read_opt("permission")
+        linkdescr["buildup"].update(buildup)
+        self.result["links"].append(linkdescr)
+
 
 # Abstract class that provides commands mechanics
 class CommandProfile(Profile):
-    def __init__(self, parent=None, options=None, directory=None):
+    def __init__(self, parent=None, options=None):
         self.__old_builtins = {}
         self.builtins_overwritten = False
-        super().__init__(parent, options, directory)
+        super().__init__(parent, options)
 
     def __set_builtins(self):
         """Maps functions from :const:`custom_builtins` to builtins,
@@ -464,10 +473,10 @@ class CommandProfile(Profile):
             builtins.__dict__[key] = val
         self.builtins_overwritten = False
 
-    def _before_generation(self):
+    def _prepare_generation(self):
         self.__set_builtins()
 
-    def _after_generation(self):
+    def _cleanup_generation(self):
         self.__reset_builtins()
 
     @staticmethod
@@ -500,8 +509,23 @@ class CommandProfile(Profile):
         # Return modified function
         return func
 
+# TODO: self.directory doesn't exist anymore
 # The current profile
 class EasyProfile(CommandProfile):
+    def __init__(self, parent=None, options=None, cwd=None):
+        super().__init__(parent, options)
+        self.owd = None
+        self.cwd = cwd
+        if not self.cwd:
+            self.cwd = self.options.directory
+
+    def create_static_link(self, ):
+        source = self._build_source_name()
+        owner = self._build_source_owner()
+
+    def create_dynamic_link(self, ):
+        source = self._build_source_name()
+
     @CommandProfile.command
     def find(self, target, must_exist=True):
         """Find a dotfile in :const:`~const.target_files`. Depends on the
@@ -721,9 +745,13 @@ class EasyProfile(CommandProfile):
             directory (str): The path to switch to
         """
         if directory is None:
-            self.directory = const.defaults.directory
+            self.owd = self.cwd
+            self.cwd = const.defaults.directory
+        elif directory == "-":
+            self.owd, self.cwd = self.cwd, self.owd
         else:
-            self.directory = os.path.join(self.directory, expandpath(directory))
+            self.owd = self.cwd
+            self.cwd = os.path.join(self.cwd, expandpath(directory))
 
     @CommandProfile.command
     def default(self, *options):
