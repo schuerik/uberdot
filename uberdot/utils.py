@@ -1430,7 +1430,7 @@ class Const(metaclass=Singleton):
             )
             setattr(getattr(self, section), name, constant)
             if self.__load_initialized:
-                self.__load_value_from_config(name, constant)
+                self.__load_value(name, constant)
 
     def add_factory(
         self, section,
@@ -1577,7 +1577,7 @@ class Const(metaclass=Singleton):
         for name, constant in all_constants:
             if name == "session" and constant.section == self.con_to_sec["args"]:
                 continue
-            self.__load_value_from_config(name, constant)
+            self.__load_value(name, constant)
 
         # Remove all colors if disabled
         if not self.settings.color:
@@ -1590,7 +1590,7 @@ class Const(metaclass=Singleton):
         if not self.__load_initialized:
             raise FatalError("Config loading feature not fully initialized yet.")
         if constant.section is None:
-            # Constant can't be found in config
+            # Constant can't be found in any config
             return
         # Set getter for config depending on value type
         getter = self.config.get
@@ -1626,18 +1626,28 @@ class Const(metaclass=Singleton):
     def __get_value_from_args(self, name, constant):
         found = False
         value = None
-        pargs = self.parsed_args
-        con = self.sec_to_con[constant.section]
-        # Fix/map certain constants to other argument names or sections
-        if con == "defaults":
-            con =
-        # Search for correct argument
-        if hasattr(pargs, con) and hasattr(pargs.__dict__[con].__dict__[name]):
-            value = pargs.__dict__[con].__dict__[name]
+        pargs = vars(self.parsed_args)  # dict to search in
+        con = self.sec_to_con[constant.section]  # name of container in constants
+
+        # Select the correct section of parsed_args
+        if con == "default" and "update" in pargs and "opt_dict" in pargs["update"]:
+            pargs = pargs["update"]["opt_dict"]
+        elif con in pargs:
+            pargs = pargs[con]
+        else:
+            return False, None
+
+        # Search for the argument
+        if name in pargs:
+            value = pargs[name]
             found = True
-            # Fix value depending on type
+
+        # Fix value depending on type
+        if found:
             if constant.type == "path":
                 value = os.path.join(self.owd, value)
+            # elif constant.type == "state":
+            #     value = os.path.join(self.owd, value)
             elif constant.type == "int":
                 value = int(value)
         return found, value

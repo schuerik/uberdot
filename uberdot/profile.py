@@ -34,7 +34,7 @@ from abc import abstractmethod
 from copy import deepcopy
 from uberdot.utils import Const
 from uberdot.dynamicfile import *
-from uberdot.state import AutoExpandDict, AutoExpandList
+from uberdot.state import LinkContainerList, LinkDescriptor
 from uberdot.utils import *
 
 const = Const()
@@ -61,7 +61,7 @@ class ProfileSkeleton:
         self.result = {
             "name": self.name,
             "parent": self.parent,
-            "links": AutoExpandList(),
+            "links": LinkContainerList(),
             "profiles": [],
             "beforeUpdate": "",
             "beforeInstall": "",

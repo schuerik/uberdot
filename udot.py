@@ -534,6 +534,7 @@ class UberDot:
         if cst.dryrun or cst.changes or cst.debug:
             # But skip if run() didn't modify the state file
             return
+        # TODO what about --skiproot?
         # TODO the following is still critical but doesnt handle unexpected errors
         if const.args.include or const.args.exclude:
             # State was modified only partly, so this is a completly new snapshot
@@ -692,7 +693,7 @@ class UberDot:
                 )
         # And execute/generate them
         for profile in self.profiles:
-            profile.generator()
+            profile.start_generation()
 
     def print_debuginfo(self):
         """Print out internal values.
@@ -946,7 +947,7 @@ class UberDot:
         ]
         difflog.run_interpreter(*tests)
         # Gain root if needed
-        if not has_root_priveleges():
+        if not has_root_privileges():
             log_debug("Checking if root is required.")
             if const.subcommand.dryrun:
                 difflog.run_interpreter(RootNeededInterpreter())
@@ -1081,7 +1082,7 @@ class CustomParser(argparse.ArgumentParser):
         # Parse commandline like usually just to make sure the user entered
         # a valid combition of arguments and subcommands
         super().parse_args(args, namespace)
-        # Then we prepare args for the actual parsing. Therefore we will
+        # Then we prepare args for the actual parsing. For this we will
         # devide it by subcommands and parse them individual.
         # First initialize some stuff that we will need for this
         subparsers = self._subparsers._actions[1].choices

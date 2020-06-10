@@ -120,8 +120,8 @@ def upgrade_flexible_events(old_state):
 
 MIN_VERSION = "1.12.17_4"
 upgrades = [
-    ("1.17.0", upgrade_stone_age),
-    ("1.18.0", upgrade_flexible_events),
+    ("1.17.0", upgrade_stone_age, None),
+    ("1.18.0", upgrade_flexible_events, None),
 ]
 
 
@@ -158,20 +158,11 @@ class Notifier:
 
 
 class AutoExpander(Notifier):
+    def __init__(self):
+        self.expand_mapping = {}
+
     def getitem(self, key):
-        value = self.data[key]
-        # Expand values
-        if isinstance(value, str):
-            # Normalize path
-            if key in PATH_VALUES:
-                value = normpath(value)
-            # Inflate owner
-            elif key == "owner":
-                value = inflate_owner(value)
-            # Expand environment vars
-            else:
-                value = expandvars(value)
-        return value
+        return self.expandvar(key, self.data[key])
 
     def len(self):
         return len(self.data)
@@ -180,25 +171,26 @@ class AutoExpander(Notifier):
         del self.data[key]
         self.notify()
 
-    def wrap_value(self, value):
-        # Wrap dicts and lists into AutoExpanders
-        if type(value) == dict:
-            value = AutoExpandDict(value)
-        elif type(value) == list:
-            value = AutoExpandList(value)
+    def expandvar(self, key, value):
+        if key in self.expand_mapping:
+            value = self.expand_mapping[key](value)
+        return value
+
+    def wrap_value(self, key, value):
         # If we got a Notifier or just wraped a dict or a list,
         # we set this instance as its parent
         if isinstance(value, Notifier):
             value.set_parent(self)
         return value
 
+
 class AutoExpandDict(MutableMapping, AutoExpander):
     def __init__(self, args={}, **kwargs):
         # Init fields and load data
         self.data = {}
         self.data_specials = {}
-        self.update(args, **kwargs)
         super().__init__()
+        self.update(args, **kwargs)
 
     def __getitem__(self, key):
         if key[0] == "@":
@@ -213,7 +205,7 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         if key[0] == "@":
             self.set_special(key[1:], value)
         else:
-            self.data[key] = self.wrap_value(value)
+            self.data[key] = self.wrap_value(key, value)
             self.notify()
 
     def get_specials(self):
@@ -244,26 +236,26 @@ class AutoExpandDict(MutableMapping, AutoExpander):
 
 
 class AutoExpandList(MutableSequence, AutoExpander):
-    def __init__(self, args=[], parent=None):
+    def __init__(self, args=[]):
         # Init fields and load data
         self.data = []
-        self.extend(args)
         super().__init__()
+        self.extend(args)
 
     def __getitem__(self, index): return self.getitem(index)
     def __delitem__(self, index): self.delitem(index)
     def __len__(self): return self.len()
 
     def __setitem__(self, value):
-        self.data.append(self.wrap_value(value))
+        self.data.append(self.wrap_value(self.len(), value))
         self.notify()
 
     def insert(self, index, value):
-        self.data.insert(index, self.wrap_value(value))
+        self.data.insert(index, self.wrap_value(index, value))
         self.notify()
 
     def __repr__(self):
-        rep = "AutoExpandList["
+        rep = type(self).__name__ + "["
         for item in self[:-1]:
             rep += repr(item) + ", "
         if self.len():
@@ -302,6 +294,9 @@ class LinkDescriptor(StaticAutoExpandDict):
         self.data["updated"] = None
         self.data["created"] = None
         super().__init__(args, **kwargs)
+        self.expand_mapping["from"] = normpath
+        self.expand_mapping["to"] = normpath
+        self.expand_mapping["owner"] = inflate_owner
 
     @classmethod
     def from_file(cls, path):
@@ -353,6 +348,20 @@ class LinkDescriptor(StaticAutoExpandDict):
                self["permission"] == link["permission"] and \
                self["hard"] == link["hard"] and \
                self["secure"] == link["secure"]
+
+
+class ProfileStateDict(AutoExpandDict):
+    def wrap_value(self, key, value):
+        if key == "links":
+            value = LinkContainerList(value)
+        return super().wrap_value(value)
+
+
+class LinkContainerList(AutoExpandList):
+    def wrap_value(self, key, value):
+        if type(value) == dict:
+            value = LinkDescriptor(value)
+        return super().wrap_value(value)
 
 
 ###############################################################################
@@ -485,10 +494,11 @@ class State(AutoExpandDict):
     def get_snapshots(self):
         return State._get_snapshots(os.path.dirname(self.file))
 
-    def upgrade(self, patch):
+    def get_upgraded(self, patch):
         try:
-            self = patch[1](self)
-            self.set_special("version", patch[0])
+            result = patch[1](deepcopy(self.data))
+            result["@version"] = patch[0]
+            return result
         except CustomError:
             raise
         except Exception as err:
@@ -505,7 +515,8 @@ class State(AutoExpandDict):
             msg = "Your state file was created with a newer version of "
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
-        # Turn of auto_write temporarily
+        # Turn of auto_write temporarily, so that we don't write the file
+        # for any minor change but only for each applied patch
         auto_write = self.auto_write
         self.auto_write = False
         # Upgrade and store in loaded
@@ -516,9 +527,14 @@ class State(AutoExpandDict):
                     "Upgrading state file to version " + patch[0] + " ... ",
                     end=""
                 )
-                self.upgrade(patch)
+                self.update(self.get_upgraded(patch))
                 self.write_file()
                 log("Done.")
+                if patch[2]:
+                    log_warning(
+                        "Manual changes to your profiles might be required " +
+                        "due to this upgrade: " + patch[2]
+                    )
         elif patches:
             log_debug(
                 "Upgrading state file to version " + patches[-1][0]  + " ... ",
@@ -578,6 +594,11 @@ class State(AutoExpandDict):
             raise UnkownError(err, msg)
         finally:
             file.close()
+
+    def wrap_value(self, key, value):
+        if type(value) == dict:
+            value = ProfileStateDict(value)
+        return super().wrap_value(value)
 
     def _notify(self):
         if self.auto_write:
