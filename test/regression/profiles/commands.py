@@ -1,7 +1,7 @@
 """This module collects all profiles that are used to test commands"""
-from uberdot.profile import Profile
+from uberdot.profile import EasyEasyProfile
 
-class Links(Profile):
+class Links(EasyProfile):
     def generate(self):
         links("name1")
         links("\w{4}2")
@@ -10,22 +10,22 @@ class Links(Profile):
         cd("subdir")
         links("name_(encrypt[89])", replace=r"\1", encrypted=True)
 
-class Decrypt(Profile):
+class Decrypt(EasyProfile):
     def generate(self):
         link(decrypt("name_encrypt8"))
         link(decrypt("name_encrypt8"), replace_pattern="name_(encrypt8)", replace=r"\1")
         link(decrypt("name_encrypt9"), name="encrypt9")
 
-class Merge(Profile):
+class Merge(EasyProfile):
     def generate(self):
         link(merge("merge1", ["name1", "name2"]))
         link(merge("merge2", ["name3", "name4", "name5"]), name="merge3")
 
-class Pipe(Profile):
+class Pipe(EasyProfile):
     def generate(self):
         link(pipe("file", "grep line"))
 
-class Default(Profile):
+class Default(EasyProfile):
     def generate(self):
         opt(prefix=".", suffix="test")
         tags("tag1")
@@ -35,29 +35,29 @@ class Default(Profile):
         default()
         link("name6")
 
-class DynamicFiles(Profile):
+class DynamicFiles(EasyProfile):
     def generate(self):
         link(decrypt("name_encrypt8"))
         link(decrypt("name_encrypt9"))
         link(merge("merge1", ["name1", "name2"]))
         link(merge("merge2", ["name1", "name2"]))
 
-class EnvironmentSubstitution(Profile):
+class EnvironmentSubstitution(EasyProfile):
     def generate(self):
         link("name2", name="$LANG")
         link("name2", directory="$TERM", extension="$USER")
 
-class IgnoreFiles(Profile):
+class IgnoreFiles(EasyProfile):
     def generate(self):
         link("ignored.file", ".dotignore", optional=True)
         link("name1")
 
-class NestedDynamicFile(Profile):
+class NestedDynamicFile(EasyProfile):
     def generate(self):
         link(merge("merge1", [decrypt("name_encrypt8"), "name2"]))
         link(pipe(merge("merge2", ["file", "name2"]), "grep 2"))
 
-class SuperProfile(Profile):
+class SuperEasyProfile(EasyProfile):
     def generate(self):
         link("name1")
         subprof("Subprofile1", "Subprofile2")
@@ -65,7 +65,7 @@ class SuperProfile(Profile):
         cd("subdir")
         subprof("Subprofile3", "Subprofile4")
 
-class SuperProfileTags(Profile):
+class SuperEasyProfileTags(EasyProfile):
     def generate(self):
         tags("tag1", "tag2")
         link("name1")
@@ -74,23 +74,23 @@ class SuperProfileTags(Profile):
         rmtags("tag1")
         subprof("Subprofile2")
 
-class Subprofile1(Profile):
+class Subprofile1(EasyProfile):
     def generate(self):
         links("name[2-4]")
 
-class Subprofile3(Profile):
+class Subprofile3(EasyProfile):
     def generate(self):
         links("name[2-4]")
 
-class Subprofile2(Profile):
+class Subprofile2(EasyProfile):
     def generate(self):
         links("name[56]")
 
-class Subprofile4(Profile):
+class Subprofile4(EasyProfile):
     def generate(self):
         links("name[56]")
 
-class SuperProfileEvent(Profile):
+class SuperEasyProfileEvent(EasyProfile):
     prepare_script = """
         alias s='echo "Hello" >> '
         function t(){
@@ -104,7 +104,7 @@ class SuperProfileEvent(Profile):
         link("name1")
         subprof("SubprofileEvent")
 
-class FailProfileEvent(Profile):
+class FailEasyProfileEvent(EasyProfile):
     foo = "syntax error"
     beforeInstall = "exit 1"
     def afterInstall(self):
@@ -112,17 +112,17 @@ class FailProfileEvent(Profile):
     def generate(self):
         link("name1")
 
-class ConflictProfileEvent(Profile):
+class ConflictEasyProfileEvent(EasyProfile):
     beforeInstall = "touch name1"
     def generate(self):
         link("name1")
 
-class TimeoutProfileEvent(Profile):
+class TimeoutEasyProfileEvent(EasyProfile):
     beforeInstall = "sleep 2"
     def generate(self):
         link("name1")
 
-class SubprofileEvent(Profile):
+class SubprofileEvent(EasyProfile):
     beforeInstall = """
         # Just a comment
         s test.file
@@ -141,7 +141,7 @@ class SubprofileEvent(Profile):
     def generate(self):
         links("name[23]")
 
-class ExteranalLink(Profile):
+class ExteranalLink(EasyProfile):
     def generate(self):
         extlink("untouched.file", name="test1")
         extlink("untouched.file", directory="test2")

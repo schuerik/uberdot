@@ -171,7 +171,8 @@ class UberDot:
         )
         parser.add_argument(
             "-l", "--log",
-            help="specify a file to log to"
+            help="log everything also into logfile",
+            action=StoreBoolAction
         )
         parser.add_argument(
             "--session",
@@ -463,7 +464,7 @@ class UberDot:
 
         # Configure logger
         logger.setLevel(const.args.loglevel)
-        if const.settings.logfile:
+        if const.args.log:
             ch = NoColorFileHandler(const.settings.logfile)
             ch.setLevel(logging.DEBUG)
             formatter = logging.Formatter(const.settings.logfileformat)
@@ -497,10 +498,10 @@ class UberDot:
         # Check if arguments are bad
         if const.args.mode is None:
             raise UserError("No mode selected.")
-        profiles_included = list(set(const.args.include) - set(const.args.exclude))
-        if sorted(profiles_included) != sorted(const.args.include):
-            msg = "You can not include and exclude a profile at the same time."
-            raise UserError(msg)
+        # profiles_included = list(set(const.args.include) - set(const.args.exclude))
+        # if sorted(profiles_included) != sorted(const.args.include):
+        #     msg = "You can not include and exclude a profile at the same time."
+        #     raise UserError(msg)
         if const.args.mode == "find":
             if (not const.find.name and not const.find.filename \
                     and not const.find.content and not const.find.all):
@@ -572,7 +573,7 @@ class UberDot:
             # have to actually do something:
             # 0. Figure out which profiles we are talking about
             # TODO profilenames could be used at other places as well
-            profilenames = const.args.include
+            profilenames = const.mode_args.include
             if not profilenames:
                 profilenames = self.state.keys()
             if not profilenames:
@@ -587,8 +588,7 @@ class UberDot:
                 dfs = UninstallDiffSolver(profilenames)
             elif const.args.mode == "update":
                 log_debug("Calculating operations to update profiles.")
-                self.execute_profiles(profilenames)
-                profile_results = [p.result for p in self.profiles]
+                profile_results = self.execute_profiles(profilenames)
                 dfs = UpdateDiffSolver(profile_results,
                                        const.update.parent)
             else:
@@ -679,21 +679,20 @@ class UberDot:
                 msg += "the unkown error before you proceed to use this tool."
                 raise UnkownError(err, msg)
 
-
     def execute_profiles(self, profilenames):
         """Imports profiles by name and executes them. """
+        profiles = []
         # Import and create profiles
         for profilename in profilenames:
             if profilename in const.args.exclude:
                 log_debug("'" + profilename + "' is in exclude list." +
                           " Skipping generation of profile...")
             else:
-                self.profiles.append(
-                    import_profile(profilename)()
-                )
+                profiles.append(import_profile(profilename)())
         # And execute/generate them
-        for profile in self.profiles:
+        for profile in profiles:
             profile.start_generation()
+        return [p.result for p in profiles]
 
     def print_debuginfo(self):
         """Print out internal values.
@@ -1177,6 +1176,10 @@ def run_script(name):
 
     if name == "__main__":
         global logger
+        # TODO use a generator here and move all of this into the uberdot class.
+        # that way people can use uberdot in their own scripts and we
+        # provide a safe startup routine that allows the user to step into
+
         # Init the logger, further configuration is done when we parse the
         # commandline arguments
         logging.setLoggerClass(CustomRecordLogger)

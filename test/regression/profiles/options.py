@@ -1,11 +1,11 @@
 """This module collects all profiles that are used to test the options"""
-from uberdot.profile import Profile
+from uberdot.profile import EasyProfile
 
-class NoOptions(Profile):
+class NoOptions(EasyProfile):
     def generate(self):
         link("name1", "name2", "name3")
 
-class DirOption(Profile):
+class DirOption(EasyProfile):
     def generate(self):
         link("name1")
         link("name2", directory="subdir")
@@ -16,7 +16,7 @@ class DirOption(Profile):
         link("name5", directory="..")
         links("name[67]", directory="../subdir2")
 
-class NameOption(Profile):
+class NameOption(EasyProfile):
     def generate(self):
         link("name1", name="name")
         link("name2", name="subdir/name")
@@ -24,7 +24,7 @@ class NameOption(Profile):
         cd("subdir")
         link("name5", name="../name6", directory="subsubdir")
 
-class PrefixSuffixExtensionOption(Profile):
+class PrefixSuffixExtensionOption(EasyProfile):
     def generate(self):
         link("name1", prefix=".")
         link("name2", suffix="bla")
@@ -35,7 +35,7 @@ class PrefixSuffixExtensionOption(Profile):
         link("name3", prefix="subdir/")
         link("name4", suffix="/test")
 
-class PermissionOption(Profile):
+class PermissionOption(EasyProfile):
     def generate(self):
         link("name1")
         link("name2", permission=600)
@@ -43,7 +43,7 @@ class PermissionOption(Profile):
         # Testing secure feature here until a proper test exists
         link("name5", secure=False)
 
-class OptionalOption(Profile):
+class OptionalOption(EasyProfile):
     def generate(self):
         tags("tag1", "tag2")
         links("name[2-4]")
@@ -52,14 +52,14 @@ class OptionalOption(Profile):
         tags("tag")
         link("name10", optional=True)
 
-class ReplaceOption(Profile):
+class ReplaceOption(EasyProfile):
     def generate(self):
         link("name2", "name3", replace_pattern="name", replace="file")
         tags("tag1")
         cd("subdir")
         link("name2", "name3", replace_pattern="name", replace="file")
 
-class OptionArgument(Profile):
+class OptionArgument(EasyProfile):
     def generate(self):
         link("name1")
         opt(prefix="")

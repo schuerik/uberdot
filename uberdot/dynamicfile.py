@@ -87,8 +87,10 @@ class AbstractFile:
         raise NotImplementedError
 
     @classmethod
-    def new(cls, name, source):
-        obj = cls(name, source=source)
+    def new(cls, name, source=None, **kwargs):
+        if source is None:
+            raise ValueError("source not set")
+        obj = cls(name, source=source, **kwargs)
         obj.update_from_source()
         return obj
 
@@ -152,6 +154,8 @@ class AbstractFile:
             str: The full path to the generated file
         """
         # Dynamicfiles are stored with its md5sum in the name to detect chages
+        if self.md5sum is None:
+            raise ValueError("not updated")
         return os.path.join(
             self.getdir(),
             self.name + const.settings.hash_separator + self.md5sum
@@ -164,7 +168,7 @@ class AbstractFile:
         Returns:
             str: The path to the directory
         """
-        path = os.path.join(const.session_dir, "files", self.SUBDIR)
+        path = os.path.join(const.internal.session_dir, "files", self.SUBDIR)
         makedirs(path)
         return path
 
@@ -312,9 +316,10 @@ class StaticFile(AbstractFile):
         return self.content
 
     def get_file_descriptor(self):
-        file_descriptor =  super().get_file_descriptor()
+        file_descriptor = super().get_file_descriptor()
         file_descriptor.update(source=self.source)
         return file_descriptor
+
 
 class EncryptedFile(DynamicFile):
     """This implementation of a dynamic files allows to decrypt
@@ -369,7 +374,7 @@ class FilteredFile(DynamicFile):
     SUBDIR = "piped"
     """Subdirectory used by FilteredFile"""
 
-    def __init__(self, name, shell_command):
+    def __init__(self, name, shell_command="", **kwargs):
         """Constructor.
 
         Args:
@@ -377,7 +382,7 @@ class FilteredFile(DynamicFile):
             shell_command (str): A shell command that the file will be piped
                 into
         """
-        super().__init__(name)
+        super().__init__(name, **kwargs)
         self.shell_command = shell_command
 
     def get_file_info(self):

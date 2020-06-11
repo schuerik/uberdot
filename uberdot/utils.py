@@ -88,11 +88,60 @@ class SafeWalker:
             return os.path.join(result[0], result[1])
         return result[0], result[1]
 
+
 def walk(path):
     return iter(Walker(path))
 
+
 def safe_walk(path, ignorelist=[], joined=False):
     return iter(SafeWalker(path, ignorelist, joined))
+
+
+def get_snapshots(state_dir):
+    snapshots = []
+    for file in listfiles(state_dir):
+        if re.fullmatch(r".*/state_\d{10}\.json", file):
+            snapshots.append(file)
+    return sorted(snapshots)
+
+
+def build_statefile_path(timestamp=None):
+    path = os.path.join(const.internal.session_dir, const.internal.STATE_NAME)
+    if timestamp is not None:  # Load a previous snapshot
+        path, ext = os.path.splitext(path)
+        path += "_" + timestamp + ext
+    return path
+
+
+def get_timestamp_from_path(path):
+    return path.split("_")[1][:-5]
+
+
+def get_tags_from_path(path):
+    tag, base = (None, os.path.basename(path))
+    if const.settings.tag_separator in base:
+        *tags, base = base.split(const.settings.tag_separator)
+        return tags
+    return []
+
+
+def strip_tags(filename):
+    directory = os.path.dirname(filename)
+    base = os.path.basename(filename)
+    if const.settings.tag_separator in base:
+        base = base.split(const.settings.tag_separator)[-1]
+    return os.path.join(directory, base)
+
+
+def strip_hashs(filename):
+    directory = os.path.dirname(filename)
+    base = os.path.basename(filename)
+    if const.settings.hash_separator in base:
+        splits = base.split(const.settings.hash_separator)
+        # Strip only the last hash and rejoin the rest
+        base = const.settings.hash_separator.join(splits[:-1])
+    return os.path.join(directory, base)
+
 
 def find_target_with_tags(target, tags):
     """Finds the correct target version in the repository to link to.
@@ -499,7 +548,7 @@ def import_profile(class_name):
 def import_profile_class(class_name, file):
     # Import profile (can't be done globally because profile needs to
     # import this module first)
-    from uberdot.profile import Profile
+    from uberdot.profile import ProfileSkeleton
     try:
         module = import_module(file, supress=False)
     except CustomError as err:
@@ -511,7 +560,7 @@ def import_profile_class(class_name, file):
                               "\n   " + str(err), profile=class_name)
     # Return the class if it is in this module
     if class_name in module.__dict__:
-        if issubclass(module.__dict__[class_name], Profile):
+        if issubclass(module.__dict__[class_name], ProfileSkeleton):
             return module.__dict__[class_name]
         msg = "The class '" + class_name + "' does not inherit from"
         msg += " Profile and therefore can't be imported."
@@ -519,9 +568,6 @@ def import_profile_class(class_name, file):
 
 
 def import_module(file, supress=True):
-    # Import profile (can't be done globally because profile needs to
-    # import this module first)
-    from uberdot.profile import Profile
     try:
         spec = importlib.util.spec_from_file_location("__name__", file)
         module = importlib.util.module_from_spec(spec)
@@ -531,10 +577,11 @@ def import_module(file, supress=True):
         if not supress:
             raise err
 
+
 def get_available_profiles():
     # Import profile (can't be done globally because profile needs to
     # import this module first)
-    from uberdot.profile import Profile
+    from uberdot.profile import ProfileSkeleton
     result = []
     # Go through all python files in the profile directory
     for file in walk_profiles():
@@ -543,11 +590,11 @@ def get_available_profiles():
             continue
         for name, field in module.__dict__.items():
             if isinstance(field, type):
-                if issubclass(field, Profile):
+                if issubclass(field, ProfileSkeleton):
+                    # TODO: whats that
                     if name != "Profile" and field.__module__ == "__name__":
                         result.append((file, name))
     return result
-
 
 
 # Tools for iterators
@@ -578,8 +625,8 @@ class NoColorFileHandler(logging.FileHandler):
     def emit(self, record):
         msg = record.msg
         # Remove all color codes
-        msg = msg.replace(const.col_endc, "")
-        msg = msg.replace(const.col_noemph, "")
+        msg = msg.replace(const.internal.col_endc, "")
+        msg = msg.replace(const.internal.col_noemph, "")
         for name, attr in const.settings.get_constants():
             if name.startswith("col_"):
                 msg = msg.replace(attr.value, "")
@@ -720,13 +767,13 @@ def user_selection(description, preselect=None):
     else:
         user_selection(description, preselect)
 
+
 def user_input(txt):
     inp = input(txt + ": ")
     if const.test:
         print(inp)
         sys.stdout.flush()
     return inp
-
 
 
 # Misc
@@ -920,7 +967,7 @@ class FatalError(CustomError):
         msg += "\n" + const.settings.col_warning + "This error should NEVER EVER "
         msg += "occur!! The developer fucked this up really hard! Please "
         msg += "create an issue on github and wait for a patch before "
-        msg += "using this tool again!" + const.col_endc
+        msg += "using this tool again!" + const.internal.col_endc
         super().__init__(msg)
 
 
@@ -1013,7 +1060,7 @@ class GenerationError(CustomError):
             msg += "line " + str(frameinfo[1]) + ": "
         # Otherwise we will only use the name of the profile
         elif profile is not None:
-            msg += const.settings.col_emph + "[" + profile + "]: " + const.col_endc
+            msg += const.settings.col_emph + "[" + profile + "]: " + const.internal.col_endc
         msg += message
         super().__init__(msg)
 
@@ -1089,18 +1136,19 @@ class UberdotError(CustomError):
 ###############################################################################
 class Constant:
     # Constant can't be changed after initialization
-    FINAL=0
+    FINAL = 0
     # Constant can be changed after initialization, but only once (to be read from a config)
-    CONFIGABLE=1
+    CONFIGABLE = 1
     # Constant can be changed whithout restrictions (acts like a global variable)
-    VARIABLE=2
+    VARIABLE = 2
+
     def __init__(self, value, section, type, func, mutable):
-        self._value = value
         self.section = section
         self.type = type
         self.func = func
         self.__mutable = mutable
         self.__modification_counter = 0
+        self._value = self.interpolate_value(value)
 
     @property
     def mutable(self):
@@ -1116,10 +1164,22 @@ class Constant:
             raise ValueError("Constant is immutable.")
         if self.__mutable == self.CONFIGABLE and self.__modification_counter > 0:
             raise ValueError("Constant was already modified.")
+        self._value = self.interpolate_value(value)
+        self.__modification_counter += 1
+
+    def interpolate_value(self, value):
+        # Apply interpolation function on raw input
         if self.func is not None:
             value = self.func(value)
-        self._value = value
-        self.__modification_counter += 1
+        # Modify/Parse value depending on its type
+        if self.type == "path":
+            value = normpath(value)
+        elif self.type == "int":
+            value = int(value)
+        elif self.type == "list":
+            if type(value) == "str":
+                value = next(csv.reader([value]))
+        return value
 
     def __repr__(self):
         rep = "{"
@@ -1185,53 +1245,9 @@ class Container:
         return super().__getattribute__(name)
 
     def items(self):
-        return [
-            (name, props.value) for name, props in self.__dict__.items()
-            if isinstance(props, Constant)
-        ]
-
-    # TODO this could not read user created constants
-    def load_args(self, args, container=None):
-        print(args)
-        if container is None:
-            container = self
-        if hasattr(args, "mode") and args.mode is not None:
-            container.mode = args.mode
-        # Write arguments
-        for arg, value in vars(args).items():
-            if value is None or arg in ["config", "mode", "session"]:
-                continue
-            if isinstance(value, Namespace):
-                self.get(arg).load_args(value)
-                continue
-            # TODO this is messed up and fucks with nesting
-            # Parse tags and set values for --options
-            if arg == "opt_dict":
-                if "tags" in value:
-                    value["tags"] = next(csv.reader([value["tags"]]))
-                for key, val in value.items():
-                    self.root.defaults.set(key, val)
-                continue
-            if arg == "directory":
-                value = os.path.join(self.owd, value)
-                self.root.defaults.set(arg, value)
-                continue
-            if arg == "include":
-                self.root.args.set(arg, value)
-                continue
-            # Little fixes for arguments where the names don't match up
-            # with the configuration file argument
-            if arg == "log":
-                value = os.path.join(self.owd, value)
-                self.root.settings.set("logfile", value)
-                continue
-            # Relative paths need to be absolute
-            if container.get(arg).type == "path":
-                value = os.path.join(self.owd, value)
-            elif container.get(arg).type == "int":
-                value = int(value)
-            # Set argument
-            container.set(arg, value)
+        for name, props in self.__dict__.items():
+            if isinstance(props, Constant):
+                yield (name, props.value)
 
 
 class Singleton(type):
@@ -1242,16 +1258,7 @@ class Singleton(type):
         return cls._instances[cls]
 
 
-# TODO: add a way to add constants from a profile at runtime, so people can extend the config for themself
-# TODO: Const shoudnt be a container itself and the container should have an actual and sane hierachy like
-# Const:
-#    Constainer internal;
-#    Constainer args;
-#    Constainer args.update;
-#    Constainer args.remove;
-#    ...
-#    Constainer settings;
-#    Constainer defaults;
+# TODO: test new constant loading, arg loading, mutable feature and lazy loading
 class Const(metaclass=Singleton):
     con_to_sec = {
         "internal": None,
@@ -1267,6 +1274,7 @@ class Const(metaclass=Singleton):
         "settings": "Settings",
         "defaults": "ProfileDefaults",
     }
+
     def __init__(self, **kwargs):
         # Init own properies
         self.__load_initialized = False
@@ -1287,13 +1295,21 @@ class Const(metaclass=Singleton):
         ]
         # arguments, depending on mode
         self.update = Container(self.args)
+        self.args.update = self.update
         self.remove = Container(self.args)
+        self.args.remove = self.remove
         self.find = Container(self.args)
+        self.args.find = self.find
         self.help = Container(self.args)  # Unused atm
+        self.args.help = self.help
         self.history = Container(self.args)  # Unused atm
+        self.args.history = self.history
         self.timewarp = Container(self.args)
+        self.args.timewarp = self.timewarp
         self.show = Container(self.args)
+        self.args.show = self.show
         self.version = Container(self.args)  # Unused atm
+        self.args.version = self.version
 
         # create internal constants
         add = self.add_factory("internal", mutable=Constant.FINAL)
@@ -1305,6 +1321,7 @@ class Const(metaclass=Singleton):
         add("user", value=kwargs["user"])
         add("users", value=kwargs["users"], type="list")
         add("VERSION", value=kwargs["VERSION"])
+        add("MIN_VERSION", value=kwargs["MIN_VERSION"])
         add("STATE_NAME", value=kwargs["STATE_NAME"])
         add("DATA_DIR_ROOT", value=kwargs["DATA_DIR_ROOT"])
         add("DATA_DIR_TEMP", value=kwargs["DATA_DIR_TEMP"])
@@ -1319,31 +1336,26 @@ class Const(metaclass=Singleton):
         # create constants for global arguments of uberdot
         add = self.add_factory("args", value=False, type="bool")
         add("debuginfo", "skiproot", "summary")
+        add("log", value=True)
         add = self.add_factory("args")
         add("exclude", value=[], type="list")
         add("fix")
         add("mode", value=None)
-        add("include", value=[], type="list")
         add("loglevel", value="info", func=self.__convert_loglevel)
-        add("log", value=None, type="path")
         add("session", value="default", func=str.lower)
 
         # create constants for arguments of parser_run
         # these are variable, so that the user can overwrite them from a profile
-        shared_consts = [
-            "changes", "dryrun", "force", "skipafter",
-            "skipbefore", "superforce", "debug", "makedirs"
-        ]
-
         add = self.add_factory(
-            ["update", "remove"], value=False,
+            ["update", "remove", "timewarp"], value=False,
             type="bool", mutable=Constant.VARIABLE
         )
-        add(*shared_consts)
+        add(
+            "changes", "dryrun", "force", "skipafter",
+            "skipbefore", "superforce", "debug", "makedirs"
+        )
+        add("include", value=[], type="list")
         add("skipevents", section=["update", "remove"])
-        # timewarp also uses the arguments of parser_run, but slightly different
-        add = self.add_factory("timewarp", value=False, type="bool")
-        add(*shared_consts)
         add("skipevents", value=True, section="timewarp")
 
         # create constants for extra arguments of update mode
@@ -1363,6 +1375,7 @@ class Const(metaclass=Singleton):
         # create constants for arguments of show mode
         add = self.add_factory("show", value=False, type="bool")
         add("allusers", "links", "profiles", "meta")
+        add("include", value=[], type="list")
         add("state", value=None, type="state", func=self.__find_state)
         add("users", value=[], type="list")
 
@@ -1393,6 +1406,7 @@ class Const(metaclass=Singleton):
             value="[%(asctime)s] [%(session)s] [%(levelname)s] - %(message)s"
         )
         add("logfilesize", value=0, type="int")
+        add("logfile", value="$HOME/uberdot.log", type="path")
         add("hash_separator", value="#")
         add("profile_files", type="path")
         add("shell", value="/bin/bash", type="path")
@@ -1448,6 +1462,9 @@ class Const(metaclass=Singleton):
                 self.add(name, **params)
         return add
 
+    def get(self, name):
+        return self.__dict__[name]
+
     ### Manipulation functions
     @staticmethod
     def __decode_ansi(string):
@@ -1455,14 +1472,15 @@ class Const(metaclass=Singleton):
 
     @staticmethod
     def __find_state(indicator):
-        from uberdot.state import State, build_statefile_path
+        if not indicator:
+            return indicator
         if re.fullmatch(r"\d{10}", indicator):
             # timestamp was provided
             return build_statefile_path(indicator)
         elif re.fullmatch(r"-?\d{1,9}", indicator):
             # number was provided
             number = int(indicator)
-            snapshots = State._get_snapshots(const.session_dir)
+            snapshots = get_snapshots(const.session_dir)
             if number == 0 or abs(number) > len(snapshots):
                 raise UserError("Invalid state number.")
             elif number > 0:
@@ -1474,6 +1492,8 @@ class Const(metaclass=Singleton):
 
     @staticmethod
     def __parse_date(string):
+        if not string:
+            return string
         if re.fullmatch(r"\d{4}-\d{2}-\d{2}-\d{2}:\d{2}:\d{2}", string):
             return int(datetime.strptime(string, "%Y-%m-%d-%H:%M:%S").timestamp())
         elif re.fullmatch(r"\d{4}-\d{2}-\d{2}-\d{2}:\d{2}", string):
@@ -1489,6 +1509,8 @@ class Const(metaclass=Singleton):
 
     @staticmethod
     def __convert_interval(string):
+        if not string:
+            return string
         if not re.fullmatch(r"(\d+[YMDhms])+", string):
             raise UserError("Invalid interval string")
         bits = re.findall(r"(\d+\w)", string)
@@ -1525,8 +1547,8 @@ class Const(metaclass=Singleton):
 
     def get_constant(self, section, name):
         if section is None:
-            return self.__dict__[name]
-        return self.__dict__[self.sec_to_con[section]].__dict__[name]
+            return self.get(name)
+        return self.get(self.sec_to_con[section]).get(name)
 
     def load(self, args):
         self.parsed_args = args
@@ -1558,8 +1580,12 @@ class Const(metaclass=Singleton):
                 self.config.read(cfg)
                 # Check and normalize the read config
                 for section in self.config.sections():
+                    sec = section
+                    if section.startswith("Session"):
+                        sec = section.split(".")[-1]
                     for name, value in self.config.items(section):
-                        constant = self.get_constant(section, name)
+                        # Get corresponding constant
+                        constant = self.get_constant(sec, name)
                         # We need to normalize all paths here, relatively to
                         # the config file which it defined
                         if (constant.type == "state" and not re.fullmatch(r"\d{1,10}", value)) \
@@ -1578,6 +1604,9 @@ class Const(metaclass=Singleton):
             if name == "session" and constant.section == self.con_to_sec["args"]:
                 continue
             self.__load_value(name, constant)
+
+        # Create shortcut to arguments of current mode
+        self.mode_args = self.get(self.args.mode)
 
         # Remove all colors if disabled
         if not self.settings.color:
@@ -1604,19 +1633,15 @@ class Const(metaclass=Singleton):
             # Try to load value from config. Prefer special session section.
             section = "Session." + self.args.session + "." + constant.section
             if self.config.has_section(section) and self.config.has_option(section, constant):
-                value = getter(section, constant.name)
+                value = getter(section, name)
                 loaded = True
-            elif self.config.has_section(constant.section) and self.config.has_option(constant.section, constant.name):
-                value = getter(constant.section, constant.name)
+            elif self.config.has_section(constant.section) and self.config.has_option(constant.section, name):
+                value = getter(constant.section, name)
                 loaded = True
             else:
                 # Value is not in config. We don't change the value, but set it
                 # anyway so that the constant can't be overwritten anymore
                 value = constant.value
-        # Fix values depending on value type, but only if they were actually loaded from a config
-        if loaded:
-            if constant.type == "list":
-                value = next(csv.reader([value]))
         # Set constant, if possible
         try:
             constant.value = value
@@ -1629,32 +1654,36 @@ class Const(metaclass=Singleton):
         pargs = vars(self.parsed_args)  # dict to search in
         con = self.sec_to_con[constant.section]  # name of container in constants
 
+        # Filter constants that cant be set via commandline anyway
+        if con in ["internal", "settings"]:
+            return found, value
+
         # Select the correct section of parsed_args
-        if con == "default" and "update" in pargs and "opt_dict" in pargs["update"]:
-            pargs = pargs["update"]["opt_dict"]
+        if con == "default" and "update" in pargs and "opt_dict" in pargs["update"] and pargs["update"]["opt_dict"] is not None:
+            pargs = vars(pargs["update"]["opt_dict"])
         elif con in pargs:
-            pargs = pargs[con]
-        else:
-            return False, None
+            pargs = vars(pargs[con])
 
         # Search for the argument
-        if name in pargs:
+        if name in pargs and pargs[name] is not None:
             value = pargs[name]
             found = True
 
-        # Fix value depending on type
-        if found:
+            # Fix value depending on type
             if constant.type == "path":
                 value = os.path.join(self.owd, value)
+            # TODO
             # elif constant.type == "state":
             #     value = os.path.join(self.owd, value)
             elif constant.type == "int":
                 value = int(value)
         return found, value
 
+
 def init_const():
     # Initialize basic constants
     VERSION = "1.18.0"
+    MIN_VERSION = "1.12.17_4"
     STATE_NAME = "state.json"
     DATA_DIR_ROOT = "/root/.uberdot/"
     DATA_DIR_TEMP = "/home/%s/.uberdot/"
@@ -1723,6 +1752,7 @@ def init_const():
         users=users,
         permission=permission,
         VERSION=VERSION,
+        MIN_VERSION=MIN_VERSION,
         STATE_NAME=STATE_NAME,
         DATA_DIR_ROOT=DATA_DIR_ROOT,
         DATA_DIR_TEMP=DATA_DIR_TEMP,

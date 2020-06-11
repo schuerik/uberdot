@@ -154,13 +154,13 @@ class RegressionTest():
     def __init__(self, name, cmd_args, session="default"):
         global test_nr
         self.nr = str(test_nr).rjust(2, "0")
-        test_nr += 1
         if len(sys.argv) > 1 and str(test_nr) not in sys.argv[1:]:
             # if specific test was set by commandline and this is
             # not the correct test, do nothing
             self.success = self.dummy
             self.fail = self.dummy
         verbose = ["-v"] if len(sys.argv) > 1 else []
+        test_nr += 1
         self.name = name
         self.cmd_args = ["python3", "../../udot.py",
                          "--config", "regressiontest.ini",

@@ -1,22 +1,22 @@
 """This module collects all profiles that are used to test simple failures"""
-from uberdot.profile import Profile
+from uberdot.profile import EasyProfile
 
 class NotAProfileFail:
     def generate(self):
         print("This should never be executed by uberdot")
 
-class OverwriteBlacklisted(Profile):
+class OverwriteBlacklisted(EasyProfile):
     def generate(self):
         link("name1", name="untouched.file")
 
-class RecursiveProfile(Profile):
+class RecursiveProfile(EasyProfile):
     def generate(self):
         subprof("RecursiveProfile")
 
-class CycleProfile1(Profile):
+class CycleProfile1(EasyProfile):
     def generate(self):
         subprof("CycleProfile2")
 
-class CycleProfile2(Profile):
+class CycleProfile2(EasyProfile):
     def generate(self):
         subprof("CycleProfile1")

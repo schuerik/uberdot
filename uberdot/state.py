@@ -32,18 +32,6 @@ from uberdot.utils import *
 
 const = Const()
 
-
-def build_statefile_path(timestamp=None):
-    path = os.path.join(const.session_dir, const.STATE_NAME)
-    if timestamp is not None:  # Load a previous snapshot
-        path, ext = os.path.splitext(path)
-        path += "_" + timestamp + ext
-    return path
-
-def get_timestamp_from_path(path):
-    return path.split("_")[1][:-5]
-
-
 ###############################################################################
 # Upgrades
 ###############################################################################
@@ -118,7 +106,6 @@ def upgrade_flexible_events(old_state):
                     old_state[key][event] = ""
     return old_state
 
-MIN_VERSION = "1.12.17_4"
 upgrades = [
     ("1.17.0", upgrade_stone_age, None),
     ("1.18.0", upgrade_flexible_events, None),
@@ -160,6 +147,7 @@ class Notifier:
 class AutoExpander(Notifier):
     def __init__(self):
         self.expand_mapping = {}
+        self.init_data()
 
     def getitem(self, key):
         return self.expandvar(key, self.data[key])
@@ -182,6 +170,9 @@ class AutoExpander(Notifier):
         if isinstance(value, Notifier):
             value.set_parent(self)
         return value
+
+    def init_data(self):
+        pass
 
 
 class AutoExpandDict(MutableMapping, AutoExpander):
@@ -284,6 +275,12 @@ class StaticAutoExpandDict(AutoExpandDict):
 
 class LinkDescriptor(StaticAutoExpandDict):
     def __init__(self, args={}, **kwargs):
+        super().__init__(args, **kwargs)
+        self.expand_mapping["from"] = normpath
+        self.expand_mapping["to"] = normpath
+        self.expand_mapping["owner"] = inflate_owner
+
+    def init_data(self):
         self.data["from"] = None
         self.data["to"] = None
         self.data["permission"] = None
@@ -291,12 +288,7 @@ class LinkDescriptor(StaticAutoExpandDict):
         self.data["hard"] = None
         self.data["secure"] = None
         self.data["buildup"] = None
-        self.data["updated"] = None
-        self.data["created"] = None
-        super().__init__(args, **kwargs)
-        self.expand_mapping["from"] = normpath
-        self.expand_mapping["to"] = normpath
-        self.expand_mapping["owner"] = inflate_owner
+        self.data["date"] = None
 
     @classmethod
     def from_file(cls, path):
@@ -354,14 +346,14 @@ class ProfileStateDict(AutoExpandDict):
     def wrap_value(self, key, value):
         if key == "links":
             value = LinkContainerList(value)
-        return super().wrap_value(value)
+        return super().wrap_value(key, value)
 
 
 class LinkContainerList(AutoExpandList):
     def wrap_value(self, key, value):
         if type(value) == dict:
             value = LinkDescriptor(value)
-        return super().wrap_value(value)
+        return super().wrap_value(key, value)
 
 
 ###############################################################################
@@ -372,24 +364,24 @@ class GlobalState(metaclass=Singleton):
     def load(self):
         # Load current state file of current user
         self.states = {}
-        self.states[const.user] = State.current()
+        self.states[const.internal.user] = State.current()
         # Load current state files of other users
-        for user, session_path in const.session_dirs_foreign:
+        for user, session_path in const.internal.session_dirs_foreign:
             self.try_load_user_session(user, session_path)
 
     def try_load_user_session(self, user, session_dir):
-        path = os.path.join(session_dir, const.STATE_NAME)
+        path = os.path.join(session_dir, const.internal.STATE_NAME)
         # Ignore this user, if he has no state file
         if not os.path.exists(path):
             return
         # Load file
         state = State.fromFile(path, auto_upgrade=False)
         # If we can't upgrade, ignore this state file
-        if is_version_smaller(state.get_special("version"), MIN_VERSION):
+        if is_version_smaller(state.get_special("version"), const.internal.MIN_VERSION):
             msg = "Ignoring state file of user " + user + ". Too old."
             log_warning(msg)
             return
-        if is_version_smaller(const.VERSION, state.get_special("version")):
+        if is_version_smaller(const.internal.VERSION, state.get_special("version")):
             msg = "Ignoring state file of user " + user + "."
             msg += " uberdot is too old."
             log_warning(msg)
@@ -421,7 +413,7 @@ class GlobalState(metaclass=Singleton):
 
     @property
     def current(self):
-        return self.states[const.user]
+        return self.states[const.internal.user]
 
 
 # TODO verify that the state gets the correct snapshot property and
@@ -479,20 +471,12 @@ class State(AutoExpandDict):
             log_debug("No state file found. Creating new.")
             makedirs(os.path.dirname(path))
             file = open(path, "w")
-            file.write('{"@version": "' + const.VERSION + '"}')
+            file.write('{"@version": "' + const.internal.VERSION + '"}')
             file.close()
         return cls(path, auto_write=True)
 
-    @staticmethod
-    def _get_snapshots(state_dir):
-        snapshots = []
-        for file in listfiles(state_dir):
-            if re.fullmatch(r".*/state_\d{10}\.json", file):
-                snapshots.append(file)
-        return sorted(snapshots)
-
     def get_snapshots(self):
-        return State._get_snapshots(os.path.dirname(self.file))
+        return get_snapshots(os.path.dirname(self.file))
 
     def get_upgraded(self, patch):
         try:
@@ -508,10 +492,10 @@ class State(AutoExpandDict):
 
     def full_upgrade(self):
         # Check if we can upgrade
-        if is_version_smaller(self.get_special("version"), MIN_VERSION):
+        if is_version_smaller(self.get_special("version"), const.internal.MIN_VERSION):
             msg = "Your state file is too old to be processed."
             raise PreconditionError(msg)
-        if is_version_smaller(const.VERSION, self.get_special("version")):
+        if is_version_smaller(const.internal.VERSION, self.get_special("version")):
             msg = "Your state file was created with a newer version of "
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
@@ -541,11 +525,11 @@ class State(AutoExpandDict):
                 end=""
             )
             for patch in patches:
-                self.upgrade(patch)
+                self.update(self.get_upgraded(patch))
             log_debug("Done.")
         if not patches:
             # Make sure to update version in case no upgrade was performed
-            self.set_special("version", const.VERSION)
+            self.set_special("version", const.internal.VERSION)
         # Restore auto_write
         self.auto_write = auto_write
 
@@ -598,7 +582,7 @@ class State(AutoExpandDict):
     def wrap_value(self, key, value):
         if type(value) == dict:
             value = ProfileStateDict(value)
-        return super().wrap_value(value)
+        return super().wrap_value(key, value)
 
     def _notify(self):
         if self.auto_write:
