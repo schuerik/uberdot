@@ -348,10 +348,10 @@ def readlink(file):
         # Return original path
         path = os.path.join(os.path.dirname(file), os.readlink(file))
         path = normpath(path)
-        return path
+        return True, path
     else:
         # file is hardlink, so return the inode number as reference for the original
-        return os.stat(file).st_ino
+        return False, os.stat(file).st_ino
 
 
 def has_root_priveleges():

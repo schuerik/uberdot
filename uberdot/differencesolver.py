@@ -322,7 +322,7 @@ class StateFilesystemDiffSolver(DiffSolver):
 
     def __generate_profile_fix(self, profile):
         for link in profile["links"]:
-            if link_exists(link):
+            if link.exists():
                 # If the link exists like this, there is no difference
                 continue
             # So lets figure out what's different about the installed link
@@ -502,7 +502,7 @@ class LinkListDiffSolver(DiffSolver):
         count = 0
         for installed_link in installed_links[:]:
             for new_link in new_links[:]:
-                if links_equal(installed_link, new_link):
+                if installed_link == new_link:
                     # Link in new profile is the same as a installed one,
                     # so we do nothing to the difflog
                     installed_links.remove(installed_link)
@@ -517,7 +517,7 @@ class LinkListDiffSolver(DiffSolver):
         # Check all removed
         for installed_link in installed_links[:]:
             for new_link in new_links[:]:
-                if links_similar(installed_link, new_link):
+                if installed_link.issimilar(new_link):
                     break
             else:
                 # Installed link is not similiar to any new link, so it
@@ -529,7 +529,7 @@ class LinkListDiffSolver(DiffSolver):
         # Check all changed and added links
         for new_link in new_links[:]:
             for installed_link in installed_links[:]:
-                if links_similar(installed_link, new_link):
+                if installed_link.issimilar(new_link):
                     # new_link has same name or target, so we need to create
                     # an update operation in the difflog
                     profile_changed = True
@@ -543,7 +543,7 @@ class LinkListDiffSolver(DiffSolver):
                 # There was no similar installed link, so we need to create an
                 # add operation in the difflog
                 profile_changed = True
-                if link_exists(new_link):
+                if new_link.exist():
                     self.difflog.track_link(profile_name, new_link)
                 else:
                     self.difflog.add_link(profile_name, new_link)

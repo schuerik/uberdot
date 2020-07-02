@@ -296,6 +296,7 @@ class LinkDescriptor(StaticAutoExpandDict):
             raise FileNotFoundError
         props = {}
         props["from"] = path
+        # TODO: this wont work with hard links
         target = readlink(path)
         props["to"] = readlink(path)
         uid, gid = get_owner(path)
@@ -330,10 +331,10 @@ class LinkDescriptor(StaticAutoExpandDict):
         except FileNotFoundError:
             return False
 
-    def is_similar(self, link):
+    def issimilar(self, link):
         return self["from"] == link["from"] or self["to"] == link["to"]
 
-    def is_same(self, link):
+    def __eq__(self, link):
         return self["from"] == link["from"] and \
                self["to"] == link["to"] and \
                self["owner"] == link["owner"] and \

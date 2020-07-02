@@ -1513,8 +1513,11 @@ class ExecuteInterpreter(Interpreter):
             self._makedirs(ldescriptor["from"])
         self.remove_symlink(ldescriptor["from"], cleanup=False)
         try:
-            # Create new symlink
-            os.symlink(ldescriptor["to"], ldescriptor["from"])
+            # Create new link
+            if ldescriptor["hard"]:
+                os.link(ldescriptor["to"], ldescriptor["from"])
+            else:
+                os.symlink(ldescriptor["to"], ldescriptor["from"])
             # Set owner and permission
             uid, gid = get_owner_ids(ldescriptor["owner"])
             os.lchown(ldescriptor["from"], uid, gid)
