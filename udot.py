@@ -530,10 +530,10 @@ class UberDot:
             raise PreconditionError("You are already on this state.")
         log_debug("Calculating operations to perform timewarp.")
         difflog = StateDiffSolver(self.state, new_state).solve()
-        self.run(difflog)
+        self.resolve_difflog(difflog)
         # Last we update the snapshots
         if cst.dryrun or cst.changes or cst.debug:
-            # But skip if run() didn't modify the state file
+            # But skip if resolve_difflog() didn't modify the state file
             return
         # TODO what about --skiproot?
         # TODO the following is still critical but doesnt handle unexpected errors
@@ -601,9 +601,9 @@ class UberDot:
                     dfl.run_interpreter(DUIStrategyInterpreter())
             if const.args.skiproot:
                 dfl.run_interpreter(SkipRootInterpreter())
-            # 4. Simmulate a run, print the result or actually resolve the
+            # 4. Simmulate a resolve_difflog, print the result or actually resolve the
             # differences
-            self.run(dfl)
+            self.resolve_difflog(dfl)
 
     def list_states(self):
         snapshot = self.state.get_special("snapshot") if "snapshot" in self.state.get_specials() else None
@@ -903,7 +903,7 @@ class UberDot:
             for entry in sorted(list(set([item[1] for item in result]))):
                 print(entry)
 
-    def run(self, difflog):
+    def resolve_difflog(self, difflog):
         """Performs checks on DiffLog and resolves it.
 
         Furthermore this function handles backups, converts exceptions into
@@ -946,7 +946,7 @@ class UberDot:
         ]
         difflog.run_interpreter(*tests)
         # Gain root if needed
-        if not has_root_privileges():
+        if not has_root_priveleges():
             log_debug("Checking if root is required.")
             if const.subcommand.dryrun:
                 difflog.run_interpreter(RootNeededInterpreter())
@@ -1025,6 +1025,85 @@ class UberDot:
         except Exception as err:
             msg = "An unkown error occured during after_event execution."
             raise UnkownError(err, msg)
+
+    @staticmethod
+    def init_logger():
+        global logger
+        # Init the logger, further configuration is done when we parse the
+        # commandline arguments
+        logging.setLoggerClass(CustomRecordLogger)
+        logger = logging.getLogger("root")
+        logger.setLevel(logging.DEBUG)
+        ch_out = logging.StreamHandler(stream=sys.stdout)
+        ch_out.terminator = ""
+        ch_out.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(message)s')
+        ch_out.setFormatter(formatter)
+        ch_out.addFilter(StdoutFilter())
+        # We set up two streamhandlers, so we can log errors automatically
+        # to stderr and everything else to stdout
+        ch_err = logging.StreamHandler(stream=sys.stderr)
+        ch_err.terminator = ""
+        ch_err.setLevel(logging.ERROR)
+        ch_err.setFormatter(formatter)
+        logger.addHandler(ch_out)
+        logger.addHandler(ch_err)
+
+    @staticmethod
+    def run_steps(args=None):
+        yield "init_logger"
+        UberDot.init_logger()
+        try:
+            yield "create_udot"
+            udot = UberDot()
+            yield "parse_args"
+            udot.parse_arguments(args)
+            yield "perpare_path"
+            sys.path.append(const.settings.profile_files)
+            yield "exec_args"
+            udot.execute_arguments()
+            yield "crop_log"
+            UberDot.crop_logfile()
+            yield "fin"
+        except CustomError as err:
+            # An error occured that we (more or less) expected.
+            # Print error, a stacktrace and exit
+            if isinstance(err, FatalError):
+                logger.critical(traceback.format_exc())
+                logger.critical(err.message + "\n")
+            else:
+                log_debug(traceback.format_exc())
+                log_error(err.message)
+            sys.exit(err.EXITCODE)
+        except Exception:
+            # This works because all critical parts will catch also all
+            # exceptions and convert them into a CustomError
+            log_error(traceback.format_exc())
+            log_warning("The error above was unexpected. But it's fine," +
+                        " I did nothing critical at the time :)")
+            sys.exit(100)
+
+    @staticmethod
+    def crop_logfile():
+        if const.settings.logfilesize > 0:
+            # Read previous file
+            content = []
+            if os.path.exists(const.settings.logfile):
+                with open(const.settings.logfile, "r") as fin:
+                    content = fin.read().splitlines(True)
+            # Resize log
+            content = content[-const.settings.logfilesize:]
+            # Write file
+            with open(const.settings.logfile, "w") as fout:
+                fout.writelines(content)
+
+    @staticmethod
+    def run(args=None):
+        for step in UberDot.run_steps(args):
+            # We are doing nothing here, since we don't want to customize
+            # the execution process
+            pass
+
 
 
 class StoreDictKeyPair(argparse.Action):
@@ -1169,78 +1248,7 @@ class CustomParser(argparse.ArgumentParser):
         return n
 
 
-def run_script(name):
-    """Act like a script if this was invoked like a script.
-    This is needed, because otherwise everything below couldn't
-    be traced by coverage."""
-
-    if name == "__main__":
-        global logger
-        # TODO use a generator here and move all of this into the uberdot class.
-        # that way people can use uberdot in their own scripts and we
-        # provide a safe startup routine that allows the user to step into
-
-        # Init the logger, further configuration is done when we parse the
-        # commandline arguments
-        logging.setLoggerClass(CustomRecordLogger)
-        logger = logging.getLogger("root")
-        logger.setLevel(logging.DEBUG)
-        ch_out = logging.StreamHandler(stream=sys.stdout)
-        ch_out.terminator = ""
-        ch_out.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(message)s')
-        ch_out.setFormatter(formatter)
-        ch_out.addFilter(StdoutFilter())
-        # We set up two streamhandlers, so we can log errors automatically
-        # to stderr and everything else to stdout
-        ch_err = logging.StreamHandler(stream=sys.stderr)
-        ch_err.terminator = ""
-        ch_err.setLevel(logging.ERROR)
-        ch_err.setFormatter(formatter)
-        logger.addHandler(ch_out)
-        logger.addHandler(ch_err)
-
-        # Start everything in a try block with pokemon handler
-        try:
-            # Create UberDot instance and parse arguments
-            udot = UberDot()
-            udot.parse_arguments()
-            udot.check_arguments()
-            # Add the users profiles to the python path
-            sys.path.append(const.settings.profile_files)
-            # Go
-            udot.execute_arguments()
-            # Crop the logfile if there was a limit set
-            if const.settings.logfilesize > 0:
-                # Read previous file
-                content = []
-                if os.path.exists(const.settings.logfile):
-                    with open(const.settings.logfile, "r") as fin:
-                        content = fin.read().splitlines(True)
-                # Resize log
-                content = content[-const.settings.logfilesize:]
-                # Write file
-                with open(const.settings.logfile, "w") as fout:
-                    fout.writelines(content)
-        except CustomError as err:
-            # An error occured that we (more or less) expected.
-            # Print error, a stacktrace and exit
-            if isinstance(err, FatalError):
-                logger.critical(traceback.format_exc())
-                logger.critical(err.message + "\n")
-            else:
-                log_debug(traceback.format_exc())
-                log_error(err.message)
-            sys.exit(err.EXITCODE)
-        except Exception:
-            # This works because all critical parts will catch also all
-            # exceptions and convert them into a CustomError
-            log_error(traceback.format_exc())
-            log_warning("The error above was unexpected. But it's fine," +
-                        " I did nothing critical at the time :)")
-            sys.exit(100)
-
-
 # import IPython
 # IPython.embed()
-run_script(__name__)
+if __name__ == "__main__":
+    UberDot.run()

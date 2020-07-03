@@ -1795,7 +1795,9 @@ class GainRootInterpreter(RootNeededInterpreter):
         """
         if self.logged:
             if const.settings.askroot:
-                args = [sys.executable] + sys.argv
+                const.export_dump(self.data)
+                # TODO exec mode is missing, pickle file wont get removed
+                args = [sys.executable, "exec", "udot.pickle"]
                 call_msg = "'sudo " + " ".join(args) + "'"
                 log_debug("Replacing process with " + call_msg + ".")
                 os.execvp('sudo', args)
