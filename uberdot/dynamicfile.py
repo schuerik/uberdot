@@ -37,6 +37,7 @@ be linked instead and makes sure that user-made changes are preserved.
 
 import logging
 import os
+import sys
 from abc import abstractmethod
 from subprocess import PIPE
 from subprocess import Popen
@@ -54,12 +55,16 @@ from uberdot.utils import log_debug
 const = Const()
 
 
-def getClassByName(name):
-    # TODO is self referncing the current module in this context?
-    return getattr(self, name)
+def getModuleAttr(name):
+    return getattr(sys.modules[__name__], name)
+
 
 def load(cls, linkdescriptor):
-    return getClassByName(linkdescriptor["type"]).load(linkdescriptor)
+    buildup = linkdescriptor["buildup"]
+    if buildup is not None:
+        return getModuleAttr(buildup["type"]).load(buildup)
+    else:
+        raise UberdotError("Linkdescriptor needs buildup data to load dynamicfiles from it")
 
 
 class AbstractFile:
@@ -297,8 +302,44 @@ class StaticFile(AbstractFile):
             open(self.source, "wb").write(new_bytes)
             remove_tmp_backup(self.source)
         else:
-            # TODO resolve conflict
-            pass
+            log("Synchronising files will change '" + self.source + "'.")
+            target_bak = self.source + "." + const.settings.backup_extension
+            done = False
+            while not done:
+                inp = user_choice(
+                    ("I", "Ignore"), ("d", "Show diff"),
+                    ("p", "Create patch"), ("U", "Undo changes"),
+                    abort=True
+                )
+                if inp == "i":
+                    done = True
+                elif inp == "d":
+                    # Create a colored diff between the file and its original
+                    process = Popen(["diff", "--color=auto", target_bak, target])
+                    process.communicate()
+                elif inp == "p":
+                    # Create a git patch with git diff
+                    patch_file = os.path.splitext(target)[0] + ".patch"
+                    patch_file = user_selection("Enter filename for patch", patch_file)
+                    patch_file = normpath(patch_file)
+                    args = ["git", "diff", "--no-index", target_bak, target]
+                    process = Popen(args, stdout=PIPE)
+                    try:
+                        with open(patch_file, "wb") as file:
+                            file.write(process.stdout.read())
+                        log("Patch file written successfully to '" + patch_file + "'.")
+                    except OSError as err:
+                        msg = "Could not write patch file '" + patch_file + "'. "
+                        msg += str(err)
+                        raise PreconditionError(msg)
+                elif inp == "u":
+                    # TODO this should be reimplemented, but properly. dryrun shouldnt be handled here
+                        # if const.dryrun:
+                        #     log_warning("This does nothing since " +
+                        #                 "this is just a dry-run")
+                    # Copy the original to the changed
+                    copyfile(target_bak, target)
+                    done = True
 
     def _check_source_type(self, source):
         if not isinstance(source, str):

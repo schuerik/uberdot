@@ -1430,17 +1430,6 @@ class Const(metaclass=Singleton):
         # Done
         self.__initialized = True
 
-    def export_dump(self, *extra_data, filename="udot.pickle"):
-        pickle.dump([self, *extra_data], open(filename))
-
-    def import_dump(self, filename="udot.pickle"):
-        if os.path.exists(filename):
-            data = pickle.load(open(filename))
-            # TODO: I dont believe this works. Also i dont know if we can
-            # overwrite readonly properties of this singleton containser.
-            self = data[0]
-            return data[1:]
-
     def add(
         self, name, section,
         value="", type="str", func=None, mutable=Constant.CONFIGABLE

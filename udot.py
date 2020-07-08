@@ -91,6 +91,30 @@ class UberDot:
         # Set environment to var to be used in configs, scripts, profiles, etc
         os.environ["UBERDOT_CWD"] = newdir
 
+    @staticmethod
+    def __init_logger():
+        global logger
+        # Init the logger, further configuration is done when we parse the
+        # commandline arguments
+        logging.setLoggerClass(CustomRecordLogger)
+        logger = logging.getLogger("root")
+        logger.setLevel(logging.DEBUG)
+        ch_out = logging.StreamHandler(stream=sys.stdout)
+        ch_out.terminator = ""
+        ch_out.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(message)s')
+        ch_out.setFormatter(formatter)
+        ch_out.addFilter(StdoutFilter())
+        # We set up two streamhandlers, so we can log errors automatically
+        # to stderr and everything else to stdout
+        ch_err = logging.StreamHandler(stream=sys.stderr)
+        ch_err.terminator = ""
+        ch_err.setLevel(logging.ERROR)
+        ch_err.setFormatter(formatter)
+        logger.addHandler(ch_out)
+        logger.addHandler(ch_err)
+
+
     def parse_arguments(self, arguments=None):
         """Parses the commandline arguments. This function can parse a custom
         list of arguments, instead of ``sys.args``.
@@ -432,7 +456,7 @@ class UberDot:
 
         # Setup mode help arguments
         help_text="show man page"
-        parser_version = subparsers.add_parser(
+        parser_man = subparsers.add_parser(
             "help",
             description=help_text,
             help=help_text
@@ -445,6 +469,9 @@ class UberDot:
             description=help_text,
             help=help_text
         )
+
+        # Setup mode resume arguments (this mode is hidden, so it has no help text)
+        parser_resume = subparsers.add_parser("resume")
 
         # Read arguments
         try:
@@ -474,6 +501,7 @@ class UberDot:
     def check_arguments(self):
         """Checks if parsed arguments/settings are bad or incompatible to
         each other. If not, it raises an UserError."""
+        # TODO check that root is not used except when in resume mode or explictly allowed
         if const.args.mode in ["version", "history", "help"]:
             # If the user just want to get the version number, we should
             # not force him to setup a proper config
@@ -508,118 +536,69 @@ class UberDot:
                 msg = "You need to set at least one of -n/-f/-c/-a."
                 raise UserError(msg)
 
-    def timewarp(self):
-        cst = const.timewarp
-        # Get correct state file to warp to
-        if cst.state:
-            new_state = State.fromFile(cst.state)
-        elif cst.date:
-            new_state = State.fromTimestampBefore(cst.date)
-        elif cst.earlier or cst.later:
-            delta = cst.earlier if cst.earlier else -cst.later
-            if "snapshot" in self.state.get_specials():
-                time = int(self.state.get_special("snapshot")) - delta
+    def print_debuginfo(self):
+        """Print out internal values.
+
+        This includes search paths of configs, loaded configs,
+        parsed commandline arguments and settings.
+        """
+        old_section = ""
+        for name, props in const.get_constants(mutable=0):
+            section = props.section
+            if props.section is None:
+                section = "Internal"
+            if old_section != section:
+                print(const.settings.col_emph + section + ":" + const.col_endc)
+                old_section = section
+            if name in ["col_endc", "col_noemph"]:
+                continue
+            value = props.value
+            if name.startswith("col_"):
+                value = value + value.encode("unicode_escape").decode("utf-8")
+                value += const.col_endc
+            if (name == "cfg_files" or name == "cfg_search_paths") and value:
+                print(str("   " + name + ": ").ljust(32) + str(value[0]))
+                for item in value[1:]:
+                    print(" " * 32 + str(item))
             else:
-                time = int(get_timestamp_now()) - delta
-            new_state = State.fromTimestampBefore(time)
-        elif cst.first:
-            new_state = State.fromIndex(0)
-        elif cst.last:
-            new_state = State.fromIndex(-1)
-        if self.state.get_special("snapshot") == new_state.get_special("snapshot"):
-            raise PreconditionError("You are already on this state.")
-        log_debug("Calculating operations to perform timewarp.")
-        difflog = StateDiffSolver(self.state, new_state).solve()
-        self.resolve_difflog(difflog)
-        # Last we update the snapshots
-        if cst.dryrun or cst.changes or cst.debug:
-            # But skip if resolve_difflog() didn't modify the state file
-            return
-        # TODO what about --skiproot?
-        # TODO the following is still critical but doesnt handle unexpected errors
-        if const.args.include or const.args.exclude:
-            # State was modified only partly, so this is a completly new snapshot
-            self.state.create_snapshot()
-        else:
-            # State was modified entirely to match new_state, so we
-            # update its snapshot reference
-            snapshot = get_timestamp_from_path(new_state.file)
-            self.state.set_special("snapshot", snapshot)
+                print(str("   " + name + ": ").ljust(32) + str(value))
 
-    def execute_arguments(self):
-        """Executes whatever was specified via commandline arguments."""
-        # Lets do the easy mode first
-        if const.args.mode == "find":
-            self.search()
-            return
-        if const.args.mode == "version":
-            log(const.settings.col_emph + "Version: " + const.col_endc + const.VERSION)
-            return
-        if const.args.mode == "help":
-            os.execvp("man", ["-l", normpath("docs/sphinx/build/man/uberdot.1")])
-        # For the remaining modes we need a loaded state
-        globalstate.load()
-        self.state = globalstate.current
-        # And we fix it, to make sure it matches the actual state of the filesystem
-        self.fix()
-        if const.args.mode == "show":
-            self.show()
-        elif const.args.mode == "history":
-            self.list_states()
-        elif const.args.mode == "timewarp":
-            self.timewarp()
-        else:
-            # The previous mode just printed stuff, but here we
-            # have to actually do something:
-            # 0. Figure out which profiles we are talking about
-            # TODO profilenames could be used at other places as well
-            profilenames = const.mode_args.include
-            if not profilenames:
-                profilenames = self.state.keys()
-            if not profilenames:
-                msg = "There are no profiles installed and no profiles "
-                msg += "explicitly specified to be included."
-                raise UserError(msg)
-            # 1. Decide how to solve the differences between the
-            # actual state on the filesystem and the desired state
-            # and setup DiffSolvers accordingly
-            if const.args.mode == "remove":
-                log_debug("Calculating operations to remove profiles.")
-                dfs = UninstallDiffSolver(profilenames)
-            elif const.args.mode == "update":
-                log_debug("Calculating operations to update profiles.")
-                profile_results = self.execute_profiles(profilenames)
-                dfs = UpdateDiffSolver(profile_results,
-                                       const.update.parent)
-            else:
-                raise FatalError("None of the expected modes were set.")
-            # 2. Solve differences
-            dfl = dfs.solve()
-            # 3. Eventually manipulate the result
-            if const.args.mode == "update":
-                if const.update.dui:
-                    dfl.run_interpreter(DUIStrategyInterpreter())
-            if const.args.skiproot:
-                dfl.run_interpreter(SkipRootInterpreter())
-            # 4. Simmulate a resolve_difflog, print the result or actually resolve the
-            # differences
-            self.resolve_difflog(dfl)
+    def print_profile(self, profile):
+        """Prints a single installed profile.
 
-    def list_states(self):
-        snapshot = self.state.get_special("snapshot") if "snapshot" in self.state.get_specials() else None
-        for nr, file in enumerate(self.state.get_snapshots()):
-            timestamp = get_timestamp_from_path(file)
-            msg = "[" + str(int(nr)+1) + "] "
-            if snapshot==timestamp:
-                msg += const.settings.col_emph + "(current) " + const.col_endc
-            temp_state =  State.fromTimestamp(timestamp)
-            msg += "ID: " + timestamp
-            msg += "  Date: " + timestamp_to_string(timestamp)
-            msg += "  Version: " + temp_state.get_special("version")
-            root_profiles = filter(lambda x: "parent" not in temp_state[x], temp_state.keys())
-            msg += "  Root profiles: " + " ".join(root_profiles)
-            print(msg)
-
+        Args:
+            profile (dict): The profile that will be printed
+        """
+        if profile["name"] in const.args.exclude:
+            log_debug("'" + profile["name"] + "' is in exclude list. Skipping...")
+            return
+        tab = "  " if const.show.users or const.show.allusers else ""
+        if const.show.profiles or (not const.show.links and not const.show.meta):
+            col = const.settings.col_emph if const.show.links or const.show.meta or not const.show.profiles else ""
+            profile_header = tab + col + profile["name"] + const.col_endc
+            if const.show.links or const.show.meta:
+                profile_header += ":"
+            print(profile_header)
+            tab += "  "
+            if const.show.meta:
+                print(tab + "Installed: " + profile["installed"])
+                print(tab + "Updated: " + profile["updated"])
+                if "parent" in profile:
+                    print(tab + "Subprofile of: " + profile["parent"])
+                if "profiles" in profile:
+                    print(tab + "Has Subprofiles: " + ", ".join(
+                        [s["name"] for s in profile["profiles"]]
+                    ))
+        if const.show.links or (not const.show.profiles and not const.show.meta):
+            for symlink in profile["links"]:
+                print(tab + symlink["from"] + "  →  " + symlink["to"])
+                if const.show.meta:
+                    print(
+                        tab + "    Owner: " + symlink["owner"] +
+                        "   Permission: " + str(symlink["permission"]) +
+                        "   Secure: " + "yes" if symlink["secure"] else "no" +
+                        "   Updated: " + symlink["date"]
+                    )
 
     def fix(self):
         log_debug("Checking state file consistency.")
@@ -679,49 +658,234 @@ class UberDot:
                 msg += "the unkown error before you proceed to use this tool."
                 raise UnkownError(err, msg)
 
-    def execute_profiles(self, profilenames):
+    def generate_profiles(self):
         """Imports profiles by name and executes them. """
         profiles = []
         # Import and create profiles
-        for profilename in profilenames:
+        for profilename in self.get_profilenames():
             if profilename in const.args.exclude:
                 log_debug("'" + profilename + "' is in exclude list." +
                           " Skipping generation of profile...")
             else:
-                profiles.append(import_profile(profilename)())
+                profiles.append(profileloader.get_instance(profilename))
         # And execute/generate them
         for profile in profiles:
             profile.start_generation()
         return [p.result for p in profiles]
 
-    def print_debuginfo(self):
-        """Print out internal values.
+    def execute_arguments(self):
+        """Executes whatever was specified via commandline arguments."""
+        # Lets do the easy mode first
+        if const.args.mode == "find":
+            self._exec_find()
+            return
+        if const.args.mode == "version":
+            self._exec_version()
+            return
+        if const.args.mode == "help":
+            # Replaces the current process, so no return needed here
+            self._exec_help()
+        # For the remaining modes we need a loaded state
+        globalstate.load()
+        self.state = globalstate.current
+        # Try to fix it, to make sure it matches the actual state of the filesystem
+        self.fix()
+        if const.args.mode == "show":
+            self._exec_show()
+        elif const.args.mode == "history":
+            self._exec_history()
+        elif const.args.mode == "timewarp":
+            self._exec_timewarp()
+        elif const.args.mode == "remove":
+            self._exec_remove()
+        elif const.args.mode == "update":
+            self._exec_update()
+        elif const.args.mode == "resume":
+            self._exec_resume()
+        else:
+            raise FatalError("None of the expected modes were set.")
 
-        This includes search paths of configs, loaded configs,
-        parsed commandline arguments and settings.
-        """
-        old_section = ""
-        for name, props in const.get_constants(mutable=0):
-            section = props.section
-            if props.section is None:
-                section = "Internal"
-            if old_section != section:
-                print(const.settings.col_emph + section + ":" + const.col_endc)
-                old_section = section
-            if name in ["col_endc", "col_noemph"]:
+    def get_profilenames(self):
+        # profilenames is equal to included profiles if provided
+        profilenames = const.mode_args.include
+        # Otherwise it is equal to the list of already installed root profiles
+        if not profilenames:
+            profilenames = self.state.keys()
+            if not profilenames:
+                msg = "There are no profiles installed and no profiles "
+                msg += "explicitly specified to be included."
+                raise UserError(msg)
+        # Also all explictly excluded profiles will be removed from profilenames
+        for i, profilename in enumerate(profilenames[:]):
+            if profilename in const.args.exclude:
+                del profilenames[i]
+        return profilenames
+
+    @staticmethod
+    def _hlsearch(text, pattern):
+        all_results = []
+        # Search in each line of text independently and collect all results
+        # Returns always the full line where something was found, but
+        # colors the found substring red
+        for line in text.split("\n"):
+            if const.find.regex:
+                # Searching with regex
+                match = re.search(pattern, line)
+                if match:
+                    # Colorize match in line and add to results
+                    result = line[:match.start()] + const.settings.col_fail
+                    result += line[match.start():match.end()]
+                    result += const.col_endc + line[match.end():]
+                    all_results.append(result)
+                else:
+                    # Plain search
+                    # Lowers text and pattern if ignorecase was set
+                    try:
+                        if const.find.ignorecase:
+                            idx = line.lower().index(pattern.lower())
+                        else:
+                            idx = line.index(pattern)
+                    except ValueError:
+                        # Nothing was found in this line
+                        continue
+                    # Colorize match in line and add to results
+                    result = line[:idx] + const.settings.col_fail
+                    result += line[idx:idx+len(pattern)]
+                    result += const.col_endc + line[idx+len(pattern):]
+                    all_results.append(result)
+            return all_results
+
+    def find_dotfile(self, searchstr):
+        result = []
+        for root, name in walk_dotfiles():
+            file = os.path.join(root, name)
+            # Search in names (only file basenames, without tag)
+            if const.find.name or const.find.all:
+                searchtext = name
+                if const.settings.tag_separator in searchtext:
+                    idx = searchtext.index(const.settings.tag_separator)
+                    searchtext = searchtext[idx+1:]
+                highlighted = _hlsearch(searchtext, const.find.searchstr)
+                result += [(file, item) for item in highlighted]
+            # Search in filename (full paths of dotfiles)
+            if const.find.filename or const.find.all:
+                highlighted = _hlsearch(file, const.find.searchstr)
+                result += [(file, item) for item in highlighted]
+            # Search in content (full content of each dotfile)
+            if const.find.content or const.find.all:
+                try:
+                    searchtext = open(file).read()
+                    highlighted = _hlsearch(searchtext, const.find.searchstr)
+                    result += [(file, item) for item in highlighted]
+                except UnicodeDecodeError:
+                    # This is not a text file (maybe an image or encrypted)
+                    pass
+        return result
+
+    def find_profiles(self, searchstr):
+        result = []
+        # Search in filename (full paths of files in the profile directory)
+        if const.find.filename or const.find.all:
+            for file in walk_profiles():
+                highlighted = _hlsearch(file, const.find.searchstr)
+                result += [(file, item) for item in highlighted]
+        for file, pname in get_available_profiles():
+            if pname in const.args.exclude:
+                log_debug("'" + pname + "' is in exclude list. Skipping...")
                 continue
-            value = props.value
-            if name.startswith("col_"):
-                value = value + value.encode("unicode_escape").decode("utf-8")
-                value += const.col_endc
-            if (name == "cfg_files" or name == "cfg_search_paths") and value:
-                print(str("   " + name + ": ").ljust(32) + str(value[0]))
-                for item in value[1:]:
-                    print(" " * 32 + str(item))
-            else:
-                print(str("   " + name + ": ").ljust(32) + str(value))
+            # Search in names (class names of all available profiles)
+            if const.find.name or const.find.all:
+                highlighted = _hlsearch(pname, const.find.searchstr)
+                result += [(file, item) for item in highlighted]
+            # Search in content (source code of each available profile)
+            if const.find.content or const.find.all:
+                source = "".join(get_profile_source(pname, file))
+                highlighted = _hlsearch(source, const.find.searchstr)
+                result += [(file, item) for item in highlighted]
+        return result
 
-    def show(self):
+    def find_tags(self, searchstr):
+        result = []
+        tags = []
+        sep = const.settings.tag_separator
+        # Collect tags first
+        for root, name in walk_dotfiles():
+            file = os.path.join(root, name)
+            if sep in name:
+                tag = name[:name.index(sep)+len(sep)-1]
+                if const.find.locations:
+                    highlighted = _hlsearch(tag, const.find.searchstr)
+                    result += [(file, item) for item in highlighted]
+                elif tag not in tags:
+                    tags.append(tag)
+        for tag in tags:
+            highlighted = _hlsearch(tag, const.find.searchstr)
+            result += [(file, item) for item in highlighted]
+        return result
+
+    def _exec_find(self):
+        result = []
+        nothing_selected = (not const.find.profiles and not const.find.dotfiles
+                            and not const.find.tags)
+        # Search for profiles
+        if const.find.profiles or nothing_selected:
+            result = self.find_profiles(const.find.searchstr)
+
+        # Search for dotfiles
+        if const.find.dotfiles or nothing_selected:
+            result = self.find_dotfile(const.find.searchstr)
+        # Search for tags (this only collects the tags from filenames because
+        # it doesn't make sense to search in the content of files or whatever)
+        if const.find.tags:
+            result = self.find_tags(const.find.searchstr)
+
+        # Print all the results
+        if const.find.locations:
+            # Either with file paths (in the order that we found them)
+            for i, item in enumerate(result):
+                if item in result[i+1:]:
+                    result.pop(i)
+            for file, entry in result:
+                print(file + ": " + entry)
+        else:
+            # or just what was found (in alphabetical order)
+            for entry in sorted(list(set([item[1] for item in result]))):
+                print(entry)
+
+    def _exec_help(self):
+        os.execvp("man", ["-l", normpath("docs/sphinx/build/man/uberdot.1")])
+
+    def _exec_history(self):
+        snapshot = self.state.get_special("snapshot") if "snapshot" in self.state.get_specials() else None
+        for nr, file in enumerate(self.state.get_snapshots()):
+            timestamp = get_timestamp_from_path(file)
+            msg = "[" + str(int(nr)+1) + "] "
+            if snapshot==timestamp:
+                msg += const.settings.col_emph + "(current) " + const.col_endc
+            temp_state =  State.fromTimestamp(timestamp)
+            msg += "ID: " + timestamp
+            msg += "  Date: " + timestamp_to_string(timestamp)
+            msg += "  Version: " + temp_state.get_special("version")
+            root_profiles = filter(lambda x: "parent" not in temp_state[x], temp_state.keys())
+            msg += "  Root profiles: " + " ".join(root_profiles)
+            print(msg)
+
+    def _exec_remove(self):
+        log_debug("Calculating operations to remove profiles.")
+        dfs = UninstallDiffSolver(self.get_profilenames())
+        dfl = dfs.solve()
+        if const.args.skiproot:
+            dfl.run_interpreter(SkipRootInterpreter())
+        self.resolve_difflog(dfl)
+
+    def _exec_resume(self):
+        log_debug("Resuming previous uberdot process.")
+        # TODO this probably dont work
+        # TODO also: each module has its own "const" object. can we even overwrite them?
+        const, dfl = pickle.load(sys.stdin)
+        self.resolve_difflog(dfl)
+
+    def _exec_show(self):
         """Print out the state file in a readable format.
 
         Prints only the profiles specified in the commandline arguments. If
@@ -751,157 +915,59 @@ class UberDot:
                 if not const.args.include or profile["name"] in const.args.include:
                     self.print_profile(profile)
 
-    def print_profile(self, profile):
-        """Prints a single installed profile.
-
-        Args:
-            profile (dict): The profile that will be printed
-        """
-        if profile["name"] in const.args.exclude:
-            log_debug("'" + profile["name"] + "' is in exclude list. Skipping...")
+    def _exec_timewarp(self):
+        cst = const.timewarp
+        # Get correct state file to warp to
+        if cst.state:
+            new_state = State.fromFile(cst.state)
+        elif cst.date:
+            new_state = State.fromTimestampBefore(cst.date)
+        elif cst.earlier or cst.later:
+            delta = cst.earlier if cst.earlier else -cst.later
+            if "snapshot" in self.state.get_specials():
+                time = int(self.state.get_special("snapshot")) - delta
+            else:
+                time = int(get_timestamp_now()) - delta
+            new_state = State.fromTimestampBefore(time)
+        elif cst.first:
+            new_state = State.fromIndex(0)
+        elif cst.last:
+            new_state = State.fromIndex(-1)
+        if self.state.get_special("snapshot") == new_state.get_special("snapshot"):
+            raise PreconditionError("You are already on this state.")
+        log_debug("Calculating operations to perform timewarp.")
+        difflog = StateDiffSolver(self.state, new_state).solve()
+        self.resolve_difflog(difflog)
+        # Last we update the snapshots
+        if cst.dryrun or cst.changes or cst.debug:
+            # But skip if resolve_difflog() didn't modify the state file
             return
-        tab = "  " if const.show.users or const.show.allusers else ""
-        if const.show.profiles or (not const.show.links and not const.show.meta):
-            col = const.settings.col_emph if const.show.links or const.show.meta or not const.show.profiles else ""
-            profile_header = tab + col + profile["name"] + const.col_endc
-            if const.show.links or const.show.meta:
-                profile_header += ":"
-            print(profile_header)
-            tab += "  "
-            if const.show.meta:
-                print(tab + "Installed: " + profile["installed"])
-                print(tab + "Updated: " + profile["updated"])
-                if "parent" in profile:
-                    print(tab + "Subprofile of: " + profile["parent"])
-                if "profiles" in profile:
-                    print(tab + "Has Subprofiles: " + ", ".join(
-                        [s["name"] for s in profile["profiles"]]
-                    ))
-        if const.show.links or (not const.show.profiles and not const.show.meta):
-            for symlink in profile["links"]:
-                print(tab + symlink["from"] + "  →  " + symlink["to"])
-                if const.show.meta:
-                    print(
-                        tab + "    Owner: " + symlink["owner"] +
-                        "   Permission: " + str(symlink["permission"]) +
-                        "   Secure: " + "yes" if symlink["secure"] else "no" +
-                        "   Updated: " + symlink["date"]
-                    )
-
-    def search(self):
-        def hlsearch(text, pattern):
-            all_results = []
-            # Search in each line of text independently and collect all results
-            # Returns always the full line where something was found, but
-            # colors the found substring red
-            for line in text.split("\n"):
-                if const.find.regex:
-                    # Searching with regex
-                    match = re.search(pattern, line)
-                    if match:
-                        # Colorize match in line and add to results
-                        result = line[:match.start()] + const.settings.col_fail
-                        result += line[match.start():match.end()]
-                        result += const.col_endc + line[match.end():]
-                        all_results.append(result)
-                else:
-                    # Plain search
-                    # Lowers text and pattern if ignorecase was set
-                    try:
-                        if const.find.ignorecase:
-                            idx = line.lower().index(pattern.lower())
-                        else:
-                            idx = line.index(pattern)
-                    except ValueError:
-                        # Nothing was found in this line
-                        continue
-                    # Colorize match in line and add to results
-                    result = line[:idx] + const.settings.col_fail
-                    result += line[idx:idx+len(pattern)]
-                    result += const.col_endc + line[idx+len(pattern):]
-                    all_results.append(result)
-            return all_results
-
-        result = []
-        nothing_selected = (not const.find.profiles and not const.find.dotfiles
-                            and not const.find.tags)
-        # Search for profiles
-        if const.find.profiles or nothing_selected:
-            # Search in filename (full paths of files in the profile directory)
-            if const.find.filename or const.find.all:
-                for file in walk_profiles():
-                    highlighted = hlsearch(file, const.find.searchstr)
-                    result += [(file, item) for item in highlighted]
-            for file, pname in get_available_profiles():
-                if pname in const.args.exclude:
-                    log_debug("'" + pname + "' is in exclude list. Skipping...")
-                    continue
-                # Search in names (class names of all available profiles)
-                if const.find.name or const.find.all:
-                    highlighted = hlsearch(pname, const.find.searchstr)
-                    result += [(file, item) for item in highlighted]
-                # Search in content (source code of each available profile)
-                if const.find.content or const.find.all:
-                    source = "".join(get_profile_source(pname, file))
-                    highlighted = hlsearch(source, const.find.searchstr)
-                    result += [(file, item) for item in highlighted]
-
-        # Search for dotfiles
-        if const.find.dotfiles or nothing_selected:
-            for root, name in walk_dotfiles():
-                file = os.path.join(root, name)
-                # Search in names (only file basenames, without tag)
-                if const.find.name or const.find.all:
-                    searchtext = name
-                    if const.settings.tag_separator in searchtext:
-                        idx = searchtext.index(const.settings.tag_separator)
-                        searchtext = searchtext[idx+1:]
-                    highlighted = hlsearch(searchtext, const.find.searchstr)
-                    result += [(file, item) for item in highlighted]
-                # Search in filename (full paths of dotfiles)
-                if const.find.filename or const.find.all:
-                    highlighted = hlsearch(file, const.find.searchstr)
-                    result += [(file, item) for item in highlighted]
-                # Search in content (full content of each dotfile)
-                if const.find.content or const.find.all:
-                    try:
-                        searchtext = open(file).read()
-                        highlighted = hlsearch(searchtext, const.find.searchstr)
-                        result += [(file, item) for item in highlighted]
-                    except UnicodeDecodeError:
-                        # This is not a text file (maybe an image or encrypted)
-                        pass
-        # Search for tags (this only collects the tags from filenames because
-        # it doesn't make sense to search in the content of files or whatever)
-        if const.find.tags:
-            tags = []
-            sep = const.settings.tag_separator
-            # Collect tags first
-            for root, name in walk_dotfiles():
-                file = os.path.join(root, name)
-                if sep in name:
-                    tag = name[:name.index(sep)+len(sep)-1]
-                    if const.find.locations:
-                        highlighted = hlsearch(tag, const.find.searchstr)
-                        result += [(file, item) for item in highlighted]
-                    elif tag not in tags:
-                        tags.append(tag)
-            for tag in tags:
-                highlighted = hlsearch(tag, const.find.searchstr)
-                result += [(file, item) for item in highlighted]
-
-        # Print all the results
-        if const.find.locations:
-            # Either with file paths (in the order that we found them)
-            for i, item in enumerate(result):
-                if item in result[i+1:]:
-                    result.pop(i)
-            for file, entry in result:
-                print(file + ": " + entry)
+        # TODO what about --skiproot?
+        # TODO the following is still critical but doesnt handle unexpected errors
+        if const.args.include or const.args.exclude:
+            # State was modified only partly, so this is a completly new snapshot
+            self.state.create_snapshot()
         else:
-            # or just what was found (in alphabetical order)
-            for entry in sorted(list(set([item[1] for item in result]))):
-                print(entry)
+            # State was modified entirely to match new_state, so we
+            # update its snapshot reference
+            snapshot = get_timestamp_from_path(new_state.file)
+            self.state.set_special("snapshot", snapshot)
+
+    def _exec_update(self):
+        log_debug("Calculating operations to update profiles.")
+        dfs = UpdateDiffSolver(self.get_profilenames())
+        dfl = dfs.solve()
+        if const.update.dui:
+            dfl.run_interpreter(DUIStrategyInterpreter())
+        if const.args.skiproot:
+            dfl.run_interpreter(SkipRootInterpreter())
+        self.resolve_difflog(dfl)
+
+    def _exec_version(self):
+        log(const.settings.col_emph + "Version: " + const.col_endc + const.VERSION)
+
+    def _create_resume_pickle(self, difflog):
+        return pickle.dumps([const, difflog])
 
     def resolve_difflog(self, difflog):
         """Performs checks on DiffLog and resolves it.
@@ -948,10 +1014,13 @@ class UberDot:
         # Gain root if needed
         if not has_root_priveleges():
             log_debug("Checking if root is required.")
-            if const.subcommand.dryrun:
-                difflog.run_interpreter(RootNeededInterpreter())
-            else:
-                difflog.run_interpreter(GainRootInterpreter())
+            root_interpreter = RootNeededInterpreter()
+            difflog.run_interpreter(root_interpreter)
+            if not const.subcommand.dryrun and root_interpreter.logged:
+                process = Popen([sys.executable, "resume"], stdin=PIPE)
+                process.communicate(self._create_resume_pickle(difflog))
+                process.wait()
+                return
         else:
             log_debug("uberdot was started with root priveleges.")
         # Check blacklist not until now, because the user would need confirm it
@@ -1027,32 +1096,9 @@ class UberDot:
             raise UnkownError(err, msg)
 
     @staticmethod
-    def init_logger():
-        global logger
-        # Init the logger, further configuration is done when we parse the
-        # commandline arguments
-        logging.setLoggerClass(CustomRecordLogger)
-        logger = logging.getLogger("root")
-        logger.setLevel(logging.DEBUG)
-        ch_out = logging.StreamHandler(stream=sys.stdout)
-        ch_out.terminator = ""
-        ch_out.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(message)s')
-        ch_out.setFormatter(formatter)
-        ch_out.addFilter(StdoutFilter())
-        # We set up two streamhandlers, so we can log errors automatically
-        # to stderr and everything else to stdout
-        ch_err = logging.StreamHandler(stream=sys.stderr)
-        ch_err.terminator = ""
-        ch_err.setLevel(logging.ERROR)
-        ch_err.setFormatter(formatter)
-        logger.addHandler(ch_out)
-        logger.addHandler(ch_err)
-
-    @staticmethod
     def run_steps(args=None):
         yield "init_logger"
-        UberDot.init_logger()
+        UberDot.__init_logger()
         try:
             yield "create_udot"
             udot = UberDot()
@@ -1103,7 +1149,6 @@ class UberDot:
             # We are doing nothing here, since we don't want to customize
             # the execution process
             pass
-
 
 
 class StoreDictKeyPair(argparse.Action):

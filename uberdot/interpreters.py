@@ -419,8 +419,12 @@ class CheckDynamicFilesInterpreter(Interpreter):
     gives the user the opportunity to interact with them.
 
     Attributes:
-        dryrun (bool): Stores, if ``--dryrun`` was set
+        change_detected (bool): Stores, if a change was dected in any dynamic file
     """
+    def __init__(self):
+        self.change_detected = False
+        super().__init__()
+
     def _op_update_l(self, dop):
         """Inspects the target file of the to be updated link.
 
@@ -455,66 +459,14 @@ class CheckDynamicFilesInterpreter(Interpreter):
         # Check for changes
         if md5_calc != md5_old:
             log_warning("You made changes to '" + target + "'.")
-            log_warning("These changes will be lost, if you don't write " +
-                        "them back to the original file.")
-            self.user_interaction(target)
+            self.change_detected = True
 
-    def user_interaction(self, target):
-        """Provides a small UI for the user to interact with a changed dynamic
-        file.
-
-        The user can choose one of the following options to handle the changes:
-
-            - **A**: Abort and exit uberdot
-            - **I**: Ignore the changes and do nothing
-            - **D**: Show a diff and ask again
-            - **P**: Create a patch file and ask again
-            - **U**: Undo the changes and restore the original file
-
-        Args:
-            target (str): The full path to the file that the user will interact
-                with
-        Raises:
-            UserAbortion: The user decided to abort the whole process
-            PreconditionError: The patch file could not be written
-        """
-        target_bak = target + "." + const.settings.backup_extension
-        done = False
-        while not done:
-            inp = user_choice(
-                ("I", "Ignore"), ("d", "Show diff"),
-                ("p", "Create patch"), ("U", "Undo changes"),
-                abort=True
-            )
-            if inp == "i":
-                done = True
-            elif inp == "d":
-                # Create a colored diff between the file and its original
-                process = Popen(["diff", "--color=auto", target_bak, target])
-                process.communicate()
-            elif inp == "p":
-                # Create a git patch with git diff
-                patch_file = os.path.splitext(target)[0] + ".patch"
-                patch_file = user_selection("Enter filename for patch", patch_file)
-                patch_file = normpath(patch_file)
-                args = ["git", "diff", "--no-index", target_bak, target]
-                process = Popen(args, stdout=PIPE)
-                try:
-                    with open(patch_file, "wb") as file:
-                        file.write(process.stdout.read())
-                    log("Patch file written successfully to '" + patch_file + "'.")
-                except OSError as err:
-                    msg = "Could not write patch file '" + patch_file + "'. "
-                    msg += str(err)
-                    raise PreconditionError(msg)
-            elif inp == "u":
-                # TODO this should be reimplemented, but properly. dryrun shouldnt be handled here
-                    # if const.dryrun:
-                    #     log_warning("This does nothing since " +
-                    #                 "this is just a dry-run")
-                # Copy the original to the changed
-                copyfile(target_bak, target)
-                done = True
+    def _op_fin(self, dop):
+        if self.change_detected:
+            msg = "Changes to your files would be lost otherwise, so you"
+            msg += " need to run 'udot sync' to merge or discard changes "
+            msg += "before you proceed."
+            raise PreconditionError(msg)
 
 
 class CheckLinksInterpreter(Interpreter):
