@@ -1,5 +1,5 @@
 """This module collects all profiles that are used to test commands"""
-from uberdot.profile import EasyEasyProfile
+from uberdot.profile import EasyProfile
 
 class Links(EasyProfile):
     def generate(self):

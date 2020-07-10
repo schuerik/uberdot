@@ -58,38 +58,52 @@ def is_version_smaller(version_a, version_b):
     return False
 
 
-def upgrade_stone_age(old_state):
+def upgrade_stone_age(old_state, path):
     """Upgrade from old installed file with schema version 4 to fancy
-    state file. Luckily the schema only introduced optional properties
-    and renamed "name" to "from" and "target" to "to".
+    state file.
     """
     for key in old_state:
+        if key.startswith("@"):
+            continue
         for link in old_state[key]["links"]:
-            # Rename name and target
-            link["from"] = link["name"]
+            # Rename name
+            link["path"] = link["name"]
             del link["name"]
-            link["to"] = link["target"]
-            del link["target"]
+            # Add target inode
+            abstarget = os.path.join(os.path.dirname(path), link["target"])
+            link["target_inode"] = None
+            if os.path.exists(abstarget):
+                link["target_inode"] = os.stat(link["target"]).st_ino
             # Convert gid and uid to owner string
             gid = link["gid"]
             try:
                 username = get_username(link["uid"])
             except KeyError:
+                msg = "No user with id " + link["uid"] + " found."
+                msg += "Using the current user as fallback."
+                log_debug(msg)
                 username = ""
             try:
                 groupname = get_groupname(link["gid"])
             except KeyError:
+                msg = "No group with id " + link["gid"] + " found."
+                msg += "Using the current group as fallback."
+                log_debug(msg)
                 groupname = ""
             link["owner"] = username + ":" + groupname
             del link["uid"]
             del link["gid"]
+            # Add hard property
+            link["hard"] = False
     return old_state
 
-def upgrade_flexible_events(old_state):
+def upgrade_flexible_events(old_state, path):
     """Upgrade event properties. Instead of a simple boolean it contains
     the scripts md5-hash as reference and is now mandantory.
     """
     for key in old_state:
+        if key.startswith("@"):
+            continue
         events = ["beforeInstall", "afterInstall", "beforeUpdate",
                   "afterUpdate", "beforeUninstall", "afterUninstall"]
         for event in events:
@@ -109,6 +123,7 @@ def upgrade_flexible_events(old_state):
 upgrades = [
     ("1.17.0", upgrade_stone_age, None),
     ("1.18.0", upgrade_flexible_events, None),
+    # TODO upgrade for hardlinks needed
 ]
 
 
@@ -117,13 +132,12 @@ upgrades = [
 # Helper classes to interact with state file
 ###############################################################################
 
-PATH_VALUES = ["from", "to"]
-
 class Notifier:
     def __init__(self):
+        self.init_data()
         # Activte notify on end of init. That way subclasses can initialize
         # themself without triggering notify
-        self.notify = self._notify
+        self.notify = self.__notify
 
     def set_parent(self, parent):
         if parent is not None and not isinstance(parent, Notifier):
@@ -133,7 +147,7 @@ class Notifier:
     def notify(self):
         pass
 
-    def _notify(self):
+    def __notify(self):
         if hasattr(self, "parent") and self.parent is not None:
             if hasattr(self.parent, "notify") and self.parent.notify is not None:
                 self.parent.notify()
@@ -143,11 +157,15 @@ class Notifier:
         clone.parent = None
         return clone
 
+    def init_data(self):
+        pass
+
 
 class AutoExpander(Notifier):
-    def __init__(self):
-        self.expander = None
-        self.init_data()
+    def __init__(self, origin):
+        self.origin = origin
+        self.expander = {}
+        super().__init__()
 
     def getitem(self, key):
         return self.expandvalue(key, self.data[key])
@@ -160,6 +178,9 @@ class AutoExpander(Notifier):
         self.notify()
 
     def expandvalue(self, key, value):
+        if key in self.expander:
+            if value is not None:
+                value = self.expander[key](value)
         return value
 
     def wrap_value(self, key, value):
@@ -169,23 +190,14 @@ class AutoExpander(Notifier):
             value.set_parent(self)
         return value
 
-    def init_data(self):
-        pass
-
 
 class AutoExpandDict(MutableMapping, AutoExpander):
-    def __init__(self, args={}, **kwargs):
+    def __init__(self, origin, args={}, **kwargs):
         # Init fields and load data
         self.data = {}
         self.data_specials = {}
-        super().__init__()
-        self.expander = {}
+        super().__init__(origin)
         self.update(args, **kwargs)
-
-    def expandvalue(self, key, value):
-        if key in self.expander:
-            value = self.expander[key](value)
-        return value
 
     def __getitem__(self, key):
         if key[0] == "@":
@@ -231,10 +243,10 @@ class AutoExpandDict(MutableMapping, AutoExpander):
 
 
 class AutoExpandList(MutableSequence, AutoExpander):
-    def __init__(self, args=[]):
+    def __init__(self, origin, args=[]):
         # Init fields and load data
         self.data = []
-        super().__init__()
+        super().__init__(origin)
         self.extend(args)
 
     def __getitem__(self, index): return self.getitem(index)
@@ -258,11 +270,6 @@ class AutoExpandList(MutableSequence, AutoExpander):
         rep += "]"
         return rep
 
-    def expandvalue(self, key, value):
-        if not isinstance(value, AutoExpander):
-            value = self.expander(value)
-        return value
-
 
 class AutoExpanderJSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -278,12 +285,13 @@ class StaticAutoExpandDict(AutoExpandDict):
         if key in self:
             super().__setitem__(key, value)
         else:
-            raise FatalError("Cannot create new key '" + key + "' in a StaticAutoExpandDict")
+            raise PreconditionError("Cannot create new key '" + key + "' in a StaticAutoExpandDict")
 
 
 class LinkData(StaticAutoExpandDict):
-    def __init__(self, args={}, **kwargs):
-        super().__init__(args, **kwargs)
+    def __init__(self, origin, args={}, **kwargs):
+        super().__init__(origin, args, **kwargs)
+        # TODO normpath needs to normalize relative to origin here
         self.expander["path"] = normpath
         self.expander["target"] = normpath
         self.expander["owner"] = inflate_owner
@@ -327,8 +335,9 @@ class LinkData(StaticAutoExpandDict):
         if props["hard"]:
             props["target_inode"] = os.stat(path).st_ino
         else:
-            props["target"] = readlink(path)
-            props["target_inode"] = os.stat(props["target"]).st_ino
+            target = readlink(path)
+            props["target"] = target
+            props["target_inode"] = os.stat(target).st_ino
             if os.path.exists(target):
                 props["secure"] = get_owner(path) == get_owner(target)
         return cls(props)
@@ -386,13 +395,13 @@ class LinkData(StaticAutoExpandDict):
 
     def wrap_value(self, key, value):
         if key == "buildúp" and not isinstance(value, BuildupData):
-            value = BuildupData(value)
+            value = BuildupData(self.origin, value)
         return super().wrap_value(key, value)
 
 
 class BuildupData(AutoExpandDict):
-    def __init__(self, args={}, **kwargs):
-        super().__init__(args, **kwargs)
+    def __init__(self, origin, args={}, **kwargs):
+        super().__init__(origin, args, **kwargs)
         self.expander["path"] = normpath
 
     def init_data(self):
@@ -404,17 +413,17 @@ class BuildupData(AutoExpandDict):
         if key == "source":
             if type(value) == dict and "type" in value:
                 if value["type"] == "StaticFile":
-                    value = CopyData(value)
+                    value = CopyData(self.origin, value)
                 else:
-                    value = BuildupData(value)
+                    value = BuildupData(self.origin, value)
             else:
                 raise ValueError("UnsupportedType")
         return super().wrap_value(key, value)
 
 
 class CopyData(AutoExpandDict):
-    def __init__(self, args={}, **kwargs):
-        super().__init__(args, **kwargs)
+    def __init__(self, origin, args={}, **kwargs):
+        super().__init__(origin, args, **kwargs)
         self.expander["path"] = normpath
         self.expander["source"] = normpath
 
@@ -427,14 +436,14 @@ class CopyData(AutoExpandDict):
 class ProfileStateDict(AutoExpandDict):
     def wrap_value(self, key, value):
         if key == "links" and not isinstance(value, LinkContainerList):
-            value = LinkContainerList(value)
+            value = LinkContainerList(self.origin, value)
         return super().wrap_value(key, value)
 
 
 class LinkContainerList(AutoExpandList):
     def wrap_value(self, key, value):
         if type(value) == dict:
-            value = LinkData(value)
+            value = LinkData(self.origin, value)
         return super().wrap_value(key, value)
 
 
@@ -446,7 +455,7 @@ class GlobalState(metaclass=Singleton):
     def load(self):
         # Load current state file of current user
         self.states = {}
-        self.states[const.internal.user] = State.current()
+        self.states[const.internal.user] = OwnState.current()
         # Load current state files of other users
         for user, session_path in const.internal.session_dirs_foreign:
             self.try_load_user_session(user, session_path)
@@ -457,28 +466,19 @@ class GlobalState(metaclass=Singleton):
         if not os.path.exists(path):
             return
         # Load file
-        state = State.fromFile(path, auto_upgrade=False)
-        # If we can't upgrade, ignore this state file
-        if is_version_smaller(state.get_special("version"), const.internal.MIN_VERSION):
-            msg = "Ignoring state file of user " + user + ". Too old."
-            log_warning(msg)
-            return
-        if is_version_smaller(const.internal.VERSION, state.get_special("version")):
-            msg = "Ignoring state file of user " + user + "."
-            msg += " uberdot is too old."
-            log_warning(msg)
-            return
-        # Upgrade and store in loaded
         try:
-            state.full_upgrade()
+            state = ForeignState.fromFile(path)
             self.states[user] = state
         except CustomError as err:
-            log_debug(str(err))
+            if isinstance(err, UnkownError):
+                log_debug(err.original_message)
+            else:
+                log_debug(err._message)
             msg = "An error occured when upgrading the state file of user "
             msg += user + ". Ignoring this state file."
             log_warning(msg)
             # We shouldn't ignore it if we are testing at the moment
-            if const.test:
+            if const.internal.test:
                 raise err
 
     def get_users(self):
@@ -502,28 +502,26 @@ class GlobalState(metaclass=Singleton):
 # TODO verify that the state gets the correct snapshot property and
 # behaves consistent with auto_write
 class State(AutoExpandDict):
-    def __init__(self, file, auto_write=False, auto_upgrade=True):
+    def __init__(self, file, auto_write=False):
         # Setup in-mememory state file
-        self.file = file
+        self.origin = file
         # Load state files of current user
-        log_debug("Loading state file '" + self.file + "'.")
+        log_debug("Loading state file '" + self.origin + "'.")
         try:
-            # TODO state needs to be upgraded before it is loaded into this class
-            state_raw = json.load(open(self.file))
+            self.state_raw = json.load(open(self.origin))
         except json.decoder.JSONDecodeError as err:
             raise PreconditionError(
-                "Can not parse '" + self.file + "'. " + str(err)
+                "Can not parse '" + self.origin + "'. " + str(err)
             )
         except FileNotFoundError:
             raise PreconditionError(
-                "State file '" + self.file + "' doesn't exist."
+                "State file '" + self.origin + "' doesn't exist."
             )
         # Setup auto write
         self.auto_write = auto_write
         # Upgrade
-        if auto_upgrade:
-            self.full_upgrade()
-        super().__init__()
+        self._upgrade()
+        super().__init__(self.origin, self.state_raw)
 
     @classmethod
     def fromTimestamp(cls, timestamp):
@@ -537,8 +535,8 @@ class State(AutoExpandDict):
         return State.fromIndex(n-1)
 
     @classmethod
-    def fromFile(cls, file, auto_upgrade=True):
-        return cls(file, auto_upgrade=auto_upgrade)
+    def fromFile(cls, file):
+        return cls(file)
 
     @staticmethod
     def fromNumber(number):
@@ -561,13 +559,21 @@ class State(AutoExpandDict):
         return cls(path, auto_write=True)
 
     def get_snapshots(self):
-        return get_snapshots(os.path.dirname(self.file))
+        return get_snapshots(os.path.dirname(self.origin))
 
-    def get_upgraded(self, patch):
+    def get_patches(self):
+        patches = []
+        # Skip all upgrades for smaller versions
+        for i, upgrade in enumerate(upgrades):
+            if is_version_smaller(self.state_raw["@version"], upgrade[0]):
+                patches = upgrades[i:]
+                break
+        return patches
+
+    def __apply_patch(self, patch):
         try:
-            result = patch[1](deepcopy(self.data))
-            result["@version"] = patch[0]
-            return result
+            self.state_raw = patch[1](deepcopy(self.state_raw), self.origin)
+            self.state_raw["@version"] = patch[0]
         except CustomError:
             raise
         except Exception as err:
@@ -575,60 +581,39 @@ class State(AutoExpandDict):
             msg += "state. Please resolve this error first."
             raise UnkownError(err, msg)
 
-    def full_upgrade(self):
-        # Check if we can upgrade
-        if is_version_smaller(self.get_special("version"), const.internal.MIN_VERSION):
-            msg = "Your state file is too old to be processed."
+    def _upgrade(self, extended_logging=False):
+        # Check version
+        version = self.state_raw["@version"]
+        if is_version_smaller(version, const.internal.MIN_VERSION):
+            msg = "State file is too old to be processed."
             raise PreconditionError(msg)
-        if is_version_smaller(const.internal.VERSION, self.get_special("version")):
-            msg = "Your state file was created with a newer version of "
+        if is_version_smaller(const.internal.VERSION, version):
+            msg = "State file was created with a newer version of "
             msg += "uberdot. Please update uberdot before you continue."
             raise PreconditionError(msg)
-        # Turn of auto_write temporarily, so that we don't write the file
-        # for any minor change but only for each applied patch
-        auto_write = self.auto_write
-        self.auto_write = False
-        # Upgrade and store in loaded
+        # Get and apply patches to state_raw
         patches = self.get_patches()
-        if auto_write:
-            for patch in patches:
-                log(
-                    "Upgrading state file to version " + patch[0] + " ... ",
-                    end=""
-                )
-                self.update(self.get_upgraded(patch))
-                self.write_file()
-                log("Done.")
-                if patch[2]:
-                    log_warning(
-                        "Manual changes to your profiles might be required " +
-                        "due to this upgrade: " + patch[2]
-                    )
-        elif patches:
+        if not extended_logging and patches:
             log_debug(
                 "Upgrading state file to version " + patches[-1][0]  + " ... ",
                 end=""
             )
-            for patch in patches:
-                self.update(self.get_upgraded(patch))
+        for patch in patches:
+            if extended_logging:
+                log(
+                    "Upgrading state file to version " + patch[0] + " ... ",
+                    end=""
+                )
+            self.__apply_patch(patch)
+            if extended_logging:
+                log("Done.")
+        if not extended_logging:
             log_debug("Done.")
-        if not patches:
-            # Make sure to update version in case no upgrade was performed
-            self.set_special("version", const.internal.VERSION)
-        # Restore auto_write
-        self.auto_write = auto_write
-
-    def get_patches(self):
-        patches = []
-        # Skip all upgrades for smaller versions
-        for i, upgrade in enumerate(upgrades):
-            if is_version_smaller(self.get_special("version"), upgrade[0]):
-                patches = upgrades[i:]
-                break
-        return patches
+        # Update version number
+        self.state_raw["@version"] = const.internal.VERSION
 
     def create_snapshot(self):
-        path, ext = os.path.splitext(self.file)
+        path, ext = os.path.splitext(self.origin)
         timestamp = get_timestamp_now()
         path += "_" + timestamp + ext
         log_debug("Creating state file snapshot at '" + path + "'.")
@@ -639,7 +624,7 @@ class State(AutoExpandDict):
     def write_file(self, path=None):
         # Prepare directory
         if path is None:
-            path = self.file
+            path = self.origin
         makedirs(os.path.dirname(path))
         # Merge user_dict with specials
         new_dict = {}
@@ -678,3 +663,14 @@ class State(AutoExpandDict):
         clone = super().copy()
         clone.auto_write = False
         return clone
+
+
+class OwnState(State):
+    def __init__(self, path, auto_write=False):
+        super().__init__(path, auto_write=auto_write)
+        self.write_file()
+
+
+class ForeignState(State):
+    def __init__(self, path):
+        super().__init__(path, auto_write=False)

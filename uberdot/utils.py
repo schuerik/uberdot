@@ -61,7 +61,9 @@ class Walker:
         result = self.files.pop()
         return self.root, result
 
+# TODO add priority walker
 
+# TODO better ignore list
 class SafeWalker:
     def __init__(self, path, ignorelist, joined):
         self.iterator = walk(path)
@@ -358,7 +360,6 @@ def readlink(file):
         return False, os.stat(file).st_ino
 
 
-
 def has_root_priveleges():
     """Checks if this programm has root priveleges.
 
@@ -515,91 +516,6 @@ def normpath(path):
         path = expandpath(path)
         return os.path.abspath(path)
     return None
-
-
-# Dynamic imports
-###############################################################################
-
-def import_profile(class_name):
-    """Imports a profile class only by it's name.
-
-    Searches :const:`~constants.PROFILE_FILES` for python modules and imports
-    them temporarily. If the module has a class that is the same as
-    ``class_name`` it returns it.
-
-    Args:
-        class_name (str): The name of the class that will be imported
-        file (str): If set, ``class_name`` will be imported from this file
-            directly
-    Raises:
-        :class:`~errors.GenerationError`: One of the modules in
-            :const:`~constants.PROFILE_FILES` contained errors or the imported
-            class doesn't inherit from :class:`~profile.Profile`
-        :class:`~errors.PreconditionError`: No class with the provided name
-            exists
-    Returns:
-        class: The class that was imported
-    """
-
-    # Go through all python files in the profile directory
-    for file in walk_profiles():
-        imported = import_profile_class(class_name, file)
-        if imported is not None:
-            return imported
-    raise PreconditionError("The profile '" + class_name +
-                            "' could not be found in any module. Aborting.")
-
-
-def import_profile_class(class_name, file):
-    # Import profile (can't be done globally because profile needs to
-    # import this module first)
-    from uberdot.profile import ProfileSkeleton
-    try:
-        module = import_module(file, supress=False)
-    except CustomError as err:
-        raise err
-    except Exception as err:
-        raise GenerationError("The module '" + file +
-                              "' contains an error and therefor " +
-                              "can't be imported. The error was:" +
-                              "\n   " + str(err), profile=class_name)
-    # Return the class if it is in this module
-    if class_name in module.__dict__:
-        if issubclass(module.__dict__[class_name], ProfileSkeleton):
-            return module.__dict__[class_name]
-        msg = "The class '" + class_name + "' does not inherit from"
-        msg += " Profile and therefore can't be imported."
-        raise GenerationError(msg, profile=class_name)
-
-
-def import_module(file, supress=True):
-    try:
-        spec = importlib.util.spec_from_file_location("__name__", file)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module
-    except Exception as err:
-        if not supress:
-            raise err
-
-
-def get_available_profiles():
-    # Import profile (can't be done globally because profile needs to
-    # import this module first)
-    from uberdot.profile import ProfileSkeleton
-    result = []
-    # Go through all python files in the profile directory
-    for file in walk_profiles():
-        module = import_module(file)
-        if module is None:
-            continue
-        for name, field in module.__dict__.items():
-            if isinstance(field, type):
-                if issubclass(field, ProfileSkeleton):
-                    # TODO: whats that
-                    if name != "Profile" and field.__module__ == "__name__":
-                        result.append((file, name))
-    return result
 
 
 # Tools for iterators
@@ -1098,6 +1014,7 @@ class UnkownError(CustomError):
         message += type(original_error).__name__
         if str(original_error):
             message += ": " + str(original_error)
+        self.original_message = str(original_error)
         super().__init__(message)
 
 
@@ -1431,6 +1348,7 @@ class Const(metaclass=Singleton):
             "replace", "replace_pattern", "suffix"
         )
         add("secure", value=True, type="bool")
+        add("hard", value=False, type="bool")
         add("optional", value=False, type="bool")
         add("tags", value=[], type="list")
         add("directory", value="$HOME", type="path")

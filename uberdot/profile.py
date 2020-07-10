@@ -51,23 +51,31 @@ that shall become a custom builtin.
 
 
 class LoaderEntry:
-    def __init__(self, name, class_obj, params=None):
+    def __init__(self, name, class_obj, params={}):
         self.name = name
         self.class_obj = class_obj
         self.params = params
 
 
 class ProfileLoader(metaclass=Singleton):
-    # TODO preload.py
     def __init__(self):
         self.file_mapping = []
         self.extension_mapping = [
-            ("py", import_profiles_by_classname),
+            ("py", ProfileLoader.import_profiles_by_classname),
             # TODO: implement to test different loaders
             # "yaml": parse_yaml_easy_profile,
             # "json": parse_static_json_profile
         ]
         self._loaded_profiles = {}
+        # Run preload.py if available
+        preload_path = os.path.join(const.settings.profile_files, "preload.py")
+        if os.path.exists(preload_path):
+            preload_mod = ProfileLoader.import_module(preload_path)
+            if hasattr(preload_mod, "conf_file_mapping"):
+                self.file_mapping = preload_mod.conf_file_mapping + self.file_mapping
+            if hasattr(preload_mod, "conf_extension_mapping"):
+                self.extension_mapping = preload_mod.conf_extension_mapping + self.extension_mapping
+        self.load_profiles()
 
     @staticmethod
     def import_module(file, supress=False):
@@ -75,6 +83,7 @@ class ProfileLoader(metaclass=Singleton):
             msg = "'" + file + "' can't be imported because it does not exist."
             raise PreconditionError(msg)
         try:
+            # TODO: errors in modules seem not to raise exceptions
             spec = importlib.util.spec_from_file_location("__name__", file)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
@@ -86,7 +95,7 @@ class ProfileLoader(metaclass=Singleton):
     @staticmethod
     def import_profiles_by_classname(file):
         try:
-            module = import_module(file)
+            module = ProfileLoader.import_module(file)
         except CustomError as err:
             raise err
         except Exception as err:
@@ -94,8 +103,8 @@ class ProfileLoader(metaclass=Singleton):
             msg += "can't be imported. The error was:\n   " + str(err)
             raise PreconditionError(msg)
         result = {}
-        for class_name, class_obj in vars(module):
-            if issubclass(class_obj, ProfileSkeleton):
+        for class_name, class_obj in vars(module).items():
+            if isinstance(class_obj, type) and issubclass(class_obj, ProfileSkeleton):
                 result[class_name] = LoaderEntry(class_name, class_obj)
         return result
 
@@ -108,7 +117,7 @@ class ProfileLoader(metaclass=Singleton):
     def load_profiles(self):
         self._loaded_profiles.clear()
         for filename in walk_profiles():
-            self._loaded_profiles.extend(self.get_profiles_from_file(filename))
+            self._loaded_profiles.update(self.get_profiles_from_file(filename))
 
     def get_profiles_from_file(self, filename):
         # First go through all file path mappings
@@ -128,7 +137,7 @@ class ProfileLoader(metaclass=Singleton):
         # we go through all the extension mappings
         else:
             for ext, func in self.extension_mapping:
-                if os.path.splitext(filename)[1] == ext:
+                if os.path.splitext(filename)[1][1:] == ext:
                     loader_func = func
                     break
             else:
@@ -138,7 +147,7 @@ class ProfileLoader(metaclass=Singleton):
         # Generate all LoadEntries for each profile in file
         load_entries = loader_func(filename)
         # Check that all returned profiles inherit from ProfileSkeleton
-        for name, entry in load_entries:
+        for name, entry in load_entries.items():
             if not issubclass(entry.class_obj, ProfileSkeleton):
                 msg = "Profile '" + name + "' cant be loaded as it is"
                 msg += " not a subclass of ProfileSkeleton."
@@ -164,7 +173,7 @@ class ProfileSkeleton:
         self.result = {
             "name": self.name,
             "parent": self.parent,
-            "links": LinkContainerList(),
+            "links": LinkContainerList(None),
             "profiles": [],
             "beforeUpdate": "",
             "beforeInstall": "",
@@ -546,15 +555,16 @@ class Profile(BaseProfile):
 
     def add_link(self, source, target, buildup=None, **kwargs):
         read_opt = self._make_read_opt(kwargs)
-        linkdescr = LinkData()
-        linkdescr["from"] = source
-        linkdescr["to"] = target
-        linkdescr["owner"] = read_opt("owner")
-        linkdescr["permission"] = read_opt("permission")
-        linkdescr["secure"] = read_opt("permission")
-        linkdescr["hard"] = read_opt("hard")
-        linkdescr["buildup"].update(buildup)
-        self.result["links"].append(linkdescr)
+        linkdata = LinkData(None)
+        linkdata["path"] = source
+        linkdata["target"] = target
+        linkdata["target_inode"] = os.stat(target).st_ino
+        linkdata["owner"] = read_opt("owner")
+        linkdata["permission"] = read_opt("permission")
+        linkdata["secure"] = read_opt("permission")
+        linkdata["hard"] = read_opt("hard")
+        linkdata["buildup"] = buildup
+        self.result["links"].append(linkdata)
 
 
 # Abstract class that provides commands mechanics
@@ -974,7 +984,7 @@ class StaticJSONProfile(ProfileSkeleton):
     def generate(self):
         # TODO: Error handling
         # TODO: Make sure to expand vars properly
-for file in safe_walk(const.settings.profile_files, [r".*[^j][^s][^o][^n]$"], joined=True):
+        for file in safe_walk(const.settings.profile_files, [r".*[^j][^s][^o][^n]$"], joined=True):
             if os.path.splitext(os.path.basename(file))[0] == self.name:
                 self.profile_results = json.load(open(self.file))
                 subprofiles = self.profile_results["profiles"][:]

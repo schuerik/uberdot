@@ -56,6 +56,7 @@ from uberdot.state import get_timestamp_from_path
 from uberdot.state import State
 from uberdot.state import GlobalState
 from uberdot.utils import *
+from uberdot.profile import ProfileLoader
 
 
 const = Const()
@@ -668,13 +669,14 @@ class UberDot:
     def generate_profiles(self):
         """Imports profiles by name and executes them. """
         profiles = []
+        profileloader = ProfileLoader()
         # Import and create profiles
         for profilename in self.get_profilenames():
             if profilename in const.args.exclude:
                 log_debug("'" + profilename + "' is in exclude list." +
                           " Skipping generation of profile...")
             else:
-                profiles.append(profileloader.get_instance(profilename))
+                profiles.append(profileloader.create_instance(profilename))
         # And execute/generate them
         for profile in profiles:
             profile.start_generation()
@@ -962,7 +964,7 @@ class UberDot:
 
     def _exec_update(self):
         log_debug("Calculating operations to update profiles.")
-        dfs = UpdateDiffSolver(self.get_profilenames())
+        dfs = UpdateDiffSolver(self.generate_profiles(), const.mode_args.parent)
         dfl = dfs.solve()
         if const.update.dui:
             dfl.run_interpreter(DUIStrategyInterpreter())
