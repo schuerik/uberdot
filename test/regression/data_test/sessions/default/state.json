@@ -3,32 +3,35 @@
         "name": "NoOptions",
         "links": [
             {
-                "from": "environment-default/name1001",
-                "to": "files/name1",
-                "owner": ":",
+                "name": "environment-default/name1001",
+                "target": "files/name1",
+                "uid": 1000,
+                "gid": 1001,
                 "permission": 644,
                 "secure": true,
                 "date": "2020-03-12 13:48:41"
             },
             {
-                "from": "environment-default/name1002",
-                "to": "files/name2",
-                "owner": ":",
+                "name": "environment-default/name1002",
+                "target": "files/name2",
+                "uid": 1000,
+                "gid": 1001,
                 "permission": 644,
                 "secure": true,
                 "date": "2020-03-12 13:48:41"
             },
             {
-                "from": "environment-default/name1003",
-                "to": "files/name3",
-                "owner": ":",
+                "name": "environment-default/name1003",
+                "target": "files/name3",
+                "uid": 1000,
+                "gid": 1001,
                 "permission": 644,
                 "secure": true,
                 "date": "2020-03-12 13:48:41"
             }
         ],
-        "state": "2020-03-12 13:48:41",
+        "installed": "2020-03-12 13:48:41",
         "updated": "2020-03-12 13:48:41"
     },
-    "@version": "1.17.0"
+    "@version": "1.13.2_4"
 }

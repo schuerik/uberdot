@@ -1,34 +1,38 @@
+
 {
     "NoOptions": {
         "name": "NoOptions",
         "links": [
             {
-                "from": "test/regression/environment-users/name1",
-                "to": "test/regression/files/name1",
-                "owner": ":",
+                "name": "environment-user/name1",
+                "target": "files/name1",
+                "uid": 1000,
+                "gid": 1001,
                 "permission": 644,
                 "secure": true,
                 "date": "2020-03-12 13:48:41"
             },
             {
-                "from": "test/regression/environment-users/name2",
-                "to": "test/regression/files/name2",
-                "owner": ":",
+                "name": "environment-user/name2",
+                "target": "files/name2",
+                "uid": 1000,
+                "gid": 1001,
                 "permission": 644,
                 "secure": true,
                 "date": "2020-03-12 13:48:41"
             },
             {
-                "from": "environment-users/name3",
-                "to": "test/regression/files/name3",
-                "owner": ":",
+                "name": "environment-user/name3",
+                "target": "files/name3",
+                "uid": 1000,
+                "gid": 1001,
                 "permission": 644,
                 "secure": true,
                 "date": "2020-03-12 13:48:41"
             }
         ],
-        "state": "2020-03-12 13:48:41",
+        "installed": "2020-03-12 13:48:41",
         "updated": "2020-03-12 13:48:41"
     },
-    "@version": "1.17.0"
+    "@version": "1.13.2_4"
 }
