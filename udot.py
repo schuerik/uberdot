@@ -445,6 +445,13 @@ class UberDot:
         )
 
         # TODO new mode to sync files back to target_dir
+        # Setup mode sync arguments
+        help_text = "Synchronise changes made to dotfiles back to the dotfile directory"
+        parser_sync = subparsers.add_parser(
+            "sync",
+            description=help_text,
+            help=help_text
+        )
 
         # Setup mode history arguments
         help_text = "list all previous (or later) states"

@@ -254,14 +254,18 @@ def find_files(filename, paths):
     return [os.path.join(path, filename) for path in paths
             if os.path.isfile(os.path.join(path, filename))]
 
+
 def listdirs(dirname):
     return filter(
+        # TODO does this only return directories or also links
         os.path.isdir,
         map(lambda x: os.path.join(dirname, x), os.listdir(dirname))
     )
 
+
 def listfiles(dirname):
     return filter(
+        # TODO does this only return files or also links
         os.path.isfile,
         map(lambda x: os.path.join(dirname, x), os.listdir(dirname))
     )
@@ -352,6 +356,7 @@ def readlink(file):
     else:
         # file is hardlink, so return the inode number as reference for the original
         return False, os.stat(file).st_ino
+
 
 
 def has_root_priveleges():
@@ -730,7 +735,7 @@ def log_error(message, end="\n"):
     logger.error(message + end)
 
 
-def user_choice(*options, abort=False):
+def user_choice(*options, abort=False, inline=True):
     options = dict(options)
     if abort:
         options["A"] = "Abort"
@@ -739,7 +744,11 @@ def user_choice(*options, abort=False):
         options[key] = text[:idx] + "[" + key + "]" + text[idx+1:]
 
     while True:
-        selection = user_input(" / ".join(options.values()))
+        if inline:
+            prompt = " / ".join(options.values())
+        else:
+            prompt = "\n".join(options.values()) + "\n"
+        selection = user_input(prompt)
         selection = selection.lower().strip()
         if selection not in map(str.lower, options.keys()):
             print("Invalid option.")
@@ -792,7 +801,7 @@ def create_backup(filename):
 
 
 def create_tmp_backup(filename):
-    backupfile = filename + "." + const.settings.backup_extension
+    backupfile = filename + "." + const.settings.backup_extension + ".tmp"
     try:
         shutil.copyfile(filename, backupfile)
     except Exception as err:
@@ -803,7 +812,7 @@ def create_tmp_backup(filename):
 
 
 def remove_tmp_backup(filename):
-    backupfile = filename + "." + const.settings.backup_extension
+    backupfile = filename + "." + const.settings.backup_extension + ".tmp"
     try:
         os.remove(backupfile)
     except Exception as err:

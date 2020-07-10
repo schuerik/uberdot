@@ -33,7 +33,7 @@ import shutil
 from abc import abstractmethod
 from copy import deepcopy
 from uberdot.dynamicfile import *
-from uberdot.state import LinkContainerList, LinkDescriptor
+from uberdot.state import LinkContainerList, LinkData
 from uberdot.utils import *
 
 const = Const()
@@ -50,10 +50,113 @@ that shall become a custom builtin.
 """
 
 
+class LoaderEntry:
+    def __init__(self, name, class_obj, params=None):
+        self.name = name
+        self.class_obj = class_obj
+        self.params = params
+
+
+class ProfileLoader(metaclass=Singleton):
+    # TODO preload.py
+    def __init__(self):
+        self.file_mapping = []
+        self.extension_mapping = [
+            ("py", import_profiles_by_classname),
+            # TODO: implement to test different loaders
+            # "yaml": parse_yaml_easy_profile,
+            # "json": parse_static_json_profile
+        ]
+        self._loaded_profiles = {}
+
+    @staticmethod
+    def import_module(file, supress=False):
+        if not os.path.exists(file):
+            msg = "'" + file + "' can't be imported because it does not exist."
+            raise PreconditionError(msg)
+        try:
+            spec = importlib.util.spec_from_file_location("__name__", file)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        except Exception as err:
+            if not supress:
+                raise err
+
+    @staticmethod
+    def import_profiles_by_classname(file):
+        try:
+            module = import_module(file)
+        except CustomError as err:
+            raise err
+        except Exception as err:
+            msg = "The module '" + file + "' contains an error and therefor "
+            msg += "can't be imported. The error was:\n   " + str(err)
+            raise PreconditionError(msg)
+        result = {}
+        for class_name, class_obj in vars(module):
+            if issubclass(class_obj, ProfileSkeleton):
+                result[class_name] = LoaderEntry(class_name, class_obj)
+        return result
+
+    def extend_mappings(self, extra_files=None, extra_ext=None):
+        if extra_files:
+            self.file_mapping = extra_files + self.file_mapping
+        if extra_ext:
+            self.extension_mapping = extra_ext + self.extension_mapping
+
+    def load_profiles(self):
+        self._loaded_profiles.clear()
+        for filename in walk_profiles():
+            self._loaded_profiles.extend(self.get_profiles_from_file(filename))
+
+    def get_profiles_from_file(self, filename):
+        # First go through all file path mappings
+        for relpath, func in self.file_mapping:
+            abspath = os.path.join(const.settings.profile_dir, relpath)
+            # When abspath is a directory the file has to be in any subdir
+            if os.path.isdir(abspath):
+                if filename.startswith(abspath):
+                    loader_func = func
+                    break
+            # Otherwise the filename has to match exactly
+            else:
+                if filename == abspath:
+                    loader_func = func
+                    break
+        # When we couldn't find a matching mapping via filenames
+        # we go through all the extension mappings
+        else:
+            for ext, func in self.extension_mapping:
+                if os.path.splitext(filename)[1] == ext:
+                    loader_func = func
+                    break
+            else:
+                msg = "No loading mechanism for file '"
+                msg += filename + "' available."
+                raise UberdotError(msg)
+        # Generate all LoadEntries for each profile in file
+        load_entries = loader_func(filename)
+        # Check that all returned profiles inherit from ProfileSkeleton
+        for name, entry in load_entries:
+            if not issubclass(entry.class_obj, ProfileSkeleton):
+                msg = "Profile '" + name + "' cant be loaded as it is"
+                msg += " not a subclass of ProfileSkeleton."
+                raise PreconditionError(msg)
+        return load_entries
+
+    def get_profile_class(self, name):
+        return self._loaded_profiles[name].class_obj
+
+    def create_instance(self, name, parent=None):
+        load_entry = self._loaded_profiles[name]
+        return load_entry.class_obj.new(name, parent, **load_entry.params)
+
+
 # Abstract class that implements the absolute minimum of profiles
 class ProfileSkeleton:
-    def __init__(self, parent=None):
-        self.name = self.__class__.__name__
+    def __init__(self, name, parent=None):
+        self.name = name
         self.parent = parent
         if self.check_cycle():
             self._gen_err("Detected a cycle in your subprofiles!")
@@ -70,6 +173,10 @@ class ProfileSkeleton:
             "afterUpdate": "",
             "afterUninstall": ""
         }
+
+    @classmethod
+    def new(cls, name, parent=None, **params):
+        return cls(name, parent, **params)
 
     def start_generation(self):
         """This is the wrapper for :func:`generate()`. It overwrites the
@@ -135,6 +242,7 @@ class ProfileSkeleton:
 
 # Abstract class that implements useful stuff for all profiles
 class BaseProfile(ProfileSkeleton):
+    # TODO: these are class variables, so they would be shared between all instances
     beforeInstall = None
     """This field can be implemented/set by the user. This has to be a string
     or a function that return a string. The string will be stored as shell
@@ -184,9 +292,9 @@ class BaseProfile(ProfileSkeleton):
     prepended to the event scripts of this profile or any of its subprofiles.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, name, parent=None):
         self.subprofiles = []
-        super().__init__(parent)
+        super().__init__(name, parent)
 
     def getscriptattr(self, event_name):
         # Get event property
@@ -307,11 +415,17 @@ class BaseProfile(ProfileSkeleton):
 
 # Pythonic profile
 class Profile(BaseProfile):
-    def __init__(self, parent=None, options=None):
+    def __init__(self, name, parent=None, options=None):
         self.options = deepcopy(dict(const.defaults.items()))
         if options is not None:
             self.options.update(dict(options))
-        super().__init__(parent=parent)
+        super().__init__(name, parent=parent)
+
+    @classmethod
+    def new(cls, name, parent=None, **params):
+        if parent is not None and isinstance(parent, Profile):
+            params["options"] = parent.options
+        return super().new(name, parent, **params)
 
     def _make_read_opt(self, kwargs):
         """Creates a function that looks up options but prefers options of
@@ -330,7 +444,41 @@ class Profile(BaseProfile):
             return self.options[opt_name]
         return read_opt
 
-    def find(self, target, must_exist=True):
+    @staticmethod
+    def autofind(func):
+        def decorated(self, target, *args, **kwargs):
+            if isinstance(target, str):
+                return func(self, self.find(target), *args, **kwargs)
+            elif isinstance(target, AbstractFile):
+                return target
+            else:
+                self._gen_err("Unexpexted type of target")
+        # Copy original name and docstring of function to
+        # decorated function. Otherwise other decorators would break.
+        decorated.__doc__ = func.__doc__
+        decorated.__name__ = func.__name__
+        return decorated
+
+    @staticmethod
+    def autocopy(func):
+        def decorated(self, target, *args, **kwargs):
+            if isinstance(target, str):
+                copied = StaticFile.new(
+                    self.build_link_name(target, **kwargs),
+                    source=target
+                )
+                return func(self, copied, *args, **kwargs)
+            elif isinstance(target, AbstractFile):
+                return target
+            else:
+                self._gen_err("Unexpexted type of target")
+        # Copy original name and docstring of function to
+        # decorated function. Otherwise other decorators would break.
+        decorated.__doc__ = func.__doc__
+        decorated.__name__ = func.__name__
+        return decorated
+
+    def find(self, target):
         """Find a dotfile in :const:`~const.target_files`. Depends on the
         current set tags.
 
@@ -349,7 +497,7 @@ class Profile(BaseProfile):
             found_target = find_target_with_tags(target, self.options["tags"])
             if not found_target:
                 found_target = find_target_exact(target)
-            if must_exist and not found_target:
+            if not self.options["optional"] and not found_target:
                 self._gen_err("Couldn't find target '" + target + "'.")
             return found_target
         except ValueError as err:
@@ -394,11 +542,11 @@ class Profile(BaseProfile):
     def build_link(self, dynamicfile, **kwargs):
         target = dynamicfile.getpath()
         name = self.build_link_name(target, **kwargs)
-        self.add_link(name, target, dynamicfile.get_file_info(), **kwargs)
+        self.add_link(name, target, dynamicfile.get_buildup_data(), **kwargs)
 
     def add_link(self, source, target, buildup=None, **kwargs):
         read_opt = self._make_read_opt(kwargs)
-        linkdescr = LinkDescriptor()
+        linkdescr = LinkData()
         linkdescr["from"] = source
         linkdescr["to"] = target
         linkdescr["owner"] = read_opt("owner")
@@ -411,10 +559,10 @@ class Profile(BaseProfile):
 
 # Abstract class that provides commands mechanics
 class CommandProfile(Profile):
-    def __init__(self, parent=None, options=None):
+    def __init__(self, name, parent=None, options=None):
         self.__old_builtins = {}
         self.builtins_overwritten = False
-        super().__init__(parent, options)
+        super().__init__(name, parent, options)
 
     def __set_builtins(self):
         """Maps functions from :const:`custom_builtins` to builtins,
@@ -473,41 +621,23 @@ class CommandProfile(Profile):
 
 # The current profile
 class EasyProfile(CommandProfile):
-    def __init__(self, parent=None, options=None, cwd=None):
-        super().__init__(parent, options)
+    def __init__(self, name, parent=None, options=None, cwd=None):
+        super().__init__(name, parent, options)
         self.owd = None
         self.cwd = cwd
         if not self.cwd:
             self.cwd = self.options["directory"]
 
-    # TODO find a proper location for this, choose-functions, etc
-    def find_and_copy_target(self, target, **kwargs):
-        read_opt = self._make_read_opt(kwargs)
-        if isinstance(target, str):
-            found_target = self.find(target, not read_opt("optional"))
-            if found_target:
-                copied = StaticFile.new(
-                    self.build_link_name(target, **kwargs),
-                    source=found_target
-                )
-                return copied
-        elif isinstance(target, AbstractFile):
-            return target
-        else:
-            self._gen_err("Unexpexted type of target")
+    @classmethod
+    def new(cls, name, parent=None, **params):
+        if parent is not None and isinstance(parent, EasyProfile):
+            params["cwd"] = parent.cwd
+        return super().new(name, parent, **params)
 
-    def autocopy(func):
-        def decorated(self, target, *args, **kwargs):
-            target = self.find_and_copy_target(target, **kwargs)
-            return func(target, *args, **kwargs)
-        # Copy original name and docstring of function to
-        # decorated function. Otherwise other decorators would break.
-        decorated.__doc__ = func.__doc__
-        decorated.__name__ = func.__name__
-        return decorated
+    # TODO find a proper location for choose-functions, etc
 
     @CommandProfile.command
-    def find(self, target, must_exist=True):
+    def find(self, target):
         """Find a dotfile in :const:`~const.target_files`. Depends on the
         current set tags.
 
@@ -522,10 +652,11 @@ class EasyProfile(CommandProfile):
         Return:
             str: The full path of the file or ``None`` if no file was found
         """
-        return super().find(target, must_exist)
+        return super().find(target)
 
     @CommandProfile.command
-    @autocopy
+    @Profile.autofind
+    @Profile.autocopy
     def decrypt(self, target):
         """Creates an :class:`~dynamicfile.EncryptedFile` instance from a
         target, updates and returns it.
@@ -565,11 +696,23 @@ class EasyProfile(CommandProfile):
                           + "two dotfiles to merge")
         sources = []
         for target in targets:
-            sources.append(self.find_and_copy_target(target))
+            if isinstance(target, str):
+                found_target = self.find(target, not self.options["optional"])
+                if found_target:
+                    copied = StaticFile.new(
+                        self.build_link_name(target),
+                        source=found_target
+                    )
+                    sources.append(copied)
+            elif isinstance(target, AbstractFile):
+                sources.append(target)
+            else:
+                self._gen_err("Unexpexted type of target")
         return SplittedFile.new(name, source=sources)
 
     @CommandProfile.command
-    @autocopy
+    @Profile.autofind
+    @Profile.autocopy
     def pipe(self, target, shell_command):
         """Creates a :class:`~dynamicfile.FilteredFile` instance from a target,
         updates and returns it.
@@ -601,7 +744,8 @@ class EasyProfile(CommandProfile):
         for target in targets:
             self.single_link(target, **kwargs)
 
-    @autocopy
+    @Profile.autofind
+    @Profile.autocopy
     def single_link(self, target, **kwargs):
         self.build_link(target, **kwargs)
 
@@ -814,12 +958,23 @@ class EasyProfile(CommandProfile):
             self.generate_subprofile(subprofile, {**self.options, **kwargs})
 
 
+class EasyYAMLProfile(EasyProfile):
+    def __init__(self, name, parent=None, options=None, cwd=None, path=None):
+        if path is None:
+            raise UberdotError("path must be set")
+        self.path = path
+        super().__init__(name, parent=parent, options=options, cwd=cwd)
+
+    def generate():
+        pass
+
+
 # Profile that loads the result from a static json file
 class StaticJSONProfile(ProfileSkeleton):
     def generate(self):
         # TODO: Error handling
         # TODO: Make sure to expand vars properly
-        for file in safe_walk(const.settings.profile_files, [r".*[^j][^s][^o][^n]$"], joined=True):
+for file in safe_walk(const.settings.profile_files, [r".*[^j][^s][^o][^n]$"], joined=True):
             if os.path.splitext(os.path.basename(file))[0] == self.name:
                 self.profile_results = json.load(open(self.file))
                 subprofiles = self.profile_results["profiles"][:]

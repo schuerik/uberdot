@@ -146,11 +146,11 @@ class Notifier:
 
 class AutoExpander(Notifier):
     def __init__(self):
-        self.expand_mapping = {}
+        self.expander = None
         self.init_data()
 
     def getitem(self, key):
-        return self.expandvar(key, self.data[key])
+        return self.expandvalue(key, self.data[key])
 
     def len(self):
         return len(self.data)
@@ -159,9 +159,7 @@ class AutoExpander(Notifier):
         del self.data[key]
         self.notify()
 
-    def expandvar(self, key, value):
-        if key in self.expand_mapping:
-            value = self.expand_mapping[key](value)
+    def expandvalue(self, key, value):
         return value
 
     def wrap_value(self, key, value):
@@ -181,7 +179,13 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         self.data = {}
         self.data_specials = {}
         super().__init__()
+        self.expander = {}
         self.update(args, **kwargs)
+
+    def expandvalue(self, key, value):
+        if key in self.expander:
+            value = self.expander[key](value)
+        return value
 
     def __getitem__(self, key):
         if key[0] == "@":
@@ -254,6 +258,11 @@ class AutoExpandList(MutableSequence, AutoExpander):
         rep += "]"
         return rep
 
+    def expandvalue(self, key, value):
+        if not isinstance(value, AutoExpander):
+            value = self.expander(value)
+        return value
+
 
 class AutoExpanderJSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -264,88 +273,160 @@ class AutoExpanderJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 
-# TODO: Is this really useful? Check where this could be used
 class StaticAutoExpandDict(AutoExpandDict):
     def __setitem__(self, key, value):
         if key in self:
             super().__setitem__(key, value)
         else:
-            raise FatalError("Cannot create new keys in a StaticAutoExpandDict")
+            raise FatalError("Cannot create new key '" + key + "' in a StaticAutoExpandDict")
 
 
-class LinkDescriptor(StaticAutoExpandDict):
+class LinkData(StaticAutoExpandDict):
     def __init__(self, args={}, **kwargs):
         super().__init__(args, **kwargs)
-        self.expand_mapping["from"] = normpath
-        self.expand_mapping["to"] = normpath
-        self.expand_mapping["owner"] = inflate_owner
+        self.expander["path"] = normpath
+        self.expander["target"] = normpath
+        self.expander["owner"] = inflate_owner
 
     def init_data(self):
-        self.data["from"] = None
-        self.data["to"] = None
+        # Path of the link itself
+        self.data["path"] = None
+        # Path of the file that the link points to
+        self.data["target"] = None
+        # Inode of the file that the link points to
+        self.data["target_inode"] = None
+        # Permission of the link itself
         self.data["permission"] = None
+        # Owner of the link itself
         self.data["owner"] = None
-        self.data["hard"] = None
+        # Wether the owner of the link and the owner of the file
+        # that link points to are the same
         self.data["secure"] = None
+        # Wether this is a hard link
+        self.data["hard"] = None
+        # AbstractFile buildup data that can be used to trace back
+        # how the content of the file that the link points to was generated
         self.data["buildup"] = None
-        self.data["date"] = None
+        # Modification date of link itself
+        self.data["updated"] = None
+        # Creation date of link itself
+        self.data["created"] = None
 
     @classmethod
     def from_file(cls, path):
         if not os.path.exists(path):
             raise FileNotFoundError
         props = {}
-        props["from"] = path
-        # TODO: this wont work with hard links
-        target = readlink(path)
-        props["to"] = readlink(path)
-        uid, gid = get_owner(path)
-        props["owner"] = get_username(uid) + ":" + get_groupname(gid)
+        props["path"] = path
         props["permission"] = get_permission(path)
-        if os.path.islink(path):
-            props["hard"] = False
-            if os.path.exists(target):
-                props["secure"] = get_owner(path) == get_owner(target)
-            else:
-                props["secure"] = None
-        else:
-            props["hard"] = True
-            props["secure"] = True
         props["updated"] = timestamp_to_string(os.path.getmtime(path))
         props["created"] = timestamp_to_string(os.path.getctime(path))
+        uid, gid = get_owner(path)
+        props["owner"] = get_username(uid) + ":" + get_groupname(gid)
+        props["hard"] = not os.path.islink(path)
+        if props["hard"]:
+            props["target_inode"] = os.stat(path).st_ino
+        else:
+            props["target"] = readlink(path)
+            props["target_inode"] = os.stat(props["target"]).st_ino
+            if os.path.exists(target):
+                props["secure"] = get_owner(path) == get_owner(target)
         return cls(props)
+
+    def broken(self):
+        if self["hard"]:
+            if self["target"] is not None:
+                if os.stat(self["target"]).st_ino != self["target_inode"]:
+                    return True
+            if os.stat(self["path"]).st_ino != self["target_inode"]:
+                return True
+        else:
+            if readlink(self["path"]) != self["target"]:
+                return True
+            if not os.path.exists(self["target"]):
+                return True
+        return False
 
     def exists(self):
         try:
-            return self.is_same(LinkDescriptor.from_file(self["from"]))
-        except NotImplementedError:
-            return False
+            return self.is_same(LinkData.from_file(self["path"]))
         except FileNotFoundError:
             return False
 
     def similar_exists(self):
         try:
-            return self.is_similar(LinkDescriptor.from_file(self["from"]))
-        except NotImplementedError:
-            return False
+            if self.is_similar(LinkData.from_file(self["path"])):
+                return True
         except FileNotFoundError:
-            return False
+            pass
+        for file in listfiles(os.path.dirname(self["path"])):
+            if self.is_similar(LinkData.from_file(file)):
+                return True
+        return False
 
-    def issimilar(self, link):
-        return self["from"] == link["from"] or self["to"] == link["to"]
+    def is_similar(self, link):
+        if self["path"] == link["path"]:
+            return True
+        if self["target"] is not None and link["target"] is not None:
+            if self["target"] == link["target"]:
+                return True
+        return self["target_inode"] == link["target_inode"]
 
     def __eq__(self, link):
-        return self["from"] == link["from"] and \
-               self["to"] == link["to"] and \
-               self["owner"] == link["owner"] and \
-               self["permission"] == link["permission"] and \
-               self["hard"] == link["hard"] and \
-               self["secure"] == link["secure"]
+        result = self["path"] == link["path"]
+        if self["target"] is not None and link["target"] is not None:
+            result = result and self["target"] == link["target"]
+        else:
+            result = result and self["target_inode"] == link["target_inode"]
+        result = result and self["owner"] == link["owner"]
+        result = result and self["permission"] == link["permission"]
+        result = result and self["hard"] == link["hard"]
+        result = result and self["secure"] == link["secure"]
+        return result
+
+    def wrap_value(self, key, value):
+        if key == "buildúp" and not isinstance(value, BuildupData):
+            value = BuildupData(value)
+        return super().wrap_value(key, value)
+
+
+class BuildupData(AutoExpandDict):
+    def __init__(self, args={}, **kwargs):
+        super().__init__(args, **kwargs)
+        self.expander["path"] = normpath
+
+    def init_data(self):
+        self.data["path"] = None
+        self.data["source"] = None
+        self.data["type"] = None
+
+    def wrap_value(self, key, value):
+        if key == "source":
+            if type(value) == dict and "type" in value:
+                if value["type"] == "StaticFile":
+                    value = CopyData(value)
+                else:
+                    value = BuildupData(value)
+            else:
+                raise ValueError("UnsupportedType")
+        return super().wrap_value(key, value)
+
+
+class CopyData(AutoExpandDict):
+    def __init__(self, args={}, **kwargs):
+        super().__init__(args, **kwargs)
+        self.expander["path"] = normpath
+        self.expander["source"] = normpath
+
+    def init_data(self):
+        self.data["path"] = None
+        self.data["source"] = None
+        self.data["type"] = None
 
 
 class ProfileStateDict(AutoExpandDict):
     def wrap_value(self, key, value):
-        if key == "links":
+        if key == "links" and not isinstance(value, LinkContainerList):
             value = LinkContainerList(value)
         return super().wrap_value(key, value)
 
@@ -353,7 +434,7 @@ class ProfileStateDict(AutoExpandDict):
 class LinkContainerList(AutoExpandList):
     def wrap_value(self, key, value):
         if type(value) == dict:
-            value = LinkDescriptor(value)
+            value = LinkData(value)
         return super().wrap_value(key, value)
 
 
@@ -392,8 +473,9 @@ class GlobalState(metaclass=Singleton):
             state.full_upgrade()
             self.states[user] = state
         except CustomError as err:
+            log_debug(str(err))
             msg = "An error occured when upgrading the state file of user "
-            msg += user + ". Ignoring."
+            msg += user + ". Ignoring this state file."
             log_warning(msg)
             # We shouldn't ignore it if we are testing at the moment
             if const.test:
@@ -426,7 +508,8 @@ class State(AutoExpandDict):
         # Load state files of current user
         log_debug("Loading state file '" + self.file + "'.")
         try:
-            super().__init__(json.load(open(self.file)))
+            # TODO state needs to be upgraded before it is loaded into this class
+            state_raw = json.load(open(self.file))
         except json.decoder.JSONDecodeError as err:
             raise PreconditionError(
                 "Can not parse '" + self.file + "'. " + str(err)
@@ -440,6 +523,7 @@ class State(AutoExpandDict):
         # Upgrade
         if auto_upgrade:
             self.full_upgrade()
+        super().__init__()
 
     @classmethod
     def fromTimestamp(cls, timestamp):

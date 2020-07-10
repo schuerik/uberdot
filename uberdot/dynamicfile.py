@@ -41,7 +41,7 @@ import sys
 from abc import abstractmethod
 from subprocess import PIPE
 from subprocess import Popen
-from uberdot.state import AutoExpandDict
+from uberdot.state import BuildupData, CopyData, LinkData
 from uberdot.utils import create_backup
 from uberdot.utils import create_tmp_backup
 from uberdot.utils import remove_tmp_backup
@@ -54,10 +54,10 @@ from uberdot.utils import log_debug
 
 const = Const()
 
+# TODO: take a look at the load() methods, they are using linkdescriptors 0_o
 
 def getModuleAttr(name):
     return getattr(sys.modules[__name__], name)
-
 
 def load(cls, linkdescriptor):
     buildup = linkdescriptor["buildup"]
@@ -83,8 +83,8 @@ class AbstractFile:
         self._source = source
 
     @classmethod
-    def load(cls, linkdescriptor):
-        """Creates a new instance from a linkdescriptor
+    def load(cls, buildupdata):
+        """Creates a new instance from buildupdata
 
         Args:
             linkdescriptor (AutoExpandDict): Info about the link
@@ -108,7 +108,7 @@ class AbstractFile:
         # First check the type of new source
         if source is None:
             raise UnsupportedError("source cannot be unset")
-        self._check_source_type(source)
+        self._check_source(source)
         # Set source and invoke update
         self._source = source
         self.update_from_source()
@@ -143,7 +143,7 @@ class AbstractFile:
         """
 
     @abstractmethod
-    def _check_source_type(self, source):
+    def _check_source(self, source):
         raise NotImplementedError
 
     def _generate_source_content(self):
@@ -165,6 +165,9 @@ class AbstractFile:
             self.getdir(),
             self.name + const.settings.hash_separator + self.md5sum
         )
+
+    def getbackuppath(self):
+        return self.gethpath() + "." + const.settings.backup_extension
 
     def getdir(self):
         """Gets the path of the directory that is used to store the generated
@@ -199,20 +202,20 @@ class AbstractFile:
     def update_from_content(self):
         raise NotImplementedError
 
-    def get_file_descriptor(self):
-        return FileDescriptor({"path": self.getpath(), "type": type(self).__name__})
+    def get_buildup_data(self):
+        raise NotImplementedError
 
 
 class DynamicFile(AbstractFile):
     @classmethod
-    def load(cls, linkdescriptor):
-        path = linkdescriptor["path"]
+    def load(cls, buildupdata):
+        path = buildupdata["path"]
         basename = os.path.basename(path)
         name, md5sum = basename.split(const.hash_separator)
-        source = getClassByName(linkdescriptor["source"]["type"]).load(linkdescriptor["source"])
-        return cls(name, md5sum=md5sum, source=linkdescriptor["source"])
+        source = getModuleAttr(buildupdata["source"]["type"]).load(buildupdata["source"])
+        return cls(name, md5sum=md5sum, source=buildupdata["source"])
 
-    def _check_source_type(self, source):
+    def _check_source(self, source):
         if not isinstance(source, AbstractFile):
             msg = "source must be an instance of AbstractFile, not "
             msg += type(source).__name__
@@ -226,10 +229,15 @@ class DynamicFile(AbstractFile):
             self.source.content = file_bytes
         self.write()
 
-    def get_file_descriptor(self):
-        file_descriptor =  super().get_file_descriptor()
-        file_descriptor.update(source=self.source.get_file_descriptor())
-        return file_descriptor
+    def get_buildup_data(self):
+        return BuildupData(
+            {
+                "path": self.getpath(),
+                "type": type(self).__name__,
+                "source": self.source.get_buildup_data()
+            }
+        )
+
 
 class MultipleSourceDynamicFile(AbstractFile):
     """The abstract base class for any dynamic generated file.
@@ -262,7 +270,7 @@ class MultipleSourceDynamicFile(AbstractFile):
                 self.source[i].content = file_bytes
         self.write()
 
-    def _check_source_type(self, source):
+    def _check_source(self, source):
         if not isinstance(source, list):
             msg = "source must be a list, not " + type(source).__name__
             raise TypeError(msg)
@@ -272,10 +280,14 @@ class MultipleSourceDynamicFile(AbstractFile):
                 msg += "AbstractFile, but " + type(src).__name__
                 raise TypeError(msg)
 
-    def get_file_descriptor(self):
-        file_descriptor =  super().get_file_descriptor()
-        file_descriptor.update(source=[src.get_file_info() for src in self.source])
-        return file_descriptor
+    def get_buildup_data(self):
+        return BuildupData(
+            {
+                "path": self.getpath(),
+                "type": type(self).__name__,
+                "source": [src.get_buildup_data() for src in self.source]
+            }
+        )
 
 
 class StaticFile(AbstractFile):
@@ -294,56 +306,90 @@ class StaticFile(AbstractFile):
         return cls(name, md5sum=md5sum, source=linkdescriptor["source"])
 
     def update_from_content(self):
-        # Check if original file changed
-        old_bytes = open(self.source, "wb").read()
-        new_bytes = self._generate_content()
-        if md5(old_bytes) == self.md5sum:
+        def write_source():
             create_tmp_backup(self.source)
-            open(self.source, "wb").write(new_bytes)
+            open(self.source, "wb").write(self.content)
             remove_tmp_backup(self.source)
+
+        def select_action(self, action, source, source_bak):
+            if action == "i":
+                return True
+            if action == "f":
+                # Create a colored diff between the file and its original
+                process = Popen(["diff", "--color=auto", source_bak, source])
+                process.communicate()
+                return False
+            if action == "s":
+                # Create a colored diff between the original and the source
+                process = Popen(["diff", "--color=auto", source_bak, self.source])
+                process.communicate()
+                return False
+            if action == "w":
+                write_source()
+                return True
+            if action == "p":
+                # Create a git patch with git diff
+                patch_file = os.path.splitext(self.source)[0] + ".patch"
+                patch_file = user_selection("Enter filename for patch", patch_file)
+                patch_file = normpath(patch_file)
+                args = ["git", "diff", "--no-index", source_bak, source]
+                # TODO: what if git is not installed?
+                process = Popen(args, stdout=PIPE)
+                try:
+                    with open(patch_file, "wb") as file:
+                        file.write(process.stdout.read())
+                    log("Patch file written successfully to '" + patch_file + "'.")
+                except OSError as err:
+                    msg = "Could not write patch file '" + patch_file + "'. "
+                    msg += str(err)
+                    raise PreconditionError(msg)
+                action = "u"
+            if action == "u":
+                # Copy the original to the changed
+                copyfile(source_bak, self.source)
+                return True
+            if action == "d":
+                copyfile(source_bak, self.source)
+                copyfile(source_bak, source)
+                return True
+            return False
+
+        # Check for file changes
+        file_bytes = self._generate_content()
+        file_hash = md5(file_bytes)
+        if self.md5sum == md5(self.content):
+            # Content didn't change at all, so nothing to do
+            return
+        elif self.md5sum == file_hash:
+            # Content did change, but the source didn't so we can simlpy
+            # write it back
+            write_source(new_bytes)
         else:
-            log("Synchronising files will change '" + self.source + "'.")
-            target_bak = self.source + "." + const.settings.backup_extension
+            msg = "Conflict detected when writing file '" + self.name
+            msg += "' back to its source '" + self.source
+            msg += "' because you modified both."
+            log_warning(msg)
+            source = self.getpath()
+            source_bak = self.getbackuppath()
             done = False
+            if const.settings.sync_action:
+                done = select_action(const.settings.sync_action, source, source_bak)
             while not done:
                 inp = user_choice(
-                    ("I", "Ignore"), ("d", "Show diff"),
-                    ("p", "Create patch"), ("U", "Undo changes"),
-                    abort=True
+                    ("I", "Ignore/Skip"), ("f", "Show file diff"),
+                    ("s", "Show source diff"), ("W", "Write file"),
+                    ("p", "Create patch and use source"), ("U", "Use source"),
+                    ("D", "Discard all changes"),
+                    abort=True, inline=False
                 )
-                if inp == "i":
-                    done = True
-                elif inp == "d":
-                    # Create a colored diff between the file and its original
-                    process = Popen(["diff", "--color=auto", target_bak, target])
-                    process.communicate()
-                elif inp == "p":
-                    # Create a git patch with git diff
-                    patch_file = os.path.splitext(target)[0] + ".patch"
-                    patch_file = user_selection("Enter filename for patch", patch_file)
-                    patch_file = normpath(patch_file)
-                    args = ["git", "diff", "--no-index", target_bak, target]
-                    process = Popen(args, stdout=PIPE)
-                    try:
-                        with open(patch_file, "wb") as file:
-                            file.write(process.stdout.read())
-                        log("Patch file written successfully to '" + patch_file + "'.")
-                    except OSError as err:
-                        msg = "Could not write patch file '" + patch_file + "'. "
-                        msg += str(err)
-                        raise PreconditionError(msg)
-                elif inp == "u":
-                    # TODO this should be reimplemented, but properly. dryrun shouldnt be handled here
-                        # if const.dryrun:
-                        #     log_warning("This does nothing since " +
-                        #                 "this is just a dry-run")
-                    # Copy the original to the changed
-                    copyfile(target_bak, target)
-                    done = True
+                done = select_action(inp, source, source_bak)
+        self.write()
 
-    def _check_source_type(self, source):
+    def _check_source(self, source):
         if not isinstance(source, str):
             raise TypeError("source needs to be of type string, not " + type(source).__name__)
+        if not os.access(source, os.W_OK):
+            raise PreconditionError("No write permission for '" + source + "'.")
 
     def _generate_content(self):
         """Returns the contents of the source file.
@@ -360,6 +406,15 @@ class StaticFile(AbstractFile):
         file_descriptor = super().get_file_descriptor()
         file_descriptor.update(source=self.source)
         return file_descriptor
+
+    def get_buildup_data(self):
+        return CopyData(
+            {
+                "path": self.getpath(),
+                "type": type(self).__name__,
+                "source": self.source
+            }
+        )
 
 
 class EncryptedFile(DynamicFile):
@@ -426,8 +481,10 @@ class FilteredFile(DynamicFile):
         super().__init__(name, **kwargs)
         self.shell_command = shell_command
 
-    def get_file_info(self):
-        return super().get_file_info().extend({"command": self.shell_command})
+    def get_buildup_data(self):
+        buildup = super().get_buildup_data()
+        buildup.extend({"command": self.shell_command})
+        return buildup
 
     def _generate_content(self):
         """Pipes the content of the first file in
@@ -502,5 +559,7 @@ class SplittedFile(MultipleSourceDynamicFile):
             used_lines += file_lengths[i]
         return result
 
-    def get_file_descriptor(self):
-        return super().get_file_info().extend({"file_lengths": self.file_lengths})
+    def get_buildup_data(self):
+        buildup = super().get_buildup_data()
+        buildup.extend({"file_lengths": self.file_lengths})
+        return buildup
