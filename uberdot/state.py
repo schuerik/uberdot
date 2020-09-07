@@ -28,9 +28,19 @@ import re
 from copy import deepcopy
 from collections.abc import MutableMapping
 from collections.abc import MutableSequence
-from uberdot.utils import *
+from uberdot import utils
 
-const = Const()
+FatalError = utils.FatalError
+PreconditionError = utils.PreconditionError
+CustomError = utils.CustomError
+UnkownError = utils.UnkownError
+UberdotError = utils.UberdotError
+log = utils.log
+log_debug = utils.log_debug
+log_warning = utils.log_warning
+
+const = utils.Const()
+
 
 ###############################################################################
 # Upgrades
@@ -77,14 +87,14 @@ def upgrade_stone_age(old_state, path):
             # Convert gid and uid to owner string
             gid = link["gid"]
             try:
-                username = get_username(link["uid"])
+                username = utils.get_username(link["uid"])
             except KeyError:
                 msg = "No user with id " + link["uid"] + " found."
                 msg += "Using the current user as fallback."
                 log_debug(msg)
                 username = ""
             try:
-                groupname = get_groupname(link["gid"])
+                groupname = utils.get_groupname(link["gid"])
             except KeyError:
                 msg = "No group with id " + link["gid"] + " found."
                 msg += "Using the current group as fallback."
@@ -134,9 +144,7 @@ upgrades = [
 
 class Notifier:
     def __init__(self):
-        self.init_data()
-        # Activte notify on end of init. That way subclasses can initialize
-        # themself without triggering notify
+        self.notify_active = True
         self.notify = self.__notify
 
     def set_parent(self, parent):
@@ -150,22 +158,34 @@ class Notifier:
     def __notify(self):
         if hasattr(self, "parent") and self.parent is not None:
             if hasattr(self.parent, "notify") and self.parent.notify is not None:
-                self.parent.notify()
+                if self.notify_active:
+                    self.parent.notify()
 
     def copy(self):
         clone = deepcopy(self)
         clone.parent = None
         return clone
 
+
+class AutoExpander(Notifier):
+    def __init__(self, origin=None):
+        if origin is not None and not isinstance(origin, str):
+            raise TypeError("origin needs to be of type string, not " + type(origin).__name__)
+        self.origin = origin
+        self.expander = {}
+        self.init_data()
+        # Activte notifier after init_data. That way subclasses can initialize
+        # themself without triggering notify
+        super().__init__()
+
     def init_data(self):
         pass
 
-
-class AutoExpander(Notifier):
-    def __init__(self, origin):
-        self.origin = origin
-        self.expander = {}
-        super().__init__()
+    @staticmethod
+    def abspath(origin):
+        def modded_abspath(path):
+            return utils.abspath(path, origin=origin)
+        return modded_abspath
 
     def getitem(self, key):
         return self.expandvalue(key, self.data[key])
@@ -192,14 +212,22 @@ class AutoExpander(Notifier):
 
 
 class AutoExpandDict(MutableMapping, AutoExpander):
-    def __init__(self, origin, args={}, **kwargs):
+    def __init__(self, origin=None, args={}, **kwargs):
         # Init fields and load data
         self.data = {}
         self.data_specials = {}
         super().__init__(origin)
         self.update(args, **kwargs)
 
+    def update(self, args, **kwargs):
+        self.notify_active = False
+        super().update(args, **kwargs)
+        self.notify_active = True
+        self.notify()
+
     def __getitem__(self, key):
+        if key is None:
+            raise TypeError("key must not be None.")
         if key[0] == "@":
             return self.get_special(key)
         return self.getitem(key)
@@ -207,19 +235,22 @@ class AutoExpandDict(MutableMapping, AutoExpander):
     def __delitem__(self, key): self.delitem(key)
     def __len__(self): return self.len()
     def __iter__(self): return iter(self.data)
+    def __contains__(self, key): return key in self.data
 
     def __setitem__(self, key, value):
+        if key is None:
+            raise TypeError("key must not be None.")
         if key[0] == "@":
             self.set_special(key[1:], value)
         else:
             self.data[key] = self.wrap_value(key, value)
-            self.notify()
+        self.notify()
 
     def get_specials(self):
         return self.data_specials
 
     def get_special(self, key, default=None):
-        if default is not None and not key in self.data_specials:
+        if default is not None and key not in self.data_specials:
             return default
         return self.data_specials[key]
 
@@ -229,8 +260,12 @@ class AutoExpandDict(MutableMapping, AutoExpander):
 
     def __repr__(self):
         def dict_repr(dict_, prefix=""):
+            if prefix:
+                key_repr = str
+            else:
+                key_repr = repr
             return ", ".join(
-                [prefix + repr(key) + ": " + repr(dict_[key]) for key in dict_]
+                [prefix + key_repr(key) + ": " + repr(dict_[key]) for key in dict_]
             )
         data_result = dict_repr(self)
         special_result = dict_repr(self.data_specials, "@")
@@ -243,15 +278,64 @@ class AutoExpandDict(MutableMapping, AutoExpander):
 
 
 class AutoExpandList(MutableSequence, AutoExpander):
-    def __init__(self, origin, args=[]):
+    def __init__(self, origin=None, args=[]):
         # Init fields and load data
         self.data = []
         super().__init__(origin)
         self.extend(args)
 
-    def __getitem__(self, index): return self.getitem(index)
+    def extend(self, args):
+        self.notify_active = False
+        super().extend(args)
+        self.notify_active = True
+        self.notify()
+
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            if index.start is not None and index.start >= self.len():
+                raise IndexError()
+            if index.stop is not None and index.stop >= self.len():
+                raise IndexError()
+            return self.__class__(self.origin, args=self.data[index])
+        elif isinstance(index, int):
+            if index >= self.len():
+                raise IndexError()
+            return self.getitem(index)
+        else:
+            raise TypeError(
+                "'index' needs to be of type slice or int, not " +
+                type(indx)
+            )
+
     def __delitem__(self, index): self.delitem(index)
+    def __iter__(self): return iter(self.data)
     def __len__(self): return self.len()
+
+    def __mul__(self, other):
+        if not isinstance(other, int):
+            raise TypeError(
+                "'other' needs to be of type slice or int, not " +
+                type(other)
+            )
+        return self.data * other
+
+    def __add__(self, other):
+        new_list = self.copy()
+        if isinstance(other, AutoExpandList):
+            for item in other.data:
+                new_list.append(item)
+        elif isinstance(other, list):
+            for item in other:
+                new_list.append(item)
+        else:
+            raise TypeError(
+                "'other' needs to be of type list or AutoExpandList, not " +
+                type(other)
+            )
+        return new_list
+
+    def __contains__(self, value):
+        return any(item == value for item in self.data)
 
     def __setitem__(self, value):
         self.data.append(self.wrap_value(self.len(), value))
@@ -263,10 +347,10 @@ class AutoExpandList(MutableSequence, AutoExpander):
 
     def __repr__(self):
         rep = type(self).__name__ + "["
-        for item in self[:-1]:
+        for item in self.data[:-1]:
             rep += repr(item) + ", "
         if self.len():
-            rep += repr(self[-1])
+            rep += repr(self.data[-1])
         rep += "]"
         return rep
 
@@ -285,17 +369,13 @@ class StaticAutoExpandDict(AutoExpandDict):
         if key in self:
             super().__setitem__(key, value)
         else:
-            raise PreconditionError("Cannot create new key '" + key + "' in a StaticAutoExpandDict")
+            raise UberdotError(
+                "Cannot create new key '" + key + "' in a StaticAutoExpandDict"
+            )
 
+# TODO add comparetors for all structs here
 
 class LinkData(StaticAutoExpandDict):
-    def __init__(self, origin, args={}, **kwargs):
-        super().__init__(origin, args, **kwargs)
-        # TODO normpath needs to normalize relative to origin here
-        self.expander["path"] = normpath
-        self.expander["target"] = normpath
-        self.expander["owner"] = inflate_owner
-
     def init_data(self):
         # Path of the link itself
         self.data["path"] = None
@@ -316,7 +396,7 @@ class LinkData(StaticAutoExpandDict):
         # how the content of the file that the link points to was generated
         self.data["buildup"] = None
         # Modification date of link itself
-        self.data["updated"] = None
+        self.data["modified"] = None
         # Creation date of link itself
         self.data["created"] = None
 
@@ -326,23 +406,23 @@ class LinkData(StaticAutoExpandDict):
             raise FileNotFoundError
         props = {}
         props["path"] = path
-        props["permission"] = get_permission(path)
-        props["updated"] = timestamp_to_string(os.path.getmtime(path))
-        props["created"] = timestamp_to_string(os.path.getctime(path))
-        uid, gid = get_owner(path)
-        props["owner"] = get_username(uid) + ":" + get_groupname(gid)
+        props["permission"] = utils.get_permission(path)
+        props["modified"] = utils.timestamp_to_string(os.path.getmtime(path))
+        props["created"] = utils.timestamp_to_string(os.path.getctime(path))
+        props["owner"] = utils.ids_to_owner_string(utils.get_owner(path))
         props["hard"] = not os.path.islink(path)
         if props["hard"]:
             props["target_inode"] = os.stat(path).st_ino
         else:
-            target = readlink(path)
+            target = utils.readlink(path)
             props["target"] = target
             props["target_inode"] = os.stat(target).st_ino
             if os.path.exists(target):
-                props["secure"] = get_owner(path) == get_owner(target)
+                props["secure"] = utils.get_owner(path) == utils.get_owner(target)
         return cls(props)
 
     def broken(self):
+        # TODO: seems odd. what if target or path not exists?
         if self["hard"]:
             if self["target"] is not None:
                 if os.stat(self["target"]).st_ino != self["target_inode"]:
@@ -358,7 +438,7 @@ class LinkData(StaticAutoExpandDict):
 
     def exists(self):
         try:
-            return self.is_same(LinkData.from_file(self["path"]))
+            return self == LinkData.from_file(self["path"])
         except FileNotFoundError:
             return False
 
@@ -368,7 +448,7 @@ class LinkData(StaticAutoExpandDict):
                 return True
         except FileNotFoundError:
             pass
-        for file in listfiles(os.path.dirname(self["path"])):
+        for file in utils.listfiles(os.path.dirname(self["path"])):
             if self.is_similar(LinkData.from_file(file)):
                 return True
         return False
@@ -393,57 +473,182 @@ class LinkData(StaticAutoExpandDict):
         result = result and self["secure"] == link["secure"]
         return result
 
-    def wrap_value(self, key, value):
-        if key == "buildúp" and not isinstance(value, BuildupData):
-            value = BuildupData(self.origin, value)
+    def wrap_value(self, key, value, for_state_version=False):
+        if key == "buildup":
+            value = BuildupData.wrap_buildup(value, for_state_version)
         return super().wrap_value(key, value)
 
 
-class BuildupData(AutoExpandDict):
+class StateLinkData(LinkData):
     def __init__(self, origin, args={}, **kwargs):
-        super().__init__(origin, args, **kwargs)
-        self.expander["path"] = normpath
+        super().__init__(origin, args=args, **kwargs)
+        self.expander["path"] = AutoExpander.abspath(origin)
+        self.expander["target"] = AutoExpander.abspath(origin)
+        self.expander["owner"] = utils.inflate_owner
 
+    def wrap_value(self, key, value):
+        return super().wrap_value(key, value, for_state_version=True)
+
+
+class GenLinkData(LinkData):
+    def __init__(self, args={}, **kwargs):
+        super().__init__(args=args, **kwargs)
+        self.expander["owner"] = utils.inflate_owner
+
+    def wrap_value(self, key, value):
+        return super().wrap_value(key, value, for_state_version=False)
+
+
+class BuildupData(StaticAutoExpandDict):
     def init_data(self):
         self.data["path"] = None
         self.data["source"] = None
         self.data["type"] = None
 
-    def wrap_value(self, key, value):
-        if key == "source":
-            if type(value) == dict and "type" in value:
-                if value["type"] == "StaticFile":
-                    value = CopyData(self.origin, value)
+    @staticmethod
+    def wrap_buildup(value, for_state_version):
+        if type(value) == dict and "type" in value:
+            if value["type"] == "StaticFile":
+                if for_state_version:
+                    value = StateCopyData(self.origin, value)
                 else:
-                    value = BuildupData(self.origin, value)
+                    value = GenCopyData(value)
             else:
-                raise ValueError("UnsupportedType")
+                if for_state_version:
+                    value = StateBuildupData(self.origin, value)
+                else:
+                    value = GenBuildupData(value)
+        else:
+            if for_state_version:
+                if not isinstance(value, StateCopyData) and isinstance(value, StateBuildupData):
+                    raise TypeError(
+                        "value needs to be of type StateCopyData or StateBuildupData, not " +
+                        type(value).__name__
+                    )
+            else:
+                if not isinstance(value, GenCopyData) and isinstance(value, GenBuildupData):
+                    raise TypeError(
+                        "value needs to be of type GenCopyData or GenBuildupData, not " +
+                        type(value).__name__
+                    )
+        return value
+
+    def wrap_value(self, key, value, for_state_version=False):
+        if key == "source":
+            value = BuildupData.wrap_buildup(value, for_state_version)
         return super().wrap_value(key, value)
 
 
-class CopyData(AutoExpandDict):
+class StateBuildupData(BuildupData):
     def __init__(self, origin, args={}, **kwargs):
-        super().__init__(origin, args, **kwargs)
-        self.expander["path"] = normpath
-        self.expander["source"] = normpath
+        super().__init__(origin, args=args, **kwargs)
+        self.expander["path"] = AutoExpander.abspath(origin)
 
+    def wrap_value(self, key, value):
+        return super().wrap_value(key, value, for_state_version=True)
+
+
+class GenBuildupData(BuildupData):
+    def __init__(self, args={}, **kwargs):
+        super().__init__(args=args, **kwargs)
+
+    def wrap_value(self, key, value):
+        return super().wrap_value(key, value, for_state_version=False)
+
+
+class CopyData(StaticAutoExpandDict):
     def init_data(self):
         self.data["path"] = None
         self.data["source"] = None
         self.data["type"] = None
 
 
-class ProfileStateDict(AutoExpandDict):
+class StateCopyData(CopyData):
+    def __init__(self, origin, args={}, **kwargs):
+        super().__init__(origin, args=args, **kwargs)
+        self.expander["path"] = AutoExpander.abspath(origin)
+        self.expander["source"] = AutoExpander.abspath(origin)
+
+
+class GenCopyData(CopyData):
+    def __init__(self, args={}, **kwargs):
+        super().__init__(args=args, **kwargs)
+
+
+class StateProfileData(AutoExpandDict):
+    #TODO: Expand events here ?
+    def init_data(self):
+        self.data["name"] = None
+        self.data["parent"] = None
+        self.data["links"] = LinkDataList(self.origin)
+        self.data["installed"] = None
+        self.data["updated"] = None
+        self.data["beforeInstall"] = None
+        self.data["beforeUpdate"] = None
+        self.data["beforeUninstall"] = None
+        self.data["afterInstall"] = None
+        self.data["afterUpdate"] = None
+        self.data["afterUninstall"] = None
+
     def wrap_value(self, key, value):
-        if key == "links" and not isinstance(value, LinkContainerList):
-            value = LinkContainerList(self.origin, value)
+        if key == "links" and not isinstance(value, StateLinkDataList):
+            value = StateLinkDataList(self.origin, value)
         return super().wrap_value(key, value)
 
 
-class LinkContainerList(AutoExpandList):
+class StateProfileData(AutoExpandDict):
+    #TODO: Expand events here ?
+    def init_data(self):
+        self.data["name"] = None
+        self.data["links"] = StateLinkDataList(self.origin)
+        self.data["installed"] = None
+        self.data["updated"] = None
+        self.data["beforeInstall"] = None
+        self.data["beforeUpdate"] = None
+        self.data["beforeUninstall"] = None
+        self.data["afterInstall"] = None
+        self.data["afterUpdate"] = None
+        self.data["afterUninstall"] = None
+
+    def wrap_value(self, key, value):
+        if key == "links" and not isinstance(value, StateLinkDataList):
+            value = StateLinkDataList(self.origin, value)
+        return super().wrap_value(key, value)
+
+
+class GenProfileData(AutoExpandDict):
+    def __init__(self, args={}, **kwargs):
+        super().__init__(args=args, **kwargs)
+
+    def init_data(self):
+        self.data["name"] = None
+        self.data["parent"] = None
+        self.data["links"] = GenLinkDataList()
+        self.data["profiles"] = []
+        self.data["beforeInstall"] = None
+        self.data["beforeUpdate"] = None
+        self.data["beforeUninstall"] = None
+        self.data["afterInstall"] = None
+        self.data["afterUpdate"] = None
+        self.data["afterUninstall"] = None
+
+    def wrap_value(self, key, value):
+        if key == "links" and not isinstance(value, GenLinkDataList):
+            value = GenLinkDataList(value)
+        return super().wrap_value(key, value)
+
+
+class GenLinkDataList(AutoExpandList):
     def wrap_value(self, key, value):
         if type(value) == dict:
-            value = LinkData(self.origin, value)
+            value = GenLinkData(value)
+        return super().wrap_value(key, value)
+
+
+class StateLinkDataList(AutoExpandList):
+    def wrap_value(self, key, value):
+        if type(value) == dict:
+            value = StateLinkData(self.origin, value)
         return super().wrap_value(key, value)
 
 
@@ -451,7 +656,7 @@ class LinkContainerList(AutoExpandList):
 # Main classes
 ###############################################################################
 
-class GlobalState(metaclass=Singleton):
+class GlobalState(metaclass=utils.Singleton):
     def load(self):
         # Load current state file of current user
         self.states = {}
@@ -521,16 +726,16 @@ class State(AutoExpandDict):
         self.auto_write = auto_write
         # Upgrade
         self._upgrade()
-        super().__init__(self.origin, self.state_raw)
+        super().__init__(self.origin, args=self.state_raw)
 
     @classmethod
     def fromTimestamp(cls, timestamp):
-        return cls(build_statefile_path(timestamp))
+        return cls(utils.build_statefile_path(timestamp))
 
     @staticmethod
     def fromTimestampBefore(timestamp):
         for n, file in enumerate(State._get_snapshots(const.session_dir)):
-            if int(get_timestamp_from_path(file)) > int(timestamp):
+            if int(utils.get_timestamp_from_path(file)) > int(timestamp):
                 break
         return State.fromIndex(n-1)
 
@@ -549,17 +754,17 @@ class State(AutoExpandDict):
 
     @classmethod
     def current(cls):
-        path = build_statefile_path()
+        path = utils.build_statefile_path()
         if not os.path.exists(path):
             log_debug("No state file found. Creating new.")
-            makedirs(os.path.dirname(path))
+            utils.makedirs(os.path.dirname(path))
             file = open(path, "w")
             file.write('{"@version": "' + const.internal.VERSION + '"}')
             file.close()
         return cls(path, auto_write=True)
 
     def get_snapshots(self):
-        return get_snapshots(os.path.dirname(self.origin))
+        return utils.get_snapshots(os.path.dirname(self.origin))
 
     def get_patches(self):
         patches = []
@@ -614,7 +819,7 @@ class State(AutoExpandDict):
 
     def create_snapshot(self):
         path, ext = os.path.splitext(self.origin)
-        timestamp = get_timestamp_now()
+        timestamp = utils.get_timestamp_now()
         path += "_" + timestamp + ext
         log_debug("Creating state file snapshot at '" + path + "'.")
         self.set_special("snapshot", timestamp)
@@ -625,7 +830,7 @@ class State(AutoExpandDict):
         # Prepare directory
         if path is None:
             path = self.origin
-        makedirs(os.path.dirname(path))
+        utils.makedirs(os.path.dirname(path))
         # Merge user_dict with specials
         new_dict = {}
         new_dict.update(self)
@@ -651,7 +856,7 @@ class State(AutoExpandDict):
 
     def wrap_value(self, key, value):
         if type(value) == dict:
-            value = ProfileStateDict(value)
+            value = StateProfileData(self.origin, value)
         return super().wrap_value(key, value)
 
     def _notify(self):

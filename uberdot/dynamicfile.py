@@ -41,34 +41,28 @@ import sys
 from abc import abstractmethod
 from subprocess import PIPE
 from subprocess import Popen
-from uberdot.state import BuildupData, CopyData, LinkData
-from uberdot.utils import create_backup
-from uberdot.utils import create_tmp_backup
-from uberdot.utils import remove_tmp_backup
-from uberdot.utils import Const
-from uberdot.utils import makedirs
-from uberdot.utils import md5
-from uberdot.utils import normpath
-from uberdot.utils import log
-from uberdot.utils import log_debug
+from uberdot.state import GenBuildupData, GenCopyData
+from uberdot import utils
 
-const = Const()
+const = utils.Const()
+log = utils.log
+log_debug = utils.log_debug
 
-# TODO: take a look at the load() methods, they are using linkdescriptors 0_o
 
 def getModuleAttr(name):
     return getattr(sys.modules[__name__], name)
 
-def load(cls, linkdescriptor):
-    buildup = linkdescriptor["buildup"]
+
+def load(cls, linkdata):
+    buildup = linkdata["buildup"]
     if buildup is not None:
         return getModuleAttr(buildup["type"]).load(buildup)
     else:
-        raise UberdotError("Linkdescriptor needs buildup data to load dynamicfiles from it")
+        raise UberdotError("LinkData needs buildup data to load dynamicfiles from it")
 
 
 class AbstractFile:
-    def __init__(self, name, md5sum=None, source=None, content=None):
+    def __init__(self, name, md5sum=None, source=None, content=None, origin=None):
         """Base constructor. Do not use.
 
         This creates only a frame that can be empty, uninitalised or
@@ -81,20 +75,23 @@ class AbstractFile:
         self.md5sum = md5sum
         self._content = content
         self._source = source
+        self.origin = origin
 
     @classmethod
     def load(cls, buildupdata):
         """Creates a new instance from buildupdata
 
         Args:
-            linkdescriptor (AutoExpandDict): Info about the link
+            linkdata (AutoExpandDict): Info about the link
         """
         raise NotImplementedError
 
     @classmethod
-    def new(cls, name, source=None, **kwargs):
+    def new(cls, name, source=None, origin=None, **kwargs):
         if source is None:
             raise ValueError("source not set")
+        if origin is None:
+            raise ValueError("origin not set")
         obj = cls(name, source=source, **kwargs)
         obj.update_from_source()
         return obj
@@ -141,6 +138,7 @@ class AbstractFile:
         Returns:
             bytearray: The raw generated content
         """
+        raise NotImplementedError
 
     @abstractmethod
     def _check_source(self, source):
@@ -177,7 +175,7 @@ class AbstractFile:
             str: The path to the directory
         """
         path = os.path.join(const.internal.session_dir, "files", self.SUBDIR)
-        makedirs(path)
+        utils.makedirs(path)
         return path
 
     def update_from_source(self):
@@ -189,7 +187,7 @@ class AbstractFile:
 
     def write(self):
         # Refresh md5sum, so we are writing to the correct file
-        self.md5sum = md5(self._content)
+        self.md5sum = utils.md5(self._content)
         # Check if this version of the file (with same checksum) already exists
         if not os.path.isfile(self.getpath()):
             log_debug("Writing " + type(self).__name__ + " to " + self.getpath() + "'.")
@@ -197,13 +195,19 @@ class AbstractFile:
             file.write(self._content)
             file.flush()
             # Also create a backup that can be used to restore the original
-            create_backup(self.getpath())
+            utils.create_backup(self.getpath())
 
     def update_from_content(self):
         raise NotImplementedError
 
     def get_buildup_data(self):
         raise NotImplementedError
+
+    def __repr__(self):
+        str_ = self.__class__.__name__ +  "("
+        str_ += ", ".join([self.name, self.md5sum, self.source])
+        str_ += ")"
+        return str_
 
 
 class DynamicFile(AbstractFile):
@@ -213,7 +217,7 @@ class DynamicFile(AbstractFile):
         basename = os.path.basename(path)
         name, md5sum = basename.split(const.hash_separator)
         source = getModuleAttr(buildupdata["source"]["type"]).load(buildupdata["source"])
-        return cls(name, md5sum=md5sum, source=buildupdata["source"])
+        return cls(name, md5sum=md5sum, source=buildupdata["source"], origin=buildupdata.origin)
 
     def _check_source(self, source):
         if not isinstance(source, AbstractFile):
@@ -223,17 +227,17 @@ class DynamicFile(AbstractFile):
 
     def update_from_content(self):
         file_bytes = self._generate_source_content()
-        checksum = md5(file_bytes)
+        checksum = utils.md5(file_bytes)
         # Recursive call
         if self.source.md5sum != checksum:
             self.source.content = file_bytes
         self.write()
 
     def get_buildup_data(self):
-        return BuildupData(
+        return GenBuildupData(
             {
                 "path": self.getpath(),
-                "type": type(self).__name__,
+                "type": self.__class__.__name__,
                 "source": self.source.get_buildup_data()
             }
         )
@@ -250,21 +254,21 @@ class MultipleSourceDynamicFile(AbstractFile):
             generate the new dynamic file
     """
     @classmethod
-    def load(cls, linkdescriptor):
-        path = linkdescriptor["path"]
+    def load(cls, buildupdata):
+        path = buildupdata["path"]
         basename = os.path.basename(path)
         name, md5sum = basename.split(const.hash_separator)
         source = []
-        for src in linkdescriptor["source"]:
+        for src in buildupdata["source"]:
             source.append(
-                getClassByName(src["type"]).load(linkdescriptor["source"])
+                getClassByName(src["type"]).load(buildupdata["source"])
             )
-        return cls(name, md5sum=md5sum, source=source)
+        return cls(name, md5sum=md5sum, source=source, origin=buildupdata.origin)
 
     def update_from_content(self):
         files_bytes = self._generate_source_content()
         for i, file_bytes in enumerate(files_bytes):
-            checksum = md5(file_bytes)
+            checksum = utils.md5(file_bytes)
             # Recursive call
             if self.source[i].md5sum != checksum:
                 self.source[i].content = file_bytes
@@ -281,10 +285,10 @@ class MultipleSourceDynamicFile(AbstractFile):
                 raise TypeError(msg)
 
     def get_buildup_data(self):
-        return BuildupData(
+        return GenBuildupData(
             {
                 "path": self.getpath(),
-                "type": type(self).__name__,
+                "type": self.__class__.__name__,
                 "source": [src.get_buildup_data() for src in self.source]
             }
         )
@@ -299,17 +303,17 @@ class StaticFile(AbstractFile):
     """Subdirectory used by StaticFile"""
 
     @classmethod
-    def load(cls, linkdescriptor):
-        path = linkdescriptor["path"]
+    def load(cls, buildupdata):
+        path = buildupdata["path"]
         basename = os.path.basename(path)
         name, md5sum = basename.split(const.hash_separator)
-        return cls(name, md5sum=md5sum, source=linkdescriptor["source"])
+        return cls(name, md5sum=md5sum, source=buildupdata["source"], origin=buildupdata.origin)
 
     def update_from_content(self):
         def write_source():
-            create_tmp_backup(self.source)
+            utils.create_tmp_backup(self.source)
             open(self.source, "wb").write(self.content)
-            remove_tmp_backup(self.source)
+            utils.remove_tmp_backup(self.source)
 
         def select_action(self, action, source, source_bak):
             if action == "i":
@@ -331,7 +335,7 @@ class StaticFile(AbstractFile):
                 # Create a git patch with git diff
                 patch_file = os.path.splitext(self.source)[0] + ".patch"
                 patch_file = user_selection("Enter filename for patch", patch_file)
-                patch_file = normpath(patch_file)
+                patch_file = abspath(patch_file, origin=const.internal.owd)
                 args = ["git", "diff", "--no-index", source_bak, source]
                 # TODO: what if git is not installed?
                 process = Popen(args, stdout=PIPE)
@@ -356,8 +360,8 @@ class StaticFile(AbstractFile):
 
         # Check for file changes
         file_bytes = self._generate_content()
-        file_hash = md5(file_bytes)
-        if self.md5sum == md5(self.content):
+        file_hash = utils.md5(file_bytes)
+        if self.md5sum == utils.md5(self.content):
             # Content didn't change at all, so nothing to do
             return
         elif self.md5sum == file_hash:
@@ -402,16 +406,11 @@ class StaticFile(AbstractFile):
     def _generate_source_content(self):
         return self.content
 
-    def get_file_descriptor(self):
-        file_descriptor = super().get_file_descriptor()
-        file_descriptor.update(source=self.source)
-        return file_descriptor
-
     def get_buildup_data(self):
-        return CopyData(
+        return GenCopyData(
             {
                 "path": self.getpath(),
-                "type": type(self).__name__,
+                "type": self.__class__.__name__,
                 "source": self.source
             }
         )
@@ -537,7 +536,7 @@ class SplittedFile(MultipleSourceDynamicFile):
         seqm = SequenceMatcher(None, previous.split(), current.split(), False)
         file_idx = 0
         file_lengths = self.file_lengths[:]
-        for tag, i1, i2, j1, j2 in s.get_optcode():
+        for tag, i1, i2, j1, j2 in seqm.get_optcode():
             # TODO increment file_idx
             linecount_old = i2-i1
             linecount_new = j2-j1

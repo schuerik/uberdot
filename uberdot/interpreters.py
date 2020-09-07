@@ -210,7 +210,7 @@ class PrintInterpreter(Interpreter):
             dop (dict): The forget-operation that will be logged
         """
         log_operation(
-            dop["profile"], "Stop tracking '" + dop["symlink"]["from"] + "'"
+            dop["profile"], "Stop tracking '" + dop["symlink"]["path"] + "'"
         )
 
     def _op_track_l(self, dop):
@@ -220,7 +220,7 @@ class PrintInterpreter(Interpreter):
             dop (dict): The track-operation that will be logged
         """
         log_operation(
-            dop["profile"], "Tracking '" + dop["symlink"]["from"] + "' now"
+            dop["profile"], "Tracking '" + dop["symlink"]["path"] + "' now"
         )
 
     def _op_update_p(self, dop):
@@ -237,9 +237,9 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation that will be logged
         """
-        log_operation(dop["profile"], dop["symlink"]["from"] +
+        log_operation(dop["profile"], dop["symlink"]["path"] +
                       " was created and links to " +
-                      dop["symlink"]["to"])
+                      dop["symlink"]["target"])
 
     def _op_remove_l(self, dop):
         """Logs/Prints out that a link was removed.
@@ -247,7 +247,7 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be logged
         """
-        log_operation(dop["profile"], "'" + dop["symlink"]["from"] +
+        log_operation(dop["profile"], "'" + dop["symlink"]["path"] +
                       "' was removed from the system.")
 
     def _op_update_l(self, dop):
@@ -258,14 +258,14 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be logged
         """
-        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:
-            log_operation(dop["profile"], dop["symlink1"]["from"] +
-                          " was moved to " + dop["symlink2"]["from"])
-        elif dop["symlink2"]["to"] != dop["symlink1"]["to"]:
-            log_operation(dop["profile"], dop["symlink1"]["from"] +
-                          " points now to " + dop["symlink2"]["to"])
+        if dop["symlink1"]["path"] != dop["symlink2"]["path"]:
+            log_operation(dop["profile"], dop["symlink1"]["path"] +
+                          " was moved to " + dop["symlink2"]["path"])
+        elif dop["symlink2"]["target"] != dop["symlink1"]["target"]:
+            log_operation(dop["profile"], dop["symlink1"]["path"] +
+                          " points now to " + dop["symlink2"]["target"])
         else:
-            msg_start = dop["symlink1"]["from"] + " has changed "
+            msg_start = dop["symlink1"]["path"] + " has changed "
             if dop["symlink2"]["permission"] != dop["symlink1"]["permission"]:
                 msg = msg_start + "permission from "
                 msg += str(dop["symlink1"]["permission"])
@@ -290,22 +290,29 @@ class PrintInterpreter(Interpreter):
                 log_operation(dop["profile"],
                               "Is subprofile of '" + dop["value"] + "' now")
         else:
-            log_operation(
-                dop["profile"],
-                "Set '" + dop["key"] + "' to '" + str(dop["value"]) + "'",
-                debug=True
-            )
+            if dop["value"] is None:
+                log_operation(
+                    dop["profile"],
+                    "Unset '" + dop["key"] + "'.",
+                    debug=True
+                )
+            else:
+                log_operation(
+                    dop["profile"],
+                    "Set '" + dop["key"] + "' to '" + str(dop["value"]) + "'",
+                    debug=True
+                )
 
     def _op_restore_l(self, dop):
         log_operation(
             dop["profile"],
-            "Restored tracked file '" + dop["saved_link"]["from"] + "'"
+            "Restored tracked file '" + dop["saved_link"]["path"] + "'"
         )
 
     def _op_update_t(self, dop):
         log_operation(
             dop["profile"],
-            "Updating record of '" + dop["symlink1"]["from"] + "'"
+            "Updating record of '" + dop["symlink1"]["path"] + "'"
         )
 
 
@@ -431,7 +438,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation of the to be updated link
         """
-        self.inspect_file(dop["symlink1"]["to"])
+        self.inspect_file(dop["symlink1"]["target"])
 
     def _op_remove_l(self, dop):
         """Inspects the target file of the to be removed link.
@@ -439,7 +446,7 @@ class CheckDynamicFilesInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation of the to be removed link
         """
-        self.inspect_file(dop["symlink"]["to"])
+        self.inspect_file(dop["symlink"]["target"])
 
     # TODO: Inspect file on other operations?
 
@@ -494,7 +501,7 @@ class CheckLinksInterpreter(Interpreter):
         self.linklist = []
         for user, profile in globalstate.get_profiles():
             for link in profile["links"]:
-                self.linklist.append((link["from"], profile["name"], user, True))
+                self.linklist.append((link["path"], profile["name"], user, True))
         # Track and untrack do the same as add and remove
         self._op_track_l = self._op_add_l
         self._op_untrack_l = self._op_remove_l
@@ -512,11 +519,11 @@ class CheckLinksInterpreter(Interpreter):
         Raises:
             IntegrityError: The check failed
         """
-        self.add(dop["symlink"]["from"], dop["profile"])
+        self.add(dop["symlink"]["path"], dop["profile"])
 
     def _op_update_l(self, dop):
-        self.remove(dop["symlink1"]["from"])
-        self.add(dop["symlink2"]["from"], dop["profile"])
+        self.remove(dop["symlink1"]["path"])
+        self.add(dop["symlink2"]["path"], dop["profile"])
 
     def _op_remove_l(self, dop):
         """Removes link from linklist because links could be removed and
@@ -529,7 +536,7 @@ class CheckLinksInterpreter(Interpreter):
             dop (dict): The remove-operation that will be used to remove the
                 link
         """
-        self.remove(dop["symlink"]["from"])
+        self.remove(dop["symlink"]["path"])
 
     def add(self, name, profile):
         for item in self.linklist:
@@ -544,7 +551,7 @@ class CheckLinksInterpreter(Interpreter):
                 msg += profile + "'. In some cases this error can be "
                 msg += "fixed by setting the --dui flag."
                 raise IntegrityError(msg)
-        self.linklist.append((name, profile, const.user, False))
+        self.linklist.append((name, profile, const.internal.user, False))
 
     def remove(self, name):
         for item in self.linklist:
@@ -567,8 +574,9 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         """
         super().__init__()
         self.blacklist = []
-        search_paths = [const.data_dir] + const.cfg_search_paths
-        for blfile in find_files("black.list", search_paths):
+        search_paths = [const.internal.data_dir]
+        search_paths += const.internal.cfg_search_paths
+        for blfile in find_file_at("black.list", search_paths):
             with open(blfile, "r") as file:
                 for line in file.readlines():
                     self.blacklist.append(line)
@@ -591,7 +599,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
                 log_warning("You are trying to " + action + " '" + file_name +
                             "' which is blacklisted. It is considered " +
                             "dangerous to " + action + " those files!")
-                if const.subcommand.superforce:
+                if const.mode_args.superforce:
                     user_confirmation("YES")
                 else:
                     log_warning("If you really want to modify this file" +
@@ -606,11 +614,11 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation whose symlinks will be checked
         """
-        if dop["symlink1"]["from"] == dop["symlink2"]["from"]:
-            self.check_blacklist(dop["symlink1"]["from"], "update")
+        if dop["symlink1"]["path"] == dop["symlink2"]["path"]:
+            self.check_blacklist(dop["symlink1"]["path"], "update")
         else:
-            self.check_blacklist(dop["symlink1"]["from"], "remove")
-            self.check_blacklist(dop["symlink2"]["from"], "overwrite")
+            self.check_blacklist(dop["symlink1"]["path"], "remove")
+            self.check_blacklist(dop["symlink2"]["path"], "overwrite")
 
     def _op_remove_l(self, dop):
         """Checks the to be removed symlink for blacklist violations.
@@ -618,7 +626,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation whose symlink will be checked
         """
-        self.check_blacklist(dop["symlink"]["from"], "remove")
+        self.check_blacklist(dop["symlink"]["path"], "remove")
 
     def _op_add_l(self, dop):
         """Checks the to be added symlink for blacklist violations.
@@ -626,11 +634,11 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation whose symlink will be checked
         """
-        self.check_blacklist(dop["symlink"]["from"], "overwrite")
+        self.check_blacklist(dop["symlink"]["path"], "overwrite")
 
     def _op_restore_l(self, dop):
-        self.check_blacklist(dop["saved_link"]["from"], "overwrite")
-        self.check_blacklist(dop["actual_link"]["from"], "remove")
+        self.check_blacklist(dop["saved_link"]["path"], "overwrite")
+        self.check_blacklist(dop["actual_link"]["path"], "remove")
 
 
 class CheckLinkDirsInterpreter(Interpreter):
@@ -645,10 +653,10 @@ class CheckLinkDirsInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation whose symlink will be checked
         """
-        self.check_dirname(os.path.dirname(dop["symlink"]["from"]))
+        self.check_dirname(os.path.dirname(dop["symlink"]["path"]))
 
     def _op_restore_l(self, dop):
-        self.check_dirname(os.path.dirname(dop["saved_link"]["from"]))
+        self.check_dirname(os.path.dirname(dop["saved_link"]["path"]))
 
     def _op_update_l(self, dop):
         """Checks if the directory of the to be updated link already exists.
@@ -656,7 +664,7 @@ class CheckLinkDirsInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation whose symlink will be checked
         """
-        self.check_dirname(os.path.dirname(dop["symlink2"]["from"]))
+        self.check_dirname(os.path.dirname(dop["symlink2"]["path"]))
 
     def check_dirname(self, dirname):
         """Checks if a directory exists.
@@ -667,7 +675,7 @@ class CheckLinkDirsInterpreter(Interpreter):
             PreconditionError: The directory doesn't exist and ``makedirs``
                 isn't set
         """
-        if not const.subcommand.makedirs:
+        if not const.mode_args.makedirs:
             if not os.path.isdir(dirname):
                 msg = "The directory '" + dirname + "/' needs to be created "
                 msg += "in order to perform this action, but "
@@ -675,6 +683,7 @@ class CheckLinkDirsInterpreter(Interpreter):
                 raise PreconditionError(msg)
 
 
+# TODO check if all paths are absolute
 class CheckDiffsolverResultInterpreter(Interpreter):
     """Checks if operations meet the implicated constraints. For example
     if a remove operation for a specific path is in the difflog the file
@@ -699,89 +708,89 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             return False
         for state_link in self.state[profilename]["links"]:
             if links_equal(state_link, link):
-                return link["from"] not in self.removed_links
+                return link["path"] not in self.removed_links
         return False
 
     def _op_update_t(self, dop):
         if not self.is_link_in_state(dop["profile"], dop["symlink1"]):  # pragma: no cover
-            msg = "The record of '" + dop["symlink1"]["from"] + "' can not be updated "
+            msg = "The record of '" + dop["symlink1"]["path"] + "' can not be updated "
             msg += " because there is no such record."
             self._raise(msg)
         if not link_exists(dop["symlink2"]):  # pragma: no cover
-            msg = "The record of '" + dop["symlink1"]["from"] + "' can not be updated "
+            msg = "The record of '" + dop["symlink1"]["path"] + "' can not be updated "
             msg += " because the link doesn't exist."
             self._raise(msg)
 
     def _op_restore_l(self, dop):
         # Only restore link if it is tracked and differs from the tracked
         if not self.is_link_in_state(dop["profile"], dop["saved_link"]):  # pragma: no cover
-            msg = "'" + dop["saved_link"]["from"] + "' can not be restored "
+            msg = "'" + dop["saved_link"]["path"] + "' can not be restored "
             msg += " because it is not tracked."
             self._raise(msg)
         if link_exists(dop["saved_link"]):  # pragma: no cover
-            msg = "'" + dop["saved_link"]["from"] + "' can not be restored "
+            msg = "'" + dop["saved_link"]["path"] + "' can not be restored "
             msg += " because it already exists like this."
             self._raise(msg)
 
     def _op_untrack_l(self, dop):
         # Only untack link if it is tracked
         if not self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
-            msg = "'" + dop["symlink"]["from"] + "' is not tracked."
+            msg = "'" + dop["symlink"]["path"] + "' is not tracked."
             self._raise(msg)
-        self.removed_links.append(dop["symlink"]["from"])
+        self.removed_links.append(dop["symlink"]["path"])
 
     def _op_track_l(self, dop):
         # Only track link if it exists and is not already tracked
-        if not os.path.lexists(dop["symlink"]["from"]):  # pragma: no cover
-            msg = "'" + dop["symlink"]["from"] + "' can not be tracked "
+        if not os.path.lexists(dop["symlink"]["path"]):  # pragma: no cover
+            msg = "'" + dop["symlink"]["path"] + "' can not be tracked "
             msg += " because it does not exist."
             self._raise(msg)
         if self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
-            msg = "'" + dop["symlink"]["from"] + "' is already tracked."
+            msg = "'" + dop["symlink"]["path"] + "' is already tracked."
             self._raise(msg)
 
     def _op_remove_l(self, dop):
         # Only remove symlink if it still exists and is tracked
-        if not os.path.lexists(dop["symlink"]["from"]):  # pragma: no cover
-            msg = "'" + dop["symlink"]["from"] + "' can not be removed because"
+        if not os.path.lexists(dop["symlink"]["path"]):  # pragma: no cover
+            msg = "'" + dop["symlink"]["path"] + "' can not be removed because"
             msg += " it does not exist."
             self._raise(msg)
         if not self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
-            msg = "'" + dop["symlink"]["from"] + "' is not tracked."
+            msg = "'" + dop["symlink"]["path"] + "' is not tracked."
             self._raise(msg)
-        self.removed_links.append(dop["symlink"]["from"])
+        self.removed_links.append(dop["symlink"]["path"])
 
     def _op_update_l(self, dop):
         # Only update link if old link still exists, the target of the
         # new link exists, the old link is tracked and the links differ
-        if not os.path.lexists(dop["symlink1"]["from"]):  # pragma: no cover
-            msg = "'" + dop["symlink1"]["from"] + "' can not be updated"
+        if not os.path.lexists(dop["symlink1"]["path"]):  # pragma: no cover
+            msg = "'" + dop["symlink1"]["path"] + "' can not be updated"
             msg += " because it does not exist on your filesystem."
             self._raise(msg)
-        if not os.path.exists(dop["symlink2"]["to"]):  # pragma: no cover
-            msg = "'" + dop["symlink1"]["from"] + "' can not be updated"
-            msg += " to point to '" + dop["symlink2"]["to"] + "'"
-            msg += " because '" + dop["symlink2"]["to"]
+        if not os.path.exists(dop["symlink2"]["target"]):  # pragma: no cover
+            msg = "'" + dop["symlink1"]["path"] + "' can not be updated"
+            msg += " to point to '" + dop["symlink2"]["target"] + "'"
+            msg += " because '" + dop["symlink2"]["target"]
             msg += "' does not exist in your filesystem."
             self._raise(msg)
         if not self.is_link_in_state(dop["profile"], dop["symlink1"]):  # pragma: no cover
-            msg = "'" + dop["symlink1"]["from"] + "' is not tracked."
+            msg = "'" + dop["symlink1"]["path"] + "' is not tracked."
             self._raise(msg)
         if links_equal(dop["symlink1"], dop["symlink2"]):  # pragma: no cover
             self._raise("New symlink is the same as the old symlink.")
-        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:  # pragma: no cover
-            self.removed_links.append(dop["symlink1"]["from"])
+        if dop["symlink1"]["path"] != dop["symlink2"]["path"]:  # pragma: no cover
+            self.removed_links.append(dop["symlink1"]["path"])
 
     def _op_add_l(self, dop):
         # Only create symlink if is not already tracked and only if
         # the file it points to exists
-        if not os.path.exists(dop["symlink"]["to"]):  # pragma: no cover
-            msg = "'" + dop["symlink"]["from"] + "' will not be created"
-            msg += " because it points to '" + dop["symlink"]["to"]
+        if not os.path.exists(dop["symlink"]["target"]):  # pragma: no cover
+            msg = "'" + dop["symlink"]["path"] + "' will not be created"
+            msg += " because it points to '" + dop["symlink"]["target"]
             msg += "' which does not exist in your filesystem."
             self._raise(msg)
         if self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
-            msg = "'" + dop["symlink"]["from"] + "' is already tracked."
+            msg = "'" + dop["symlink"]["path"] + "' is already tracked."
             self._raise(msg)
 
     def _op_add_p(self, dop):
@@ -840,10 +849,10 @@ class CheckFileOverwriteInterpreter(Interpreter):
         Raises:
             PreconditionError: The to be removed link does not exist
         """
-        self.removed_links.append(dop["symlink"]["from"])
+        self.removed_links.append(dop["symlink"]["path"])
 
     def _op_untrack_l(self, dop):
-        self.removed_links.append(dop["symlink"]["from"])
+        self.removed_links.append(dop["symlink"]["path"])
 
     def _op_update_l(self, dop):
         """Checks if the old and the new link already exist.
@@ -859,12 +868,12 @@ class CheckFileOverwriteInterpreter(Interpreter):
                 link already exists or the new link points to a non-existent
                 file
         """
-        old_name = dop["symlink1"]["from"]
-        new_name = dop["symlink2"]["from"]
+        old_name = dop["symlink1"]["path"]
+        new_name = dop["symlink2"]["path"]
         if old_name != new_name:
             if new_name not in self.removed_links and os.path.lexists(new_name):
                 if os.path.isdir(new_name):
-                    if not const.subcommand.force:
+                    if not const.mode_args.force:
                         msg = "'" + old_name + "' can not be "
                         msg += "moved to '" + new_name + "' "
                         msg += "because it is a directory and would be "
@@ -878,7 +887,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
                         msg += " that would be overwritten. Please empty the"
                         msg += " directory or remove it entirely."
                         raise PreconditionError(msg)
-                elif not const.subcommand.force:
+                elif not const.mode_args.force:
                     msg = "'" + old_name + "' can not be moved to '"
                     msg += new_name + "' because it already exists"
                     msg += " on your filesystem and would be overwritten."
@@ -894,10 +903,10 @@ class CheckFileOverwriteInterpreter(Interpreter):
             PreconditionError: The new link already exists or its target does
                 not exist
         """
-        name = dop["symlink"]["from"]
+        name = dop["symlink"]["path"]
         if name not in self.removed_links and os.path.lexists(name):
             if os.path.isdir(name):
-                if not const.subcommand.force:
+                if not const.mode_args.force:
                     msg = "'" + name + "' is a directory and would be"
                     msg += " overwritten. You can force to overwrite empty"
                     msg += " directories by setting the --force flag."
@@ -907,9 +916,9 @@ class CheckFileOverwriteInterpreter(Interpreter):
                     msg += " that would be overwritten. Please empty the"
                     msg += " directory or remove it entirely."
                     raise PreconditionError(msg)
-            elif not const.subcommand.force:
+            elif not const.mode_args.force:
                 msg = "'" + name + "' already exists and would be"
-                msg += " overwritten by '" + dop["symlink"]["to"]
+                msg += " overwritten by '" + dop["symlink"]["target"]
                 msg += " '. You can force to overwrite the"
                 msg += " original file by setting the --force flag."
                 raise PreconditionError(msg)
@@ -1009,7 +1018,7 @@ class CheckProfilesInterpreter(Interpreter):
             # Just make sure the parent is really updated
             if known[1] != dop["parent"]:
                 # If the user set the new parent manually, overwrites are ok
-                if const.subcommand.parent == dop["parent"]:
+                if const.mode_args.parent == dop["parent"]:
                     return
                 # Detaching a profile from a parent is also allowed
                 if dop["parent"] is None:
@@ -1315,7 +1324,7 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): Unused in this implementation
         """
-        log_debug("Executing difflog now.")
+        log_debug("Executing diff operations.")
 
     def _op_fin(self, dop):
         # Only update the state if the difflog contained at least
@@ -1337,10 +1346,10 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The forget-operation that will be executed
         """
-        self.remove_from_state(dop["profile"], dop["symlink"]["from"])
+        self.remove_from_state(dop["profile"], dop["symlink"]["path"])
 
     def _op_update_t(self, dop):
-        self.remove_from_state(dop["profile"], dop["symlink1"]["from"])
+        self.remove_from_state(dop["profile"], dop["symlink1"]["path"])
         self.add_to_state(dop["profile"], dop["symlink2"])
 
     def _op_track_l(self, dop):
@@ -1353,7 +1362,7 @@ class ExecuteInterpreter(Interpreter):
 
     def _op_restore_l(self, dop):
         if dop["actual_link"]:
-            self.remove_symlink(dop["actual_link"]["from"], cleanup=False)
+            self.remove_symlink(dop["actual_link"]["path"], cleanup=False)
         self.create_symlink(dop["saved_link"], force=True)
 
     def _op_update_prop(self, dop):
@@ -1415,8 +1424,8 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be executed
         """
-        self.remove_symlink(dop["symlink"]["from"])
-        self.remove_from_state(dop["profile"], dop["symlink"]["from"])
+        self.remove_symlink(dop["symlink"]["path"])
+        self.remove_from_state(dop["profile"], dop["symlink"]["path"])
 
     def _op_update_l(self, dop):
         """Updates a link in the filesystem and updates the links entry of
@@ -1425,8 +1434,8 @@ class ExecuteInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be executed
         """
-        self.remove_symlink(dop["symlink1"]["from"])
-        self.remove_from_state(dop["profile"], dop["symlink1"]["from"])
+        self.remove_symlink(dop["symlink1"]["path"])
+        self.remove_from_state(dop["profile"], dop["symlink1"]["path"])
         self.create_symlink(dop["symlink2"])
         self.add_to_state(dop["profile"], dop["symlink2"])
 
@@ -1441,7 +1450,7 @@ class ExecuteInterpreter(Interpreter):
             dop (dict): A remove_l- or forget_l-operation
         """
         for link in self.state[profilename]["links"]:
-            if link["from"] == linkname:
+            if link["path"] == linkname:
                 self.state[profilename]["links"].remove(link)
                 break
 
@@ -1460,29 +1469,29 @@ class ExecuteInterpreter(Interpreter):
             UnkownError: The link could not be created
         """
         if force is None:
-            force = const.subcommand.force
-        if not os.path.isdir(os.path.dirname(ldescriptor["from"])):
-            self._makedirs(ldescriptor["from"])
-        self.remove_symlink(ldescriptor["from"], cleanup=False)
+            force = const.mode_args.force
+        if not os.path.isdir(os.path.dirname(ldescriptor["path"])):
+            self._makedirs(ldescriptor["path"])
+        self.remove_symlink(ldescriptor["path"], cleanup=False)
         try:
             # Create new link
             if ldescriptor["hard"]:
-                os.link(ldescriptor["to"], ldescriptor["from"])
+                os.link(ldescriptor["target"], ldescriptor["path"])
             else:
-                os.symlink(ldescriptor["to"], ldescriptor["from"])
+                os.symlink(ldescriptor["target"], ldescriptor["path"])
             # Set owner and permission
             uid, gid = get_owner_ids(ldescriptor["owner"])
-            os.lchown(ldescriptor["from"], uid, gid)
+            os.lchown(ldescriptor["path"], uid, gid)
             if ldescriptor["permission"]:
-                os.chmod(ldescriptor["from"], int(str(ldescriptor["permission"]), 8))
+                os.chmod(ldescriptor["path"], int(str(ldescriptor["permission"]), 8))
             # Set owner of symlink
             if ldescriptor["secure"]:
-                os.chown(ldescriptor["to"], uid, gid)
+                os.chown(ldescriptor["target"], uid, gid)
             else:
-                os.chown(ldescriptor["to"], get_uid(), get_gid())
+                os.chown(ldescriptor["target"], get_uid(), get_gid())
         except OSError as err:
             raise UnkownError(err, "An unkown error occured when trying to" +
-                              " create the link '" + ldescriptor["from"] + "'.")
+                              " create the link '" + ldescriptor["path"] + "'.")
 
     def remove_symlink(self, path, cleanup=True):
         """Remove a symlink. If the directory is empty, it removes the
@@ -1571,7 +1580,7 @@ class DetectRootInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation that will be checked
         """
-        name = dop["symlink"]["from"]
+        name = dop["symlink"]["path"]
         owner = predict_owner(name)
         if dop["symlink"]["owner"] != owner:
             self._root_detected(dop, "change owner of", name)
@@ -1585,17 +1594,17 @@ class DetectRootInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be checked
         """
-        if not self._access(dop["symlink"]["from"]):
+        if not self._access(dop["symlink"]["path"]):
             self._root_detected(dop, "remove links from",
-                                os.path.dirname(dop["symlink"]["from"]))
+                                os.path.dirname(dop["symlink"]["path"]))
 
     def _op_restore_l(self, dop):
-        if dop["actual_link"] and not self._access(dop["actual_link"]["from"]):
+        if dop["actual_link"] and not self._access(dop["actual_link"]["path"]):
             self._root_detected(dop, "remove links from",
-                                os.path.dirname(dop["actual_link"]["from"]))
-        if not self._access(dop["saved_link"]["from"]):
+                                os.path.dirname(dop["actual_link"]["path"]))
+        if not self._access(dop["saved_link"]["path"]):
             self._root_detected(dop, "create links in",
-                                os.path.dirname(dop["saved_link"]["from"]))
+                                os.path.dirname(dop["saved_link"]["path"]))
 
 
     def _op_update_l(self, dop):
@@ -1605,26 +1614,26 @@ class DetectRootInterpreter(Interpreter):
         Args:
             dop (dict): The update-operation that will be checked
         """
-        name = dop["symlink2"]["from"]
+        name = dop["symlink2"]["path"]
         if dop["symlink1"]["owner"] != dop["symlink2"]["owner"]:
             uid, gid = get_owner_ids(dop["symlink2"]["owner"])
             if  uid != get_uid() or gid != get_gid():
                 self._root_detected(dop, "change the owner of", name)
-        if dop["symlink1"]["from"] != dop["symlink2"]["from"]:
-            if not self._access(dop["symlink2"]["from"]):
+        if dop["symlink1"]["path"] != dop["symlink2"]["path"]:
+            if not self._access(dop["symlink2"]["path"]):
                 self._root_detected(dop, "create links in",
                                     os.path.dirname(name))
-            if not self._access(dop["symlink1"]["from"]):
+            if not self._access(dop["symlink1"]["path"]):
                 self._root_detected(dop, "remove links from",
                                     os.path.dirname(name))
-        if dop["symlink1"]["to"] != dop["symlink2"]["to"]:
-            if not self._access(dop["symlink2"]["from"]):
+        if dop["symlink1"]["target"] != dop["symlink2"]["target"]:
+            if not self._access(dop["symlink2"]["path"]):
                 self._root_detected(dop, "change target of", name)
         if dop["symlink1"]["secure"] != dop["symlink2"]["secure"]:
-            if not self._access(dop["symlink2"]["from"]):
+            if not self._access(dop["symlink2"]["path"]):
                 self._root_detected(dop,
                                     "change owner of",
-                                    dop["symlink2"]["to"])
+                                    dop["symlink2"]["target"])
 
     @abstractmethod
     def _root_detected(self, dop, description, affected_file):
@@ -1747,9 +1756,9 @@ class GainRootInterpreter(RootNeededInterpreter):
         """
         if self.logged:
             if const.settings.askroot:
-                const.export_dump(self.data)
-                # TODO exec mode is missing, pickle file wont get removed
-                args = [sys.executable, "exec", "udot.pickle"]
+                pickle_path = abspath("uberdot.pickle")
+                pickle.dump((const, self.data), open(pickle_path))
+                args = [sys.executable, "exec", pickle_path]
                 call_msg = "'sudo " + " ".join(args) + "'"
                 log_debug("Replacing process with " + call_msg + ".")
                 os.execvp('sudo', args)

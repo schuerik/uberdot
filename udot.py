@@ -38,6 +38,7 @@ import argparse
 from distutils.util import strtobool
 import csv
 import grp
+import pickle
 import inspect
 import logging
 import os
@@ -52,7 +53,6 @@ if os.getenv("COVERAGE_PROCESS_START"):  # pragma: no cover
 
 from uberdot.interpreters import *
 from uberdot.differencesolver import *
-from uberdot.state import get_timestamp_from_path
 from uberdot.state import State
 from uberdot.state import GlobalState
 from uberdot.utils import *
@@ -86,10 +86,11 @@ class UberDot:
         self.args = None
         self.profiles = []
         # Change current working directory to the directory of this module
+        # TODO: does this even work with packaging later?
         newdir = os.path.abspath(sys.modules[__name__].__file__)
         newdir = os.path.dirname(newdir)
         os.chdir(newdir)
-        # Set environment to var to be used in configs, scripts, profiles, etc
+        # Set environment var to be used in configs, scripts, profiles, etc
         os.environ["UBERDOT_CWD"] = newdir
 
     @staticmethod
@@ -114,7 +115,6 @@ class UberDot:
         ch_err.setFormatter(formatter)
         logger.addHandler(ch_out)
         logger.addHandler(ch_err)
-
 
     def parse_arguments(self, arguments=None):
         """Parses the commandline arguments. This function can parse a custom
@@ -324,7 +324,7 @@ class UberDot:
             "--option",
             help="overwrite default options for profiles",
             dest="opt_dict",
-            action=StoreDictKeyPair,
+            action=StoreDictKeyPairAction,
             nargs="+",
             metavar="KEY=VAL"
         )
@@ -669,14 +669,13 @@ class UberDot:
     def generate_profiles(self):
         """Imports profiles by name and executes them. """
         profiles = []
-        profileloader = ProfileLoader()
         # Import and create profiles
         for profilename in self.get_profilenames():
             if profilename in const.args.exclude:
                 log_debug("'" + profilename + "' is in exclude list." +
                           " Skipping generation of profile...")
             else:
-                profiles.append(profileloader.create_instance(profilename))
+                profiles.append(ProfileLoader().new_object(profilename))
         # And execute/generate them
         for profile in profiles:
             profile.start_generation()
@@ -766,11 +765,10 @@ class UberDot:
 
     def find_dotfile(self, searchstr):
         result = []
-        for root, name in walk_dotfiles():
-            file = os.path.join(root, name)
+        for file in walk_dotfiles():
             # Search in names (only file basenames, without tag)
             if const.find.name or const.find.all:
-                searchtext = name
+                searchtext = os.path.basename(file)
                 if const.settings.tag_separator in searchtext:
                     idx = searchtext.index(const.settings.tag_separator)
                     searchtext = searchtext[idx+1:]
@@ -818,8 +816,8 @@ class UberDot:
         tags = []
         sep = const.settings.tag_separator
         # Collect tags first
-        for root, name in walk_dotfiles():
-            file = os.path.join(root, name)
+        for file in walk_dotfiles():
+            name = os.path.basename(file)
             if sep in name:
                 tag = name[:name.index(sep)+len(sep)-1]
                 if const.find.locations:
@@ -862,16 +860,17 @@ class UberDot:
                 print(entry)
 
     def _exec_help(self):
-        os.execvp("man", ["-l", normpath("docs/sphinx/build/man/uberdot.1")])
+        log_debug("Starting man with local docs.")
+        os.execvp("man", ["-l", abspath("docs/sphinx/build/man/uberdot.1")])
 
     def _exec_history(self):
         snapshot = self.state.get_special("snapshot") if "snapshot" in self.state.get_specials() else None
         for nr, file in enumerate(self.state.get_snapshots()):
             timestamp = get_timestamp_from_path(file)
             msg = "[" + str(int(nr)+1) + "] "
-            if snapshot==timestamp:
+            if snapshot == timestamp:
                 msg += const.settings.col_emph + "(current) " + const.col_endc
-            temp_state =  State.fromTimestamp(timestamp)
+            temp_state = State.fromTimestamp(timestamp)
             msg += "ID: " + timestamp
             msg += "  Date: " + timestamp_to_string(timestamp)
             msg += "  Version: " + temp_state.get_special("version")
@@ -887,12 +886,16 @@ class UberDot:
             dfl.run_interpreter(SkipRootInterpreter())
         self.resolve_difflog(dfl)
 
+    # TODO this needs testing for sure
     def _exec_resume(self):
-        log_debug("Resuming previous uberdot process.")
-        # TODO this probably dont work
-        # TODO also: each module has its own "const" object. can we even overwrite them?
-        const, dfl = pickle.load(sys.stdin)
+        log_debug("Loading pickle of previous uberdot process.")
+        pickle_path = abspath("uberdot.pickle", origin=const.internal.owd)
+        const_obj, dfl = pickle.load(sys.stdin)
+        Const.__load_object(const_obj)
+        log_debug("Resuming previous process.")
         self.resolve_difflog(dfl)
+        log_debug("Removing pickle.")
+        os.remove("uberdot.pickle")
 
     def _exec_show(self):
         """Print out the state file in a readable format.
@@ -963,8 +966,8 @@ class UberDot:
             self.state.set_special("snapshot", snapshot)
 
     def _exec_update(self):
-        log_debug("Calculating operations to update profiles.")
-        dfs = UpdateDiffSolver(self.generate_profiles(), const.mode_args.parent)
+        profile_results = self.generate_profiles()
+        dfs = UpdateDiffSolver(profile_results, const.mode_args.parent)
         dfl = dfs.solve()
         if const.update.dui:
             dfl.run_interpreter(DUIStrategyInterpreter())
@@ -995,13 +998,13 @@ class UberDot:
             :class:`~errors.CustomError`: Executed interpreters can and will
                 raise all kinds of :class:`~errors.CustomError`.
         """
-        if const.subcommand.debug:
+        if const.mode_args.debug:
             difflog.run_interpreter(PrintPlainInterpreter())
             return
-        elif const.subcommand.changes:
+        elif const.mode_args.changes:
             difflog.run_interpreter(PrintInterpreter())
             return
-        elif const.subcommand.dryrun:
+        elif const.mode_args.dryrun:
             log_warning("This is just a dry-run! Nothing of the following " +
                         "is actually happening.")
         # Run integration tests on difflog
@@ -1025,7 +1028,7 @@ class UberDot:
             log_debug("Checking if root is required.")
             root_interpreter = RootNeededInterpreter()
             difflog.run_interpreter(root_interpreter)
-            if not const.subcommand.dryrun and root_interpreter.logged:
+            if not const.mode_args.dryrun and root_interpreter.logged:
                 process = Popen([sys.executable, "resume"], stdin=PIPE)
                 process.communicate(self._create_resume_pickle(difflog))
                 process.wait()
@@ -1035,6 +1038,7 @@ class UberDot:
         # Check blacklist not until now, because the user would need confirm it
         # twice if the programm is restarted with sudo
         difflog.run_interpreter(CheckLinkBlacklistInterpreter())
+
         # Now the critical part begins, devided into three main tasks:
         # 1. running events before, 2. linking, 3. running events after
         # Each part is surrounded with a try-catch block that wraps every
@@ -1046,8 +1050,8 @@ class UberDot:
         old_state = self.state.copy()
         # Execute all events before linking and print them
         try:
-            if not const.subcommand.skipevents and not const.subcommand.skipbefore:
-                inter = EventPrintInterpreter if const.subcommand.dryrun else EventExecInterpreter
+            if not const.mode_args.skipevents and not const.mode_args.skipbefore:
+                inter = EventPrintInterpreter if const.mode_args.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
                     inter(old_state, "before")
                 )
@@ -1075,7 +1079,7 @@ class UberDot:
         try:
             # Execute all operations of the difflog and print them
             interpreters = []
-            if not const.subcommand.dryrun:
+            if not const.mode_args.dryrun:
                 interpreters.append(ExecuteInterpreter())
             if const.args.summary:
                 interpreters.append(PrintSummaryInterpreter())
@@ -1088,13 +1092,13 @@ class UberDot:
             msg = "An unkown error occured during linking/unlinking. Some "
             msg += "links or your state file may be corrupted. In most "
             msg += "cases uberdot will fix all corruptions by itself the next "
-            msg += "time you use it. Please just make sure to to resolve the "
+            msg += "time you use it. Please just make sure to resolve the "
             msg += "unkown error before you proceed to use this tool."
             raise UnkownError(err, msg)
         # Execute all events after linking and print them
         try:
-            if not const.subcommand.skipevents and not const.subcommand.skipafter:
-                interpreter = EventPrintInterpreter if const.subcommand.dryrun else EventExecInterpreter
+            if not const.mode_args.skipevents and not const.mode_args.skipafter:
+                interpreter = EventPrintInterpreter if const.mode_args.dryrun else EventExecInterpreter
                 difflog.run_interpreter(
                     interpreter(old_state, "after")
                 )
@@ -1160,7 +1164,7 @@ class UberDot:
             pass
 
 
-class StoreDictKeyPair(argparse.Action):
+class StoreDictKeyPairAction(argparse.Action):
     """Custom argparse.Action to parse an option dictionary from commandline"""
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -1212,10 +1216,10 @@ class CustomParser(argparse.ArgumentParser):
         if namespace is None:
             namespace = argparse.Namespace()
         # Parse commandline like usually just to make sure the user entered
-        # a valid combition of arguments and subcommands
+        # a valid combition of arguments and mode_argss
         super().parse_args(args, namespace)
         # Then we prepare args for the actual parsing. For this we will
-        # devide it by subcommands and parse them individual.
+        # devide it by mode_argss and parse them individual.
         # First initialize some stuff that we will need for this
         subparsers = self._subparsers._actions[1].choices
         def max_count(nargs):
@@ -1264,7 +1268,7 @@ class CustomParser(argparse.ArgumentParser):
                     split_argv[-1].append(c)
                     max_arg_count -= 1
                 elif c in subparsers:
-                    # this is a new subcommand
+                    # this is a new mode_args
                     split_argv.append([c])
                     # reset the current subparser, argument_count and positionals
                     subp = subparsers[c]
@@ -1283,9 +1287,9 @@ class CustomParser(argparse.ArgumentParser):
                     else:
                         # TODO does this ever trigger?
                         raise UserError("No such mode: " + c)
-        # Initialize namespace and parse until first subcommand
+        # Initialize namespace and parse until first mode_args
         result = self.parse_command(split_argv[0], subparsers.keys())
-        # Parse each subcommand
+        # Parse each mode_args
         ns = result
         for argv in split_argv[1:]:
             ns = subparsers[argv[0]].parse_command(argv, subparsers.keys(), result=ns)

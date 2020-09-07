@@ -43,68 +43,144 @@ from itertools import islice
 from abc import abstractmethod
 
 
-# Utils for finding targets
+# Internal helpers for utils
 ###############################################################################
 
-class Walker:
-    def __init__(self, path):
-        self.iterator = os.walk(path)
-        self.files = []
-        self.root = None
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        while not self.files:
-            self.root, _, self.files = next(self.iterator)
-        result = self.files.pop()
-        return self.root, result
-
-# TODO add priority walker
-
-# TODO better ignore list
-class SafeWalker:
-    def __init__(self, path, ignorelist, joined):
-        self.iterator = walk(path)
-        self.ignorelist = ignorelist + [
-            r"/home/\w+/\.uberdot.*",
-            r"/root/\.uberdot.*"
-        ]
-        self.joined = joined
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        get_next = True
-        while get_next:
-            get_next = False
-            # Skip all internal files and symlinks
-            result = next(self.iterator)
-            file = os.path.join(result[0], result[1])
-            for ignore_pattern in self.ignorelist:
-                if re.fullmatch(ignore_pattern, file):
-                    get_next = True
-        if self.joined:
-            return os.path.join(result[0], result[1])
-        return result[0], result[1]
+def _check_input_pos(idx, checker, msg):
+    def decorator(func):
+        def new_func(*args, **kwargs):
+            if not checker(args[idx]):
+                raise UberdotError(msg % idx)
+            return func(*args, **kwargs)
+        return new_func
+    return decorator
 
 
-def walk(path):
-    return iter(Walker(path))
+def _check_input_key(key, checker, msg):
+    def decorator(func):
+        def new_func(*args, **kwargs):
+            if not checker(kwargs[key]):
+                raise UberdotError(msg % key)
+            return func(*args, **kwargs)
+        return new_func
+    return decorator
 
 
-def safe_walk(path, ignorelist=[], joined=False):
-    return iter(SafeWalker(path, ignorelist, joined))
+# Utils for going through the filesystem
+###############################################################################
+
+def walk(path, **kwargs):
+    for root, _, files in os.walk(path, **kwargs):
+        for filename in files:
+            yield os.path.join(root, filename)
 
 
-def get_snapshots(state_dir):
-    snapshots = []
-    for file in listfiles(state_dir):
-        if re.fullmatch(r".*/state_\d{10}\.json", file):
-            snapshots.append(file)
-    return sorted(snapshots)
+def match_walk(path, matchlist=[], **kwargs):
+    for filepath in walk(path, **kwargs):
+        for pattern in matchlist:
+            if re.match(pattern, filepath):
+                yield filepath
+                break
+
+
+def ignore_walk(path, ignorelist=[], **kwargs):
+    for filepath in walk(path, **kwargs):
+        for pattern in ignorelist:
+            if re.match(pattern, filepath):
+                break
+        else:
+            yield filepath
+
+
+def safe_walk(path, add_ignores, **kwargs):
+    return ignore_walk(
+        path,
+        [
+            r"^/home/\w+/\.uberdot/",
+            r"^/root/\.uberdot/"
+        ] + add_ignores,
+        **kwargs
+    )
+
+
+def priority_walk(path, priority_list, **kwargs):
+    for priority, path in enumerate(priority_list):
+        for root, _, files in os.walk(path, **kwargs):
+            already_seen = False
+            if priority-1 >= 0:
+                for prev_path in priority_list[:priority-1]:
+                    if root.startswith(prev_path):
+                        already_seen = True
+                        break
+            if not already_seen:
+                for filename in files:
+                    yield os.path.join(root, filename)
+
+
+def walk_dotfiles(**kwargs):
+    """Walks through the :const:`~constants.TARGET_FILES` and returns all files
+    found.
+
+    This also takes the .dotignore-file into account.
+
+    Returns:
+        (list): Contains tuples with the directory and the filename of every
+        found file
+    """
+    # load ignore list
+    ignorelist_path = os.path.join(const.settings.target_files, ".dotignore")
+    ignorelist = []
+    if os.path.exists(ignorelist_path):
+        with open(ignorelist_path, "r") as file:
+            ignorelist = file.readlines()
+        ignorelist = [entry.strip() for entry in ignorelist if entry.strip()]
+    ignorelist.append(r"\/.+\.dotignore$")
+    # Create and return iterator
+    return ignore_walk(const.settings.target_files, ignorelist=ignorelist)
+
+
+def walk_profiles():
+    """Walks through the :const:`~constants.PROFILE_FILES` and returns all
+    python files found.
+
+    If you are interested in getting all profiles (not only the python files
+    that define them) take a look at :class:`~profiles.ProfileLoader`.
+
+    Returns:
+        (list): Contains tuples with the directory and the filename of every
+        found file
+    """
+    return ignore_walk(const.settings.profile_files, ignorelist=[r".*\.pyc$"])
+
+
+@_check_input_pos(0, os.path.isdir, "Argument %s is no directory")
+def listdirs(dirname):
+    """Lists all directories or links to directories that are in a
+    specific directory.
+    """
+    return filter(
+        os.path.isdir,
+        map(lambda x: os.path.join(dirname, x), os.listdir(dirname))
+    )
+
+
+@_check_input_pos(0, os.path.isdir, "Argument %s is no directory")
+def listfiles(dirname):
+    """Lists all files or links to files that are in a specific directory.
+    """
+    return filter(
+        os.path.isfile,
+        map(lambda x: os.path.join(dirname, x), os.listdir(dirname))
+    )
+
+
+# Utils for working with paths and filenames
+###############################################################################
+
+def is_session_dir(path):
+    if os.path.isdir(path):
+        return re.fullmatch(r".*/\.uberdot/sessions/[^/]*/?", path)
+    return False
 
 
 def build_statefile_path(timestamp=None):
@@ -145,6 +221,9 @@ def strip_hashs(filename):
     return os.path.join(directory, base)
 
 
+# Utils for finding files
+###############################################################################
+
 def find_target_with_tags(target, tags):
     """Finds the correct target version in the repository to link to.
 
@@ -163,11 +242,12 @@ def find_target_with_tags(target, tags):
     """
     targets = []
     # Collect all files that have the same filename as the target
-    for root, name in walk_dotfiles():
+    for file in walk_dotfiles():
+        name = os.path.basename(file)
         # We need to look if filename matches a tag
         for tag in tags:
             if name == tag + const.settings.tag_separator + target:
-                targets.append(os.path.join(root, name))
+                targets.append(file)
     if not targets:
         return None
     # Find the file that matches the earliest defined tag
@@ -202,9 +282,9 @@ def find_target_exact(target):
     """
     targets = []
     # Collect all files that have the same filename as the target
-    for root, name in walk_dotfiles():
-        if name == target:
-            targets.append(os.path.join(root, name))
+    for file in walk_dotfiles():
+        if os.path.basename(file) == target:
+            targets.append(file)
     # Whithout tags there shall be only one file that matches the target
     if len(targets) > 1:
         msg = "There are multiple targets that match: '" + target + "'"
@@ -217,33 +297,7 @@ def find_target_exact(target):
     return targets[0]
 
 
-def walk_dotfiles():
-    """Walks through the :const:`~constants.TARGET_FILES` and returns all files
-    found.
-
-    This also takes the .dotignore-file into account.
-
-    Returns:
-        (list): Contains tuples with the directory and the filename of every
-        found file
-    """
-    # load ignore list
-    ignorelist_path = os.path.join(const.settings.target_files, ".dotignore")
-    ignorelist = []
-    if os.path.exists(ignorelist_path):
-        with open(ignorelist_path, "r") as file:
-            ignorelist = file.readlines()
-        ignorelist = [entry.strip() for entry in ignorelist if entry.strip()]
-    ignorelist.append(r"\/.+\.dotignore$")
-
-    return safe_walk(const.settings.target_files, ignorelist)
-
-
-def walk_profiles():
-    # Ignore all files that are no python files
-    return safe_walk(const.settings.profile_files, [r".*[^p][^y]$"], joined=True)
-
-def find_files(filename, paths):
+def find_file_at(filename, paths):
     """Finds existing files matching a specific name in a list of paths.
 
     Args:
@@ -257,20 +311,14 @@ def find_files(filename, paths):
             if os.path.isfile(os.path.join(path, filename))]
 
 
-def listdirs(dirname):
-    return filter(
-        # TODO does this only return directories or also links
-        os.path.isdir,
-        map(lambda x: os.path.join(dirname, x), os.listdir(dirname))
-    )
+@_check_input_pos(0, is_session_dir, "Argument %s is not a session directory")
+def find_snapshots(session_dir):
+    snapshots = []
+    for file in listfiles(session_dir):
+        if re.fullmatch(r".*/state_\d{10}\.json", file):
+            snapshots.append(file)
+    return sorted(snapshots)
 
-
-def listfiles(dirname):
-    return filter(
-        # TODO does this only return files or also links
-        os.path.isfile,
-        map(lambda x: os.path.join(dirname, x), os.listdir(dirname))
-    )
 
 # Utils for permissions and user
 ###############################################################################
@@ -310,8 +358,6 @@ def predict_owner(filename):
 
     If the the directory does not exist, this function will goes the directory
     tree up until it finds an existing directory and returns its owner instead.
-    This is used to figure out which permission shall have if it is about to be
-    created.
 
     Args:
         filename (str): (Non existing) absolute path to file
@@ -339,11 +385,13 @@ def get_permission(filename):
 
 
 def inflate_owner(owner_string):
+    if not owner_string:
+        owner_string = ":"
     user, group = owner_string.split(":")
     user = expandvars(user)
     group = expandvars(group)
     if not user:
-        user = const.user
+        user = const.internal.user
     if not group:
         group = get_groupname(get_gid())
     return user + ":" + group
@@ -352,8 +400,8 @@ def inflate_owner(owner_string):
 def readlink(file):
     if os.path.islink(file):
         # Return original path
-        path = os.path.join(os.path.dirname(file), os.readlink(file))
-        path = normpath(path)
+        _dir = os.path.dirname(file)
+        path = abspath(os.readlink(file), origin=_dir)
         return True, path
     else:
         # file is hardlink, so return the inode number as reference for the original
@@ -442,8 +490,9 @@ def get_user_env_var(varname, fallback=None):
         raise PreconditionError("There is no environment varibable set " +
                                 "with the name: '" + varname + "'")
 
+
 def expandvars(path):
-    """Behaves like the ``os.path.expandvars()`` but uses
+    """Behaves like ``os.path.expandvars()`` but uses
     :func:`get_user_env_var()` to look up the substitution.
 
     Args:
@@ -504,17 +553,38 @@ def expandpath(path):
 
 
 def normpath(path):
-    """Normalizes path, expands ~ and environment vars,
-    and converts it in an absolute path.
+    """Expands environment vars, ~ and normalizes path
+    in that particular order.
 
     Args:
         path (str): The path that will be normalized
     Returns:
-        str: The normalized path
+        str: The normalized path or None if path was None
     """
     if path is not None:
         path = expandpath(path)
-        return os.path.abspath(path)
+        return os.path.normpath(path)
+    return None
+
+
+def abspath(path, origin=None):
+    """Joins origin with path and normalizes the resulting path.
+
+    Args:
+        path (str): The path that will be normalized
+        origin (str): The origin that the path is relative to. If origin
+            is None, the current working directory of uberdot is used.
+    Returns:
+        str: The normalized path or None if path was None
+    """
+    if origin is None:
+        origin = os.getcwd()
+    origin = normpath(origin)
+    if not os.path.isabs(origin):
+        raise ValueError("origin needs to be an absolute path")
+    if path is not None:
+        path = os.path.join(origin, path)
+        return normpath(path)
     return None
 
 
@@ -807,18 +877,21 @@ def timestamp_to_string(timestamp):
     ).strftime("%Y-%m-%d %H:%M:%S")
 
 
+# TODO spots like this need to be refactored. target should be something like
+# abs_path to make obvious that you need to pass an absolute path.
+# also check this at the start of the function
 def is_dynamic_file(target):
     """Returns if a given path is a dynamic file.
 
     Args:
-        target (str): The path to the file
+        target (str): The absolute path to the file
     Returns:
         bool: True, if given path is a dynamicfile
     """
     dyn_dir = os.path.dirname(os.path.dirname(normpath(target)))
-    if os.path.basename(dyn_dir) != "dynamicfiles":
+    if os.path.basename(dyn_dir) != "files":
         return False
-    session_dir = os.path.dirname(dyn_dir) + "/"
+    session_dir = os.path.dirname(dyn_dir)
     if session_dir == const.session_dir:
         return True
     for _, dir_foreign in const.session_dirs_foreign:
@@ -1074,7 +1147,7 @@ class Constant:
         self.func = func
         self.__mutable = mutable
         self.__modification_counter = 0
-        self._value = self.interpolate_value(value)
+        self._value = self.type_conversion(value)
 
     @property
     def mutable(self):
@@ -1082,29 +1155,30 @@ class Constant:
 
     @property
     def value(self):
-        return self._value
+        result = self._value
+        # Apply expander function if set
+        if self.func is not None:
+            result = self.func(result)
+        return result
 
     @value.setter
     def value(self, value):
         if not self.__mutable:
             raise ValueError("Constant is immutable.")
-        if self.__mutable == self.CONFIGABLE and self.__modification_counter > 0:
+        if self.__mutable == self.CONFIGABLE and self.__modification_counter:
             raise ValueError("Constant was already modified.")
-        self._value = self.interpolate_value(value)
+        self._value = self.type_conversion(value)
         self.__modification_counter += 1
 
-    def interpolate_value(self, value):
-        # Apply interpolation function on raw input
-        if self.func is not None:
-            value = self.func(value)
+    def type_conversion(self, value):
         # Modify/Parse value depending on its type
-        if self.type == "path":
-            value = normpath(value)
-        elif self.type == "int":
+        if self.type == "int":
             value = int(value)
         elif self.type == "list":
             if type(value) == "str":
                 value = next(csv.reader([value]))
+        elif self.type == "path":
+            value = normpath(value)
         return value
 
     def __repr__(self):
@@ -1178,10 +1252,14 @@ class Container:
 
 class Singleton(type):
     _instances = {}
+
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
+    def __reload_object(cls, obj):
+        cls._instances[cls] = obj
 
 
 # TODO: test new constant loading, arg loading, mutable feature and lazy loading
@@ -1480,7 +1558,7 @@ class Const(metaclass=Singleton):
     def load(self, args):
         self.parsed_args = args
         # Find all configs
-        cfgs = find_files("uberdot.ini", self.internal.cfg_search_paths)
+        cfgs = find_file_at("uberdot.ini", self.internal.cfg_search_paths)
         if args.config:
             cfgs += [os.path.join(self.internal.owd, args.config)]
         self.internal.cfg_files = cfgs
@@ -1517,9 +1595,7 @@ class Const(metaclass=Singleton):
                         # the config file which it defined
                         if (constant.type == "state" and not re.fullmatch(r"\d{1,10}", value)) \
                                 or constant.type == "path":
-                            self.config[section][name] = os.path.normpath(
-                                os.path.join(os.path.dirname(cfg), expandpath(value))
-                            )
+                            self.config[section][name] = abspath(value, origin=os.path.dirname(cfg))
         except configparser.Error as err:
             msg = "Can't parse config at '" + cfg + "'. " + err.message
             raise PreconditionError(msg)
@@ -1612,9 +1688,9 @@ def init_const():
     VERSION = "1.18.0"
     MIN_VERSION = "1.12.17_4"
     STATE_NAME = "state.json"
-    DATA_DIR_ROOT = "/root/.uberdot/"
-    DATA_DIR_TEMP = "/home/%s/.uberdot/"
-    SESSION_SUBDIR = "sessions/%s/"
+    DATA_DIR_ROOT = "/root/.uberdot"
+    DATA_DIR_TEMP = "/home/%s/.uberdot"
+    SESSION_SUBDIR = "sessions/%s"
 
     def gen_data_dir(user):
         if user == "root":
@@ -1685,4 +1761,6 @@ def init_const():
         DATA_DIR_TEMP=DATA_DIR_TEMP,
         SESSION_SUBDIR=SESSION_SUBDIR
     )
+
+
 const = init_const()
