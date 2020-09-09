@@ -7,9 +7,10 @@
                 "owner": ":",
                 "permission": 644,
                 "secure": true,
-                "date": "2019-12-12 16:45:49",
-                "from": "test/regression/environment-event/name1",
-                "to": "test/regression/files/name1"
+                "modified": "2019-12-12 16:45:49",
+                "created": "2019-12-12 16:45:49",
+                "path": "../../../environment-event/name1",
+                "target": "../../../files/name1"
             }
         ],
         "installed": "2019-12-12 16:45:49",
@@ -28,17 +29,19 @@
                 "owner": ":",
                 "permission": 644,
                 "secure": true,
-                "date": "2019-12-12 16:45:49",
-                "from": "test/regression/environment-event/name2",
-                "to": "test/regression/files/name2"
+                "modified": "2019-12-12 16:45:49",
+                "created": "2019-12-12 16:45:49",
+                "path": "../../../environment-event/name2",
+                "target": "../../../files/name2"
             },
             {
                 "owner": ":",
                 "permission": 644,
                 "secure": true,
-                "date": "2019-12-12 16:45:49",
-                "from": "test/regression/environment-event/name3",
-                "to": "test/regression/files/name3"
+                "modified": "2019-12-12 16:45:49",
+                "created": "2019-12-12 16:45:49",
+                "path": "../../../environment-event/name3",
+                "target": "../../../files/name3"
             }
         ],
         "installed": "2019-12-12 16:45:49",

@@ -5,67 +5,75 @@
         "name": "DirOption",
         "links": [
             {
-                "to": "test/regression/files/name1",
-                "from": "test/regression/environment-update/name1",
+                "target": "../../../files/name1",
+                "path": "../../../environment-update/name1",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
                 "secure": true
             },
             {
-                "to": "test/regression/files/name11.file",
-                "from": "test/regression/environment-update/name11.file",
+                "target": "../../../files/name11.file",
+                "path": "../../../environment-update/name11.file",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
                 "secure": true
             },
             {
-                "to": "test/regression/files/name2",
-                "from": "test/regression/environment-update/subdir/name2",
+                "target": "../../../files/name2",
+                "path": "../../../environment-update/subdir/name2",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
                 "secure": true
             },
             {
-                "to": "test/regression/files/name3",
-                "from": "test/regression/environment-update/subdir/subsubdir/name3",
+                "target": "../../../files/name3",
+                "path": "../../../environment-update/subdir/subsubdir/name3",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
                 "secure": true
             },
             {
-                "to": "test/regression/files/name4",
-                "from": "test/regression/environment-update/subdir/subsubdir/name4",
+                "target": "../../../files/name4",
+                "path": "../../../environment-update/subdir/subsubdir/name4",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
                 "secure": true
             },
             {
-                "to": "test/regression/files/name5",
-                "from": "test/regression/environment-update/name5",
+                "target": "../../../files/name5",
+                "path": "../../../environment-update/name5",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
                 "secure": true
             },
             {
-                "to": "test/regression/files/name6",
-                "from": "test/regression/environment-update/subdir2/name6",
+                "target": "../../../files/name6",
+                "path": "../../../environment-update/subdir2/name6",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
                 "secure": true
             },
             {
-                "to": "test/regression/files/name7",
-                "from": "test/regression/environment-update/subdir2/name7",
+                "target": "../../../files/name7",
+                "path": "../../../environment-update/subdir2/name7",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
                 "secure": true
             }
         ],
@@ -76,27 +84,30 @@
         "name": "Subprofile1",
         "links": [
             {
-                "to": "test/regression/files/tag1%name2",
-                "from": "test/regression/environment-nested/name2",
+                "target": "../../../files/tag1%name2",
+                "path": "../../../environment-nested/name2",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-08-02 15:01:42",
+                "modified": "2019-08-02 15:01:42",
+                "created": "2019-08-02 15:01:42",
                 "secure": true
             },
             {
-                "to": "test/regression/files/tag2%name3",
-                "from": "test/regression/environment-nested/name3",
+                "target": "../../../files/tag2%name3",
+                "path": "../../../environment-nested/name3",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-08-02 15:01:42",
+                "modified": "2019-08-02 15:01:42",
+                "created": "2019-08-02 15:01:42",
                 "secure": true
             },
             {
-                "to": "test/regression/files/name4",
-                "from": "test/regression/environment-nested/name4",
+                "target": "../../../files/name4",
+                "path": "../../../environment-nested/name4",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-08-02 15:01:42",
+                "modified": "2019-08-02 15:01:42",
+                "created": "2019-08-02 15:01:42",
                 "secure": true
             }
         ],
@@ -108,19 +119,21 @@
         "name": "Subprofile2",
         "links": [
             {
-                "to": "test/regression/files/tag3%name6",
-                "from": "test/regression/environment-nested/name6",
+                "target": "../../../files/tag3%name6",
+                "path": "../../../environment-nested/name6",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-08-02 15:46:46",
+                "modified": "2019-08-02 15:46:46",
+                "created": "2019-08-02 15:46:46",
                 "secure": true
             },
             {
-                "to": "test/regression/files/tag3%name5",
-                "from": "test/regression/environment-nested/name5",
+                "target": "../../../files/tag3%name5",
+                "path": "../../../environment-nested/name5",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-08-02 15:46:46",
+                "modified": "2019-08-02 15:46:46",
+                "created": "2019-08-02 15:46:46",
                 "secure": true
             }
         ],

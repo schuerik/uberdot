@@ -145,6 +145,7 @@ def dircheck(environ, dir_tree):
             msg += "  " + file + "\n"
         raise ValueError((False, msg))
 
+
 # Test classes
 ###############################################################################
 
@@ -1531,7 +1532,7 @@ DirRegressionTest("Arguments: --exclude",
                   ["--exclude", "Subprofile2", "--exclude", "Subprofile4", "update", "-m", "SuperProfile"],
                   before, after_superprofile_with_exclusion).success()
 DirRegressionTest("Arguments: --log",
-                  ["--log", "environment-default/log.txt", "update",  "-m", "DirOption"],
+                  ["--log", "update",  "-m", "DirOption"],
                   before, after_logging).success()
 DirRegressionTest("Option: name",
                   ["update", "-m", "NameOption"],

@@ -4,59 +4,65 @@
         "name": "DirOption",
         "links": [
             {
-                "to": "test/regression/files/name1",
-                "from": "test/regression/environment-modified/name1",
+                "target": "../../../files/name1",
+                "path": "../../../environment-modified/name1",
+                "owner": ":",
+                "permission": 644,
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
+                "secure": true
+            },
+            {
+                "target": "../../../files/name2",
+                "path": "../../../environment-modified/subdir/name2",
+                "owner": ":",
+                "permission": 644,
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
+                "secure": true
+            },
+            {
+                "target": "../../../files/name3",
+                "path": "../../../environment-modified/subdir/subsubdir/name3",
+                "owner": ":",
+                "permission": 644,
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
+                "secure": true
+            },
+            {
+                "target": "../../../files/name4",
+                "path": "../../../environment-modified/subdir/subsubdir/name4",
+                "owner": ":",
+                "permission": 644,
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
+                "secure": true
+            },
+            {
+                "target": "../../../files/name5",
+                "path": "../../../environment-modified/name5",
+                "owner": ":",
+                "permission": 644,
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
+                "secure": true
+            },
+            {
+                "target": "../../../files/name6",
+                "path": "../../../environment-modified/subdir2/name6",
                 "owner": ":",
                 "permission": 644,
                 "date": "2019-07-29 15:30:04",
                 "secure": true
             },
             {
-                "to": "test/regression/files/name2",
-                "from": "test/regression/environment-modified/subdir/name2",
+                "target": "../../../files/name7",
+                "path": "../../../environment-modified/subdir2/name7",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
-                "secure": true
-            },
-            {
-                "to": "test/regression/files/name3",
-                "from": "test/regression/environment-modified/subdir/subsubdir/name3",
-                "owner": ":",
-                "permission": 644,
-                "date": "2019-07-29 15:30:04",
-                "secure": true
-            },
-            {
-                "to": "test/regression/files/name4",
-                "from": "test/regression/environment-modified/subdir/subsubdir/name4",
-                "owner": ":",
-                "permission": 644,
-                "date": "2019-07-29 15:30:04",
-                "secure": true
-            },
-            {
-                "to": "test/regression/files/name5",
-                "from": "test/regression/environment-modified/name5",
-                "owner": ":",
-                "permission": 644,
-                "date": "2019-07-29 15:30:04",
-                "secure": true
-            },
-            {
-                "to": "test/regression/files/name6",
-                "from": "test/regression/environment-modified/subdir2/name6",
-                "owner": ":",
-                "permission": 644,
-                "date": "2019-07-29 15:30:04",
-                "secure": true
-            },
-            {
-                "to": "test/regression/files/name7",
-                "from": "test/regression/environment-modified/subdir2/name7",
-                "owner": ":",
-                "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
                 "secure": true
             }
         ],

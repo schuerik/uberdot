@@ -4,9 +4,9 @@ from uberdot.profile import EasyProfile
 class Links(EasyProfile):
     def generate(self):
         links("name1")
-        links("\w{4}2")
-        links("\w{2}(.{2})3", replace=r"na\1")
-        links("\w{4}([45])", replace=r"filenam\1", replace_pattern=".*(.\d)")
+        links(r"\w{4}2")
+        links(r"\w{2}(.{2})3", replace=r"na\1")
+        links(r"\w{4}([45])", replace=r"filenam\1", replace_pattern=".*(.\d)")
         cd("subdir")
         links("name_(encrypt[89])", replace=r"\1", encrypted=True)
 
@@ -57,7 +57,7 @@ class NestedDynamicFile(EasyProfile):
         link(merge("merge1", [decrypt("name_encrypt8"), "name2"]))
         link(pipe(merge("merge2", ["file", "name2"]), "grep 2"))
 
-class SuperEasyProfile(EasyProfile):
+class SuperProfile(EasyProfile):
     def generate(self):
         link("name1")
         subprof("Subprofile1", "Subprofile2")
@@ -65,7 +65,7 @@ class SuperEasyProfile(EasyProfile):
         cd("subdir")
         subprof("Subprofile3", "Subprofile4")
 
-class SuperEasyProfileTags(EasyProfile):
+class SuperProfileTags(EasyProfile):
     def generate(self):
         tags("tag1", "tag2")
         link("name1")

@@ -3,34 +3,31 @@
         "name": "NoOptions",
         "links": [
             {
-                "name": "environment-default/name1001",
-                "target": "files/name1",
+                "name": "../../../environment-default/name1001",
+                "target": "../../../files/name1",
                 "uid": 1000,
                 "gid": 1001,
                 "permission": 644,
                 "secure": true,
-                "modified": "2020-03-12 13:48:41",
-                "created": "2020-03-12 13:48:41"
+                "date": "2020-03-12 13:48:41"
             },
             {
-                "name": "environment-default/name1002",
-                "target": "files/name2",
+                "name": "../../../environment-default/name1002",
+                "target": "../../../files/name2",
                 "uid": 1000,
                 "gid": 1001,
                 "permission": 644,
                 "secure": true,
-                "modified": "2020-03-12 13:48:41",
-                "created": "2020-03-12 13:48:41"
+                "date": "2020-03-12 13:48:41"
             },
             {
-                "name": "environment-default/name1003",
-                "target": "files/name3",
+                "name": "../../../environment-default/name1003",
+                "target": "../../../files/name3",
                 "uid": 1000,
                 "gid": 1001,
                 "permission": 644,
                 "secure": true,
-                "modified": "2020-03-12 13:48:41",
-                "created": "2020-03-12 13:48:41"
+                "date": "2020-03-12 13:48:41"
             }
         ],
         "installed": "2020-03-12 13:48:41",
