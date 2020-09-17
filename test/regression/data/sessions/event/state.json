@@ -1,57 +1,66 @@
 {
-    "@version": "1.18.0",
     "SuperProfileEvent": {
         "name": "SuperProfileEvent",
         "links": [
             {
-                "owner": ":",
+                "path": "/home/god/repos/uberdot/test/regression/environment-event/name1",
+                "target": "/home/god/repos/uberdot/test/regression/files/name1",
+                "target_inode": null,
                 "permission": 644,
+                "owner": "god:god",
                 "secure": true,
+                "hard": false,
+                "buildup": null,
                 "modified": "2019-12-12 16:45:49",
-                "created": "2019-12-12 16:45:49",
-                "path": "../../../environment-event/name1",
-                "target": "../../../files/name1"
+                "created": "2019-12-12 16:45:49"
             }
         ],
         "installed": "2019-12-12 16:45:49",
         "updated": "2019-12-12 16:45:49",
         "beforeInstall": "",
-        "afterInstall": "",
         "beforeUpdate": "",
-        "afterUpdate": "",
         "beforeUninstall": "",
+        "afterInstall": "",
+        "afterUpdate": "",
         "afterUninstall": ""
     },
     "SubprofileEvent": {
         "name": "SubprofileEvent",
         "links": [
             {
-                "owner": ":",
+                "path": "/home/god/repos/uberdot/test/regression/environment-event/name2",
+                "target": "/home/god/repos/uberdot/test/regression/files/name2",
+                "target_inode": null,
                 "permission": 644,
+                "owner": "god:god",
                 "secure": true,
+                "hard": false,
+                "buildup": null,
                 "modified": "2019-12-12 16:45:49",
-                "created": "2019-12-12 16:45:49",
-                "path": "../../../environment-event/name2",
-                "target": "../../../files/name2"
+                "created": "2019-12-12 16:45:49"
             },
             {
-                "owner": ":",
+                "path": "/home/god/repos/uberdot/test/regression/environment-event/name3",
+                "target": "/home/god/repos/uberdot/test/regression/files/name3",
+                "target_inode": null,
                 "permission": 644,
+                "owner": "god:god",
                 "secure": true,
+                "hard": false,
+                "buildup": null,
                 "modified": "2019-12-12 16:45:49",
-                "created": "2019-12-12 16:45:49",
-                "path": "../../../environment-event/name3",
-                "target": "../../../files/name3"
+                "created": "2019-12-12 16:45:49"
             }
         ],
         "installed": "2019-12-12 16:45:49",
         "updated": "2020-01-13 17:32:27",
-        "parent": "SuperProfileEvent",
         "beforeInstall": "",
-        "afterInstall": "",
         "beforeUpdate": "",
-        "afterUpdate": "",
         "beforeUninstall": "09ffb517508bd4d54cc3fd4beaaed215",
-        "afterUninstall": "e9815c6ae8c099695c3b4c4ecde2a1be"
-    }
+        "afterInstall": "",
+        "afterUpdate": "",
+        "afterUninstall": "e9815c6ae8c099695c3b4c4ecde2a1be",
+        "parent": "SuperProfileEvent"
+    },
+    "@version": "1.18.0"
 }
