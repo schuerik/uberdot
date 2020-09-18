@@ -1,80 +1,117 @@
 {
-    "@version": "1.12.17_4",
     "SuperProfileTags": {
         "name": "SuperProfileTags",
+        "parent": null,
         "links": [
             {
-                "target": "test/regression/files/name1",
-                "name": "test/regression/environment-nested/name1",
-                "uid": 1000,
-                "gid": 985,
+                "path": "../../../environment-nested/name1",
+                "target": "../../../files/name1",
+                "target_inode": null,
                 "permission": 644,
-                "date": "2019-08-02 15:01:42",
-                "secure": true
+                "owner": "god:users",
+                "secure": true,
+                "hard": false,
+                "buildup": null,
+                "modified": "2019-08-02 15:01:42",
+                "created": "2019-08-02 15:01:42"
             }
         ],
         "installed": "2019-08-02 15:01:42",
-        "updated": "2019-08-02 15:01:42"
+        "updated": "2019-08-02 15:01:42",
+        "beforeInstall": "",
+        "beforeUpdate": "",
+        "beforeUninstall": "",
+        "afterInstall": "",
+        "afterUpdate": "",
+        "afterUninstall": ""
     },
     "Subprofile1": {
         "name": "Subprofile1",
+        "parent": "SuperProfileTags",
         "links": [
             {
-                "target": "test/regression/files/tag1%name2",
-                "name": "test/regression/environment-nested/name2",
-                "uid": 1000,
-                "gid": 985,
+                "path": "../../../environment-nested/name2",
+                "target": "../../../files/tag1%name2",
+                "target_inode": null,
                 "permission": 644,
-                "date": "2019-08-02 15:01:42",
-                "secure": true
+                "owner": "god:users",
+                "secure": true,
+                "hard": false,
+                "buildup": null,
+                "modified": "2019-08-02 15:01:42",
+                "created": "2019-08-02 15:01:42"
             },
             {
-                "target": "test/regression/files/tag2%name3",
-                "name": "test/regression/environment-nested/name3",
-                "uid": 1000,
-                "gid": 985,
+                "path": "../../../environment-nested/name3",
+                "target": "../../../files/tag2%name3",
+                "target_inode": null,
                 "permission": 644,
-                "date": "2019-08-02 15:01:42",
-                "secure": true
+                "owner": "god:users",
+                "secure": true,
+                "hard": false,
+                "buildup": null,
+                "modified": "2019-08-02 15:01:42",
+                "created": "2019-08-02 15:01:42"
             },
             {
-                "target": "test/regression/files/name4",
-                "name": "test/regression/environment-nested/name4",
-                "uid": 1000,
-                "gid": 985,
+                "path": "../../../environment-nested/name4",
+                "target": "../../../files/name4",
+                "target_inode": null,
                 "permission": 644,
-                "date": "2019-08-02 15:01:42",
-                "secure": true
+                "owner": "god:users",
+                "secure": true,
+                "hard": false,
+                "buildup": null,
+                "modified": "2019-08-02 15:01:42",
+                "created": "2019-08-02 15:01:42"
             }
         ],
         "installed": "2019-08-02 15:01:42",
         "updated": "2019-08-02 15:46:46",
-        "parent": "SuperProfileTags"
+        "beforeInstall": "",
+        "beforeUpdate": "",
+        "beforeUninstall": "",
+        "afterInstall": "",
+        "afterUpdate": "",
+        "afterUninstall": ""
     },
     "Subprofile2": {
         "name": "Subprofile2",
+        "parent": "SuperProfileTags",
         "links": [
             {
-                "target": "test/regression/files/tag3%name6",
-                "name": "test/regression/environment-nested/name6",
-                "uid": 1000,
-                "gid": 985,
+                "path": "../../../environment-nested/name6",
+                "target": "../../../files/tag3%name6",
+                "target_inode": null,
                 "permission": 644,
-                "date": "2019-08-02 15:46:46",
-                "secure": true
+                "owner": "god:users",
+                "secure": true,
+                "hard": false,
+                "buildup": null,
+                "modified": "2019-08-02 15:46:46",
+                "created": "2019-08-02 15:46:46"
             },
             {
-                "target": "test/regression/files/tag3%name5",
-                "name": "test/regression/environment-nested/name5",
-                "uid": 1000,
-                "gid": 985,
+                "path": "../../../environment-nested/name5",
+                "target": "../../../files/tag3%name5",
+                "target_inode": null,
                 "permission": 644,
-                "date": "2019-08-02 15:46:46",
-                "secure": true
+                "owner": "god:users",
+                "secure": true,
+                "hard": false,
+                "buildup": null,
+                "modified": "2019-08-02 15:46:46",
+                "created": "2019-08-02 15:46:46"
             }
         ],
         "installed": "2019-08-02 15:46:46",
         "updated": "2019-08-02 15:46:46",
-        "parent": "SuperProfileTags"
-    }
+        "beforeInstall": "",
+        "beforeUpdate": "",
+        "beforeUninstall": "",
+        "afterInstall": "",
+        "afterUpdate": "",
+        "afterUninstall": ""
+    },
+    "@version": "1.18.0"
 }
