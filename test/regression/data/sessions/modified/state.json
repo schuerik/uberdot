@@ -1,5 +1,5 @@
 {
-    "@version": "1.17.0",
+    "@version": "1.18.0",
     "DirOption": {
         "name": "DirOption",
         "links": [
@@ -10,6 +10,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             },
             {
@@ -19,6 +20,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             },
             {
@@ -28,6 +30,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             },
             {
@@ -37,6 +40,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             },
             {
@@ -46,6 +50,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             },
             {
@@ -53,7 +58,9 @@
                 "path": "../../../environment-modified/subdir2/name6",
                 "owner": ":",
                 "permission": 644,
-                "date": "2019-07-29 15:30:04",
+                "modified": "2019-07-29 15:30:04",
+                "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             },
             {
@@ -63,6 +70,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             }
         ],
