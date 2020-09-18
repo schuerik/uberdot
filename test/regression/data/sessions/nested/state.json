@@ -4,8 +4,8 @@
         "name": "SuperProfileTags",
         "links": [
             {
-                "to": "../../../files/name1",
-                "from": "../../../environment-nested/name1",
+                "target": "../../../files/name1",
+                "path": "../../../environment-nested/name1",
                 "owner": ":",
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
@@ -20,8 +20,8 @@
         "name": "Subprofile1",
         "links": [
             {
-                "to": "../../../files/tag1%name2",
-                "from": "../../../environment-nested/name2",
+                "target": "../../../files/tag1%name2",
+                "path": "../../../environment-nested/name2",
                 "owner": ":",
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
@@ -29,8 +29,8 @@
                 "secure": true
             },
             {
-                "to": "../../../files/tag2%name3",
-                "from": "../../../environment-nested/name3",
+                "target": "../../../files/tag2%name3",
+                "path": "../../../environment-nested/name3",
                 "owner": ":",
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
@@ -38,8 +38,8 @@
                 "secure": true
             },
             {
-                "to": "../../../files/name4",
-                "from": "../../../environment-nested/name4",
+                "target": "../../../files/name4",
+                "path": "../../../environment-nested/name4",
                 "owner": ":",
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
@@ -55,8 +55,8 @@
         "name": "Subprofile2",
         "links": [
             {
-                "to": "../../../files/tag3%name6",
-                "from": "../../../environment-nested/name6",
+                "target": "../../../files/tag3%name6",
+                "path": "../../../environment-nested/name6",
                 "owner": ":",
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
@@ -64,8 +64,8 @@
                 "secure": true
             },
             {
-                "to": "../../../files/tag3%name5",
-                "from": "../../../environment-nested/name5",
+                "target": "../../../files/tag3%name5",
+                "path": "../../../environment-nested/name5",
                 "owner": ":",
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
