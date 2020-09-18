@@ -10,6 +10,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             }
         ],
@@ -26,6 +27,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             },
             {
@@ -35,6 +37,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             },
             {
@@ -44,6 +47,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             }
         ],
@@ -61,6 +65,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             },
             {
@@ -70,6 +75,7 @@
                 "permission": 644,
                 "modified": "2019-07-29 15:30:04",
                 "created": "2019-07-29 15:30:04",
+                "hard": false,
                 "secure": true
             }
         ],
