@@ -130,6 +130,10 @@ class ProfileLoader(metaclass=Singleton):
             load_entries = self.__parse_profilefile(filename)
             if load_entries is not None:
                 self._loaded_profiles.update(load_entries)
+        log_debug("Found: " + ", ".join(self.available_profiles()))
+
+    def available_profiles(self):
+        return list(sorted(self._loaded_profiles.keys()))
 
     def __parse_profilefile(self, filename):
         # First go through all file path mappings
@@ -168,10 +172,17 @@ class ProfileLoader(metaclass=Singleton):
         return load_entries
 
     def get_class(self, name):
-        return self._loaded_profiles[name].class_obj
+        try:
+            return self._loaded_profiles[name].class_obj
+        except KeyError:
+            raise PreconditionError("Can't get class for profile '" + name + "'.")
 
     def new_object(self, name, data={}, params={}):
-        load_entry = self._loaded_profiles[name]
+        try:
+            load_entry = self._loaded_profiles[name]
+        except KeyError:
+            msg = "Can't create object for profile '" + name + "'. No such profile."
+            raise PreconditionError(msg)
         params = {**load_entry.params, **params}
         return load_entry.class_obj.new(name, data, params)
 
@@ -181,10 +192,7 @@ class ProfileSkeleton:
     def __init__(self, name, data):
         self.name = name
         self.data = data
-        self.parent = self.data.get("parent", None)
-        self.result = GenProfileData(
-            { "name": self.name, "parent": self.parent }
-        )
+        self.result = GenProfileData(name=self.name)
 
     @classmethod
     def new(cls, name, data, params):
@@ -211,9 +219,12 @@ class ProfileSkeleton:
 class BaseProfile(ProfileSkeleton):
     def __init__(self, name, data):
         super().__init__(name, data)
+        self.parent = self.data.get("parent", None)
         if self.check_cycle():
             self._gen_err("Detected a cycle in your subprofiles!")
+        self.result["parent"] = None if self.parent is None else self.parent.name
         self.executed = False
+        self.child_data = None
 
     def start_generation(self):
         """This is the wrapper for :func:`generate()`. It provides
@@ -272,20 +283,25 @@ class BaseProfile(ProfileSkeleton):
             return same_name or self.check_cycle(profile.parent)
         return False
 
-    def save_data(self):
-        pass
+    def save_child_data(self):
+        self.child_data = {
+            "parent": self
+        }
 
-    def generate_subprofile(self, profilename):
-        self.save_data()
+    def generate_subprofile(self, profilename, extend_data=None):
         if profilename == self.name:
             self._gen_err("Recursive profiles are forbidden!")
         elif profilename in const.args.exclude:
             log_debug("'" + profilename + "' is in exclude list." +
                       " Skipping generation of profile...")
         else:
+            # Create data for subprofile
+            self.save_child_data()
+            if extend_data is not None:
+                data = extend_data(self.child_data)
             # Create instance of profilename with merged options
             # and current directory
-            profile = ProfileLoader().new_object(profilename, self.data)
+            profile = ProfileLoader().new_object(profilename, data)
             # Generate profile and add it to this profile's
             # generation result
             self.result["profiles"].append(profile.start_generation())
@@ -342,14 +358,6 @@ class EventProfile(BaseProfile):
     """This field can be set by the user. This has to be a string and will be
     prepended to the event scripts of this profile or any of its subprofiles.
     """
-    def __init__(self, name, data):
-        super().__init__(name, data)
-        if "options" in self.data:
-            self.options.update(dict(self.data["options"]))
-
-    def save_data(self):
-        self.data["options"] = deepcopy(self.options)
-
     def getscriptattr(self, event_name):
         # Get event property
         attribute = getattr(self, event_name, None)
@@ -373,7 +381,7 @@ class EventProfile(BaseProfile):
             self._gen_err(event_name + "() needs to return a string")
         self._gen_err(event_name + " needs to be a string or function")
 
-    def generate_script(self, event_name):
+    def generate_script(self, event_name, script):
         def get_prepare_scripts(profile=self, profilename=self.name):
             result = ""
             # First check if prepare_script is available and is a string
@@ -390,9 +398,16 @@ class EventProfile(BaseProfile):
             return result
         # Change dir automatically if enabled and the main script doesn't
         # start with a cd command
-        if const.settings.smart_cd:
-            if not script.strip().startswith("cd "):
-                script = "\ncd " + self.directory + "\n" + script
+        if const.settings.smart_cd and not script.strip().startswith("cd "):
+            dir_ = self.cwd if hasattr(self, "cwd") else ""
+            if hasattr(self, "options") and not dir_:
+                dir_ = self.options["directory"]
+            if not dir_:
+                msg = "'smart_cd' is activated, but this profile doesn't have"
+                msg += " any 'directory'-property to switch to."
+                log_warning(msg)
+            else:
+                script = "\ncd " + self.options["directory"] + "\n" + script
         # Prepend prepare_scripts
         script = get_prepare_scripts() + "\n" + script
         # Prettify script a little bit
@@ -408,10 +423,11 @@ class EventProfile(BaseProfile):
                 end = i
             pretty_script += line + "\n"
             i += 1
+        # TODO use beautysh here for even prettier scripts
         # Remove empty lines at beginning and end of script
         pretty_script = "\n".join(pretty_script.splitlines()[start:end+1])
         # Build path where the script will be stored
-        script_dir = os.path.join(const.session_dir, "scripts")
+        script_dir = os.path.join(const.internal.session_dir, "scripts")
         makedirs(script_dir)
         script_name = self.name + "_" + event_name
         script_path = script_dir + "/" + script_name
@@ -456,11 +472,11 @@ class Profile(EventProfile):
         super().__init__(name, data)
         self.options = deepcopy(dict(const.defaults.items()))
         if "options" in self.data:
-            self.options.update(dict(self.data["options"]))
+            self.options.update(deepcopy(self.data["options"]))
 
-    def save_data(self):
-        self.data["options"] = deepcopy(self.options)
-        super().save_data()
+    def save_child_data(self):
+        super().save_child_data()
+        self.child_data["options"] = deepcopy(self.options)
 
     def _make_read_opt(self, kwargs):
         """Creates a function that looks up options but prefers options of
@@ -483,9 +499,17 @@ class Profile(EventProfile):
     def autofind(func):
         def decorated(self, target, *args, **kwargs):
             if isinstance(target, str):
-                return func(self, self.find(target), *args, **kwargs)
+                target = self.find(target)
+                if target is None:
+                    read_opt = self._make_read_opt(kwargs)
+                    if not read_opt("optional"):
+                        self._gen_err("Couldn't find target '" + target + "'.")
+                    else:
+                        return None
+                else:
+                    return func(self, target, *args, **kwargs)
             elif isinstance(target, AbstractFile):
-                return target
+                return func(self, target, *args, **kwargs)
             else:
                 self._gen_err("Unexpexted type of target")
         return decorated
@@ -496,13 +520,13 @@ class Profile(EventProfile):
             read_opt = self._make_read_opt(kwargs)
             if isinstance(target, str):
                 copied = StaticFile.new(
-                    self.build_link_name(target, **kwargs),
+                    os.path.basename(target),
                     source=target,
                     origin=read_opt("directory")
                 )
                 return func(self, copied, *args, **kwargs)
             elif isinstance(target, AbstractFile):
-                return target
+                return func(self, target, *args, **kwargs)
             else:
                 self._gen_err("Unexpexted type of target")
         return decorated
@@ -526,8 +550,6 @@ class Profile(EventProfile):
             found_target = find_target_with_tags(target, self.options["tags"])
             if not found_target:
                 found_target = find_target_exact(target)
-            if not self.options["optional"] and not found_target:
-                self._gen_err("Couldn't find target '" + target + "'.")
             return found_target
         except ValueError as err:
             self._gen_err(err)
@@ -551,12 +573,12 @@ class Profile(EventProfile):
         if replace:  # When using regex pattern, name property is ignored
             name = self.replace_target_name(target, **kwargs)
         elif name:
-            name = expandpath(name)
+            name = normpath(name)
         else:
             # "name" wasn't set by the user,
             # so fallback to use the target name (but without the tag or hash)
             name = os.path.basename(strip_hashs(strip_tags(target)))
-        # Add prefix an suffix to name
+        # Add prefix and suffix to name
         base, ext = os.path.splitext(os.path.basename(name))
         if read_opt("extension"):
             ext = "." + read_opt("extension")
@@ -573,8 +595,8 @@ class Profile(EventProfile):
 
     def build_link(self, abstractfile, **kwargs):
         target = abstractfile.getpath()
-        name = self.build_link_path(target, **kwargs)
-        self.add_link(name, target, abstractfile.get_buildup_data(), **kwargs)
+        path = self.build_link_path(target, **kwargs)
+        self.add_link(path, target, abstractfile.get_buildup_data(), **kwargs)
 
     def add_link(self, path, target, buildup=None, **kwargs):
         read_opt = self._make_read_opt(kwargs)
@@ -584,7 +606,7 @@ class Profile(EventProfile):
         linkdata["target_inode"] = os.stat(target).st_ino
         linkdata["owner"] = read_opt("owner")
         linkdata["permission"] = read_opt("permission")
-        linkdata["secure"] = read_opt("permission")
+        linkdata["secure"] = read_opt("secure")
         linkdata["hard"] = read_opt("hard")
         linkdata["buildup"] = buildup
         self.result["links"].append(linkdata)
@@ -663,10 +685,16 @@ class EasyProfile(CommandProfile):
         if not self.cwd:
             self.cwd = self.options["directory"]
 
-    def save_data(self):
-        self.data["cwd"] = self.cwd
-        super().save_data()
+    def save_child_data(self):
+        super().save_child_data()
+        self.child_data["cwd"] = self.cwd
 
+    def build_link_path(self, target, **kwargs):
+        read_opt = self._make_read_opt(kwargs)
+        return abspath(
+            self.build_link_name(target, **kwargs),
+            origin=abspath(read_opt("directory"), origin=self.cwd)
+        )
     # TODO find a proper location for choose-functions, etc
 
     def command_find(self, target):
@@ -704,9 +732,9 @@ class EasyProfile(CommandProfile):
             :class:`~dynamicfile.EncryptedFile`: The dynamic file that holds
             the decrypted target
         """
-        return EncryptedFile(target)
+        return EncryptedFile.new(target.name, source=target, origin=self.cwd)
 
-    def command_merge(self, name, targets):
+    def command_merge(self, name, targets, **kwargs):
         """Creates a :class:`~dynamicfile.SplittedFile` instance from a list of
         targets, updates and returns it.
 
@@ -728,19 +756,21 @@ class EasyProfile(CommandProfile):
         sources = []
         for target in targets:
             if isinstance(target, str):
-                found_target = self.find(target, not self.options["optional"])
+                found_target = self.find(target)
                 if found_target:
                     copied = StaticFile.new(
-                        self.build_link_name(target),
+                        os.path.basename(target),
                         source=found_target,
-                        origin=read_opt("directory")
+                        origin=self.cwd
                     )
                     sources.append(copied)
+                elif not read_opt("optional"):
+                    self._gen_err("Couldn't find target '" + target + "'.")
             elif isinstance(target, AbstractFile):
                 sources.append(target)
             else:
                 self._gen_err("Unexpexted type of target")
-        return SplittedFile.new(name, source=sources, origin=read_opt("directory"))
+        return SplittedFile.new(name, source=sources, origin=self.cwd)
 
     @Profile.autofind
     @Profile.autocopy
@@ -758,11 +788,10 @@ class EasyProfile(CommandProfile):
           :class:`~dynamicfile.FilteredFile`: The dynamic file that holds the
           output of the shell command
         """
-        read_opt = self._make_read_opt(kwargs)
         params = {
             "source": target,
             "shell_command": shell_command,
-            "origin": read_opt("directory")
+            "origin": self.cwd
         }
         return FilteredFile.new(target.name, **params)
 
@@ -796,7 +825,7 @@ class EasyProfile(CommandProfile):
         read_opt = self._make_read_opt(kwargs)
         path = os.path.join(self.cwd, expandpath(path))
         if os.path.exists(path):
-            self.add_link(self.build_link_path(path), path, **kwargs)
+            self.add_link(self.build_link_path(path, **kwargs), path, **kwargs)
         elif not read_opt("optional"):
             self._gen_err("Target path '" + path +
                           "' does not exist on your filesystem!")
@@ -822,7 +851,7 @@ class EasyProfile(CommandProfile):
                 path = basename
             match = matcher(target_pattern, path)
             if match is not None:
-                if name not in target_dir:
+                if basename not in target_dir:
                     target_dir[basename] = []
                 target_dir[basename].append((tags, fullpath))
         # Then choose which files will be returned
@@ -836,7 +865,7 @@ class EasyProfile(CommandProfile):
             for item in files:
                 for tmp_tag in item[0]:
                     if tmp_tag == tag:
-                        return item[1]
+                        return [item[1]]
         # Look for files without tags
         no_tag = None
         for item in files:
@@ -849,12 +878,13 @@ class EasyProfile(CommandProfile):
                     msg += "\n  " + item[1]
                     self._gen_err(msg)
         if no_tag is not None:
-            return no_tag[1]
+            return [no_tag[1]]
+        return []
 
     def choose_all(self, basename, files):
         return [item[1] for item in files]
 
-    def command_links(self, target_pattern, match_path=False, **kwargs):
+    def command_links(self, target_pattern, match_path=False, encrypted=False, **kwargs):
         """Calls :func:`link()` for all targets matching a pattern.
 
         Furthermore it allows to ommit the ``replace_pattern`` in favor of the
@@ -889,7 +919,13 @@ class EasyProfile(CommandProfile):
             self._gen_err("No files found that would match the"
                           + " pattern: '" + target_pattern + "'")
         else:
-            self.link(*target_list, **kwargs)
+            create_link = Profile.autocopy(self.build_link)
+            for target in target_list:
+                name = os.path.basename(target)
+                file = StaticFile.new(name, source=target, origin=self.cwd)
+                if encrypted:
+                    file = EncryptedFile.new(name, source=file, origin=self.cwd)
+                self.build_link(file, **kwargs)
 
     def command_cd(self, directory=None):
         """Sets :attr:`self.directory<Profile.directory>`. Unix-like cd.
@@ -908,6 +944,7 @@ class EasyProfile(CommandProfile):
         else:
             self.owd = self.cwd
             self.cwd = os.path.join(self.cwd, expandpath(directory))
+        self.command_opt(directory=self.cwd)
 
     def command_default(self, *options):
         """Resets :attr:`self.options<Profile.options>` back to
@@ -930,7 +967,7 @@ class EasyProfile(CommandProfile):
             tags (list): A list of tags that will be removed
         """
         for tag in tags:
-            if self.has_tag(tag):
+            if self.command_has_tag(tag):
                 self.options["tags"].remove(tag)
 
     def command_tags(self, *tags):
@@ -981,8 +1018,12 @@ class EasyProfile(CommandProfile):
             :class:`~errors.GenerationError`: Profile were executed in a
                 cycly or recursively
         """
+        def bake_options(data):
+            data["options"] = {**data["options"], **kwargs}
+            return data
+
         for subprofile in profilenames:
-            self.generate_subprofile(subprofile, {**self.options, **kwargs})
+            self.generate_subprofile(subprofile, extend_data=bake_options)
 
 
 # Profile that loads the result from a static dictionary using EasyProfile

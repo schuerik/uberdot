@@ -41,7 +41,7 @@ import sys
 from abc import abstractmethod
 from subprocess import PIPE
 from subprocess import Popen
-from uberdot.state import GenBuildupData, GenCopyData
+from uberdot.state import GenBuildupData, GenCopyData, GenSplittedFileBuildupData
 from uberdot import utils
 
 const = utils.Const()
@@ -190,7 +190,7 @@ class AbstractFile:
         self.md5sum = utils.md5(self._content)
         # Check if this version of the file (with same checksum) already exists
         if not os.path.isfile(self.getpath()):
-            log_debug("Writing " + type(self).__name__ + " to " + self.getpath() + "'.")
+            log_debug("Writing " + type(self).__name__ + " to '" + self.getpath() + "'.")
             file = open(self.getpath(), "wb")
             file.write(self._content)
             file.flush()
@@ -436,28 +436,33 @@ class EncryptedFile(DynamicFile):
     def _generate_source_content(self):
         return self._invoke_gnupg(self.content, ["-e", "--symmetric"])
 
-    def _invoke_gnupg(self, input_content, custom_args=["-d"]):
-        tmp = os.path.join(self.getdir(), self.name, ".tmp")
-        # Set arguments for OpenPGP
+    def _create_gnupg_command(self, tmp_output, custom_args, censore_pwd=True):
         args = ["gpg", "-q", "--yes"] + custom_args
-        strargs = " ".join(args)
         if const.settings.decrypt_pwd:
-            args += ["--batch", "--passphrase", const.settings.decrypt_pwd]
-            strargs += " " + " ".join(args[-3:-1]) + " "
-            strargs += "*" * len(const.settings.decrypt_pwd)
+            args += ["--batch", "--passphrase", ]
+            if censore_pwd:
+                pwd = const.settings.decrypt_pwd
+            else:
+                pwd = const.settings.get("decrypt_pwd")._value
+            args += [pwd]
         else:
             log("Tipp: You can set a password in uberdots " +
                 "config that will be used for all encrypted files.")
-        args += ["-o", tmp]
-        strargs += " " + " ".join(args[-2:])
+        return args + ["-o", tmp_output]
+
+    def _invoke_gnupg(self, input_content, custom_args=["-d"]):
+        tmp_out = os.path.join(self.getdir(), self.name + ".tmp")
+        # Set arguments for OpenPGP
+        args = self._create_gnupg_command(tmp_out, custom_args, censore_pwd=False)
+        strargs = " ".join(self._create_gnupg_command(tmp_out, custom_args))
         log_debug("Invoking OpenPGP with '" + strargs + "'")
         # Use OpenPGP to decrypt the file
         process = Popen(args, stdin=PIPE)
         process.communicate(input=input_content)
         # Remove the decrypted file. It will be written by the update function
         # of the super class to its correct location.
-        result = open(tmp, "rb").read()
-        os.remove(tmp)
+        result = open(tmp_out, "rb").read()
+        os.remove(tmp_out)
         return result
 
 
@@ -480,11 +485,6 @@ class FilteredFile(DynamicFile):
         super().__init__(name, **kwargs)
         self.shell_command = shell_command
 
-    def get_buildup_data(self):
-        buildup = super().get_buildup_data()
-        buildup.extend({"command": self.shell_command})
-        return buildup
-
     def _generate_content(self):
         """Pipes the content of the first file in
         :attr:`self.sources<dyanmicfile.sources>` into the specified
@@ -493,7 +493,8 @@ class FilteredFile(DynamicFile):
         Returns:
             bytearray: The output of the shell command
         """
-        command = "cat " + self.sources[0] + " | " + self.shell_command + ""
+        command = "cat " + self.source.getpath() + " | " + self.shell_command + ""
+        log_debug("Piping file through shell command with '" + command + "'")
         process = Popen(command, stdout=PIPE, shell=True)
         result, _ = process.communicate()
         return result
@@ -511,8 +512,8 @@ class SplittedFile(MultipleSourceDynamicFile):
     SUBDIR = "merged"
     """Subdirectory used by SplittedFile"""
 
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, **kwargs):
+        super().__init__(name, **kwargs)
         self.file_lengths = []
 
     def _generate_content(self):
@@ -559,6 +560,6 @@ class SplittedFile(MultipleSourceDynamicFile):
         return result
 
     def get_buildup_data(self):
-        buildup = super().get_buildup_data()
-        buildup.extend({"file_lengths": self.file_lengths})
-        return buildup
+        buildup = super().get_buildup_data().data
+        buildup["file_lengths"] = self.file_lengths
+        return GenSplittedFileBuildupData(buildup)

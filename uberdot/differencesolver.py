@@ -30,18 +30,21 @@ the standart DiffSolver) and their resulting data structure DiffLog.
 ###############################################################################
 
 
-import copy
 import os
 from abc import abstractmethod
+from copy import deepcopy
 from uberdot.state import StateProfileData
 from uberdot.state import GlobalState
+from uberdot.state import LinkData
 from uberdot.interpreters import Interpreter
 from uberdot.utils import *
 
 const = Const()
 globalstate = GlobalState()
 
-class DiffLog():
+
+# TODO Difflog behaves like a singleton
+class DiffLog:
     """This class stores the operations that were determined by a
     Difference-Solver. Furthermore it provides helpers to create such
     operations and a function that allows multiple interpreters to interprete
@@ -67,10 +70,16 @@ class DiffLog():
     """
     def __init__(self, data=[]):
         """Constructor"""
-        self.data = data
+        self.data = deepcopy(data)
 
     def __len__(self):
         return len(self.data)
+
+    def __repr__(self):
+        return "Difflog(\n  " + ",\n  ".join(map(repr, self.data)) + "\n)"
+
+    def copy(self):
+        return Difflog(data=self.data)
 
     def show_info(self, profilename, message):
         """Create an info operation.
@@ -180,7 +189,7 @@ class DiffLog():
             symlink_name (str): The absolute path to the symbolic link
             profilename (str): The profile that the link is removed from
         """
-        if similar_link_exists(symlink):
+        if symlink.similar_exists():
             self.__append_data("remove_l", profilename, symlink=symlink)
         else:
             self.untrack_link(profilename, symlink)
@@ -205,13 +214,13 @@ class DiffLog():
         if not os.path.lexists(installed_symlink["path"]):
             self.untrack_link(profilename, installed_symlink)
             # 1a. The new link already exists
-            if link_exists(new_symlink):
+            if new_symlink.exists():
                 self.track_link(profilename, new_symlink)
             # 1b. The new link needs to be created
             else:
                 self.add_link(profilename, new_symlink)
         # 2. A similar installed link still exists but the new link also already exists
-        elif link_exists(new_symlink):
+        elif new_symlink.exists():
             # 2a. The similar installed link is another file as the new link
             if installed_symlink["path"] != new_symlink["path"]:
                 self.remove_link(profilename, installed_symlink)
@@ -221,7 +230,6 @@ class DiffLog():
             self.track_link(profilename, new_symlink)
         # 3. A similar installed link exists and new link does not exist
         else:
-            new_symlink["date"] = get_date_time_now()
             self.__append_data("update_l", profilename,
                                symlink1=installed_symlink,
                                symlink2=new_symlink)
@@ -289,7 +297,7 @@ class DiffLog():
             interpreter.call_operation({"operation": "fin"})
 
 
-class DiffSolver():
+class DiffSolver:
     """This is the abstract base class for difference solvers. Difference
     solver take two "different states" of the filesystem (e.g. one state
     could be an state file and another one a result of executed profiles)
@@ -317,7 +325,7 @@ class DiffSolver():
         if difflog is None:
             self.difflog = DiffLog()
         else:
-            self.difflog = difflog
+            self.difflog = deepcopy(difflog)
         self._generate_operations()
         return self.difflog
 
@@ -334,9 +342,10 @@ class StateFilesystemDiffSolver(DiffSolver):
         super().__init__()
         self.action = action
 
-    def solve(self):
+    def solve(self, difflog=None):
         log_debug("Determining diff operations to fix state.")
-        return super().solve()
+        dfl = super().solve(difflog=difflog)
+        return dfl
 
     def _generate_operations(self):
         # Go through profiles and generate operations for each of them
@@ -346,6 +355,27 @@ class StateFilesystemDiffSolver(DiffSolver):
             self.__generate_profile_fix(profile)
 
     def __generate_profile_fix(self, profile):
+        def check_same_target(target_path, target_inode, cmp_link):
+            if cmp_link["hard"]:
+                return target_inode == cmp_link["target_inode"]
+            else:
+                return target_path == cmp_link["target"]
+
+        def check_link(path, cmp_link):
+            hard, target, inode = readlink(path)
+            same_link_type = hard == cmp_link["hard"]
+            same_target = check_same_target(target, inode, cmp_link)
+            return same_link_type, same_target
+
+        def changed_type_msg(file, link):
+            msg = "Hard" if link["hard"] else "Symbolic"
+            msg += " link '" + link["path"] + "' was"
+            msg += " replaced by "
+            msg += "symbolic" if link["hard"] else "hard"
+            msg += " link '" + file + "'."
+            return msg
+
+        # TODO: cant we get the linkdescriptor before and use it for comparing against installed links?
         for link in profile["links"]:
             if link.exists():
                 # If the link exists like this, there is no difference
@@ -353,50 +383,75 @@ class StateFilesystemDiffSolver(DiffSolver):
             # So lets figure out what's different about the installed link
             profilename = profile["name"]
             # Check if link still exists
-            if not os.path.exists(link["from"]):
+            if not os.path.exists(link["path"]):
                 # Check if another symlink exists that has same target
-                dirname = os.path.dirname(link["from"])
-                renamed = False
+                dirname = os.path.dirname(link["path"])
+                replaced = False
                 if os.path.exists(dirname):
                     for file in listfiles(dirname):
-                        if readlink(file) == link["to"]:
-                            msg = "Link '" + link["from"] + "' was renamed"
-                            msg += " to '" + file + "'."
+                        same_type, same_target = check_link(file, link)
+                        if same_target:
+                            if same_type:
+                                msg = "Link '" + link["path"] + "' was renamed"
+                                msg += " to '" + file + "'."
+                            else:
+                                msg = changed_type_msg(file, link)
                             self.fix_link(
                                 msg, profilename, link,
-                                get_linkdescriptor_from_file(file)
+                                LinkData.from_file(file)
                             )
-                            renamed = True
+                            replaced = True
                             break
-                if not renamed:
+                if not replaced:
                     # No other symlink exists, file must have been removed
                     self.fix_link(
-                        "Link '" + link["from"] + "' was removed.",
+                        "Link '" + link["path"] + "' was removed.",
                         profilename, link, {}
                     )
+                continue
             # Check if link still points to same target
-            elif readlink(link["from"]) != link["to"]:
-                msg = "Link '" + link["from"] + "' now points to '"
-                msg += readlink(link["from"]) + "'."
+            hard, path, inode = readlink(link["path"])
+            if not check_same_target(path, inode, link):
+                if link["hard"] != hard:
+                    msg = changed_type_msg(path, link) + " It "
+                else:
+                    msg = "Link '" + link["path"] + "' "
+                msg += "now points to '" + path + "'."
                 self.fix_link(
                     msg, profilename, link,
-                    get_linkdescriptor_from_file(link["from"])
+                    LinkData.from_file(link["path"])
                 )
+                continue
+            if link["hard"] != hard:
+                msg = changed_type_msg(path, link)
+                self.fix_link(
+                    msg, profilename, link,
+                    LinkData.from_file(link["path"])
+                )
+                continue
             # Another property changed
-            else:
-                actual_link = get_linkdescriptor_from_file(link["from"])
-                msg = "Properties of link '" + link["from"]
-                msg += "' changed:" + "\n"
-                if actual_link["owner"] != link["owner"]:
-                    msg += "  owner: " + link["owner"] + " -> "
-                    msg += actual_link["owner"] + "\n"
-                if actual_link["permission"] != link["permission"]:
-                    msg += "  permission: " + str(link["permission"]) + " -> "
-                    msg += str(actual_link["permission"]) + "\n"
-                if actual_link["secure"] != link["secure"]:
-                    msg += "  secure: " + str(link["secure"]) + " -> "
-                    msg += str(actual_link["secure"]) + "\n"
+            msg = ""
+            actual_link = LinkData.from_file(link["path"])
+            if actual_link["owner"] != link["owner"]:
+                msg += "  owner: " + link["owner"] + " -> "
+                msg += actual_link["owner"] + "\n"
+            if actual_link["permission"] != link["permission"]:
+                msg += "  permission: " + str(link["permission"]) + " -> "
+                msg += str(actual_link["permission"]) + "\n"
+            if actual_link["secure"] != link["secure"]:
+                msg += "  secure: " + str(link["secure"]) + " -> "
+                msg += str(actual_link["secure"]) + "\n"
+            if msg:
+                msg = "Properties of link '" + link["path"] + "' changed:" + "\n" + msg
                 self.fix_link(msg, profilename, link, actual_link)
+                continue
+            # Link does not exist but we couldn't find changes so something went wrong
+            log_debug(str(link))
+            log_debug(str(actual_link))
+            raise FatalError(
+                "There seem to be changes to a link, but I could not find them."
+            )
+
 
     def fix_link(self, fix_description, profilename, saved_link, actual_link):
         # Setup selection for how to solve the difference
@@ -428,6 +483,10 @@ class StateFilesystemDiffFinder(StateFilesystemDiffSolver):
     def fix_link(self, fix_description, profilename, saved_link, actual_link):
         self.difflog.show_info(profilename, fix_description)
 
+    def solve(self, difflog=None):
+        log_debug("Checking for divergences between state file and filesystem.")
+        return super(StateFilesystemDiffSolver, self).solve(difflog=difflog)
+
 
 class RemoveProfileDiffSolver(DiffSolver):
     #### DANGEROUS ####
@@ -443,9 +502,9 @@ class RemoveProfileDiffSolver(DiffSolver):
         self.state = state
         self.profile_names = profile_names
 
-    def solve(self):
+    def solve(self, difflog=None):
         log_debug("Determining diff operations to remove profiles.")
-        return super().solve()
+        return super().solve(difflog=difflog)
 
     def _generate_operations(self, profilelist=None):
         """Generates operations to remove all installed profiles of
@@ -546,7 +605,7 @@ class LinkListDiffSolver(DiffSolver):
         # Check all removed
         for installed_link in installed_links[:]:
             for new_link in new_links[:]:
-                if installed_link.issimilar(new_link):
+                if installed_link.is_similar(new_link):
                     break
             else:
                 # Installed link is not similiar to any new link, so it
@@ -558,7 +617,7 @@ class LinkListDiffSolver(DiffSolver):
         # Check all changed and added links
         for new_link in new_links[:]:
             for installed_link in installed_links[:]:
-                if installed_link.issimilar(new_link):
+                if installed_link.is_similar(new_link):
                     # new_link has same name or target, so we need to create
                     # an update operation in the difflog
                     profile_changed = True
@@ -595,9 +654,9 @@ class StateDiffSolver(LinkListDiffSolver):
         self.old_state = old_state.copy()
         self.new_state = new_state.copy()
 
-    def solve(self):
+    def solve(self, difflog=None):
         log_debug("Determining diff operations to transform state.")
-        return super().solve()
+        return super().solve(difflog=difflog)
 
     def _generate_operations(self):
         if const.args.include:
@@ -706,9 +765,9 @@ class UpdateDiffSolver(LinkListDiffSolver):
         self.profiledatas = profiledatas
         self.parent = parent
 
-    def solve(self):
+    def solve(self, difflog=None):
         log_debug("Determining diff operations to update profiles.")
-        return super().solve()
+        return super().solve(difflog=difflog)
 
     def _generate_operations(self):
         """Generates operations to update all profiles.
@@ -789,8 +848,9 @@ class UpdateDiffSolver(LinkListDiffSolver):
                     old_subprofiles.pop(i)
             # We can use another DiffSolver to create all the operations needed
             # to uninstall all the old profiles and all their links
-            dfs = RemoveProfileDiffSolver(self.state, old_subprofiles)
-            dfs.solve(self.difflog)
+            if old_subprofiles:
+                dfs = RemoveProfileDiffSolver(self.state, old_subprofiles)
+                self.difflog = dfs.solve(self.difflog)
 
         # If something in the profile changed we need to update
         # its modification date and maybe its parent reference too

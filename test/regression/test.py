@@ -19,6 +19,7 @@
 
 
 import hashlib
+import argparse
 import os
 import sys
 import pty
@@ -42,6 +43,16 @@ global_fails = 0
 global_time = 0
 # Global to count all tests
 test_nr = 0
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-m", "--meta", default=False, action="store_true",
+                    help="show meta data about tests even if successful")
+parser.add_argument("-k", "--keep-files", default=False, action="store_true",
+                    help="don't reset files after test")
+parser.add_argument("tests", nargs="*", type=int,
+                    help="list of tests (referenced by number) to perform with verbose output")
+args = parser.parse_args()
 
 
 def dircheck(environ, dir_tree):
@@ -155,17 +166,18 @@ class RegressionTest():
     def __init__(self, name, cmd_args, session="default"):
         global test_nr
         self.nr = str(test_nr).rjust(2, "0")
-        if len(sys.argv) > 1 and str(test_nr) not in sys.argv[1:]:
+        if args.tests and test_nr not in args.tests:
             # if specific test was set by commandline and this is
             # not the correct test, do nothing
             self.success = self.dummy
             self.fail = self.dummy
-        verbose = ["-v"] if len(sys.argv) > 1 else []
+        verbose = ["-v"] if args.tests else []
         test_nr += 1
         self.name = name
         self.cmd_args = ["python3", "../../udot.py",
                          "--config", "regressiontest.ini",
                          "--session", session] + verbose + cmd_args
+        self.cmd_line = "UBERDOT_TEST=1 " + " ".join(self.cmd_args)
         self.session = session
         self.environ = os.path.join(DIRNAME, "environment-" + self.session)
 
@@ -196,7 +208,7 @@ class RegressionTest():
         except TimeoutExpired:
             return False, -1, "Test timed out after 5 seconds."
         exitcode = process.returncode
-        if len(sys.argv) > 1:
+        if args.tests:
             print(output.decode(), end="\n" if error_msg else "")
             print(error_msg.decode(), end="")
         return self.run_check(exitcode, output, error_msg)
@@ -265,8 +277,10 @@ class RegressionTest():
             print(runtime_str.rjust(
                 LINEWDTH-len(self.name)-len(result["phase"])-15-len(self.nr)
             ))
-            print("\033[1mCall: \033[0m" + " ".join(self.cmd_args))
+        if not result["success"] or args.meta:
+            print("\033[1mCall: \033[0m" + self.cmd_line)
             print("\033[1mEnviron: \033[0m" + self.environ)
+        if not result["success"]:
             print()
             print("\033[1mCause: \033[0m" + str(result["cause"]))
             if "msg" in result:
@@ -274,7 +288,8 @@ class RegressionTest():
                 print(result["msg"])
         global_fails += int(not result["success"])
         global_time += runtime_ms
-        self.cleanup()
+        if not args.keep_files:
+            self.cleanup()
         return result["success"]
 
     def fail(self, phase, cause):
@@ -291,21 +306,23 @@ class RegressionTest():
             if result["cause"] != cause:
                 print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
                 print(runtime_str.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
-                print("\033[1mCall: \033[0m" + " ".join(self.cmd_args))
+            else:
+                print('\033[92m' + " Ok" + '\033[0m', end="")
+                print(runtime_str.rjust(LINEWDTH-len(self.name)-7-len(self.nr)))
+            if result["cause"] != cause or args.meta:
+                print("\033[1mCall: \033[0m" + self.cmd_line)
                 print("\033[1mEnviron: \033[0m" + self.environ)
+            if result["cause"] != cause:
                 print()
                 print("\033[1mExpected error: \033[0m" + str(cause))
                 print("\033[1mActual error: \033[0m" + str(result["cause"]))
                 if "msg" in result:
                     print("\033[1mError Message:\033[0m")
                     print(result["msg"])
-            else:
-                print('\033[92m' + " Ok" + '\033[0m', end="")
-                print(runtime_str.rjust(LINEWDTH-len(self.name)-7-len(self.nr)))
         else:
             print('\033[91m\033[1m' + " FAILED" + '\033[0m', end="")
             print(runtime_str.rjust(LINEWDTH-len(self.name)-11-len(self.nr)))
-            print("\033[1mCall: \033[0m" + " ".join(self.cmd_args))
+            print("\033[1mCall: \033[0m" + self.cmd_line)
             print("\033[1mEnviron: \033[0m" + self.environ)
             print()
             print("\033[93m\033[1mExpected error in " + phase + " did not" +
@@ -314,7 +331,8 @@ class RegressionTest():
         if result["success"] or result["cause"] != cause:
             global_fails += 1
         global_time += runtime_ms
-        self.cleanup()
+        if not args.keep_files:
+            self.cleanup()
         return not result["success"]
 
 
@@ -416,7 +434,7 @@ class InputDirRegressionTest(DirRegressionTest):
         error_msg = p.stderr.read()
 
         exitcode = p.returncode
-        if len(sys.argv) > 1:
+        if len(args.tests) > 1:
             print(output.decode(), end="")
         return self.run_check(exitcode, output, error_msg)
 
@@ -431,21 +449,136 @@ before = {
     }
 }
 
+before_update = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "data/sessions/update/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
+                "permission": 644
+            },
+            {
+                "name": "name5",
+                "target": "data/sessions/update/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
+            },
+            {
+                "name": "name11.file",
+                "target": "data/sessions/update/files/static/name11.file#d41d8cd98f00b204e9800998ecf8427e",
+            }
+        ],
+    },
+    "subdir": {
+        "links": [
+            {
+                "name": "name2",
+                "target": "data/sessions/update/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
+            },
+        ],
+    },
+    "subdir/subsubdir": {
+        "links": [
+            {
+                "name": "name3",
+                "target": "data/sessions/update/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+            },
+            {
+                "name": "name4",
+                "target": "data/sessions/update/files/static/name4#48a24b70a0b376535542b996af517398",
+            },
+        ],
+    },
+    "subdir2": {
+        "links": [
+            {
+                "name": "name6",
+                "target": "data/sessions/update/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1",
+            },
+            {
+                "name": "name7",
+                "target": "data/sessions/update/files/static/name7#84bc3da1b3e33a18e8d5e1bdd7a18d7a",
+            }
+        ],
+    }
+}
+
+before_event_update = {
+    ".": {
+        "files": [
+            {"name": "untouched.file"},
+            {
+                "name": "test.file",
+                "content": "456dc30f21eb07c88257f4aabb0d946f"
+            },
+            {
+                "name": "name4",
+                "content": "26ab0db90d72e28ad0ba1e22ee510510"
+            },
+        ],
+        "links": [
+            {
+                "name": "name1",
+                "target": "data/sessions/event/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
+            },
+            {
+                "name": "name2",
+                "target": "data/sessions/event/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
+            },
+            {
+                "name": "name3",
+                "target": "data/sessions/event/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+            },
+        ],
+    }
+}
+
+before_nested = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "data/sessions/nested/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
+            },
+            {
+                "name": "name2",
+                "target": "data/sessions/nested/files/static/tag1%name2#7453d97cd70ab49510f074ae71258d50",
+            },
+            {
+                "name": "name3",
+                "target": "data/sessions/nested/files/static/tag2%name3#2f203ac40e91f94eb0e875e242a5c7f8",
+            },
+            {
+                "name": "name4",
+                "target": "data/sessions/nested/files/static/name4#48a24b70a0b376535542b996af517398",
+            },
+            {
+                "name": "name5",
+                "target": "data/sessions/nested/files/static/tag3%name5#dff127846c93b264011d239840d81e38",
+            },
+            {
+                "name": "name6",
+                "target": "data/sessions/nested/files/static/tag3%name6#7ba23c2e844866b2846b1b79331f48ec",
+            }
+        ],
+    }
+}
+
 after_nooptions = {
     ".": {
         "files": [{"name": "untouched.file"}],
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name3",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             }
         ],
     }
@@ -457,15 +590,15 @@ after_diroptions = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name5",
-                "target": "files/name5",
+                "target": "data/sessions/default/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             },
             {
                 "name": "name11.file",
-                "target": "files/name11.file",
+                "target": "data/sessions/default/files/static/name11.file#d41d8cd98f00b204e9800998ecf8427e",
             }
         ],
     },
@@ -473,35 +606,36 @@ after_diroptions = {
         "links": [
             {
                 "name": "name2",
-                "target": "files/name2",
-            }
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
+            },
         ],
     },
     "subdir/subsubdir": {
         "links": [
             {
                 "name": "name3",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
-            }
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
+            },
         ],
     },
     "subdir2": {
         "links": [
             {
                 "name": "name6",
-                "target": "files/name6",
+                "target": "data/sessions/default/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1",
             },
             {
                 "name": "name7",
-                "target": "files/name7",
+                "target": "data/sessions/default/files/static/name7#84bc3da1b3e33a18e8d5e1bdd7a18d7a",
             }
         ],
     }
 }
+
 
 after_logging = {
     ".": {
@@ -512,15 +646,15 @@ after_logging = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name5",
-                "target": "files/name5",
+                "target": "data/sessions/default/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             },
             {
                 "name": "name11.file",
-                "target": "files/name11.file",
+                "target": "data/sessions/default/files/static/name11.file#d41d8cd98f00b204e9800998ecf8427e",
             }
         ],
     },
@@ -528,7 +662,7 @@ after_logging = {
         "links": [
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             }
         ],
     },
@@ -536,11 +670,11 @@ after_logging = {
         "links": [
             {
                 "name": "name3",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             }
         ],
     },
@@ -548,11 +682,11 @@ after_logging = {
         "links": [
             {
                 "name": "name6",
-                "target": "files/name6",
+                "target": "data/sessions/default/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1",
             },
             {
                 "name": "name7",
-                "target": "files/name7",
+                "target": "data/sessions/default/files/static/name7#84bc3da1b3e33a18e8d5e1bdd7a18d7a",
             }
         ],
     }
@@ -564,19 +698,19 @@ after_nameoptions = {
         "links": [
             {
                 "name": "name",
-                "target": "files/name1",
-            }
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
+            },
         ],
     },
     "subdir": {
         "links": [
             {
                 "name": "name",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name6",
-                "target": "files/name5",
+                "target": "data/sessions/default/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             }
         ],
     },
@@ -584,9 +718,9 @@ after_nameoptions = {
         "links": [
             {
                 "name": "name",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             }
-        ],
+       ],
     }
 }
 
@@ -596,23 +730,23 @@ after_prefixsuffixoptions = {
         "links": [
             {
                 "name": ".name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2bla",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name5.png",
-                "target": "files/name5",
+                "target": "data/sessions/default/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             },
             {
                 "name": "name6",
-                "target": "files/name6",
+                "target": "data/sessions/default/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1",
             },
             {
                 "name": "name11.png",
-                "target": "files/name11.file",
+                "target": "data/sessions/default/files/static/name11.file#d41d8cd98f00b204e9800998ecf8427e",
             }
         ],
     },
@@ -620,7 +754,7 @@ after_prefixsuffixoptions = {
         "links": [
             {
                 "name": "name3",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             }
         ],
     },
@@ -628,7 +762,7 @@ after_prefixsuffixoptions = {
         "links": [
             {
                 "name": "test",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             }
         ],
     }
@@ -640,36 +774,36 @@ after_links = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
             {
                 "name": "filename4",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             },
             {
                 "name": "filename5",
-                "target": "files/name5",
-            }
-        ],
+                "target": "data/sessions/default/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
+            },
+       ],
     },
     "subdir": {
         "links": [
             {
                 "name": "encrypt8",
-                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "target": "data/sessions/default/files/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
                 "content": "d6eb32081c822ed572b70567826d9d9d"
             },
             {
                 "name": "encrypt9",
-                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                "target": "data/sessions/default/files/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
                 "content": "e59ab101cf09636fc06d10bf3d56a5cc"
             }
         ],
@@ -682,17 +816,17 @@ after_decrypt = {
         "links": [
             {
                 "name": "name_encrypt8",
-                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "target": "data/sessions/default/files/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
                 "content": "d6eb32081c822ed572b70567826d9d9d"
             },
             {
                 "name": "encrypt8",
-                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "target": "data/sessions/default/files/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
                 "content": "d6eb32081c822ed572b70567826d9d9d"
             },
             {
                 "name": "encrypt9",
-                "target": "data/sessions/default/dynamicfiles/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                "target": "data/sessions/default/files/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
                 "content": "e59ab101cf09636fc06d10bf3d56a5cc"
             }
         ],
@@ -705,12 +839,12 @@ after_merge = {
         "links": [
             {
                 "name": "merge1",
-                "target": "data/sessions/default/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "target": "data/sessions/default/files/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
                 "content": "6ddb4095eb719e2a9f0a3f95677d24e0"
             },
             {
                 "name": "merge3",
-                "target": "data/sessions/default/dynamicfiles/merged/merge2#04b6c550264c39e8b533d7f7b977415e",
+                "target": "data/sessions/default/files/merged/merge2#04b6c550264c39e8b533d7f7b977415e",
                 "content": "04b6c550264c39e8b533d7f7b977415e"
             }
         ],
@@ -723,7 +857,7 @@ after_pipe = {
         "links": [
             {
                 "name": "file",
-                "target": "data/sessions/default/dynamicfiles/piped/file#fdb6e0c029299e6aabca0963120f0fa0",
+                "target": "data/sessions/default/files/piped/file#fdb6e0c029299e6aabca0963120f0fa0",
                 "content": "fdb6e0c029299e6aabca0963120f0fa0"
             }
         ],
@@ -736,12 +870,12 @@ after_nesteddynamic = {
         "links": [
             {
                 "name": "merge1",
-                "target": "data/sessions/default/dynamicfiles/merged/merge1#526f328977744debf953a2c76c2c6169",
+                "target": "data/sessions/default/files/merged/merge1#526f328977744debf953a2c76c2c6169",
                 "content": "526f328977744debf953a2c76c2c6169"
             },
             {
                 "name": "merge2",
-                "target": "data/sessions/default/dynamicfiles/piped/merge2#0281651775d0a19e648acf333cabac2f",
+                "target": "data/sessions/default/files/piped/merge2#0281651775d0a19e648acf333cabac2f",
                 "content": "0281651775d0a19e648acf333cabac2f"
             }
         ],
@@ -754,22 +888,22 @@ before_dynamicfiles_changes = {
         "links": [
             {
                 "name": "merge1",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "target": "data/sessions/dynamic_changes/files/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
                 "content": "b355af425e5c2ca153f5ce92a924fa5c"
             },
             {
                 "name": "merge2",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "target": "data/sessions/dynamic_changes/files/merged/merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
                 "content": "efdb6a5388498d59a2c55499ba5f0ad6"
             },
             {
                 "name": "name_encrypt8",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "target": "data/sessions/dynamic_changes/files/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
                 "content": "a690b594a938eb682af221b92e6e9666"
             },
             {
                 "name": "name_encrypt9",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                "target": "data/sessions/dynamic_changes/files/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
                 "content": "90484ee28df5cf7b136a3166349bc9e4"
             },
         ],
@@ -782,23 +916,23 @@ after_dynamicfiles_changes = {
         "links": [
             {
                 "name": "merge3",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "target": "data/sessions/dynamic_changes/files/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
             },
             {
                 "name": "merge4",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/merged/merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "target": "data/sessions/dynamic_changes/files/merged/merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
             },
             {
                 "name": "name_encrypt6",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "target": "data/sessions/dynamic_changes/files/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
             },
             {
                 "name": "name_encrypt7",
-                "target": "data/sessions/dynamic_changes/dynamicfiles/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                "target": "data/sessions/dynamic_changes/files/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
             },
         ],
     },
-    "../data/sessions/dynamic_changes/dynamicfiles/decrypted": {
+    "../data/sessions/dynamic_changes/files/decrypted": {
         "files": [
             {
                 "name": "name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
@@ -818,7 +952,7 @@ after_dynamicfiles_changes = {
             },
         ]
     },
-    "../data/sessions/dynamic_changes/dynamicfiles/merged": {
+    "../data/sessions/dynamic_changes/files/merged": {
         "files": [
             {"name": "merge1#6ddb4095eb719e2a9f0a3f95677d24e0.patch"},
             {
@@ -857,16 +991,16 @@ after_event = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name3",
-                "target": "files/name3",
-            }
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+            },
         ],
     }
 }
@@ -883,20 +1017,19 @@ after_event_update = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/event/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/event/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name3",
-                "target": "files/name3",
+                "target": "data/sessions/event/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
-                "content": "48a24b70a0b376535542b996af517398"
+                "target": "data/sessions/event/files/static/name4#48a24b70a0b376535542b996af517398",
             }
         ],
     }
@@ -907,22 +1040,26 @@ after_event_no_before = {
         "files": [
             {"name": "untouched.file"},
             {
-                "name": "name4",
-                "content": "26ab0db90d72e28ad0ba1e22ee510510"
+                "name": "test.file",
+                "content": "5c4b252c59f7dca4166a19e95040b850"
             },
         ],
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/event/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/event/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name3",
-                "target": "files/name3",
+                "target": "data/sessions/event/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+            },
+            {
+                "name": "name4",
+                "target": "data/sessions/event/files/static/name4#48a24b70a0b376535542b996af517398",
             }
         ],
     }
@@ -940,21 +1077,20 @@ after_event_no_after = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/event/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/event/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name3",
-                "target": "files/name3",
+                "target": "data/sessions/event/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
-                "content": "48a24b70a0b376535542b996af517398"
-            },
+                "target": "data/sessions/event/files/static/name4#48a24b70a0b376535542b996af517398",
+            }
         ],
     }
 }
@@ -982,53 +1118,54 @@ after_superprofile = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name3",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             },
             {
                 "name": "name5",
-                "target": "files/name5",
+                "target": "data/sessions/default/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             },
             {
                 "name": "name6",
-                "target": "files/name6",
-            }
+                "target": "data/sessions/default/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1",
+            },
         ],
     },
     "subdir": {
         "links": [
+
             {
                 "name": "prefix_name2",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "prefix_name3",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
             {
                 "name": "prefix_name4",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             },
             {
                 "name": "prefix_name5",
-                "target": "files/name5",
+                "target": "data/sessions/default/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             },
             {
                 "name": "prefix_name6",
-                "target": "files/name6",
-            }
-        ],
+                "target": "data/sessions/default/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1",
+            },
+       ],
     }
 }
 
@@ -1038,19 +1175,19 @@ after_superprofile_with_exclusion = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name3",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             },
         ],
     },
@@ -1058,15 +1195,15 @@ after_superprofile_with_exclusion = {
         "links": [
             {
                 "name": "prefix_name2",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "prefix_name3",
-                "target": "files/name3",
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
             {
                 "name": "prefix_name4",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             }
         ],
     }
@@ -1078,31 +1215,31 @@ after_parent = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/nested/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/tag1%name2",
+                "target": "data/sessions/nested/files/static/tag1%name2#7453d97cd70ab49510f074ae71258d50",
             },
             {
                 "name": "name3",
-                "target": "files/tag2%name3",
+                "target": "data/sessions/nested/files/static/tag2%name3#2f203ac40e91f94eb0e875e242a5c7f8",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
+                "target": "data/sessions/nested/files/static/name4#48a24b70a0b376535542b996af517398",
             },
             {
                 "name": "name5",
-                "target": "files/name5",
+                "target": "data/sessions/nested/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             },
             {
                 "name": "name6",
-                "target": "files/name6",
+                "target": "data/sessions/nested/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1",
             },
             {
                 "name": "name11.file",
-                "target": "files/name11.file",
+                "target": "data/sessions/nested/files/static/name11.file#d41d8cd98f00b204e9800998ecf8427e",
             },
         ],
     }
@@ -1114,11 +1251,11 @@ after_subprofile2 = {
         "links": [
             {
                 "name": "name5",
-                "target": "files/tag3%name5",
+                "target": "data/sessions/nested/files/static/tag3%name5#dff127846c93b264011d239840d81e38",
             },
             {
                 "name": "name6",
-                "target": "files/tag3%name6",
+                "target": "data/sessions/nested/files/static/tag3%name6#7ba23c2e844866b2846b1b79331f48ec",
             }
         ],
     }
@@ -1130,27 +1267,27 @@ after_tags = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/tag1%name2",
+                "target": "data/sessions/default/files/static/tag1%name2#7453d97cd70ab49510f074ae71258d50",
             },
             {
                 "name": "name3",
-                "target": "files/tag2%name3",
+                "target": "data/sessions/default/files/static/tag2%name3#2f203ac40e91f94eb0e875e242a5c7f8",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             },
             {
                 "name": "name5",
-                "target": "files/tag3%name5",
+                "target": "data/sessions/default/files/static/tag3%name5#dff127846c93b264011d239840d81e38",
             },
             {
                 "name": "name6",
-                "target": "files/tag3%name6",
+                "target": "data/sessions/default/files/static/tag3%name6#7ba23c2e844866b2846b1b79331f48ec",
             }
         ],
     }
@@ -1162,19 +1299,19 @@ after_optional = {
         "links": [
             {
                 "name": "name2",
-                "target": "files/tag1%name2",
+                "target": "data/sessions/default/files/static/tag1%name2#7453d97cd70ab49510f074ae71258d50",
             },
             {
                 "name": "name3",
-                "target": "files/tag2%name3",
+                "target": "data/sessions/default/files/static/tag2%name3#2f203ac40e91f94eb0e875e242a5c7f8",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             },
             {
                 "name": "name10",
-                "target": "files/tag%name10",
+                "target": "data/sessions/default/files/static/tag%name10#f92acffc479a037fdea29190230ab8b6",
             }
         ],
     }
@@ -1186,7 +1323,7 @@ after_skiproot = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             }
         ],
     }
@@ -1198,28 +1335,29 @@ after_updatediroptions = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/update/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
+                "permission": 755
             },
             {
                 "name": "file",
-                "target": "files/name5",
+                "target": "data/sessions/update/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             },
             {
                 "name": "name11.file",
-                "target": "files/file",
+                "target": "data/sessions/update/files/static/file#a28cb6e1b2f194a4e2dcb523c055d7aa",
             }
         ],
     },
     "subdir": {
         "links": [
             {
-                "name": "name3",
-                "target": "files/name3",
+                "name": "name2",
+                "target": "data/sessions/update/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
-                "name": "name2",
-                "target": "files/name2",
-            }
+                "name": "name3",
+                "target": "data/sessions/update/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+            },
         ],
     }
 }
@@ -1245,31 +1383,30 @@ after_extlink = {
     }
 }
 
-
 after_replace = {
     ".": {
         "files": [{"name": "untouched.file"}],
         "links": [
             {
                 "name": "file2",
-                "target": "files/name2"
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "file3",
-                "target": "files/name3"
-            }
-        ]
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+            },
+       ]
     },
     "subdir": {
         "links": [
             {
                 "name": "file2",
-                "target": "files/tag1%name2"
+                "target": "data/sessions/default/files/static/tag1%name2#7453d97cd70ab49510f074ae71258d50"
             },
             {
                 "name": "file3",
-                "target": "files/name3"
-            }
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+            },
         ]
     }
 }
@@ -1281,15 +1418,15 @@ after_default = {
         "links": [
             {
                 "name": ".name1test",
-                "target": "files/name1"
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1"
             },
             {
                 "name": "name2test",
-                "target": "files/tag1%name2"
+                "target": "data/sessions/default/files/static/tag1%name2#7453d97cd70ab49510f074ae71258d50"
             },
             {
                 "name": "name6",
-                "target": "files/name6"
+                "target": "data/sessions/default/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1"
             }
         ]
     }
@@ -1302,26 +1439,26 @@ after_permission = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1"
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
                 "permission": 600
             },
             {
                 "name": "name3",
-                "target": "files/name3",
-                "permission": 755
+                "target": "data/sessions/default/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+                "permission": 777
             },
             {
                 "name": "name4",
-                "target": "files/name4",
-                "permission": 755
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
+                "permission": 777
             },
             {
                 "name": "name5",
-                "target": "files/name5",
+                "target": "data/sessions/default/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             }
         ]
     }
@@ -1334,8 +1471,8 @@ after_ignorefiles = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1"
-            }
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
+            },
         ]
     }
 }
@@ -1346,15 +1483,15 @@ after_options = {
         "links": [
             {
                 "name": "file",
-                "target": "files/tag1%name2"
+                "target": "data/sessions/default/files/static/tag1%name2#7453d97cd70ab49510f074ae71258d50"
             },
             {
                 "name": "file2",
-                "target": "files/name6"
+                "target": "data/sessions/default/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1"
             },
             {
                 "name": "testfile",
-                "target": "files/name1"
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1"
             }
         ]
     },
@@ -1366,27 +1503,27 @@ after_updatedui = {
         "links": [
             {
                 "name": "name1",
-                "target": "files/name1",
+                "target": "data/sessions/nested/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
             {
                 "name": "name2",
-                "target": "files/name2",
+                "target": "data/sessions/nested/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
             {
                 "name": "name3",
-                "target": "files/tag2%name3",
+                "target": "data/sessions/nested/files/static/tag2%name3#2f203ac40e91f94eb0e875e242a5c7f8",
             },
             {
                 "name": "name4",
-                "target": "files/name4",
+                "target": "data/sessions/nested/files/static/name4#48a24b70a0b376535542b996af517398",
             },
             {
                 "name": "name5",
-                "target": "files/name5",
+                "target": "data/sessions/nested/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             },
             {
                 "name": "name6",
-                "target": "files/tag1%name6",
+                "target": "data/sessions/nested/files/static/tag1%name6#1933adda42ba93cb33f100d9bd8d2f8f",
             }
         ],
     }
@@ -1406,7 +1543,7 @@ before_modified = {
             },
             {
                 "name": "name11.file",
-                "target": "files/name11.file",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d11.file",
             }
         ],
     },
@@ -1446,7 +1583,7 @@ after_modified = {
             },
             {
                 "name": "name11.file",
-                "target": "files/name11.file",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d11.file",
             }
         ],
     },
@@ -1454,8 +1591,8 @@ after_modified = {
         "links": [
             {
                 "name": "name2",
-                "target": "files/name2",
-            }
+                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
+            },
         ],
     },
     "subdir2": {
@@ -1474,7 +1611,7 @@ after_modified = {
             },
             {
                 "name": "name4",
-                "target": "files/name4",
+                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
             },
         ],
     },
@@ -1485,7 +1622,7 @@ after_blacklisted = {
         "links":[
             {
                 "name": "untouched.file",
-                "target": "files/name1",
+                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
             },
         ]
     }
@@ -1603,25 +1740,25 @@ DirRegressionTest("Conflict: Link already installed by another user",
 InputDirRegressionTest("Conflict: Dynamicfile was modified",
                        ["update", "DynamicFiles"],
                        before_dynamicfiles_changes, after_dynamicfiles_changes,
-                       "i\nD\nu\np\n\nI\nu", "dynamic_changes").success()
+                       "R\ni\nD\nu\np\n\nI\nu", "dynamic_changes").success()
 DirRegressionTest("Event: On Install",
                   ["update", "SuperProfileEvent"],
                   before, after_event).success()
 DirRegressionTest("Event: On Update",
                   ["update", "-f", "SuperProfileEvent"],
-                  after_event, after_event_update, "event").success()
+                  before_event_update, after_event_update, "event").success()
 DirRegressionTest("Event: On Uninstall",
                   ["remove", "SuperProfileEvent"],
-                  after_event, before, "event").success()
+                  before_event_update, before, "event").success()
 DirRegressionTest("Event: --skipbefore",
-                  ["update", "--skipbefore", "SuperProfileEvent"],
-                  before, after_event_no_before).success()
+                  ["update", "-f", "--skipbefore", "SuperProfileEvent"],
+                  before_event_update, after_event_no_before, "event").success()
 DirRegressionTest("Event: --skipafter",
                   ["update", "-f", "--skipafter", "SuperProfileEvent"],
-                  after_event, after_event_no_after, "event").success()
+                  before_event_update, after_event_no_after, "event").success()
 DirRegressionTest("Event: --skipevents",
                   ["remove", "--skipevents", "SuperProfileEvent"],
-                  after_event, after_event_no_event, "event").success()
+                  before_event_update, after_event_no_event, "event").success()
 DirRegressionTest("Event: Conflicts with linking",
                   ["update", "ConflictProfileEvent"],
                   before, before).fail("run", 103)
@@ -1636,20 +1773,20 @@ DirRegressionTest("Event: Fail on timeout",
                   before, before).fail("run", 107)
 DirRegressionTest("Update: Simple",
                   ["update", "-m", "DirOption"],
-                  after_diroptions, after_updatediroptions, "update").success()
+                  before_update, after_updatediroptions, "update").success()
 DirRegressionTest("Update: Uninstall",
                   ["remove", "DirOption"],
-                  after_diroptions, before, "update").success()
+                  before_update, before, "update").success()
 # TODO: For this test we should also check the state file
 DirRegressionTest("Update: Uninstall with excludes",
                   ["--exclude", "Subprofile2", "remove", "SuperProfileTags"],
-                  after_tags, after_subprofile2, "nested").success()
+                  before_nested, after_subprofile2, "nested").success()
 DirRegressionTest("Update: --parent",
                   ["update", "--parent", "SuperProfileTags", "-m", "Subprofile2", "Subprofile5"],
-                  after_tags, after_parent, "nested").success()
+                  before_nested, after_parent, "nested").success()
 DirRegressionTest("Update: --dui",
                   ["update", "--dui", "SuperProfileTags"],
-                  after_tags, after_updatedui, "nested").success()
+                  before_nested, after_updatedui, "nested").success()
 InputDirRegressionTest("Update: --superforce",
                        ["update", "--superforce", "-f", "OverwriteBlacklisted"],
                        before, after_blacklisted, "YES").success()

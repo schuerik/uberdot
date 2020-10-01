@@ -237,9 +237,12 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The add-operation that will be logged
         """
+        target_str = dop["symlink"]["target"]
+        if dop["symlink"]["buildup"] is not None:
+            if dop["symlink"]["buildup"]["type"] == "StaticFile":
+                target_str = "a copy of " + dop["symlink"]["buildup"]["source"]
         log_operation(dop["profile"], dop["symlink"]["path"] +
-                      " was created and links to " +
-                      dop["symlink"]["target"])
+                      " was created and links to " + target_str)
 
     def _op_remove_l(self, dop):
         """Logs/Prints out that a link was removed.
@@ -247,8 +250,8 @@ class PrintInterpreter(Interpreter):
         Args:
             dop (dict): The remove-operation that will be logged
         """
-        log_operation(dop["profile"], "'" + dop["symlink"]["path"] +
-                      "' was removed from the system.")
+        log_operation(dop["profile"], dop["symlink"]["path"] +
+                      " was removed from the system")
 
     def _op_update_l(self, dop):
         """Logs/Prints out that a link was updated.
@@ -545,7 +548,7 @@ class CheckLinksInterpreter(Interpreter):
                     msg = " installed "
                 else:
                     msg = " defined "
-                user_msg = "of user " + item[2] if item[2] != const.user else ""
+                user_msg = "of user " + item[2] if item[2] != const.internal.user else ""
                 msg = "The link '" + name + "' is already" + msg + "by '"
                 msg += item[1] + "' " + user_msg + "and would be overwritten by '"
                 msg += profile + "'. In some cases this error can be "
@@ -707,7 +710,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
         if profilename not in self.state:
             return False
         for state_link in self.state[profilename]["links"]:
-            if links_equal(state_link, link):
+            if state_link == link:
                 return link["path"] not in self.removed_links
         return False
 
@@ -716,7 +719,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             msg = "The record of '" + dop["symlink1"]["path"] + "' can not be updated "
             msg += " because there is no such record."
             self._raise(msg)
-        if not link_exists(dop["symlink2"]):  # pragma: no cover
+        if not dop["symlink2"].exists():  # pragma: no cover
             msg = "The record of '" + dop["symlink1"]["path"] + "' can not be updated "
             msg += " because the link doesn't exist."
             self._raise(msg)
@@ -727,7 +730,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             msg = "'" + dop["saved_link"]["path"] + "' can not be restored "
             msg += " because it is not tracked."
             self._raise(msg)
-        if link_exists(dop["saved_link"]):  # pragma: no cover
+        if dop["saved_link"].exists():  # pragma: no cover
             msg = "'" + dop["saved_link"]["path"] + "' can not be restored "
             msg += " because it already exists like this."
             self._raise(msg)
@@ -756,7 +759,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             msg += " it does not exist."
             self._raise(msg)
         if not self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
-            msg = "'" + dop["symlink"]["path"] + "' is not tracked."
+            msg = "'" + dop["symlink"]["path"] + "' is not tracked, so it can't be removed."
             self._raise(msg)
         self.removed_links.append(dop["symlink"]["path"])
 
@@ -774,10 +777,10 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             msg += "' does not exist in your filesystem."
             self._raise(msg)
         if not self.is_link_in_state(dop["profile"], dop["symlink1"]):  # pragma: no cover
-            msg = "'" + dop["symlink1"]["path"] + "' is not tracked."
+            msg = "'" + dop["symlink1"]["path"] + "' is not tracked, so can't update here."
             self._raise(msg)
-        if links_equal(dop["symlink1"], dop["symlink2"]):  # pragma: no cover
-            self._raise("New symlink is the same as the old symlink.")
+        if dop["symlink1"] == dop["symlink2"]:  # pragma: no cover
+            self._raise("New symlink is the same as the old symlink, so update is pointless.")
         if dop["symlink1"]["path"] != dop["symlink2"]["path"]:  # pragma: no cover
             self.removed_links.append(dop["symlink1"]["path"])
 
@@ -919,7 +922,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
             elif not const.mode_args.force:
                 msg = "'" + name + "' already exists and would be"
                 msg += " overwritten by '" + dop["symlink"]["target"]
-                msg += " '. You can force to overwrite the"
+                msg += "'. You can force to overwrite the"
                 msg += " original file by setting the --force flag."
                 raise PreconditionError(msg)
 
@@ -1102,7 +1105,7 @@ class EventInterpreter(Interpreter):
             profile_name = dop["profile"]
             if dop[self.event_type]:
                 log_operation(profile_name, "Running event " + event_name)
-                script_dir = os.path.join(const.session_dir, "scripts") + "/"
+                script_dir = os.path.join(const.internal.session_dir, "scripts") + "/"
                 script_path = script_dir + profile_name + "_" + event_name
                 script_path +=  "_" + dop[self.event_type] + ".sh"
                 if not os.path.exists(script_path):
@@ -1582,10 +1585,10 @@ class DetectRootInterpreter(Interpreter):
         """
         name = dop["symlink"]["path"]
         owner = predict_owner(name)
-        if dop["symlink"]["owner"] != owner:
-            self._root_detected(dop, "change owner of", name)
-        elif not self._access(name):
+        if not self._access(name):
             self._root_detected(dop, "create links in", os.path.dirname(name))
+        elif dop["symlink"]["owner"] != owner:
+            self._root_detected(dop, "change owner of", name)
 
     def _op_remove_l(self, dop):
         """Checks if to be removed links are owned by other users than

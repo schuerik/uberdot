@@ -214,6 +214,11 @@ class UberDot:
             help="specify an action to resolve all fixes with",
             choices=["s", "t", "r", "d", "u"]
         )
+        parser.add_argument(
+            "--portable-state",
+            help="use relative paths inside of new state files",
+            action="store_true"
+        )
 
         # Setup mode show arguments
         parser_show_selection = CustomParser(add_help=False)
@@ -314,11 +319,8 @@ class UberDot:
         )
         parser_update.add_argument(
             "--dui",
-            help="use the Delete/Update/Insert strategy for updating links",
+            help="use Delete/Update/Insert strategy (less conflicts, worse logging)",
             action=StoreBoolAction
-        )
-        parser_update.add_argument(
-            "--directory", help="overwrite the starting directory for profiles"
         )
         parser_update.add_argument(
             "--option",
@@ -534,10 +536,10 @@ class UberDot:
         # Check if arguments are bad
         if const.args.mode is None:
             raise UserError("No mode selected.")
-        # profiles_included = list(set(const.args.include) - set(const.args.exclude))
-        # if sorted(profiles_included) != sorted(const.args.include):
-        #     msg = "You can not include and exclude a profile at the same time."
-        #     raise UserError(msg)
+        profiles_included = list(set(const.mode_args.include) - set(const.args.exclude))
+        if sorted(profiles_included) != sorted(const.mode_args.include):
+            msg = "You can not include and exclude a profile at the same time."
+            raise UserError(msg)
         if const.args.mode == "find":
             if (not const.find.name and not const.find.filename \
                     and not const.find.content and not const.find.all):
@@ -551,19 +553,22 @@ class UberDot:
         parsed commandline arguments and settings.
         """
         old_section = ""
-        for name, props in const.get_constants(mutable=0):
+        all_constants = []
+        for container in const.root_container:
+            all_constants += container.get_constants(mutable=0)
+        for name, props in all_constants:
             section = props.section
             if props.section is None:
                 section = "Internal"
             if old_section != section:
-                print(const.settings.col_emph + section + ":" + const.col_endc)
+                print(const.settings.col_emph + section + ":" + const.internal.col_endc)
                 old_section = section
             if name in ["col_endc", "col_noemph"]:
                 continue
             value = props.value
             if name.startswith("col_"):
                 value = value + value.encode("unicode_escape").decode("utf-8")
-                value += const.col_endc
+                value += const.internal.col_endc
             if (name == "cfg_files" or name == "cfg_search_paths") and value:
                 print(str("   " + name + ": ").ljust(32) + str(value[0]))
                 for item in value[1:]:
@@ -583,7 +588,7 @@ class UberDot:
         tab = "  " if const.show.users or const.show.allusers else ""
         if const.show.profiles or (not const.show.links and not const.show.meta):
             col = const.settings.col_emph if const.show.links or const.show.meta or not const.show.profiles else ""
-            profile_header = tab + col + profile["name"] + const.col_endc
+            profile_header = tab + col + profile["name"] + const.internal.col_endc
             if const.show.links or const.show.meta:
                 profile_header += ":"
             print(profile_header)
@@ -599,17 +604,17 @@ class UberDot:
                     ))
         if const.show.links or (not const.show.profiles and not const.show.meta):
             for symlink in profile["links"]:
-                print(tab + symlink["from"] + "  →  " + symlink["to"])
+                print(tab + symlink["path"] + "  →  " + symlink["target"])
                 if const.show.meta:
                     print(
                         tab + "    Owner: " + symlink["owner"] +
                         "   Permission: " + str(symlink["permission"]) +
                         "   Secure: " + "yes" if symlink["secure"] else "no" +
-                        "   Updated: " + symlink["date"]
+                        "   Created: " + symlink["created"] +
+                        "   Modified: " + symlink["modified"]
                     )
 
     def fix(self):
-        log_debug("Checking state file consistency.")
         # Calc difflog between state and filesystem to figure out
         # if there are inconsistencies
         difflog = StateFilesystemDiffFinder().solve()
@@ -652,7 +657,7 @@ class UberDot:
             try:
                 interpreters = [ExecuteInterpreter()]
                 if const.args.summary:
-                    interpreters.append(PrintSummaryInterpreter())
+                    interpreters.insert(0, PrintSummaryInterpreter())
                 else:
                     interpreters.append(PrintInterpreter())
                 difflog.run_interpreter(*interpreters)
@@ -669,13 +674,14 @@ class UberDot:
     def generate_profiles(self):
         """Imports profiles by name and executes them. """
         profiles = []
+        data = {"options": dict(const.defaults.items())}
         # Import and create profiles
         for profilename in self.get_profilenames():
             if profilename in const.args.exclude:
                 log_debug("'" + profilename + "' is in exclude list." +
                           " Skipping generation of profile...")
             else:
-                profiles.append(ProfileLoader().new_object(profilename))
+                profiles.append(ProfileLoader().new_object(profilename, data=data))
         # And execute/generate them
         for profile in profiles:
             profile.start_generation()
@@ -718,7 +724,7 @@ class UberDot:
         profilenames = const.mode_args.include
         # Otherwise it is equal to the list of already installed root profiles
         if not profilenames:
-            profilenames = self.state.keys()
+            profilenames = [key for key, val in self.state.items() if val["parent"] is None]
             if not profilenames:
                 msg = "There are no profiles installed and no profiles "
                 msg += "explicitly specified to be included."
@@ -915,7 +921,7 @@ class UberDot:
                     if const.show.users:
                         if user not in const.show.users:
                             continue
-                    elif const.user != user:
+                    elif const.internal.user != user:
                         continue
                 # Print the next user
                 if user != last_user:
@@ -924,7 +930,7 @@ class UberDot:
                         print(const.settings.col_emph + "User: " + const.col_endc + user)
                     last_user = user
                 # Show all profiles that are specified or all if none was specified
-                if not const.args.include or profile["name"] in const.args.include:
+                if not const.show.include or profile["name"] in const.show.include:
                     self.print_profile(profile)
 
     def _exec_timewarp(self):
@@ -1026,7 +1032,7 @@ class UberDot:
         # Gain root if needed
         if not has_root_priveleges():
             log_debug("Checking if root is required.")
-            root_interpreter = RootNeededInterpreter()
+            root_interpreter = RootNeededInterpreter() if const.mode_args.dryrun else GainRootInterpreter()
             difflog.run_interpreter(root_interpreter)
             if not const.mode_args.dryrun and root_interpreter.logged:
                 process = Popen([sys.executable, "resume"], stdin=PIPE)
@@ -1082,7 +1088,7 @@ class UberDot:
             if not const.mode_args.dryrun:
                 interpreters.append(ExecuteInterpreter())
             if const.args.summary:
-                interpreters.append(PrintSummaryInterpreter())
+                interpreters.insert(0, PrintSummaryInterpreter())
             else:
                 interpreters.append(PrintInterpreter())
             difflog.run_interpreter(*interpreters)
@@ -1117,6 +1123,8 @@ class UberDot:
             udot = UberDot()
             yield "parse_args"
             udot.parse_arguments(args)
+            yield "check_args"
+            udot.check_arguments()
             yield "perpare_path"
             sys.path.append(const.settings.profile_files)
             yield "exec_args"

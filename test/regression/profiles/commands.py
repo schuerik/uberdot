@@ -90,7 +90,7 @@ class Subprofile4(EasyProfile):
     def generate(self):
         links("name[56]")
 
-class SuperEasyProfileEvent(EasyProfile):
+class SuperProfileEvent(EasyProfile):
     prepare_script = """
         alias s='echo "Hello" >> '
         function t(){
@@ -104,7 +104,7 @@ class SuperEasyProfileEvent(EasyProfile):
         link("name1")
         subprof("SubprofileEvent")
 
-class FailEasyProfileEvent(EasyProfile):
+class FailProfileEvent(EasyProfile):
     foo = "syntax error"
     beforeInstall = "exit 1"
     def afterInstall(self):
@@ -112,12 +112,12 @@ class FailEasyProfileEvent(EasyProfile):
     def generate(self):
         link("name1")
 
-class ConflictEasyProfileEvent(EasyProfile):
+class ConflictProfileEvent(EasyProfile):
     beforeInstall = "touch name1"
     def generate(self):
         link("name1")
 
-class TimeoutEasyProfileEvent(EasyProfile):
+class TimeoutProfileEvent(EasyProfile):
     beforeInstall = "sleep 2"
     def generate(self):
         link("name1")

@@ -153,7 +153,7 @@ def walk_profiles():
     return ignore_walk(const.settings.profile_files, ignorelist=[r".*\.pyc$"])
 
 
-@_check_input_pos(0, os.path.isdir, "Argument %s is no directory")
+@_check_input_pos(0, os.path.isdir, "Argument %s is not a directory")
 def listdirs(dirname):
     """Lists all directories or links to directories that are in a
     specific directory.
@@ -164,7 +164,7 @@ def listdirs(dirname):
     )
 
 
-@_check_input_pos(0, os.path.isdir, "Argument %s is no directory")
+@_check_input_pos(0, os.path.isdir, "Argument %s is not a directory")
 def listfiles(dirname):
     """Lists all files or links to files that are in a specific directory.
     """
@@ -380,8 +380,9 @@ def get_owner(filename):
     return stat.st_uid, stat.st_gid
 
 
-def get_permission(filename):
-    return int(oct(os.lstat(filename).st_mode)[-3:])
+def get_permission(filename, follow_symlinks=True):
+    stats = os.stat if follow_symlinks else os.lstat
+    return int(oct(stats(filename).st_mode)[-3:])
 
 
 def inflate_owner(owner_string):
@@ -402,10 +403,10 @@ def readlink(file):
         # Return original path
         _dir = os.path.dirname(file)
         path = abspath(os.readlink(file), origin=_dir)
-        return True, path
+        return False, path, os.stat(file).st_ino
     else:
         # file is hardlink, so return the inode number as reference for the original
-        return False, os.stat(file).st_ino
+        return True, None, os.stat(file).st_ino
 
 
 def has_root_priveleges():
@@ -465,7 +466,7 @@ def get_user_env_var(varname, fallback=None):
         user_environ = {}
         # Login into other user and read env
         proc = subprocess.run(
-            ["sudo", "-Hiu", const.user, "env"],
+            ["sudo", "-Hiu", const.internal.user, "env"],
             stdout=subprocess.PIPE
         )
         for line in proc.stdout.splitlines():
@@ -478,7 +479,7 @@ def get_user_env_var(varname, fallback=None):
             if fallback is not None:
                 return fallback
             msg = "There is no environment varibable set for user '"
-            msg += const.user + "' with the name: '"
+            msg += const.internal.user + "' with the name: '"
             msg += varname + "'"
             raise PreconditionError(msg)
     # A normal user can access its own variables
@@ -561,10 +562,11 @@ def normpath(path):
     Returns:
         str: The normalized path or None if path was None
     """
-    if path is not None:
+    if path:
         path = expandpath(path)
         return os.path.normpath(path)
-    return None
+    # For None or empty strings return the input
+    return path
 
 
 def abspath(path, origin=None):
@@ -765,7 +767,9 @@ def user_selection(description, preselect=None):
 
 def user_input(txt):
     inp = input(txt + ": ")
-    if const.test:
+    if const.internal.test:
+        # If the input comes from the testsuite, the input was piped into uberdot,
+        # so we print it to let it look like the user typed it
         print(inp)
         sys.stdout.flush()
     return inp
@@ -892,9 +896,9 @@ def is_dynamic_file(target):
     if os.path.basename(dyn_dir) != "files":
         return False
     session_dir = os.path.dirname(dyn_dir)
-    if session_dir == const.session_dir:
+    if session_dir == const.internal.session_dir:
         return True
-    for _, dir_foreign in const.session_dirs_foreign:
+    for _, dir_foreign in const.internal.session_dirs_foreign:
         if session_dir == dir_foreign:
             return True
     return False
@@ -946,6 +950,10 @@ class CustomError(Exception):
         msg += const.settings.col_fail + self._message + const.internal.col_endc
         return msg
 
+    # TODO: issues with coloring when colorized strings are chained together and use col_endc
+    # def __str__(self):
+    #     return self._message
+
 
 class FatalError(CustomError):
     """A custom exception for all errors that violate expected invariants."""
@@ -961,12 +969,16 @@ class FatalError(CustomError):
         Args:
             message (str): The error message
         """
+        self.__message = message
         msg = message
         msg += "\n" + const.settings.col_warning + "This error should NEVER EVER "
         msg += "occur!! The developer fucked this up really hard! Please "
         msg += "create an issue on github and wait for a patch before "
         msg += "using this tool again!" + const.internal.col_endc
         super().__init__(msg)
+
+    def __str__(self):
+        return self.__message
 
 
 class UserError(CustomError):
@@ -1055,7 +1067,7 @@ class GenerationError(CustomError):
             msg += "in '" + frameinfo[0] + "'"
             if profile is not None:
                 msg += " in class '" + profile + "'"
-            msg += "line " + str(frameinfo[1]) + ": "
+            msg += " line " + str(frameinfo[1]) + ": "
         # Otherwise we will only use the name of the profile
         elif profile is not None:
             msg += const.settings.col_emph + "[" + profile + "]: " + const.internal.col_endc
@@ -1175,7 +1187,7 @@ class Constant:
         if self.type == "int":
             value = int(value)
         elif self.type == "list":
-            if type(value) == "str":
+            if isinstance(value, str):
                 value = next(csv.reader([value]))
         elif self.type == "path":
             value = normpath(value)
@@ -1220,7 +1232,7 @@ class Container:
             if isinstance(attr, Constant):
                 if attr.mutable >= mutable and not name.isupper():
                     result.append((name, attr))
-            elif isinstance(attr, Container) and attr.parent != self:
+            elif isinstance(attr, Container) and attr != self.parent:
                 result.extend(attr.get_constants(mutable))
         return result
 
@@ -1233,7 +1245,7 @@ class Container:
         for name, attr in self.__dict__.items():
             if isinstance(attr, Constant):
                 fields.append((name, attr))
-            elif isinstance(attr, Container) and name != "root":
+            elif isinstance(attr, Container) and name != "parent":
                 rep += name + ": " + repr(attr) + ", "
         rep += ", ".join([
             name + ": " + repr(attr) for name, attr in fields
@@ -1339,8 +1351,7 @@ class Const(metaclass=Singleton):
 
         # create constants for global arguments of uberdot
         add = self.add_factory("args", value=False, type="bool")
-        add("debuginfo", "skiproot", "summary")
-        add("log", value=True)
+        add("debuginfo", "skiproot", "summary", "log")
         add = self.add_factory("args")
         add("exclude", value=[], type="list")
         add("fix")
@@ -1404,7 +1415,7 @@ class Const(metaclass=Singleton):
         add("col_debug", value='\x1b[90m')
         add = self.add_factory("settings")
         add("backup_extension", value="bak"),
-        add("decrypt_pwd", value=None)
+        add("decrypt_pwd", value=None, func=self.__censored)
         add(
             "logfileformat",
             value="[%(asctime)s] [%(session)s] [%(levelname)s] - %(message)s"
@@ -1415,7 +1426,7 @@ class Const(metaclass=Singleton):
         add("profile_files", type="path")
         add("shell", value="/bin/bash", type="path")
         add("shell_args", value="-e -O expand_aliases")
-        add("shell_timeout", value=60, type="int")
+        add("shell_timeout", value=0, type="int")
         add("tag_separator", value="%")
         add("target_files", type="path")
 
@@ -1471,6 +1482,10 @@ class Const(metaclass=Singleton):
         return self.__dict__[name]
 
     ### Manipulation functions
+    @staticmethod
+    def __censored(string):
+        return "****"
+
     @staticmethod
     def __decode_ansi(string):
         return string.encode("utf-8").decode("unicode_escape")
@@ -1576,6 +1591,7 @@ class Const(metaclass=Singleton):
         all_constants = []
         for container in self.root_container:
             all_constants += container.get_constants(mutable=Constant.CONFIGABLE)
+
         # Load configs
         self.config = configparser.ConfigParser(interpolation=None)
         try:
@@ -1635,7 +1651,7 @@ class Const(metaclass=Singleton):
         if not loaded:
             # Try to load value from config. Prefer special session section.
             section = "Session." + self.args.session + "." + constant.section
-            if self.config.has_section(section) and self.config.has_option(section, constant):
+            if self.config.has_section(section) and self.config.has_option(section, name):
                 value = getter(section, name)
                 loaded = True
             elif self.config.has_section(constant.section) and self.config.has_option(constant.section, name):
@@ -1662,8 +1678,13 @@ class Const(metaclass=Singleton):
             return found, value
 
         # Select the correct section of parsed_args
-        if con == "default" and "update" in pargs and "opt_dict" in pargs["update"] and pargs["update"]["opt_dict"] is not None:
-            pargs = vars(pargs["update"]["opt_dict"])
+        use_opt_dict = False
+        if con == "defaults" and "update" in pargs:
+            if hasattr(pargs["update"], "opt_dict"):
+                if pargs["update"].opt_dict is not None:
+                    use_opt_dict = True
+        if use_opt_dict:
+            pargs = pargs["update"].opt_dict
         elif con in pargs:
             pargs = vars(pargs[con])
 
@@ -1674,12 +1695,10 @@ class Const(metaclass=Singleton):
 
             # Fix value depending on type
             if constant.type == "path":
-                value = os.path.join(self.owd, value)
+                value = os.path.join(self.internal.owd, value)
             # TODO
             # elif constant.type == "state":
             #     value = os.path.join(self.owd, value)
-            elif constant.type == "int":
-                value = int(value)
         return found, value
 
 
@@ -1700,8 +1719,13 @@ def init_const():
         return user, path
 
     user = get_username(get_uid())
-    users = ["root"] + os.listdir("/home")
+    users = os.listdir("/home")
+    # users shall only contain other users, not the current
     users.remove(user)
+    # /home also may contain root, so we try to remove it to prevent duplicates
+    users.remove("root")
+    # root is always a user, so we append it
+    users.append("root")
 
     test = int(os.getenv("UBERDOT_TEST", 0))
 
@@ -1725,6 +1749,7 @@ def init_const():
         ]
     # Directory of the current and all foreign sessions
     session_dir = os.path.join(data_dir, SESSION_SUBDIR)
+    # TODO: this should have all sessions of foreign users as the user probably wont know about them
     session_dirs_foreign = [
         (user, os.path.join(item, SESSION_SUBDIR)) for user, item in data_dirs_foreign
     ]

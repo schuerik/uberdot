@@ -39,8 +39,8 @@ class PermissionOption(EasyProfile):
     def generate(self):
         link("name1")
         link("name2", permission=600)
-        links("name[34]", permission=755)
-        # Testing secure feature here until a proper test exists
+        links("name[34]", permission=777)
+        # Testing secure feature here until a proper test exists (TODO)
         link("name5", secure=False)
 
 class OptionalOption(EasyProfile):

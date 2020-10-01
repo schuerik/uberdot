@@ -47,10 +47,10 @@ const = utils.Const()
 ###############################################################################
 
 def is_version_smaller(version_a, version_b):
-    match = re.search(r"(\d+)\.(\d+)\.(\d+)", version_a)
+    match = re.search(r"^(\d+)\.(\d+)\.(\d+)", version_a)
     major_a, minor_a, patch_a = match.groups()
     major_a, minor_a, patch_a = int(major_a), int(minor_a), int(patch_a)
-    match = re.search(r"(\d+)\.(\d+)\.(\d+)", version_b)
+    match = re.search(r"^(\d+)\.(\d+)\.(\d+)", version_b)
     major_b, minor_b, patch_b = match.groups()
     major_b, minor_b, patch_b = int(major_b), int(minor_b), int(patch_b)
     if major_a > major_b:
@@ -68,7 +68,55 @@ def is_version_smaller(version_a, version_b):
     return False
 
 
-def upgrade_stone_age(old_state, path):
+def upgrade_owner(old_state, path):
+    for key in old_state:
+        if key.startswith("@"):
+            continue
+        for link in old_state[key]["links"]:
+            # Convert gid and uid to owner string
+            gid = link["gid"]
+            try:
+                username = utils.get_username(link["uid"])
+            except KeyError:
+                msg = "No user with id " + link["uid"] + " found."
+                msg += "Using the current user as fallback."
+                raise PreconditionError(msg)
+            try:
+                groupname = utils.get_groupname(link["gid"])
+            except KeyError:
+                msg = "No group with id " + link["gid"] + " found."
+                msg += "Using the current group as fallback."
+                raise PreconditionError(msg)
+            link["owner"] = username + ":" + groupname
+            del link["uid"]
+            del link["gid"]
+    return old_state
+
+
+def upgrade_owner_manual(olds_state, path):
+    msg = "We can't upgrade your state file at '" + path + "' automatically."
+    msg += "To upgrade this file yourself, edit the file and replace all 'uid'"
+    msg += " and 'guid' properties with the new 'owner' property. 'uid' and 'guid'"
+    msg += " were used to store the owner of each link. The new property will accept"
+    msg += " a string in the format 'username:groupname'."
+    return msg
+
+
+def upgrade_date(old_state, path):
+    for key in old_state:
+        if key.startswith("@"):
+            continue
+        for link in old_state[key]["links"]:
+            # Add created and modified date property and remove the old one
+            link["created"] = link["date"]
+            link["modified"] = link["date"]
+            del link["date"]
+    return old_state
+
+
+# TODO: create a new version 1.14 that already supports the new owner attribute
+# use this new version as "base" version, so all tests use at least this version
+def upgrade_hard_links(old_state, path):
     """Upgrade from old installed file with schema version 4 to fancy
     state file.
     """
@@ -80,29 +128,10 @@ def upgrade_stone_age(old_state, path):
             link["path"] = link["name"]
             del link["name"]
             # Add target inode
-            abstarget = os.path.join(os.path.dirname(path), link["target"])
+            abstarget = utils.abspath(link["target"], origin=path)
             link["target_inode"] = None
             if os.path.exists(abstarget):
-                link["target_inode"] = os.stat(link["target"]).st_ino
-            # Convert gid and uid to owner string
-            gid = link["gid"]
-            try:
-                username = utils.get_username(link["uid"])
-            except KeyError:
-                msg = "No user with id " + link["uid"] + " found."
-                msg += "Using the current user as fallback."
-                log_debug(msg)
-                username = ""
-            try:
-                groupname = utils.get_groupname(link["gid"])
-            except KeyError:
-                msg = "No group with id " + link["gid"] + " found."
-                msg += "Using the current group as fallback."
-                log_debug(msg)
-                groupname = ""
-            link["owner"] = username + ":" + groupname
-            del link["uid"]
-            del link["gid"]
+                link["target_inode"] = os.stat(abstarget).st_ino
             # Add hard property
             link["hard"] = False
     return old_state
@@ -114,6 +143,7 @@ def upgrade_flexible_events(old_state, path):
     for key in old_state:
         if key.startswith("@"):
             continue
+        # Upgrade event properties
         events = ["beforeInstall", "afterInstall", "beforeUpdate",
                   "afterUpdate", "beforeUninstall", "afterUninstall"]
         for event in events:
@@ -130,10 +160,19 @@ def upgrade_flexible_events(old_state, path):
                     old_state[key][event] = ""
     return old_state
 
+# (version, function for automatic upgrade, function for manual update)
+# How it works:
+# (version, func1, None) -> func1 will be executed. if func1 fails the update failes
+# (version, None, func2) -> func2 will be executed and shows instructions for user
+# (version, func1, func2) -> only if func1 fails, func2 will show further instructions
+# (version, None, None) -> No information on how to update available
+# The list needs to be sorted by version numbers
 upgrades = [
-    ("1.17.0", upgrade_stone_age, None),
+    ("1.13.2_4", None, None),
+    ("1.14.0", upgrade_owner, upgrade_owner_manual),
+    ("1.15.0", upgrade_date, None),
+    ("1.17.0", upgrade_hard_links, None),
     ("1.18.0", upgrade_flexible_events, None),
-    # TODO upgrade for hardlinks needed
 ]
 
 
@@ -145,7 +184,7 @@ upgrades = [
 class Notifier:
     def __init__(self):
         self.notify_active = True
-        self.notify = self.__notify
+        self.notify = self._notify
 
     def set_parent(self, parent):
         if parent is not None and not isinstance(parent, Notifier):
@@ -155,11 +194,13 @@ class Notifier:
     def notify(self):
         pass
 
-    def __notify(self):
-        if hasattr(self, "parent") and self.parent is not None:
-            if hasattr(self.parent, "notify") and self.parent.notify is not None:
-                if self.notify_active:
-                    self.parent.notify()
+    def _notify(self):
+        if not hasattr(self, "parent") or self.parent is None:
+            return
+        if not hasattr(self.parent, "notify") or self.parent.notify is None:
+            return
+        if self.notify_active:
+            self.parent.notify()
 
     def copy(self):
         clone = deepcopy(self)
@@ -248,6 +289,17 @@ class AutoExpandDict(MutableMapping, AutoExpander):
 
     def get_specials(self):
         return self.data_specials
+
+    def as_dict(self):
+        result = dict(self.items())
+        result.update(
+            map(
+                # Prepend the removed @ signs to special values
+                lambda x: ("@"+x[0], x[1]),
+                self.get_specials().items()
+            )
+        )
+        return result
 
     def get_special(self, key, default=None):
         if default is not None and key not in self.data_specials:
@@ -358,7 +410,7 @@ class AutoExpandList(MutableSequence, AutoExpander):
 class AutoExpanderJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, AutoExpandDict):
-            return dict(obj.items())
+            return obj.as_dict()
         if isinstance(obj, AutoExpandList):
             return list(obj)
         return super().default(obj)
@@ -370,7 +422,7 @@ class StaticAutoExpandDict(AutoExpandDict):
             super().__setitem__(key, value)
         else:
             raise UberdotError(
-                "Cannot create new key '" + key + "' in a StaticAutoExpandDict"
+                "Can't create new key '" + key + "' in a StaticAutoExpandDict"
             )
 
 # TODO add comparetors for all structs here
@@ -410,16 +462,10 @@ class LinkData(StaticAutoExpandDict):
         props["modified"] = utils.timestamp_to_string(os.path.getmtime(path))
         props["created"] = utils.timestamp_to_string(os.path.getctime(path))
         props["owner"] = utils.ids_to_owner_string(utils.get_owner(path))
-        props["hard"] = not os.path.islink(path)
-        if props["hard"]:
-            props["target_inode"] = os.stat(path).st_ino
-        else:
-            target = utils.readlink(path)
-            props["target"] = target
-            props["target_inode"] = os.stat(target).st_ino
-            if os.path.exists(target):
-                props["secure"] = utils.get_owner(path) == utils.get_owner(target)
-        return cls(props)
+        props["hard"], props["target"], props["target_inode"] = utils.readlink(path)
+        if not props["hard"] and os.path.exists(props["target"]):
+            props["secure"] = utils.get_owner(path) == utils.get_owner(props["target"])
+        return cls(args=props)
 
     def broken(self):
         # TODO: seems odd. what if target or path not exists?
@@ -475,7 +521,10 @@ class LinkData(StaticAutoExpandDict):
 
     def wrap_value(self, key, value, for_state_version=False):
         if key == "buildup":
-            value = BuildupData.wrap_buildup(value, for_state_version)
+            if for_state_version:
+                value = BuildupData.wrap_buildup_state(value, self.origin)
+            else:
+                value = BuildupData.wrap_buildup_gen(value)
         return super().wrap_value(key, value)
 
 
@@ -495,6 +544,13 @@ class GenLinkData(LinkData):
         super().__init__(args=args, **kwargs)
         self.expander["owner"] = utils.inflate_owner
 
+    def init_data(self):
+        super().init_data()
+        # Automatically set modification and creation dates since this
+        # data structure represents freshly generated links
+        self.data["created"] = utils.get_date_time_now()
+        self.data["modified"] = self.data["created"]
+
     def wrap_value(self, key, value):
         return super().wrap_value(key, value, for_state_version=False)
 
@@ -506,36 +562,64 @@ class BuildupData(StaticAutoExpandDict):
         self.data["type"] = None
 
     @staticmethod
-    def wrap_buildup(value, for_state_version):
+    def gen_type_error(value, supported_types):
+        type_names = map(lambda x : x.__name__, supported_types)
+        if not any(map(lambda x : isinstance(value, x), supported_types)):
+            raise TypeError(
+                "value needs to be of type " + ", ".join(type_names) +
+                ", list or dict, not " + type(value).__name__
+            )
+
+    @staticmethod
+    def wrap_buildup_gen(value):
         if type(value) == dict and "type" in value:
             if value["type"] == "StaticFile":
-                if for_state_version:
-                    value = StateCopyData(self.origin, value)
-                else:
-                    value = GenCopyData(value)
+                value = GenCopyData(args=value)
             else:
-                if for_state_version:
-                    value = StateBuildupData(self.origin, value)
-                else:
-                    value = GenBuildupData(value)
+                value = GenBuildupData(args=value)
+        elif type(value) == list:
+            value = GenBuildupList(args=value)
         else:
-            if for_state_version:
-                if not isinstance(value, StateCopyData) and isinstance(value, StateBuildupData):
-                    raise TypeError(
-                        "value needs to be of type StateCopyData or StateBuildupData, not " +
-                        type(value).__name__
-                    )
+            BuildupData.gen_type_error(
+                value, [type(None), GenCopyData, GenBuildupData, GenBuildupList]
+            )
+        return value
+
+    @staticmethod
+    def wrap_buildup_state(value, origin):
+        if type(value) == dict and "type" in value:
+            if value["type"] == "StaticFile":
+                value = StateCopyData(origin, args=value)
             else:
-                if not isinstance(value, GenCopyData) and isinstance(value, GenBuildupData):
-                    raise TypeError(
-                        "value needs to be of type GenCopyData or GenBuildupData, not " +
-                        type(value).__name__
-                    )
+                value = StateBuildupData(origin, args=value)
+        elif type(value) == list:
+            value = StateBuildupList(origin, args=value)
+        else:
+            BuildupData.gen_type_error(
+                value, [type(None), StateCopyData, StateBuildupData, StateBuildupList]
+            )
         return value
 
     def wrap_value(self, key, value, for_state_version=False):
         if key == "source":
-            value = BuildupData.wrap_buildup(value, for_state_version)
+            if for_state_version:
+                value = BuildupData.wrap_buildup_state(value, self.origin)
+            else:
+                value = BuildupData.wrap_buildup_gen(value)
+        return super().wrap_value(key, value)
+
+
+class GenBuildupList(AutoExpandList):
+    def wrap_value(self, key, value):
+        if type(value) == dict:
+            value = BuildupData.wrap_buildup_gen(value)
+        return super().wrap_value(key, value)
+
+
+class StateBuildupList(AutoExpandList):
+    def wrap_value(self, key, value):
+        if type(value) == dict:
+            value = BuildupData.wrap_buildup_state(value, self.origin)
         return super().wrap_value(key, value)
 
 
@@ -554,6 +638,18 @@ class GenBuildupData(BuildupData):
 
     def wrap_value(self, key, value):
         return super().wrap_value(key, value, for_state_version=False)
+
+
+class StateSplittedFileBuildupData(StateBuildupData):
+    def init_data(self):
+        super().init_data()
+        self.data["file_lengths"] = []
+
+
+class GenSplittedFileBuildupData(GenBuildupData):
+    def init_data(self):
+        super().init_data()
+        self.data["file_lengths"] = []
 
 
 class CopyData(StaticAutoExpandDict):
@@ -580,26 +676,6 @@ class StateProfileData(AutoExpandDict):
     def init_data(self):
         self.data["name"] = None
         self.data["parent"] = None
-        self.data["links"] = LinkDataList(self.origin)
-        self.data["installed"] = None
-        self.data["updated"] = None
-        self.data["beforeInstall"] = None
-        self.data["beforeUpdate"] = None
-        self.data["beforeUninstall"] = None
-        self.data["afterInstall"] = None
-        self.data["afterUpdate"] = None
-        self.data["afterUninstall"] = None
-
-    def wrap_value(self, key, value):
-        if key == "links" and not isinstance(value, StateLinkDataList):
-            value = StateLinkDataList(self.origin, value)
-        return super().wrap_value(key, value)
-
-
-class StateProfileData(AutoExpandDict):
-    #TODO: Expand events here ?
-    def init_data(self):
-        self.data["name"] = None
         self.data["links"] = StateLinkDataList(self.origin)
         self.data["installed"] = None
         self.data["updated"] = None
@@ -672,7 +748,7 @@ class GlobalState(metaclass=utils.Singleton):
             return
         # Load file
         try:
-            state = ForeignState.fromFile(path)
+            state = ForeignState.from_file(path)
             self.states[user] = state
         except CustomError as err:
             if isinstance(err, UnkownError):
@@ -709,46 +785,71 @@ class GlobalState(metaclass=utils.Singleton):
 class State(AutoExpandDict):
     def __init__(self, file, auto_write=False):
         # Setup in-mememory state file
-        self.origin = file
+        self.origin = os.path.dirname(file)
+        self.file = file
         # Load state files of current user
-        log_debug("Loading state file '" + self.origin + "'.")
+        log_debug("Loading state file '" + self.file + "'.")
         try:
-            self.state_raw = json.load(open(self.origin))
+            self.state_raw = json.load(open(self.file))
         except json.decoder.JSONDecodeError as err:
             raise PreconditionError(
-                "Can not parse '" + self.origin + "'. " + str(err)
+                "Can not parse json in '" + self.file + "'. " + str(err)
             )
         except FileNotFoundError:
             raise PreconditionError(
-                "State file '" + self.origin + "' doesn't exist."
+                "State file '" + self.file + "' doesn't exist."
             )
-        # Setup auto write
-        self.auto_write = auto_write
+        self.auto_write = False
         # Upgrade
         self._upgrade()
-        super().__init__(self.origin, args=self.state_raw)
+        # Load upgraded raw json into AutoExpandDict
+        try:
+            super().__init__(self.origin, args=self.state_raw)
+        except UberdotError as err:
+            raise PreconditionError(
+                "Can not parse state file data of '" +
+                self.file + "'. " + str(err)
+            )
+        log_debug("Checking state file consistency.")
+        self.check_empty_fields()
+        # Setup saving mechanism
+        self.auto_write = auto_write
+
+
+    def check_empty_fields(self):
+        # Checks if all fields that have to be set, are set
+        for profile in self.values():
+            for link in profile["links"]:
+                for key, val in link.items():
+                    if key in ["target_inode", "buildup"]:
+                        continue
+                    msg = "'" + key + "' is None in state file '"
+                    msg += self.file + "'."
+                    if val is None:
+                        raise PreconditionError(msg)
+
 
     @classmethod
-    def fromTimestamp(cls, timestamp):
+    def from_timestamp(cls, timestamp):
         return cls(utils.build_statefile_path(timestamp))
 
     @staticmethod
-    def fromTimestampBefore(timestamp):
+    def from_timestamp_before(timestamp):
         for n, file in enumerate(State._get_snapshots(const.session_dir)):
             if int(utils.get_timestamp_from_path(file)) > int(timestamp):
                 break
         return State.fromIndex(n-1)
 
     @classmethod
-    def fromFile(cls, file):
+    def from_file(cls, file):
         return cls(file)
 
     @staticmethod
-    def fromNumber(number):
+    def from_number(number):
         return State.fromIndex(number-1)
 
     @staticmethod
-    def fromIndex(index):
+    def from_index(index):
         file = State._get_snapshots(const.session_dir)[index]
         return State.fromFile(file)
 
@@ -764,7 +865,7 @@ class State(AutoExpandDict):
         return cls(path, auto_write=True)
 
     def get_snapshots(self):
-        return utils.get_snapshots(os.path.dirname(self.origin))
+        return utils.get_snapshots(self.origin)
 
     def get_patches(self):
         patches = []
@@ -777,8 +878,21 @@ class State(AutoExpandDict):
 
     def __apply_patch(self, patch):
         try:
-            self.state_raw = patch[1](deepcopy(self.state_raw), self.origin)
-            self.state_raw["@version"] = patch[0]
+            if patch[1] is None:
+                if patch[2] is None:
+                    msg = "Can't upgrade to version " + patch[0] + ". "
+                    msg += "Manual upgrade by the user required."
+                    raise PreconditionError(msg)
+                else:
+                    raise PreconditionError(patch[2])
+            try:
+                self.state_raw = patch[1](deepcopy(self.state_raw), self.file)
+                self.state_raw["@version"] = patch[0]
+            except CustomError:
+                if patch[2] is None:
+                    raise
+                else:
+                    raise PreconditionError(patch[2])
         except CustomError:
             raise
         except Exception as err:
@@ -812,13 +926,13 @@ class State(AutoExpandDict):
             self.__apply_patch(patch)
             if extended_logging:
                 log("Done.")
-        if not extended_logging:
+        if not extended_logging and patches:
             log_debug("Done.")
         # Update version number
         self.state_raw["@version"] = const.internal.VERSION
 
     def create_snapshot(self):
-        path, ext = os.path.splitext(self.origin)
+        path, ext = os.path.splitext(self.file)
         timestamp = utils.get_timestamp_now()
         path += "_" + timestamp + ext
         log_debug("Creating state file snapshot at '" + path + "'.")
@@ -829,23 +943,13 @@ class State(AutoExpandDict):
     def write_file(self, path=None):
         # Prepare directory
         if path is None:
-            path = self.origin
+            path = self.file
         utils.makedirs(os.path.dirname(path))
-        # Merge user_dict with specials
-        new_dict = {}
-        new_dict.update(self)
-        new_dict.update(
-            map(
-                # Prepend the removed @ signs to special values
-                lambda x: ("@"+x[0], x[1]),
-                self.get_specials().items()
-            )
-        )
         # Write content to file
         try:
             file = open(path, "w")
             file.write(
-                json.dumps(new_dict, cls=AutoExpanderJSONEncoder, indent=4)
+                json.dumps(self.as_dict(), cls=AutoExpanderJSONEncoder, indent=4)
             )
         except OSError as err:
             msg = "An unkown error occured when trying to "
@@ -861,7 +965,7 @@ class State(AutoExpandDict):
 
     def _notify(self):
         if self.auto_write:
-            log_debug("Writing changes back to state file.")
+            log_debug("Saving changes to current state file.")
             self.write_file()
 
     def copy(self):
