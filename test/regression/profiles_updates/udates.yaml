@@ -1,0 +1,12 @@
+name: SuperProfileTagsYaml
+generate:
+  - subprof:
+    - Subprofile3
+  - tags:
+    - tag1
+    - tag2
+  - link:
+    - name1
+    - kwargs:
+        permission: 600
+  - subprof: Subprofile1
