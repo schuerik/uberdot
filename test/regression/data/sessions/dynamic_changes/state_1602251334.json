@@ -1,0 +1,114 @@
+{
+    "DynamicFiles": {
+        "name": "DynamicFiles",
+        "parent": null,
+        "links": [
+            {
+                "path": "/home/god/repos/uberdot/test/regression/environment-dynamic_changes/name_encrypt8",
+                "target": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                "target_inode": 22020395,
+                "permission": 644,
+                "owner": "god:god",
+                "secure": true,
+                "hard": false,
+                "buildup": {
+                    "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/decrypted/name_encrypt8#d6eb32081c822ed572b70567826d9d9d",
+                    "source": {
+                        "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/static/name_encrypt8#c7b02cfc3fd136272c7e70f2a2e54ffa",
+                        "source": "/home/god/repos/uberdot/test/regression/files/name_encrypt8",
+                        "type": "StaticFile"
+                    },
+                    "type": "EncryptedFile"
+                },
+                "modified": "2020-10-09 13:48:54",
+                "created": "2020-10-09 13:48:54"
+            },
+            {
+                "path": "/home/god/repos/uberdot/test/regression/environment-dynamic_changes/name_encrypt9",
+                "target": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                "target_inode": 22020396,
+                "permission": 644,
+                "owner": "god:god",
+                "secure": true,
+                "hard": false,
+                "buildup": {
+                    "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
+                    "source": {
+                        "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/static/name_encrypt9#11ed221bd25489f76b1536dc71d848c7",
+                        "source": "/home/god/repos/uberdot/test/regression/files/name_encrypt9",
+                        "type": "StaticFile"
+                    },
+                    "type": "EncryptedFile"
+                },
+                "modified": "2020-10-09 13:48:54",
+                "created": "2020-10-09 13:48:54"
+            },
+            {
+                "path": "/home/god/repos/uberdot/test/regression/environment-dynamic_changes/merge1",
+                "target": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "target_inode": 22020397,
+                "permission": 644,
+                "owner": "god:god",
+                "secure": true,
+                "hard": false,
+                "buildup": {
+                    "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
+                    "source": [
+                        {
+                            "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
+                            "source": "/home/god/repos/uberdot/test/regression/files/name1",
+                            "type": "StaticFile"
+                        },
+                        {
+                            "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
+                            "source": "/home/god/repos/uberdot/test/regression/files/name2",
+                            "type": "StaticFile"
+                        }
+                    ],
+                    "type": "SplittedFile",
+                    "file_lengths": [
+                        1,
+                        1
+                    ]
+                },
+                "modified": "2020-10-09 13:48:54",
+                "created": "2020-10-09 13:48:54"
+            },
+            {
+                "path": "/home/god/repos/uberdot/test/regression/environment-dynamic_changes/merge2",
+                "target": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/merged/merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
+                "target_inode": 22020400,
+                "permission": 644,
+                "owner": "god:god",
+                "secure": true,
+                "hard": false,
+                "buildup": {
+                    "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/merged/merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
+                    "source": [
+                        {
+                            "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
+                            "source": "/home/god/repos/uberdot/test/regression/files/name1",
+                            "type": "StaticFile"
+                        },
+                        {
+                            "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
+                            "source": "/home/god/repos/uberdot/test/regression/files/name2",
+                            "type": "StaticFile"
+                        }
+                    ],
+                    "type": "SplittedFile",
+                    "file_lengths": [
+                        1,
+                        1
+                    ]
+                },
+                "modified": "2020-10-09 13:48:54",
+                "created": "2020-10-09 13:48:54"
+            }
+        ],
+        "installed": "2020-10-09 13:48:54",
+        "updated": "2020-10-09 13:48:54"
+    },
+    "@version": "1.18.0",
+    "@snapshot": "1602251334"
+}

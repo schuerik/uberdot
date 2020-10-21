@@ -2,12 +2,6 @@
     "DynamicFiles": {
         "name": "DynamicFiles",
         "parent": null,
-        "beforeInstall": null,
-        "beforeUpdate": null,
-        "beforeUninstall": null,
-        "afterInstall": null,
-        "afterUpdate": null,
-        "afterUninstall": null,
         "links": [
             {
                 "path": "/home/god/repos/uberdot/test/regression/environment-dynamic_changes/name_encrypt8",
