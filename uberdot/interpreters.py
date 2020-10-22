@@ -426,7 +426,7 @@ class DUIStrategyInterpreter(Interpreter):
 
 class CheckDynamicFilesInterpreter(Interpreter):
     """Checks if there are changes to a dynamic file and
-    gives the user the opportunity to interact with them.
+    prevents overwrites of these files.
 
     Attributes:
         change_detected (bool): Stores, if a change was dected in any dynamic file
@@ -451,6 +451,14 @@ class CheckDynamicFilesInterpreter(Interpreter):
         """
         self.inspect_file(dop["symlink"]["target"])
 
+    def _op_restore_l(self, dop):
+        """Inspects the target file of the to be restored link.
+
+        Args:
+            dop (dict): The remove-operation of the to be removed link
+        """
+        self.inspect_file(dop["saved_link"]["target"])
+
     # TODO: Inspect file on other operations?
 
     def inspect_file(self, target):
@@ -460,9 +468,11 @@ class CheckDynamicFilesInterpreter(Interpreter):
         Args:
             target (str): The full path to the file that will be checked
         """
+        print(target)
         if not is_dynamic_file(target):
             # This is not a dynamic file
             return
+        print(target)
         # Calculate new hash and get old has of file
         md5_calc = md5(open(target, "rb").read())
         md5_old = os.path.basename(target)[-32:]
@@ -570,12 +580,13 @@ class CheckLinkBlacklistInterpreter(Interpreter):
         blacklist (list): A list of file name patterns that are forbidden
             to touch without superforce flag
     """
-    def __init__(self):
+    def __init__(self, superforce):
         """Constructor.
 
         Loads the blacklist.
         """
         super().__init__()
+        self.superforce = superforce
         self.blacklist = []
         search_paths = [const.internal.data_dir]
         search_paths += const.internal.cfg_search_paths
@@ -602,7 +613,7 @@ class CheckLinkBlacklistInterpreter(Interpreter):
                 log_warning("You are trying to " + action + " '" + file_name +
                             "' which is blacklisted. It is considered " +
                             "dangerous to " + action + " those files!")
-                if const.mode_args.superforce:
+                if self.superforce:
                     user_confirmation("YES")
                 else:
                     log_warning("If you really want to modify this file" +
@@ -650,6 +661,11 @@ class CheckLinkDirsInterpreter(Interpreter):
     Attributes:
         makedirs (bool): Stores, if ``--makedirs`` was set
     """
+    def __init__(self, makedirs):
+        """Constructor. """
+        super().__init__()
+        self.makedirs = makedirs
+
     def _op_add_l(self, dop):
         """Checks if the directory of the to be added link already exists.
 
@@ -678,7 +694,7 @@ class CheckLinkDirsInterpreter(Interpreter):
             PreconditionError: The directory doesn't exist and ``makedirs``
                 isn't set
         """
-        if not const.mode_args.makedirs:
+        if not self.makedirs:
             if not os.path.isdir(dirname):
                 msg = "The directory '" + dirname + "/' needs to be created "
                 msg += "in order to perform this action, but "
@@ -686,7 +702,6 @@ class CheckLinkDirsInterpreter(Interpreter):
                 raise PreconditionError(msg)
 
 
-# TODO check if all paths are absolute
 class CheckDiffsolverResultInterpreter(Interpreter):
     """Checks if operations meet the implicated constraints. For example
     if a remove operation for a specific path is in the difflog the file
@@ -736,7 +751,7 @@ class CheckDiffsolverResultInterpreter(Interpreter):
             self._raise(msg)
 
     def _op_untrack_l(self, dop):
-        # Only untack link if it is tracked
+        # Only untrack link if it is tracked
         if not self.is_link_in_state(dop["profile"], dop["symlink"]):  # pragma: no cover
             msg = "'" + dop["symlink"]["path"] + "' is not tracked."
             self._raise(msg)
@@ -836,10 +851,11 @@ class CheckFileOverwriteInterpreter(Interpreter):
         removed_links (list): A collection of all links that are going to be
             removed
     """
-    def __init__(self):
+    def __init__(self, force):
         """Constructor"""
         super().__init__()
         self.removed_links = []
+        self.force = force
 
     def _op_remove_l(self, dop):
         """Checks if the to be removed link really exists.
@@ -876,7 +892,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
         if old_name != new_name:
             if new_name not in self.removed_links and os.path.lexists(new_name):
                 if os.path.isdir(new_name):
-                    if not const.mode_args.force:
+                    if not self.force:
                         msg = "'" + old_name + "' can not be "
                         msg += "moved to '" + new_name + "' "
                         msg += "because it is a directory and would be "
@@ -890,7 +906,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
                         msg += " that would be overwritten. Please empty the"
                         msg += " directory or remove it entirely."
                         raise PreconditionError(msg)
-                elif not const.mode_args.force:
+                elif not self.force:
                     msg = "'" + old_name + "' can not be moved to '"
                     msg += new_name + "' because it already exists"
                     msg += " on your filesystem and would be overwritten."
@@ -909,7 +925,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
         name = dop["symlink"]["path"]
         if name not in self.removed_links and os.path.lexists(name):
             if os.path.isdir(name):
-                if not const.mode_args.force:
+                if not self.force:
                     msg = "'" + name + "' is a directory and would be"
                     msg += " overwritten. You can force to overwrite empty"
                     msg += " directories by setting the --force flag."
@@ -919,7 +935,7 @@ class CheckFileOverwriteInterpreter(Interpreter):
                     msg += " that would be overwritten. Please empty the"
                     msg += " directory or remove it entirely."
                     raise PreconditionError(msg)
-            elif not const.mode_args.force:
+            elif not self.force:
                 msg = "'" + name + "' already exists and would be"
                 msg += " overwritten by '" + dop["symlink"]["target"]
                 msg += "'. You can force to overwrite the"
@@ -936,7 +952,7 @@ class CheckProfilesInterpreter(Interpreter):
             and if they are already installed. Profiles that are still
             installed in the end, will end up twice in this list.
     """
-    def __init__(self):
+    def __init__(self, parent):
         """Constructor.
 
         Initializes ``profile_list`` with all profiles from the state file.
@@ -947,6 +963,7 @@ class CheckProfilesInterpreter(Interpreter):
             parent_arg (str): The value of ``--parent``
         """
         super().__init__()
+        self.parent = parent
         self.profile_list = []
         # profile_list contains: (profile name, parent name, is installed)
         for profile in globalstate.current.values():
@@ -1021,7 +1038,7 @@ class CheckProfilesInterpreter(Interpreter):
             # Just make sure the parent is really updated
             if known[1] != dop["parent"]:
                 # If the user set the new parent manually, overwrites are ok
-                if const.mode_args.parent == dop["parent"]:
+                if self.parent == dop["parent"]:
                     return
                 # Detaching a profile from a parent is also allowed
                 if dop["parent"] is None:
@@ -1051,13 +1068,11 @@ class EventInterpreter(Interpreter):
 
     Attributes:
         profiles (list): A list of profiles **after** their execution.
-        state (State): A copy of the old state that is used to
-            lookup if a profile had Uninstall-events set
         event_type (str): A specific type ("after" or "before") that determines
             which events this interpreter shall look for
     """
 
-    def __init__(self, state, event_type):
+    def __init__(self, event_type):
         """Constructor.
 
         Sets _op_add_p and _op_update_p depending on event_type.
@@ -1070,7 +1085,6 @@ class EventInterpreter(Interpreter):
                 determines which events this interpreter shall look for
         """
         self.event_type = event_type
-        self.state = state
         self._op_add_p = self.event_handler("Install")
         self._op_update_p = self.event_handler("Update")
         self._op_remove_p = self.event_handler("Uninstall")
@@ -1105,17 +1119,14 @@ class EventInterpreter(Interpreter):
             profile_name = dop["profile"]
             if dop[self.event_type]:
                 log_operation(profile_name, "Running event " + event_name)
-                script_dir = os.path.join(const.internal.session_dir, "scripts") + "/"
-                script_path = script_dir + profile_name + "_" + event_name
-                script_path +=  "_" + dop[self.event_type] + ".sh"
-                if not os.path.exists(script_path):
+                if not os.path.exists(dop[self.event_type]):
                     # The script was generated in a previous run and was removed
                     # This should usually not happen, but its not an error
                     log_warning(
                         "Unfortunally the generated script was removed. Skipping."
                     )
                 else:
-                    self.run_script(script_path, dop["profile"])
+                    self.run_script(dop[self.event_type], dop["profile"])
         return start
 
 
@@ -1150,13 +1161,13 @@ class EventExecInterpreter(EventInterpreter):
         failures (int): Counter that stores how many scripts executed with errors.
     """
 
-    def __init__(self, state, event_type):
+    def __init__(self, event_type):
         """Constructor.
 
         Creates a thread and queues for listening on the shells stdout and
         stderr.
         """
-        super().__init__(state, event_type)
+        super().__init__(event_type)
         self.shell = None
         self.ticks_without_feedback = 0
         self.queue_out = Queue()
@@ -1304,7 +1315,7 @@ class ExecuteInterpreter(Interpreter):
     Attributes:
         state (dict): The state-file that will be updated
     """
-    def __init__(self):
+    def __init__(self, force):
         """Constructor.
 
         Updates the version number of the state-file.
@@ -1314,6 +1325,7 @@ class ExecuteInterpreter(Interpreter):
             force (bool): The value of ``--force``
         """
         super().__init__()
+        self.force = force
         self.state = globalstate.current
         self.info_counter = 0
         self.profiles_updated = set()
@@ -1472,7 +1484,7 @@ class ExecuteInterpreter(Interpreter):
             UnkownError: The link could not be created
         """
         if force is None:
-            force = const.mode_args.force
+            force = self.force
         if not os.path.isdir(os.path.dirname(ldescriptor["path"])):
             self._makedirs(ldescriptor["path"])
         self.remove_symlink(ldescriptor["path"], cleanup=False)

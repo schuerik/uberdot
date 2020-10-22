@@ -28,9 +28,11 @@ and the ``@commands``-Decorator.
 
 import builtins
 import os
+import json
+import yaml
 import re
 import shutil
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from copy import deepcopy
 from uberdot.dynamicfile import *
 from uberdot.state import GenLinkData, GenProfileData
@@ -44,9 +46,16 @@ original_builtins = list(builtins.__dict__.keys())
 
 
 class LoaderEntry:
-    def __init__(self, name, class_obj, params={}):
+    def __init__(self, name, location, source, class_obj, params={}):
+        # The name of the profile that will be loaded with this LoaderEntry
         self.name = name
+        # The path of the file in which the profile was found
+        self.location = location
+        # The source/content that defines the profile
+        self.source = source
+        # A class that will be used to create instances of the profile
         self.class_obj = class_obj
+        # Additional parameters that may be required to create instances
         self.params = params
 
 
@@ -76,7 +85,6 @@ class ProfileLoader(metaclass=Singleton):
             msg = "'" + file + "' can't be imported because it does not exist."
             raise PreconditionError(msg)
         try:
-            # TODO: errors in modules seem not to raise exceptions
             spec = importlib.util.spec_from_file_location("__name__", file)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
@@ -88,16 +96,21 @@ class ProfileLoader(metaclass=Singleton):
     @staticmethod
     def parse_static_json_profile(file):
         parsed = json.load(file)
-        entry = LoaderEntry(parsed["name"], StaticParsedProfile, parsed)
-        result[parsed["name"]] = entry
-        return result
+        return [LoaderEntry(
+            parsed["name"],
+            file,
+            open(file, "r").read(),
+            StaticParsedProfile,
+            {"parsed": parsed}
+        )]
 
     @staticmethod
     def parse_yaml_easy_profile(file):
-        parsed = yaml.load(file)
-        entry = LoaderEntry(parsed["name"], EasyParsedProfile, parsed)
-        result[parsed["name"]] = entry
-        return result
+        content = open(file, "r").read()
+        parsed = yaml.load(content, Loader=yaml.FullLoader)
+        return [LoaderEntry(
+            parsed["name"], file, content, EasyParsedProfile, {"parsed": parsed}
+        )]
 
     @staticmethod
     def import_profiles_by_classname(file):
@@ -109,11 +122,59 @@ class ProfileLoader(metaclass=Singleton):
             msg = "The module '" + file + "' contains an error and therefor "
             msg += "can't be imported. The error was:\n   " + str(err)
             raise PreconditionError(msg)
-        result = {}
+        result = []
         for class_name, class_obj in vars(module).items():
-            if isinstance(class_obj, type) and issubclass(class_obj, ProfileSkeleton):
-                result[class_name] = LoaderEntry(class_name, class_obj)
+            if not isinstance(class_obj, type):
+                # This property is not a class so skip it
+                continue
+            if not issubclass(class_obj, ProfileSkeleton):
+                # Class does not inherit from ProfileSkeleton so skip it
+                continue
+            if hasattr(class_obj, "__abstractmethods__"):
+                if class_obj.__abstractmethods__:
+                    # Class is abstract/superclass so skip it
+                    continue
+            profile_name = class_obj.get_name()
+            result.append(
+                LoaderEntry(
+                    profile_name,
+                    file,
+                    ProfileLoader.get_python_source(class_name, file),
+                    class_obj
+                )
+            )
         return result
+
+    @staticmethod
+    def get_python_source(class_name, file):
+        # This is a modified version of inspect.getsource() because
+        # the way we import profiles on-demand fucks with inspect,
+        # so that it can't find the module of the profiles
+        pat = re.compile(r'^(\s*)class\s*' + class_name + r'\b')
+        # make some effort to find the best matching class definition:
+        # use the one with the least indentation, which is the one
+        # that's most probably not inside a function definition.
+        candidates = []
+        lines = open(file).readlines()
+        start = None
+        for i in range(len(lines)):
+            match = pat.match(lines[i])
+            if match:
+                # if it's at toplevel, it's already the best one
+                if lines[i][0] == 'c':
+                    start = i
+                # else add whitespace to candidate list
+                candidates.append((match.group(1), i))
+        if not candidates:
+            msg = "Could not find source code of class '" + class_name
+            msg += "' in file '" + file + "'."
+            raise PreconditionError(msg)
+        if start is None:
+            # this will sort by whitespace, and by line number,
+            # less whitespace first
+            candidates.sort()
+            start = candidates[0][1]
+        return "".join(inspect.getblock(lines[start:]))
 
     def extend_mappings(self, extra_files=None, extra_ext=None):
         if extra_files:
@@ -129,7 +190,15 @@ class ProfileLoader(metaclass=Singleton):
                 continue
             load_entries = self.__parse_profilefile(filename)
             if load_entries is not None:
-                self._loaded_profiles.update(load_entries)
+                for entry in load_entries:
+                    # Check that new entry doesnt conflict with already loaded profiles
+                    if entry.name in self._loaded_profiles:
+                        msg = "Can't load profile '" + entry.name + "' from location '"
+                        msg += entry.location + "' because a profile with the same name was "
+                        msg += "already loaded from '" + self._loaded_profiles[entry.name].location + "'."
+                        raise PreconditionError(msg)
+                    # Add load entries to loaded profiles
+                    self._loaded_profiles[entry.name] = entry
         log_debug("Found: " + ", ".join(self.available_profiles()))
 
     def available_profiles(self):
@@ -164,9 +233,9 @@ class ProfileLoader(metaclass=Singleton):
         # Generate all LoadEntries for each profile in file
         load_entries = loader_func(filename)
         # Check that all returned profiles inherit from ProfileSkeleton
-        for name, entry in load_entries.items():
+        for entry in load_entries:
             if not issubclass(entry.class_obj, ProfileSkeleton):
-                msg = "Profile '" + name + "' cant be loaded as it is"
+                msg = "Profile '" + entry.name + "' cant be loaded as it is"
                 msg += " not a subclass of ProfileSkeleton."
                 raise PreconditionError(msg)
         return load_entries
@@ -175,9 +244,24 @@ class ProfileLoader(metaclass=Singleton):
         try:
             return self._loaded_profiles[name].class_obj
         except KeyError:
-            raise PreconditionError("Can't get class for profile '" + name + "'.")
+            msg = "Can't get class of profile '" + name + "'. No such profile."
+            raise PreconditionError(msg)
 
-    def new_object(self, name, data={}, params={}):
+    def get_source(self, name):
+        try:
+            return self._loaded_profiles[name].source
+        except KeyError:
+            msg = "Can't get source of profile '" + name + "'. No such profile."
+            raise PreconditionError(msg)
+
+    def get_location(self, name):
+        try:
+            return self._loaded_profiles[name].location
+        except KeyError:
+            msg = "Can't get location of profile '" + name + "'. No such profile."
+            raise PreconditionError(msg)
+
+    def get_instance(self, name, data={}, params={}):
         try:
             load_entry = self._loaded_profiles[name]
         except KeyError:
@@ -188,7 +272,7 @@ class ProfileLoader(metaclass=Singleton):
 
 
 # Abstract class that implements the absolute minimum of profiles
-class ProfileSkeleton:
+class ProfileSkeleton(ABC):
     def __init__(self, name, data):
         self.name = name
         self.data = data
@@ -197,6 +281,10 @@ class ProfileSkeleton:
     @classmethod
     def new(cls, name, data, params):
         return cls(name, data, **params)
+
+    @classmethod
+    def get_name(cls):
+        return cls.__name__
 
     @abstractmethod
     def start_generation(self):
@@ -238,7 +326,7 @@ class BaseProfile(ProfileSkeleton):
             dict: The result dictionary :attr:`self.result<Profile.result>`
         """
         if self.executed:
-            self._gen_err("A profile can be only generated " +
+            self._gen_err("A profile can only be generated " +
                           "one time to prevent side-effects!")
         self.executed = True
         self._prepare_generation()
@@ -291,7 +379,7 @@ class BaseProfile(ProfileSkeleton):
     def generate_subprofile(self, profilename, extend_data=None):
         if profilename == self.name:
             self._gen_err("Recursive profiles are forbidden!")
-        elif profilename in const.args.exclude:
+        elif profilename in const.mode.exclude:
             log_debug("'" + profilename + "' is in exclude list." +
                       " Skipping generation of profile...")
         else:
@@ -301,7 +389,7 @@ class BaseProfile(ProfileSkeleton):
                 data = extend_data(self.child_data)
             # Create instance of profilename with merged options
             # and current directory
-            profile = ProfileLoader().new_object(profilename, data)
+            profile = ProfileLoader().get_instance(profilename, data)
             # Generate profile and add it to this profile's
             # generation result
             self.result["profiles"].append(profile.start_generation())
@@ -1028,17 +1116,22 @@ class EasyProfile(CommandProfile):
 
 # Profile that loads the result from a static dictionary using EasyProfile
 # semantics. The syntax is as follows:
-# generate:                           # {
-#   - link:                           #   "generate": [
-#       - abc                         #     { "link": ["abc", "efg"] },
-#       - efg                         #     { "link": ["xyz"] },
-#   - link:                           #     { "link": [
-#       - xyz                         #         { "pipe": ["file", "command"]},
-#   - link:                           #         "uvw"
-#       - pipe:                       #       ]
-#           - file                    #     }
-#           - command                 #   ]
-#       - uvw                         # }
+# {                                         # generate:
+#   "generate": [                           #   - link:
+#     { "link": ["abc", "efg"] },           #       - abc
+#     { "link": ["xyz"] },                  #       - efg
+#     { "link": [                           #   - link:
+#         { "pipe": ["file", "command"]},   #       - xyz
+#         { "kwargs": {                     #   - link:
+#             "permission": 600,            #       - pipe:
+#             "hard": True                  #           - file
+#           }                               #           - command
+#         },                                #       - kwargs:
+#         "uvw"                             #           permission: 600
+#       ]                                   #           hard: True
+#     }                                     #       - uvw
+#   ]
+# }
 class EasyParsedProfile(EasyProfile):
     def __init__(self, name, data, parsed=None):
         super().__init__(name, data)
@@ -1048,12 +1141,13 @@ class EasyParsedProfile(EasyProfile):
 
     def _prepare_generation(self):
         super()._prepare_generation()
-        self.beforeUpdate = parsed["beforeUpdate"]
-        self.beforeInstall = parsed["beforeInstall"]
-        self.beforeUninstall = parsed["beforeUninstall"]
-        self.afterUpdate = parsed["afterUpdate"]
-        self.afterInstall = parsed["afterInstall"]
-        self.afterUninstall = parsed["afterUninstall"]
+        events = [
+            "beforeUpdate", "beforeInstall", "beforeUninstall",
+            "afterUpdate", "afterInstall", "afterUninstall",
+        ]
+        for evtname in events:
+            if evtname in self.parsed:
+                setattr(self, eventname, self.parsed[eventname])
 
     def generate(self):
         # TODO: Error handling
@@ -1061,15 +1155,22 @@ class EasyParsedProfile(EasyProfile):
             self.exec_command(command)
 
     def exec_command(self, commanddict):
-        name, params = commanddict.items()[0]
-        name = "command_" + name
-        evalued_params = []
+        if len(commanddict) != 1:
+            raise PreconditionError("Commanddict has to contain only one key")
+        name, params = list(commanddict.items())[0]
+        if not isinstance(params, list):
+            params = [params]
+        args = []
+        kwargs = {}
         for param in params:
             if isinstance(param, dict):
-                evalued_params.append(self.exec_command(param))
+                if "kwargs" in param:
+                    kwargs = param["kwargs"]
+                else:
+                    args.append(self.exec_command(param))
             else:
-                evalued_params.append(param)
-        return self.custom_builtins[name](**evalued_params)
+                args.append(param)
+        return self.custom_builtins[name](*args, **kwargs)
 
 
 # Profile that loads the result from a static dictionary

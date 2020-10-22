@@ -114,7 +114,6 @@ def upgrade_date(old_state, path):
     return old_state
 
 
-# TODO: create a new version 1.14 that already supports the new owner attribute
 # use this new version as "base" version, so all tests use at least this version
 def upgrade_hard_links(old_state, path):
     """Upgrade from old installed file with schema version 4 to fancy
@@ -276,7 +275,6 @@ class AutoExpandDict(MutableMapping, AutoExpander):
     def __delitem__(self, key): self.delitem(key)
     def __len__(self): return self.len()
     def __iter__(self): return iter(self.data)
-    def __contains__(self, key): return key in self.data
 
     def __setitem__(self, key, value):
         if key is None:
@@ -386,8 +384,13 @@ class AutoExpandList(MutableSequence, AutoExpander):
             )
         return new_list
 
-    def __contains__(self, value):
-        return any(item == value for item in self.data)
+    def __eq__(self, other):
+        if len(self) == len(other):
+            same = True
+            for i, item in enumerate(self):
+                same = same and item == other[i]
+            return same
+        return False
 
     def __setitem__(self, value):
         self.data.append(self.wrap_value(self.len(), value))
@@ -424,8 +427,6 @@ class StaticAutoExpandDict(AutoExpandDict):
             raise UberdotError(
                 "Can't create new key '" + key + "' in a StaticAutoExpandDict"
             )
-
-# TODO add comparetors for all structs here
 
 class LinkData(StaticAutoExpandDict):
     def init_data(self):
@@ -467,39 +468,24 @@ class LinkData(StaticAutoExpandDict):
             props["secure"] = utils.get_owner(path) == utils.get_owner(props["target"])
         return cls(args=props)
 
-    def broken(self):
-        # TODO: seems odd. what if target or path not exists?
-        if self["hard"]:
-            if self["target"] is not None:
-                if os.stat(self["target"]).st_ino != self["target_inode"]:
-                    return True
-            if os.stat(self["path"]).st_ino != self["target_inode"]:
-                return True
-        else:
-            if readlink(self["path"]) != self["target"]:
-                return True
-            if not os.path.exists(self["target"]):
-                return True
-        return False
-
     def exists(self):
         try:
-            return self == LinkData.from_file(self["path"])
+            return self.is_same_file(LinkData.from_file(self["path"]))
         except FileNotFoundError:
             return False
 
     def similar_exists(self):
         try:
-            if self.is_similar(LinkData.from_file(self["path"])):
+            if self.is_similar_file(LinkData.from_file(self["path"])):
                 return True
         except FileNotFoundError:
             pass
         for file in utils.listfiles(os.path.dirname(self["path"])):
-            if self.is_similar(LinkData.from_file(file)):
+            if self.is_similar_file(LinkData.from_file(file)):
                 return True
         return False
 
-    def is_similar(self, link):
+    def is_similar_file(self, link):
         if self["path"] == link["path"]:
             return True
         if self["target"] is not None and link["target"] is not None:
@@ -507,7 +493,7 @@ class LinkData(StaticAutoExpandDict):
                 return True
         return self["target_inode"] == link["target_inode"]
 
-    def __eq__(self, link):
+    def is_same_file(self, link):
         result = self["path"] == link["path"]
         if self["target"] is not None and link["target"] is not None:
             result = result and self["target"] == link["target"]
@@ -518,6 +504,9 @@ class LinkData(StaticAutoExpandDict):
         result = result and self["hard"] == link["hard"]
         result = result and self["secure"] == link["secure"]
         return result
+
+    def __eq__(self, link):
+        return self.is_same_file(link) and self["buildup"] == link["buildup"]
 
     def wrap_value(self, key, value, for_state_version=False):
         if key == "buildup":
@@ -535,6 +524,12 @@ class StateLinkData(LinkData):
         self.expander["target"] = AutoExpander.abspath(origin)
         self.expander["owner"] = utils.inflate_owner
 
+    def __eq__(self, link):
+        result = super().__eq__(link)
+        if type(link) in [StateLinkData, GenLinkData]:
+            result = result and self["buildup"] == link["buildup"]
+        return result
+
     def wrap_value(self, key, value):
         return super().wrap_value(key, value, for_state_version=True)
 
@@ -551,15 +546,27 @@ class GenLinkData(LinkData):
         self.data["created"] = utils.get_date_time_now()
         self.data["modified"] = self.data["created"]
 
+    def __eq__(self, link):
+        result = super().__eq__(link)
+        if type(link) in [StateLinkData, GenLinkData]:
+            result = result and self["buildup"] == link["buildup"]
+        return result
+
     def wrap_value(self, key, value):
         return super().wrap_value(key, value, for_state_version=False)
 
 
-class BuildupData(StaticAutoExpandDict):
+class BuildupData(AutoExpandDict):
     def init_data(self):
         self.data["path"] = None
         self.data["source"] = None
         self.data["type"] = None
+
+    def __eq__(self, buildup):
+        return all(map(
+            lambda x: x in self and x in buildup and self[x] == buildup[x],
+            set(list(self.keys()) + list(buildup.keys()))
+        ))
 
     @staticmethod
     def gen_type_error(value, supported_types):
@@ -640,16 +647,16 @@ class GenBuildupData(BuildupData):
         return super().wrap_value(key, value, for_state_version=False)
 
 
-class StateSplittedFileBuildupData(StateBuildupData):
-    def init_data(self):
-        super().init_data()
-        self.data["file_lengths"] = []
+# class StateSplittedFileBuildupData(StateBuildupData):
+#     def init_data(self):
+#         super().init_data()
+#         self.data["file_lengths"] = []
 
 
-class GenSplittedFileBuildupData(GenBuildupData):
-    def init_data(self):
-        super().init_data()
-        self.data["file_lengths"] = []
+# class GenSplittedFileBuildupData(GenBuildupData):
+#     def init_data(self):
+#         super().init_data()
+#         self.data["file_lengths"] = []
 
 
 class CopyData(StaticAutoExpandDict):
@@ -671,20 +678,44 @@ class GenCopyData(CopyData):
         super().__init__(args=args, **kwargs)
 
 
-class StateProfileData(AutoExpandDict):
-    #TODO: Expand events here ?
+class ProfileData(AutoExpandDict):
+    def __init__(self, origin=None, args={}, **kwargs):
+        super().__init__(origin, args=args, **kwargs)
+        self.expander["beforeInstall"] = ProfileData.expand_event(self["name"], "beforeInstall")
+        self.expander["beforeUpdate"] = ProfileData.expand_event(self["name"], "beforeUpdate")
+        self.expander["beforeUninstall"] = ProfileData.expand_event(self["name"], "beforeUninstall")
+        self.expander["afterInstall"] = ProfileData.expand_event(self["name"], "afterInstall")
+        self.expander["afterUpdate"] = ProfileData.expand_event(self["name"], "afterUpdate")
+        self.expander["afterUninstall"] = ProfileData.expand_event(self["name"], "afterUninstall")
+
+    @staticmethod
+    def expand_event(profilename, eventname):
+        def expand_func(value):
+            if not re.match("[a-f0-9]{32}", value, re.I):
+                return value
+            return utils.abspath(
+                "scripts/" + profilename + "_" + eventname + "_" + value + ".sh",
+                origin=const.internal.session_dir
+            )
+        return expand_func
+
     def init_data(self):
         self.data["name"] = None
         self.data["parent"] = None
-        self.data["links"] = StateLinkDataList(self.origin)
-        self.data["installed"] = None
-        self.data["updated"] = None
         self.data["beforeInstall"] = None
         self.data["beforeUpdate"] = None
         self.data["beforeUninstall"] = None
         self.data["afterInstall"] = None
         self.data["afterUpdate"] = None
         self.data["afterUninstall"] = None
+
+
+class StateProfileData(ProfileData):
+    def init_data(self):
+        super().init_data()
+        self.data["links"] = StateLinkDataList(self.origin)
+        self.data["installed"] = None
+        self.data["updated"] = None
 
     def wrap_value(self, key, value):
         if key == "links" and not isinstance(value, StateLinkDataList):
@@ -692,21 +723,11 @@ class StateProfileData(AutoExpandDict):
         return super().wrap_value(key, value)
 
 
-class GenProfileData(AutoExpandDict):
-    def __init__(self, args={}, **kwargs):
-        super().__init__(args=args, **kwargs)
-
+class GenProfileData(ProfileData):
     def init_data(self):
-        self.data["name"] = None
-        self.data["parent"] = None
+        super().init_data()
         self.data["links"] = GenLinkDataList()
         self.data["profiles"] = []
-        self.data["beforeInstall"] = None
-        self.data["beforeUpdate"] = None
-        self.data["beforeUninstall"] = None
-        self.data["afterInstall"] = None
-        self.data["afterUpdate"] = None
-        self.data["afterUninstall"] = None
 
     def wrap_value(self, key, value):
         if key == "links" and not isinstance(value, GenLinkDataList):
@@ -808,7 +829,7 @@ class State(AutoExpandDict):
         except UberdotError as err:
             raise PreconditionError(
                 "Can not parse state file data of '" +
-                self.file + "'. " + str(err)
+                self.file + "'. " + str(err._message)
             )
         log_debug("Checking state file consistency.")
         self.check_empty_fields()
@@ -865,7 +886,7 @@ class State(AutoExpandDict):
         return cls(path, auto_write=True)
 
     def get_snapshots(self):
-        return utils.get_snapshots(self.origin)
+        return utils.find_snapshots(self.origin)
 
     def get_patches(self):
         patches = []

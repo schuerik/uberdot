@@ -21,6 +21,7 @@
 import hashlib
 import argparse
 import os
+import re
 import sys
 import pty
 import select
@@ -35,8 +36,12 @@ from subprocess import TimeoutExpired
 # Constants and helpers
 ###############################################################################
 
-LINEWDTH = get_terminal_size().columns  # Width of a line
+# Width of each line in the termainal emulator
+LINEWDTH = get_terminal_size().columns
+# Test directory (the directory of the current file)
 DIRNAME = os.path.dirname(os.path.abspath(sys.modules[__name__].__file__))
+# Timeout in milliseconds for tests
+test_timeout_ms = 5000
 # Global used to store success of all tests
 global_fails = 0
 # Global to time execution of all tests
@@ -50,8 +55,10 @@ parser.add_argument("-m", "--meta", default=False, action="store_true",
                     help="show meta data about tests even if successful")
 parser.add_argument("-k", "--keep-files", default=False, action="store_true",
                     help="don't reset files after test")
+parser.add_argument("-v", "--verbose", default=False, action="store_true",
+                    help="run tests with verbose output instead of no output")
 parser.add_argument("tests", nargs="*", type=int,
-                    help="list of tests (referenced by number) to perform with verbose output")
+                    help="only perform this list of tests (referenced by number)")
 args = parser.parse_args()
 
 
@@ -171,7 +178,7 @@ class RegressionTest():
             # not the correct test, do nothing
             self.success = self.dummy
             self.fail = self.dummy
-        verbose = ["-v"] if args.tests else []
+        verbose = ["-v"] if args.verbose else []
         test_nr += 1
         self.name = name
         self.cmd_args = ["python3", "../../udot.py",
@@ -386,6 +393,32 @@ class OutputTest(RegressionTest):
         return True, ""
 
 
+class RegexOutputTest(RegressionTest):
+    def __init__(self, name, cmd_args, before, regex, session="default"):
+        super().__init__(name, cmd_args, session)
+        self.before = before
+        self.regex = regex
+
+    def pre_check(self):
+        try:
+            dircheck(self.environ, self.before)
+        except ValueError as err:
+            return err.args[0]
+        return True, ""
+
+    def run_check(self, exitcode, msg, error):
+        if exitcode:
+            return False, "Exited with exitcode " + str(exitcode), error.decode()
+        if not re.fullmatch(self.regex, msg.decode(), flags=re.M | re.S):
+            error = "Output was:\n" + repr(msg)
+            error += "\nbut should match pattern:\n" + repr(self.regex.encode())
+            return False, "Output doesn't match the expected pattern.", error
+        return True, ""
+
+    def post_check(self):
+        return True, ""
+
+
 class SimpleOutputTest(OutputTest):
     def __init__(self, name, cmd_args, before, session="default"):
         super().__init__(name, cmd_args, before, None, session)
@@ -408,7 +441,7 @@ class InputDirRegressionTest(DirRegressionTest):
         p = Popen(self.cmd_args, stdin=slave, stdout=PIPE, stderr=PIPE, env=env)
 
         ticks = 0
-        while p.poll() is None and ticks < 5000:
+        while p.poll() is None and ticks < test_timeout_ms:
             # Wait a tick
             ticks += 1
             time.sleep(0.001)
@@ -426,7 +459,7 @@ class InputDirRegressionTest(DirRegressionTest):
                 os.write(master, line)
 
         # Check if timeout was reached
-        if ticks >= 5000:
+        if ticks >= test_timeout_ms:
             p.kill()
             return False, -1, "Test timed out after 5 seconds."
 
@@ -434,7 +467,7 @@ class InputDirRegressionTest(DirRegressionTest):
         error_msg = p.stderr.read()
 
         exitcode = p.returncode
-        if len(args.tests) > 1:
+        if len(args.tests):
             print(output.decode(), end="")
         return self.run_check(exitcode, output, error_msg)
 
@@ -563,6 +596,47 @@ before_nested = {
         ],
     }
 }
+
+before_modified = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "files/name3",
+            },
+            {
+                "name": "name5",
+                "target": "data/sessions/modified/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
+            },
+            {
+                "name": "name11.file",
+                "target": "files/name11.file",
+            }
+        ],
+    },
+    "subdir": {
+        "links": [
+            {
+                "name": "name2",
+                "target": "data/sessions/modified/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
+            }
+        ],
+    },
+    "subdir/subsubdir": {
+        "links": [
+            {
+                "name": "name6",
+                "target": "data/sessions/modified/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+            },
+            {
+                "name": "name4",
+                "target": "data/sessions/modified/files/static/name4#48a24b70a0b376535542b996af517398",
+            },
+        ],
+    },
+}
+
 
 after_nooptions = {
     ".": {
@@ -895,6 +969,21 @@ before_dynamicfiles_changes = {
                 "name": "merge2",
                 "target": "data/sessions/dynamic_changes/files/merged/merge2#6ddb4095eb719e2a9f0a3f95677d24e0",
                 "content": "efdb6a5388498d59a2c55499ba5f0ad6"
+            },
+            {
+                "name": "merge3",
+                "target": "data/sessions/dynamic_changes/files/merged/merge3#59ad5fc961d51b074abe515838c7b47f",
+                "content": "2585a17a26d0afb3f9121f625e9749cb"
+            },
+            {
+                "name": "merge4",
+                "target": "data/sessions/dynamic_changes/files/merged/merge4#b90cf760b86c830728e7d677e004d75e",
+                "content": "b90cf760b86c830728e7d677e004d75e"
+            },
+            {
+                "name": "merge5",
+                "target": "data/sessions/dynamic_changes/files/merged/merge5#6aa781097f73e7d985a22c42c3a93a57",
+                "content": "8d32abd48f2d0a961dd1ac1cb1aa7639"
             },
             {
                 "name": "name_encrypt8",
@@ -1529,46 +1618,6 @@ after_updatedui = {
     }
 }
 
-before_modified = {
-    ".": {
-        "files": [{"name": "untouched.file"}],
-        "links": [
-            {
-                "name": "name1",
-                "target": "files/name3",
-            },
-            {
-                "name": "name5",
-                "target": "files/name5",
-            },
-            {
-                "name": "name11.file",
-                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d11.file",
-            }
-        ],
-    },
-    "subdir": {
-        "links": [
-            {
-                "name": "name2",
-                "target": "files/name2",
-            }
-        ],
-    },
-    "subdir/subsubdir": {
-        "links": [
-            {
-                "name": "name6",
-                "target": "files/name3",
-            },
-            {
-                "name": "name4",
-                "target": "files/name4",
-            },
-        ],
-    },
-}
-
 after_modified = {
     ".": {
         "files": [{"name": "untouched.file"}],
@@ -1579,11 +1628,11 @@ after_modified = {
             },
             {
                 "name": "name5",
-                "target": "files/name5",
+                "target": "data/sessions/modified/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
             },
             {
                 "name": "name11.file",
-                "target": "data/sessions/default/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d11.file",
+                "target": "files//name11.file",
             }
         ],
     },
@@ -1591,7 +1640,7 @@ after_modified = {
         "links": [
             {
                 "name": "name2",
-                "target": "data/sessions/default/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
+                "target": "data/sessions/modified/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
             },
         ],
     },
@@ -1599,22 +1648,78 @@ after_modified = {
         "links": [
             {
                 "name": "name7",
-                "target": "files/name7",
-            }
+                "target": "data/sessions/modified/files/static/name7#84bc3da1b3e33a18e8d5e1bdd7a18d7a",
+            },
+            {
+                "name": "name6",
+                "target": "data/sessions/modified/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1",
+            },
         ],
     },
     "subdir/subsubdir": {
         "links": [
             {
-                "name": "name6",
-                "target": "files/name3",
+                "name": "name4",
+                "target": "data/sessions/modified/files/static/name4#48a24b70a0b376535542b996af517398",
             },
             {
-                "name": "name4",
-                "target": "data/sessions/default/files/static/name4#48a24b70a0b376535542b996af517398",
+                "name": "name6",
+                "target": "data/sessions/modified/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
             },
         ],
     },
+}
+
+after_modified_restore = {
+    ".": {
+        "files": [{"name": "untouched.file"}],
+        "links": [
+            {
+                "name": "name1",
+                "target": "data/sessions/modified/files/static/name1#b026324c6904b2a9cb4b88d6d61c81d1",
+            },
+            {
+                "name": "name5",
+                "target": "data/sessions/modified/files/static/name5#1dcca23355272056f04fe8bf20edfce0",
+            },
+            {
+                "name": "name11.file",
+                "target": "data/sessions/modified/files/static/name11.file#d41d8cd98f00b204e9800998ecf8427e",
+            }
+        ],
+    },
+    "subdir": {
+        "links": [
+            {
+                "name": "name2",
+                "target": "data/sessions/modified/files/static/name2#26ab0db90d72e28ad0ba1e22ee510510",
+            },
+        ],
+    },
+    "subdir/subsubdir": {
+        "links": [
+            {
+                "name": "name3",
+                "target": "data/sessions/modified/files/static/name3#6d7fce9fee471194aa8b5b6e47267f03",
+            },
+            {
+                "name": "name4",
+                "target": "data/sessions/modified/files/static/name4#48a24b70a0b376535542b996af517398",
+            },
+        ],
+    },
+    "subdir2": {
+        "links": [
+            {
+                "name": "name6",
+                "target": "data/sessions/modified/files/static/name6#9ae0ea9e3c9c6e1b9b6252c8395efdc1",
+            },
+            {
+                "name": "name7",
+                "target": "data/sessions/modified/files/static/name7#84bc3da1b3e33a18e8d5e1bdd7a18d7a",
+            }
+        ],
+    }
 }
 
 after_blacklisted = {
@@ -1649,7 +1754,7 @@ DirRegressionTest("Arguments: No profiles",
                   ["update"],
                   before, before).fail("run", 101)
 DirRegressionTest("Arguments: Excluded and included same profile",
-                  ["--exclude", "Something", "update", "somenthingelse", "Something"],
+                  ["update", "--exclude", "Something", "--", "somenthingelse", "Something"],
                   before, before).fail("run", 101)
 DirRegressionTest("Arguments: No makedirs",
                   ["update", "Links"],
@@ -1666,7 +1771,7 @@ DirRegressionTest("Arguments: --option",
                       "tags=tag1,notag", "--", "OptionArgument"
                   ], before, after_options).success()
 DirRegressionTest("Arguments: --exclude",
-                  ["--exclude", "Subprofile2", "--exclude", "Subprofile4", "update", "-m", "SuperProfile"],
+                  ["update", "--exclude", "Subprofile2", "Subprofile4", "-m", "SuperProfile"],
                   before, after_superprofile_with_exclusion).success()
 DirRegressionTest("Arguments: --log",
                   ["--log", "update",  "-m", "DirOption"],
@@ -1779,7 +1884,7 @@ DirRegressionTest("Update: Uninstall",
                   before_update, before, "update").success()
 # TODO: For this test we should also check the state file
 DirRegressionTest("Update: Uninstall with excludes",
-                  ["--exclude", "Subprofile2", "remove", "SuperProfileTags"],
+                  ["remove", "--exclude", "Subprofile2", "--", "SuperProfileTags"],
                   before_nested, after_subprofile2, "nested").success()
 DirRegressionTest("Update: --parent",
                   ["update", "--parent", "SuperProfileTags", "-m", "Subprofile2", "Subprofile5"],
@@ -1810,22 +1915,27 @@ SimpleOutputTest("Output: --debuginfo",
                  before).success()
 SimpleOutputTest("Output: show",
                  ["show", "-ampl"],
-                 after_diroptions, "update").success()
+                 before_update, "update").success()
 SimpleOutputTest("Output: show other state",
                  ["show", "--state", "1"],
-                 after_diroptions, "update").success()
+                 before_update, "update").success()
 SimpleOutputTest("Output: history",
                  ["history"],
-                 after_diroptions, "update").success()
+                 before_update, "update").success()
 OutputTest("Output: find tags",
            ["find", "-tn"],
-           before, "tag\ntag1\ntag2\ntag3\n").success()
-OutputTest("Output: find profiles",
-           ["find", "-pn", "Super"],
-           before, "SuperProfile\nSuperProfileEvent\nSuperProfileTags\n").success()
+           before, "tag1\ntag2\ntag3\ntag\n").success()
+RegexOutputTest(
+    "Output: find profiles",
+    ["find", "-pn", "Super"],
+    before,
+    r"No loading mechanism for file '.+test/regression/profiles/not_a_profile\.txt'" +
+    r" available\..*SuperProfile\nSuperProfileEvent\nSuperProfileTags\n"
+).success()
 OutputTest("Output: find dotfiles",
            ["find", "-dnr", r"name\d{2}"],
-           before, "name10\nname11.file\n").success()
+           before, "name11.file\nname10\n").success()
+# TODO: Use a RegexOutputTest here
 SimpleOutputTest("Output: find all",
                  ["find", "-ptdali", "name"],
                  before).success()
@@ -1861,7 +1971,7 @@ SimpleOutputTest("Output: find all",
 #                   after_tags, after_updatedui, "warped").success()
 DirRegressionTest("Fail: Not a profile",
                   ["update", "NotAProfileFail"],
-                  before, before).fail("run", 104)
+                  before, before).fail("run", 103)
 DirRegressionTest("Fail: Profile does not exist",
                   ["update", "ThisDoesNotExist"],
                   before, before).fail("run", 103)
@@ -1876,24 +1986,24 @@ DirRegressionTest("Fail: Cycle in profile",
                   before, before).fail("run", 104)
 DirRegressionTest("Fail: Link moved between profiles",
                   ["update", "SuperProfileTags"],
-                  after_tags, before, "nested").fail("run", 102)
+                  before_nested, before, "nested").fail("run", 102)
 DirRegressionTest("Fail: Link moved between profiles",
                   ["update", "SuperProfileTags"],
-                  after_tags, before, "nested").fail("run", 102)
+                  before_nested, before, "nested").fail("run", 102)
 # TODO: For these tests we should also check the state file
 DirRegressionTest("Autofix: Take over",
                   ["--fix", "t", "show"],
                   before_modified, before_modified, "modified").success()
 DirRegressionTest("Autofix: Restore",
                   ["--fix", "r", "show"],
-                  before_modified, after_diroptions, "modified").success()
+                  before_modified, after_modified_restore, "modified").success()
 DirRegressionTest("Autofix: Untrack",
                   ["--fix", "u", "show"],
                   before_modified, before_modified, "modified").success()
 InputDirRegressionTest("Autofix: Decide",
                        ["show"],
                        before_modified, after_modified,
-                       "d\ns\np\nu\nt\nr", "modified").success()
+                       "d\ns\np\nu\nt\nr\nr", "modified").success()
 DirRegressionTest("Upgrade", ["show"],
                   after_tags, after_tags, "upgrade").success()
 

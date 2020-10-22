@@ -41,7 +41,7 @@ import sys
 from abc import abstractmethod
 from subprocess import PIPE
 from subprocess import Popen
-from uberdot.state import GenBuildupData, GenCopyData, GenSplittedFileBuildupData
+from uberdot.state import GenBuildupData, GenCopyData
 from uberdot import utils
 
 const = utils.Const()
@@ -53,12 +53,8 @@ def getModuleAttr(name):
     return getattr(sys.modules[__name__], name)
 
 
-def load(cls, linkdata):
-    buildup = linkdata["buildup"]
-    if buildup is not None:
-        return getModuleAttr(buildup["type"]).load(buildup)
-    else:
-        raise UberdotError("LinkData needs buildup data to load dynamicfiles from it")
+def load_file_from_buildup(cls, buildupdata):
+        return getModuleAttr(buildupdata["type"]).load(buildupdata)
 
 
 class AbstractFile:
@@ -524,32 +520,42 @@ class SplittedFile(MultipleSourceDynamicFile):
             bytearray: The content of all files merged together
         """
         result = bytearray()
+        self.file_lengths = []
         for file in self.source:
             lines = open(file.getpath(), "rb").read().split(b"\n")
-            self.file_lengths.append(len(lines))
+            linecount = len(lines) if lines[-1] else len(lines)-1
+            self.file_lengths.append(linecount)
             result.extend(b"\n".join(lines))
         return result
 
     def _generate_source_content(self):
+        def increment_tmp_len(count):
+            if tmp_len + count > file_lengths[file_idx]:
+                tmp_len = tmp_len + count - file_lengths[file_idx]
+                file_idx += 1
+            else:
+                tmp_len += count
+        # Calculate diff to figure out where to split the new content
         current = self.content.encode()
         previous = "".join([open(file, "r").read() for file in self.source])
-        # Calculate diff to figure out the new file_lengths
         seqm = SequenceMatcher(None, previous.split(), current.split(), False)
         file_idx = 0
         file_lengths = self.file_lengths[:]
+        tmp_len = 0
         for tag, i1, i2, j1, j2 in seqm.get_optcode():
-            # TODO increment file_idx
             linecount_old = i2-i1
             linecount_new = j2-j1
             if tag == "equal":
-                continue
+                increment_tmp_len(linecount_old)
             elif tag == "delete":
                 file_lengths[file_idx] -= linecount_old
             elif tag == "insert":
                 file_lengths[file_idx] += linecount_new
+                increment_tmp_len(linecount_new)
             else:  # tag == "replace"
                 file_lengths[file_idx] -= linecount_old
                 file_lengths[file_idx] += linecount_new
+                increment_tmp_len(linecount_new)
         # Create result for sources depending on the current content and the
         # new file_lengths
         used_lines = 0
@@ -560,6 +566,6 @@ class SplittedFile(MultipleSourceDynamicFile):
         return result
 
     def get_buildup_data(self):
-        buildup = super().get_buildup_data().data
+        buildup = super().get_buildup_data()
         buildup["file_lengths"] = self.file_lengths
-        return GenSplittedFileBuildupData(buildup)
+        return buildup

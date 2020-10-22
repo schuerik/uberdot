@@ -24,6 +24,7 @@
 from datetime import datetime
 import csv
 from argparse import Namespace
+from shutil import get_terminal_size
 import shutil
 import hashlib
 import inspect
@@ -50,7 +51,9 @@ def _check_input_pos(idx, checker, msg):
     def decorator(func):
         def new_func(*args, **kwargs):
             if not checker(args[idx]):
-                raise UberdotError(msg % idx)
+                raise UberdotError(
+                    ("in function %s: " + msg) % (func.__name__, idx)
+                )
             return func(*args, **kwargs)
         return new_func
     return decorator
@@ -60,7 +63,9 @@ def _check_input_key(key, checker, msg):
     def decorator(func):
         def new_func(*args, **kwargs):
             if not checker(kwargs[key]):
-                raise UberdotError(msg % key)
+                raise UberdotError(
+                    ("in function %s: " + msg) % (func.__name__, key)
+                )
             return func(*args, **kwargs)
         return new_func
     return decorator
@@ -179,7 +184,10 @@ def listfiles(dirname):
 
 def is_session_dir(path):
     if os.path.isdir(path):
-        return re.fullmatch(r".*/\.uberdot/sessions/[^/]*/?", path)
+        if path == const.internal.session_dir:
+            return True
+        else:
+            return any(map(lambda x: x[1] == path, const.internal.session_dirs))
     return False
 
 
@@ -619,7 +627,7 @@ class NoColorFileHandler(logging.FileHandler):
         msg = record.msg
         # Remove all color codes
         msg = msg.replace(const.internal.col_endc, "")
-        msg = msg.replace(const.internal.col_noemph, "")
+        msg = msg.replace(const.settings.col_noemph, "")
         for name, attr in const.settings.get_constants():
             if name.startswith("col_"):
                 msg = msg.replace(attr.value, "")
@@ -668,7 +676,7 @@ def log_operation(profile_name, message, debug=False):
     """
     _log = log_debug if debug else log
     _log(const.settings.col_emph + "[" + profile_name + "]: " +
-         const.internal.col_noemph + message)
+         const.settings.col_noemph + message)
 
 
 def log_warning(message, end="\n"):
@@ -812,42 +820,6 @@ def remove_tmp_backup(filename):
     return backupfile
 
 
-def get_profile_source(profile_name, file=None):
-    if file is None:
-        for path, name in get_available_profiles():
-            if name == profile_name:
-                file = path
-                break
-        else:
-            msg = "Could not find module for '" + profile_name + "'"
-            raise PreconditionError(msg)
-
-    # This is a modified version of inspect.getsource() because
-    # the way we import profiles on-demand fucks with inspect,
-    # so that it can't find the module of the profiles
-    pat = re.compile(r'^(\s*)class\s*' + profile_name + r'\b')
-    # make some effort to find the best matching class definition:
-    # use the one with the least indentation, which is the one
-    # that's most probably not inside a function definition.
-    candidates = []
-    lines = open(file).readlines()
-    start = None
-    for i in range(len(lines)):
-        match = pat.match(lines[i])
-        if match:
-            # if it's at toplevel, it's already the best one
-            if lines[i][0] == 'c':
-                start = i
-            # else add whitespace to candidate list
-            candidates.append((match.group(1), i))
-    if start is None:
-        # this will sort by whitespace, and by line number,
-        # less whitespace first
-        candidates.sort()
-        start = candidates[0][1]
-    return inspect.getblock(lines[start:])
-
-
 def makedirs(dir_):
     if not os.path.exists(os.path.dirname(dir_)):
         makedirs(os.path.dirname(dir_))
@@ -918,6 +890,63 @@ def md5(string):
     return hashlib.md5(string).hexdigest()
 
 
+def search_text(text, pattern, regex=False, ignorecase=False):
+    # If no pattern was specified, match everything
+    if not pattern:
+        return list(map(lambda x: (x, [(0, -1)]), text.splitlines()))
+    # Search in each line of text independently and collect all results
+    # Returns always the full line where something was found, but
+    # colors the found substring red
+    all_results = []
+    for line in text.splitlines():
+        if const.find.regex:
+            # Searching with regex
+            flag = re.I if const.find.ignorecase else 0
+            matches = re.finditer(pattern, line, flags=flag)
+            indices = [(match.start(), match.end()) for match in matches]
+        else:
+            # Plain search
+            if const.find.ignorecase:
+                tmp_line = line.lower()
+                pattern = pattern.lower()
+            else:
+                tmp_line = line
+            indices = []
+            offset = 0
+            while tmp_line:
+                try:
+                    idx = tmp_line.index(pattern)
+                except ValueError:
+                    break  # Nothing was found
+                indices.append((offset+idx, offset+idx+len(pattern)))
+                tmp_line = tmp_line[idx+len(pattern):]
+                offset += idx+len(pattern)
+        if indices:
+            all_results.append((line, indices))
+    return all_results
+
+
+def highlight_search_result(search_result):
+    all_results = []
+    for line, indices in search_result:
+        result = ""
+        start = 0
+        for begin, end in indices:
+            # Colorize match in line and add to results
+            result += line[start:begin] + const.settings.col_fail
+            result += line[begin:end]
+            result += const.internal.col_endc
+            start = end
+        if indices:
+            result += line[start:]
+            all_results.append(result)
+    return all_results
+
+
+def search_text_hl(text, pattern, regex=False, ignorecase=False):
+    return highlight_search_result(search_text(text, pattern, regex, ignorecase))
+
+
 # Custom errors
 ###############################################################################
 class CustomError(Exception):
@@ -946,8 +975,8 @@ class CustomError(Exception):
 
     @property
     def message(self):
-        msg = const.settings.col_fail + const.settings.col_emph + "ERROR: " + const.internal.col_endc
-        msg += const.settings.col_fail + self._message + const.internal.col_endc
+        msg = const.settings.col_fail + const.settings.col_emph + "ERROR: " + const.settings.col_noemph
+        msg += self._message + const.internal.col_endc
         return msg
 
     # TODO: issues with coloring when colorized strings are chained together and use col_endc
@@ -1059,18 +1088,17 @@ class GenerationError(CustomError):
                 if frame.f_code.co_filename.startswith(const.settings.profile_files):
                     frameinfo = frame.f_code.co_filename, frame.f_lineno
                 c += 1
-        # Prepend the origin of the error to the message
+        # Prepend the location of the error to the message
         msg = ""
+        if profile is not None:
+            msg += const.settings.col_emph + "[" + profile + "]: " + const.settings.col_noemph
         # If we could figure out the correct frame that triggered the exception
-        # we use the file and line number from the frame as origin
+        # we also show the file and line number from the frame
         if frameinfo is not None:
             msg += "in '" + frameinfo[0] + "'"
             if profile is not None:
                 msg += " in class '" + profile + "'"
             msg += " line " + str(frameinfo[1]) + ": "
-        # Otherwise we will only use the name of the profile
-        elif profile is not None:
-            msg += const.settings.col_emph + "[" + profile + "]: " + const.internal.col_endc
         msg += message
         super().__init__(msg)
 
@@ -1261,6 +1289,9 @@ class Container:
             if isinstance(props, Constant):
                 yield (name, props.value)
 
+    def as_dict(self):
+        return dict(self.items())
+
 
 class Singleton(type):
     _instances = {}
@@ -1286,6 +1317,7 @@ class Const(metaclass=Singleton):
         "find": "Arguments:Find",
         "history": "Arguments:History",
         "help": "Arguments:Help",
+        "sync": "Arguments:Sync",
         "version": "Arguments:Version",
         "settings": "Settings",
         "defaults": "ProfileDefaults",
@@ -1294,6 +1326,7 @@ class Const(metaclass=Singleton):
     def __init__(self, **kwargs):
         # Init own properies
         self.__load_initialized = False
+        self.__loaded = False
         self.__initialized = False
         self.sec_to_con = {v: k for k, v in self.con_to_sec.items()}
         # Init constant containers
@@ -1320,6 +1353,8 @@ class Const(metaclass=Singleton):
         self.args.help = self.help
         self.history = Container(self.args)  # Unused atm
         self.args.history = self.history
+        self.sync = Container(self.args)
+        self.args.sync = self.sync
         self.timewarp = Container(self.args)
         self.args.timewarp = self.timewarp
         self.show = Container(self.args)
@@ -1343,17 +1378,15 @@ class Const(metaclass=Singleton):
         add("DATA_DIR_TEMP", value=kwargs["DATA_DIR_TEMP"])
         add("SESSION_SUBDIR", value=kwargs["SESSION_SUBDIR"])
         add = self.add_factory("internal", mutable=Constant.CONFIGABLE)
-        add("cfg_files", value=[], type="list")
-        add("session_dir", value=kwargs["session_dir"], type="path", )
-        add("session_dirs_foreign", value=kwargs["session_dirs_foreign"], type="list")
         add("col_endc", value='\x1b[0m')
-        add("col_noemph", value='\x1b[22m')
+        add("cfg_files", value=[], type="list")
+        add("session_dir", value=None, type="path")
+        add("session_dirs_foreign", value=kwargs["session_dirs_foreign"], type="list")
 
         # create constants for global arguments of uberdot
         add = self.add_factory("args", value=False, type="bool")
         add("debuginfo", "skiproot", "summary", "log")
         add = self.add_factory("args")
-        add("exclude", value=[], type="list")
         add("fix")
         add("mode", value=None)
         add("loglevel", value="info", func=self.__convert_loglevel)
@@ -1370,6 +1403,7 @@ class Const(metaclass=Singleton):
             "skipbefore", "superforce", "debug", "makedirs"
         )
         add("include", value=[], type="list")
+        add("exclude", value=[], type="list")
         add("skipevents", section=["update", "remove"])
         add("skipevents", value=True, section="timewarp")
 
@@ -1391,16 +1425,20 @@ class Const(metaclass=Singleton):
         add = self.add_factory("show", value=False, type="bool")
         add("allusers", "links", "profiles", "meta")
         add("include", value=[], type="list")
+        add("exclude", value=[], type="list")
         add("state", value=None, type="state", func=self.__find_state)
         add("users", value=[], type="list")
 
         # create constants for arguments of find mode
         add = self.add_factory("find", value=False, type="bool")
         add(
-            "all", "content", "dotfiles", "filename", "ignorecase",
+            "searchall", "content", "dotfiles", "filename", "ignorecase",
             "locations", "name", "profiles", "regex", "tags"
         )
         self.add("searchstr", "find")
+
+        # create constants for arguments of sync mode
+        self.add("files", "sync", value=[], type="list")
 
         # create constants for settings
         add = self.add_factory("settings", value=True, type="bool")
@@ -1413,6 +1451,7 @@ class Const(metaclass=Singleton):
         add("col_ok", value='\x1b[92m')
         add("col_warning", value='\x1b[93m')
         add("col_debug", value='\x1b[90m')
+        add("col_noemph", value='\x1b[22m')
         add = self.add_factory("settings")
         add("backup_extension", value="bak"),
         add("decrypt_pwd", value=None, func=self.__censored)
@@ -1445,6 +1484,10 @@ class Const(metaclass=Singleton):
 
         # Done
         self.__initialized = True
+
+    @property
+    def mode(self):
+        return self.get(self.args.mode)
 
     def add(
         self, name, section,
@@ -1500,7 +1543,7 @@ class Const(metaclass=Singleton):
         elif re.fullmatch(r"-?\d{1,9}", indicator):
             # number was provided
             number = int(indicator)
-            snapshots = get_snapshots(const.session_dir)
+            snapshots = find_snapshots(const.internal.session_dir)
             if number == 0 or abs(number) > len(snapshots):
                 raise UserError("Invalid state number.")
             elif number > 0:
@@ -1570,63 +1613,47 @@ class Const(metaclass=Singleton):
             return self.get(name)
         return self.get(self.sec_to_con[section]).get(name)
 
-    def load(self, args):
-        self.parsed_args = args
+    def read_configs(self, extra_config=""):
         # Find all configs
         cfgs = find_file_at("uberdot.ini", self.internal.cfg_search_paths)
-        if args.config:
-            cfgs += [os.path.join(self.internal.owd, args.config)]
+        if extra_config:
+            cfgs += [abspath(extra_config)]
         self.internal.cfg_files = cfgs
-        # Setup session
-        if args.session:
-            self.args.session = args.session
-        self.internal.session_dir = self.internal.session_dir % self.args.session
-        self.internal.session_dirs_foreign = list(
-            map(
-                lambda x: (x[0], x[1] % self.args.session),
-                self.internal.session_dirs_foreign
-            )
-        )
-        # Prepare config load
-        all_constants = []
-        for container in self.root_container:
-            all_constants += container.get_constants(mutable=Constant.CONFIGABLE)
-
         # Load configs
-        self.config = configparser.ConfigParser(interpolation=None)
+        config = configparser.ConfigParser(interpolation=None)
         try:
             for cfg in cfgs:
                 if not os.path.exists(cfg):
                     raise PreconditionError("The config '" + cfg + "' does not exist.")
-                self.config.read(cfg)
+                config.read(cfg)
                 # Check and normalize the read config
-                for section in self.config.sections():
+                for section in config.sections():
                     sec = section
                     if section.startswith("Session"):
                         sec = section.split(".")[-1]
-                    for name, value in self.config.items(section):
+                    for name, value in config.items(section):
                         # Get corresponding constant
                         constant = self.get_constant(sec, name)
                         # We need to normalize all paths here, relatively to
                         # the config file which it defined
                         if (constant.type == "state" and not re.fullmatch(r"\d{1,10}", value)) \
                                 or constant.type == "path":
-                            self.config[section][name] = abspath(value, origin=os.path.dirname(cfg))
+                            config[section][name] = abspath(value, origin=os.path.dirname(cfg))
         except configparser.Error as err:
             msg = "Can't parse config at '" + cfg + "'. " + err.message
             raise PreconditionError(msg)
+        return config
 
+    def set_session(self, session):
+        self.args.session = session
+        self.internal.session_dir = os.path.join(
+            self.internal.data_dir,
+            self.internal.SESSION_SUBDIR,
+            self.args.session
+        )
         self.__load_initialized = True
 
-        # Write all values from config
-        for name, constant in all_constants:
-            if name == "session" and constant.section == self.con_to_sec["args"]:
-                continue
-            self.__load_value(name, constant)
-
-        # Create shortcut to arguments of current mode
-        self.mode_args = self.get(self.args.mode)
-
+    def fix_loaded(self):
         # Remove all colors if disabled
         if not self.settings.color:
             self.internal.col_endc = ""
@@ -1634,43 +1661,85 @@ class Const(metaclass=Singleton):
                 if name.startswith("col_"):
                     props.value = ""
 
-    def __load_value(self, name, constant):
+    def load_from_args(self, args):
+        if args.session:
+            session = args.session
+        else:
+            # use default if unset
+            session = self.args.session
+        self.load(session, args)
+
+    def load(self, session, args=None):
+        # Setup session
+        self.set_session(session)
+        # Prepare config load
+        all_constants = []
+        for container in self.root_container:
+            all_constants += container.get_constants(mutable=Constant.CONFIGABLE)
+        # Read configs
+        if args is None:
+            config = self.read_configs()
+        else:
+            config = self.read_configs(abspath(args.config, origin=const.internal.owd))
+        # Fetch values for all constants and store them
+        for name, constant in all_constants:
+            # Session and cfg_files are already set, so we skip them
+            if name == "session" and constant.section == self.con_to_sec["args"]:
+                continue
+            if constant.section is None:
+                continue
+            # Search for available values
+            found = False
+            if args is not None:
+                # If args was set we prefer values found here
+                found, value = self.__get_value_from_args(name, constant, args)
+            if not found:
+                # If args wasn't set or value was not found in args we prefer the configs
+                found, value = self.__get_value_from_config(name, constant, config)
+            if not found:
+                # Value is not in anywhere. We don't change the default value, but
+                # set it anyway so that the constant can't be overwritten anymore
+                value = constant._value
+            # Set constant, if possible
+            try:
+                constant.value = value
+            except ValueError as err:
+                raise UberdotError("Cannot set constant '" + name + "'. " + str(err))
+        self.fix_loaded()
+        # TODO: access configables only if this is true?
+        self.__loaded = True
+
+    def __get_value_from_config(self, name, constant, config):
         if not self.__load_initialized:
             raise FatalError("Config loading feature not fully initialized yet.")
-        if constant.section is None:
-            # Constant can't be found in any config
-            return
-        # Set getter for config depending on value type
-        getter = self.config.get
-        if constant.type == "int":
-            getter = self.config.getint
-        elif constant.type == "bool":
-            getter = self.config.getboolean
-        # Try to load value from parsed_args
-        loaded, value = self.__get_value_from_args(name, constant)
-        if not loaded:
-            # Try to load value from config. Prefer special session section.
-            section = "Session." + self.args.session + "." + constant.section
-            if self.config.has_section(section) and self.config.has_option(section, name):
-                value = getter(section, name)
-                loaded = True
-            elif self.config.has_section(constant.section) and self.config.has_option(constant.section, name):
-                value = getter(constant.section, name)
-                loaded = True
-            else:
-                # Value is not in config. We don't change the value, but set it
-                # anyway so that the constant can't be overwritten anymore
-                value = constant.value
-        # Set constant, if possible
-        try:
-            constant.value = value
-        except ValueError as err:
-            raise UberdotError("Cannot set constant '" + name + "'. " + str(err))
-
-    def __get_value_from_args(self, name, constant):
         found = False
         value = None
-        pargs = vars(self.parsed_args)  # dict to search in
+        if constant.section is None:
+            # Constant can't be found in any config
+            return found, value
+        # Set getter for config depending on value type
+        getter = config.get
+        if constant.type == "int":
+            getter = config.getint
+        elif constant.type == "bool":
+            getter = config.getboolean
+        # Try to load value from config. Prefer special session section.
+        section = "Session." + self.args.session + "." + constant.section
+        if config.has_section(section) and config.has_option(section, name):
+            value = getter(section, name)
+            found = True
+        elif config.has_section(constant.section) and config.has_option(constant.section, name):
+            value = getter(constant.section, name)
+            found = True
+        return found, value
+
+    def __get_value_from_args(self, name, constant, parsed_args):
+        found = False
+        value = None
+        if constant.section is None:
+            # Constant can't be found in any config
+            return found, value
+        pargs = vars(parsed_args)  # dict to search in
         con = self.sec_to_con[constant.section]  # name of container in constants
 
         # Filter constants that cant be set via commandline anyway
@@ -1701,6 +1770,39 @@ class Const(metaclass=Singleton):
             #     value = os.path.join(self.owd, value)
         return found, value
 
+    def print_all(self):
+        """Print out internal values.
+
+        This includes search paths of configs, loaded configs,
+        parsed commandline arguments and settings.
+        """
+        old_section = ""
+        all_constants = []
+        for container in const.root_container:
+            all_constants += container.get_constants(mutable=0)
+        for name, props in all_constants:
+            # Get section and print header when section changes
+            section = props.section
+            if props.section is None:
+                section = "Internal"
+            if old_section != section:
+                print(const.settings.col_emph + section + ":" + const.internal.col_endc)
+                old_section = section
+            value = props.value
+            if name in ["col_endc", "col_noemph"]:
+                value = value.encode("unicode_escape").decode("utf-8")
+            elif name.startswith("col_"):
+                value = value + value.encode("unicode_escape").decode("utf-8")
+                value += const.internal.col_endc
+            namestr = str("   " + name + ": ").ljust(32)
+            valuestr = str(value)
+            if props.type == "list" and len(namestr+valuestr) > get_terminal_size().columns:
+                valuestr = "[" + str(value[0])
+                for item in value[1:]:
+                    valuestr += ",\n" + (" " * 32) + str(item)
+                valuestr += "]"
+            print(namestr + valuestr)
+
 
 def init_const():
     # Initialize basic constants
@@ -1709,7 +1811,7 @@ def init_const():
     STATE_NAME = "state.json"
     DATA_DIR_ROOT = "/root/.uberdot"
     DATA_DIR_TEMP = "/home/%s/.uberdot"
-    SESSION_SUBDIR = "sessions/%s"
+    SESSION_SUBDIR = "sessions/"
 
     def gen_data_dir(user):
         if user == "root":
@@ -1747,11 +1849,9 @@ def init_const():
         data_dirs_foreign = [
             ("test", os.path.join(os.path.dirname(data_dir), "data_test"))
         ]
-    # Directory of the current and all foreign sessions
-    session_dir = os.path.join(data_dir, SESSION_SUBDIR)
-    # TODO: this should have all sessions of foreign users as the user probably wont know about them
+    # Directories of all foreign sessions
     session_dirs_foreign = [
-        (user, os.path.join(item, SESSION_SUBDIR)) for user, item in data_dirs_foreign
+        (user, session) for user, item in data_dirs_foreign for session in listdirs(os.path.join(item, SESSION_SUBDIR))
     ]
     # Searchpaths for configs
     cfg_search_paths = [
@@ -1773,7 +1873,6 @@ def init_const():
         cfg_search_paths=cfg_search_paths,
         data_dir=data_dir,
         data_dirs_foreign=data_dirs_foreign,
-        session_dir=session_dir,
         session_dirs_foreign=session_dirs_foreign,
         test=test,
         user=user,

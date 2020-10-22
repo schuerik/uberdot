@@ -39,11 +39,11 @@ from uberdot.state import LinkData
 from uberdot.interpreters import Interpreter
 from uberdot.utils import *
 
+# TODO: const.args and const.mode shouldn't be used here
 const = Const()
 globalstate = GlobalState()
 
 
-# TODO Difflog behaves like a singleton
 class DiffLog:
     """This class stores the operations that were determined by a
     Difference-Solver. Furthermore it provides helpers to create such
@@ -350,7 +350,7 @@ class StateFilesystemDiffSolver(DiffSolver):
     def _generate_operations(self):
         # Go through profiles and generate operations for each of them
         for profile in globalstate.current.values():
-            if profile["name"] in const.args.exclude:
+            if profile["name"] in const.mode.exclude:
                 continue
             self.__generate_profile_fix(profile)
 
@@ -412,6 +412,7 @@ class StateFilesystemDiffSolver(DiffSolver):
             # Check if link still points to same target
             hard, path, inode = readlink(link["path"])
             if not check_same_target(path, inode, link):
+                # TODO: message should also tell what the link is supposed to point to
                 if link["hard"] != hard:
                     msg = changed_type_msg(path, link) + " It "
                 else:
@@ -553,7 +554,7 @@ class UninstallDiffSolver(RemoveProfileDiffSolver):
         Args:
             profile_name (str): Name of the profile that will be removed
         """
-        if profile_name in const.args.exclude:
+        if profile_name in const.mode.exclude:
             log_debug("'" + profile_name + "' is in exclude list. Skipping...")
             # Even though we skip it, we need to make sure that the profile is
             # no longer a subprofile, because at this point profile_name is
@@ -605,7 +606,7 @@ class LinkListDiffSolver(DiffSolver):
         # Check all removed
         for installed_link in installed_links[:]:
             for new_link in new_links[:]:
-                if installed_link.is_similar(new_link):
+                if installed_link.is_similar_file(new_link):
                     break
             else:
                 # Installed link is not similiar to any new link, so it
@@ -617,15 +618,37 @@ class LinkListDiffSolver(DiffSolver):
         # Check all changed and added links
         for new_link in new_links[:]:
             for installed_link in installed_links[:]:
-                if installed_link.is_similar(new_link):
+                if installed_link.is_similar_file(new_link):
                     # new_link has same name or target, so we need to create
                     # an update operation in the difflog
                     profile_changed = True
-                    # Check if it was already updated in the filesystem
-                    self.difflog.update_link(profile_name, installed_link,
-                                             new_link)
+
+                    if installed_link.is_same_file(new_link):
+                        # edge case: a dynamicfile was modified in a way that the
+                        # resulting file stays the same, but the buildup differs,
+                        # so we need to update only the statefile entry
+                        # TODO add this function/operation and implement in interpreters
+                        self.difflog.update_link_data(profile_name, installed_link,
+                                                      new_link)
+                    else:
+                        # standart case: links are similar but not the same,
+                        # so we need to update the link itself
+                        self.difflog.update_link(profile_name, installed_link,
+                                                 new_link)
+                    # We need to remove used links from the link lists as usual but for updates
+                    # there is another edge case that needs to be taken into account:
+                    # Suppose an installed link gets removed and in the same run another
+                    # installed link gets modified to replace the former link. This will
+                    # be correctly interpreted as just one update operation, but would
+                    # only remove one of the installed links from the linklist instead of
+                    # both. Therefore we take a second look into installed_links and remove
+                    # entries of overwritten installed links.
                     installed_links.remove(installed_link)
                     new_links.remove(new_link)
+                    for link in installed_links[:]:
+                        if link["path"] == new_link["path"]:
+                            installed_links.remove(link)
+                            break
                     break
             else:
                 # There was no similar installed link, so we need to create an
@@ -637,6 +660,7 @@ class LinkListDiffSolver(DiffSolver):
                     self.difflog.add_link(profile_name, new_link)
                 new_links.remove(new_link)
 
+        print(self.difflog)
         # We removed every symlink from new_links and installed_links when
         # we found the correct operation for them. If they aren't empty now,
         # something obviously went wrong.
@@ -649,35 +673,32 @@ class LinkListDiffSolver(DiffSolver):
 
 
 class StateDiffSolver(LinkListDiffSolver):
-    def __init__(self, old_state, new_state):
+    def __init__(self, old_state, new_state, include, exclude):
         super().__init__()
         self.old_state = old_state.copy()
         self.new_state = new_state.copy()
+        self.include = include
+        self.exclude = exclude
 
     def solve(self, difflog=None):
         log_debug("Determining diff operations to transform state.")
         return super().solve(difflog=difflog)
 
     def _generate_operations(self):
-        if const.args.include:
-            self.solve_included()
-        else:
-            self.solve_all()
+        profilelist = []
+        if self.include:
+            profilelist = self.include[:]
+        for profile in profilelist:
+            if profile in self.exclude:
+                profilelist.remove(profile)
+        self.solve_profiles(profilelist)
 
     def _remove_old_profiles(self, profiles):
-        old_profiles = []
-        for profile in profiles:
-            if profile in const.args.exclude:
-                log_debug("'" + profile + "' is in exclude list. Skipping...")
-                continue
-            if profile not in self.new_state:
-                old_profiles.append(profile)
-        RemoveProfileDiffSolver(self.old_state, old_profiles).solve(self.difflog)
-        return old_profiles
+        RemoveProfileDiffSolver(self.old_state, profiles).solve(self.difflog)
 
     def _update_profiles(self, profiles):
         for profile in profiles:
-            if profile in const.args.exclude:
+            if profile in const.mode.exclude:
                 log_debug("'" + profile + "' is in exclude list. Skipping...")
                 continue
             for prop in self.old_state[profile]:
@@ -703,7 +724,7 @@ class StateDiffSolver(LinkListDiffSolver):
 
     def _add_profiles(self, profiles):
         for profile in profiles:
-            if profile in const.args.exclude:
+            if profile in const.mode.exclude:
                 log_debug("'" + profile + "' is in exclude list. Skipping...")
                 continue
             if profile not in self.old_state:
@@ -732,14 +753,18 @@ class StateDiffSolver(LinkListDiffSolver):
         # Last we add profiles that are only in the new state
         self._add_profiles([p for p in const.args.include if p in self.new_state])
 
-    def solve_all(self):
+    # TODO this is untested
+    def solve_profiles(self, profiles):
+        # profiles needs to be a list of all profiles and subprofiles that will be touched
+        old_profiles = [p for p in self.old_state.keys() if p in profiles and p not in self.new_state.keys()]
+        new_profiles = [p for p in self.new_state.keys() if p in profiles and p not in self.old_state.keys()]
+        other_profiles = list(set(profiles) - set(old_profiles) - set(new_profiles))
         # We begin with removing all profiles that are not in the new state
-        old_profiles = self._remove_old_profiles(self.old_state.keys())
+        old_profiles = self._remove_old_profiles(old_profiles)
         # Then we update all profiles that occure in both
-        other_profiles = list(set(self.old_state.keys()) - set(old_profiles))
         self._update_profiles(other_profiles)
         # Last we add profiles that are only in the new state
-        self._add_profiles(self.new_state)
+        self._add_profiles(new_profiles)
 
 
 class UpdateDiffSolver(LinkListDiffSolver):
@@ -805,7 +830,7 @@ class UpdateDiffSolver(LinkListDiffSolver):
 
         # Checking exclude list
         profile_name = profiledata["name"]
-        if profile_name in const.args.exclude:
+        if profile_name in const.mode.exclude:
             log_debug("'" + profile_name + "' is in exclude list. Skipping...")
             return
         # Get profile from state
