@@ -24,26 +24,6 @@
                 "created": "2020-10-28 17:27:59"
             },
             {
-                "path": "/home/god/repos/uberdot/test/regression/environment-dynamic_changes/name_encrypt9",
-                "target": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
-                "target_inode": 22020396,
-                "permission": 644,
-                "owner": "god:god",
-                "secure": true,
-                "hard": false,
-                "buildup": {
-                    "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/decrypted/name_encrypt9#e59ab101cf09636fc06d10bf3d56a5cc",
-                    "source": {
-                        "path": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/static/name_encrypt9#11ed221bd25489f76b1536dc71d848c7",
-                        "source": "/home/god/repos/uberdot/test/regression/files/name_encrypt9",
-                        "type": "StaticFile"
-                    },
-                    "type": "EncryptedFile"
-                },
-                "modified": "2020-10-28 17:27:59",
-                "created": "2020-10-28 17:27:59"
-            },
-            {
                 "path": "/home/god/repos/uberdot/test/regression/environment-dynamic_changes/merge1",
                 "target": "/home/god/repos/uberdot/test/regression/data/sessions/dynamic_changes/files/merged/merge1#6ddb4095eb719e2a9f0a3f95677d24e0",
                 "target_inode": 22020397,
