@@ -731,7 +731,7 @@ def log_error(message, end="\n"):
     logger.error(message + end)
 
 
-def user_choice(*options, abort=False, inline=True):
+def user_choice(*options, abort=False, short=False):
     options = dict(options)
     if abort:
         options["A"] = "Abort"
@@ -740,16 +740,18 @@ def user_choice(*options, abort=False, inline=True):
         options[key] = text[:idx] + "[" + key + "]" + text[idx+1:]
 
     while True:
-        if inline:
-            prompt = " / ".join(options.values())
+        if short:
+            prompt = ", ".join(options.keys()) + ", ?"
         else:
-            prompt = "\n".join(options.values()) + "\n"
+            prompt = " / ".join(options.values())
         selection = user_input(prompt)
         selection = selection.lower().strip()
-        if selection not in map(str.lower, options.keys()):
-            print("Invalid option.")
-        elif abort and selection == "a":
+        if abort and selection == "a":
             raise UserAbortion()
+        elif short and selection == "?":
+            print(" / ".join(options.values()))
+        elif selection not in map(str.lower, options.keys()):
+            print("Invalid option.")
         else:
             return selection
 
@@ -1613,11 +1615,11 @@ class Const(metaclass=Singleton):
             return self.get(name)
         return self.get(self.sec_to_con[section]).get(name)
 
-    def read_configs(self, extra_config=""):
+    def read_configs(self, extra_configs=[]):
         # Find all configs
         cfgs = find_file_at("uberdot.ini", self.internal.cfg_search_paths)
-        if extra_config:
-            cfgs += [abspath(extra_config)]
+        if extra_configs:
+            cfgs += list(map(abspath, extra_configs))
         self.internal.cfg_files = cfgs
         # Load configs
         config = configparser.ConfigParser(interpolation=None)
@@ -1680,7 +1682,7 @@ class Const(metaclass=Singleton):
         if args is None:
             config = self.read_configs()
         else:
-            config = self.read_configs(abspath(args.config, origin=const.internal.owd))
+            config = self.read_configs(map(lambda x: abspath(x, origin=const.internal.owd), args.config))
         # Fetch values for all constants and store them
         for name, constant in all_constants:
             # Session and cfg_files are already set, so we skip them

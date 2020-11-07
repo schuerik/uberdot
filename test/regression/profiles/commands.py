@@ -38,9 +38,11 @@ class Default(EasyProfile):
 class DynamicFiles(EasyProfile):
     def generate(self):
         link(decrypt("name_encrypt8"))
-        link(decrypt("name_encrypt9"))
         link(merge("merge1", ["name1", "name2"]))
         link(merge("merge2", ["name1", "name2"]))
+        link(merge("merge3", ["split1", "split2", "split3"]))
+        link(merge("merge4", ["split4", "split5", "split6"]))
+        link(merge("merge5", ["split7", "split8", decrypt("name_encrypt9")]))
 
 class EnvironmentSubstitution(EasyProfile):
     def generate(self):

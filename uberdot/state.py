@@ -289,14 +289,17 @@ class AutoExpandDict(MutableMapping, AutoExpander):
         return self.data_specials
 
     def as_dict(self):
-        result = dict(self.items())
-        result.update(
-            map(
-                # Prepend the removed @ signs to special values
-                lambda x: ("@"+x[0], x[1]),
-                self.get_specials().items()
-            )
-        )
+        result = {}
+        for key, val in self.items():
+            if isinstance(val, AutoExpandDict):
+                val = val.as_dict()
+            elif isinstance(val, AutoExpandList):
+                val = val.as_list()
+            result[key] = val
+        for key, val in self.get_specials().items():
+            if isinstance(val, AutoExpandDict):
+                val = val.as_dict()
+            result["@" + key] = val
         return result
 
     def get_special(self, key, default=None):
@@ -340,6 +343,16 @@ class AutoExpandList(MutableSequence, AutoExpander):
         self.notify_active = True
         self.notify()
 
+    def as_list(self):
+        result = []
+        for item in self:
+            if isinstance(item, AutoExpandDict):
+                item = item.as_dict()
+            elif isinstance(item, AutoExpandList):
+                item = item.as_list()
+            result.append(item)
+        return result
+
     def __getitem__(self, index):
         if isinstance(index, slice):
             if index.start is not None and index.start >= self.len():
@@ -354,7 +367,7 @@ class AutoExpandList(MutableSequence, AutoExpander):
         else:
             raise TypeError(
                 "'index' needs to be of type slice or int, not " +
-                type(indx)
+                str(type(index))
             )
 
     def __delitem__(self, index): self.delitem(index)

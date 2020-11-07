@@ -39,6 +39,7 @@ import logging
 import os
 import sys
 from abc import abstractmethod
+from difflib import SequenceMatcher
 from subprocess import PIPE
 from subprocess import Popen
 from uberdot.state import GenBuildupData, GenCopyData
@@ -47,14 +48,15 @@ from uberdot import utils
 const = utils.Const()
 log = utils.log
 log_debug = utils.log_debug
+log_warning = utils.log_warning
 
 
 def getModuleAttr(name):
     return getattr(sys.modules[__name__], name)
 
 
-def load_file_from_buildup(cls, buildupdata):
-        return getModuleAttr(buildupdata["type"]).load(buildupdata)
+def load_file_from_buildup(buildupdata):
+    return getModuleAttr(buildupdata["type"]).load(buildupdata)
 
 
 class AbstractFile:
@@ -72,6 +74,7 @@ class AbstractFile:
         self._content = content
         self._source = source
         self.origin = origin
+        self.parent = None
 
     @classmethod
     def load(cls, buildupdata):
@@ -106,6 +109,14 @@ class AbstractFile:
         self._source = source
         self.update_from_source()
 
+    def update_from_source(self):
+        # Set new content and write to file
+        self._content = self.forward_manipulation(self._get_src_content())
+        self.write()
+        # Recursive call propagates changes to parent
+        if self.parent is not None:
+            self.parent.update_from_source()
+
     @property
     def content(self):
         return self._content
@@ -115,6 +126,11 @@ class AbstractFile:
         self._content = content
         if content is not None:
             self.update_from_content()
+            self.write()
+
+    @abstractmethod
+    def update_from_content(self):
+        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -127,23 +143,19 @@ class AbstractFile:
         raise NotImplementedError
 
     @abstractmethod
-    def _generate_content(self):
-        """This abstract method is used to generate the contents of the
-        DynamicFile from sources.
+    def _get_src_content(self):
+        raise NotImplementedError
 
-        Returns:
-            bytearray: The raw generated content
-        """
+    @abstractmethod
+    def forward_manipulation(self, file_bytes):
+        raise NotImplementedError
+
+    @abstractmethod
+    def backward_manipulation(self, file_bytes):
         raise NotImplementedError
 
     @abstractmethod
     def _check_source(self, source):
-        raise NotImplementedError
-
-    def _generate_source_content(self):
-        """This method is used to re-generate the sources from an
-        already generated (altered) content.
-        """
         raise NotImplementedError
 
     def getpath(self):
@@ -161,7 +173,7 @@ class AbstractFile:
         )
 
     def getbackuppath(self):
-        return self.gethpath() + "." + const.settings.backup_extension
+        return self.getpath() + "." + const.settings.backup_extension
 
     def getdir(self):
         """Gets the path of the directory that is used to store the generated
@@ -174,34 +186,25 @@ class AbstractFile:
         utils.makedirs(path)
         return path
 
-    def update_from_source(self):
-        """Generates the newest version of the file from sources and writes it
-        if it is not in its subdir yet."""
-        # Generate file and calc checksum
-        self._content = self._generate_content()
-        self.write()
-
     def write(self):
         # Refresh md5sum, so we are writing to the correct file
-        self.md5sum = utils.md5(self._content)
+        self.md5sum = utils.md5(self.content)
         # Check if this version of the file (with same checksum) already exists
         if not os.path.isfile(self.getpath()):
             log_debug("Writing " + type(self).__name__ + " to '" + self.getpath() + "'.")
             file = open(self.getpath(), "wb")
-            file.write(self._content)
+            file.write(self.content)
             file.flush()
             # Also create a backup that can be used to restore the original
             utils.create_backup(self.getpath())
 
-    def update_from_content(self):
-        raise NotImplementedError
-
+    @abstractmethod
     def get_buildup_data(self):
         raise NotImplementedError
 
     def __repr__(self):
         str_ = self.__class__.__name__ +  "("
-        str_ += ", ".join([self.name, self.md5sum, self.source])
+        str_ += ", ".join([self.name, self.md5sum, repr(self.source)])
         str_ += ")"
         return str_
 
@@ -211,9 +214,9 @@ class DynamicFile(AbstractFile):
     def load(cls, buildupdata):
         path = buildupdata["path"]
         basename = os.path.basename(path)
-        name, md5sum = basename.split(const.hash_separator)
+        name, md5sum = basename.split(const.settings.hash_separator)
         source = getModuleAttr(buildupdata["source"]["type"]).load(buildupdata["source"])
-        return cls(name, md5sum=md5sum, source=buildupdata["source"], origin=buildupdata.origin)
+        return cls(name, md5sum=md5sum, source=source, origin=buildupdata.origin)
 
     def _check_source(self, source):
         if not isinstance(source, AbstractFile):
@@ -222,12 +225,14 @@ class DynamicFile(AbstractFile):
             raise TypeError(msg)
 
     def update_from_content(self):
-        file_bytes = self._generate_source_content()
+        file_bytes = self.backward_manipulation(self.content)
         checksum = utils.md5(file_bytes)
         # Recursive call
         if self.source.md5sum != checksum:
             self.source.content = file_bytes
-        self.write()
+
+    def _get_src_content(self):
+        return self.source.content
 
     def get_buildup_data(self):
         return GenBuildupData(
@@ -253,16 +258,19 @@ class MultipleSourceDynamicFile(AbstractFile):
     def load(cls, buildupdata):
         path = buildupdata["path"]
         basename = os.path.basename(path)
-        name, md5sum = basename.split(const.hash_separator)
+        name, md5sum = basename.split(const.settings.hash_separator)
         source = []
         for src in buildupdata["source"]:
             source.append(
-                getClassByName(src["type"]).load(buildupdata["source"])
+                getModuleAttr(src["type"]).load(src)
             )
         return cls(name, md5sum=md5sum, source=source, origin=buildupdata.origin)
 
+    def _get_src_content(self):
+        return [x.content for x in self.source]
+
     def update_from_content(self):
-        files_bytes = self._generate_source_content()
+        files_bytes = self.backward_manipulation(self.content)
         for i, file_bytes in enumerate(files_bytes):
             checksum = utils.md5(file_bytes)
             # Recursive call
@@ -302,96 +310,100 @@ class StaticFile(AbstractFile):
     def load(cls, buildupdata):
         path = buildupdata["path"]
         basename = os.path.basename(path)
-        name, md5sum = basename.split(const.hash_separator)
+        name, md5sum = basename.split(const.settings.hash_separator)
         return cls(name, md5sum=md5sum, source=buildupdata["source"], origin=buildupdata.origin)
 
     def update_from_content(self):
         def write_source():
+            log_debug("Writing content of StaticFile back to '" + self.source + "'.")
             utils.create_tmp_backup(self.source)
             open(self.source, "wb").write(self.content)
             utils.remove_tmp_backup(self.source)
 
-        def select_action(self, action, source, source_bak):
+        def select_action(action):
+            file = self.getpath()
+            file_bak = self.getbackuppath()
             if action == "i":
                 return True
-            if action == "f":
-                # Create a colored diff between the file and its original
-                process = Popen(["diff", "--color=auto", source_bak, source])
-                process.communicate()
-                return False
             if action == "s":
                 # Create a colored diff between the original and the source
-                process = Popen(["diff", "--color=auto", source_bak, self.source])
+                process = Popen(["diff", "--color=auto", file_bak, self.source])
                 process.communicate()
                 return False
             if action == "w":
                 write_source()
                 return True
             if action == "p":
+                if not info.pkg_installed("git"):
+                    print("This option requires git installed.")
+                    return False
                 # Create a git patch with git diff
                 patch_file = os.path.splitext(self.source)[0] + ".patch"
                 patch_file = user_selection("Enter filename for patch", patch_file)
                 patch_file = abspath(patch_file, origin=const.internal.owd)
-                args = ["git", "diff", "--no-index", source_bak, source]
-                # TODO: what if git is not installed?
+                args = ["git", "diff", "--no-index", file_bak, self.source]
                 process = Popen(args, stdout=PIPE)
                 try:
-                    with open(patch_file, "wb") as file:
-                        file.write(process.stdout.read())
+                    with open(patch_file, "wb") as pfile:
+                        pfile.write(process.stdout.read())
                     log("Patch file written successfully to '" + patch_file + "'.")
                 except OSError as err:
                     msg = "Could not write patch file '" + patch_file + "'. "
                     msg += str(err)
-                    raise PreconditionError(msg)
+                    raise utils.PreconditionError(msg)
                 action = "u"
             if action == "u":
                 # Copy the original to the changed
-                copyfile(source_bak, self.source)
+                copyfile(file_bak, self.source)
                 return True
             if action == "d":
-                copyfile(source_bak, self.source)
-                copyfile(source_bak, source)
+                copyfile(file_bak, self.source)
+                copyfile(file_bak, file)
                 return True
             return False
 
         # Check for file changes
-        file_bytes = self._generate_content()
-        file_hash = utils.md5(file_bytes)
-        if self.md5sum == utils.md5(self.content):
-            # Content didn't change at all, so nothing to do
+        source_hash = utils.md5(self._get_src_content())
+        content_hash = utils.md5(self.content)
+        # self.md5sum contains the hash of the old content at this point
+        if self.md5sum == content_hash:
+            # Content didn't change at all, so nothing to do. Don't even write it.
             return
-        elif self.md5sum == file_hash:
-            # Content did change, but the source didn't so we can simlpy
+        elif self.md5sum == source_hash:
+            # Content did change, but the source didn't so we can simply
             # write it back
-            write_source(new_bytes)
+            write_source()
+        elif content_hash == source_hash:
+            # Content did change, but it was already propagated to source.
+            # We still want to write it, so that it updates, but nothing else to do here.
+            pass
         else:
             msg = "Conflict detected when writing file '" + self.name
             msg += "' back to its source '" + self.source
-            msg += "' because you modified both."
+            msg += "' because the source contains changes."
             log_warning(msg)
-            source = self.getpath()
-            source_bak = self.getbackuppath()
             done = False
-            if const.settings.sync_action:
-                done = select_action(const.settings.sync_action, source, source_bak)
+            raise ValueError
+            # if const.settings.sync_action:
+            #     done = select_action(const.settings.sync_action, source, source_bak)
             while not done:
-                inp = user_choice(
-                    ("I", "Ignore/Skip"), ("f", "Show file diff"),
-                    ("s", "Show source diff"), ("W", "Write file"),
+                done = select_action(utils.user_choice(
+                    ("I", "Ignore"), ("M", "Merge"),
+                    ("s", "Show source diff"), ("W", "Write file anyway"),
                     ("p", "Create patch and use source"), ("U", "Use source"),
                     ("D", "Discard all changes"),
-                    abort=True, inline=False
-                )
-                done = select_action(inp, source, source_bak)
+                    abort=True, short=True
+                ))
+        # Write file. This updates the md5sum as well.
         self.write()
 
     def _check_source(self, source):
         if not isinstance(source, str):
             raise TypeError("source needs to be of type string, not " + type(source).__name__)
         if not os.access(source, os.W_OK):
-            raise PreconditionError("No write permission for '" + source + "'.")
+            raise utils.PreconditionError("No write permission for '" + source + "'.")
 
-    def _generate_content(self):
+    def _get_src_content(self):
         """Returns the contents of the source file.
 
         Returns:
@@ -399,8 +411,11 @@ class StaticFile(AbstractFile):
         """
         return open(self.source, "rb").read()
 
-    def _generate_source_content(self):
-        return self.content
+    def forward_manipulation(self, file_bytes):
+        return file_bytes
+
+    def backward_manipulation(self, file_bytes):
+        return file_bytes
 
     def get_buildup_data(self):
         return GenCopyData(
@@ -420,22 +435,27 @@ class EncryptedFile(DynamicFile):
     SUBDIR = "decrypted"
     """Subdirectory used by EncryptedFile"""
 
-    def _generate_content(self):
+    def __init__(self, name, **kwargs):
+        if not info.pkg_installed("gpg"):
+            raise PreconditionError("Using an EncryptedFile requires gnupg installed.")
+        super().__init__(name, **kwargs)
+
+    def forward_manipulation(self, file_bytes):
         """Decrypts the first file in :attr:`self.sources<dyanmicfile.sources>`
         using gpg.
 
         Returns:
             bytearray: The content of the decrypted file
         """
-        return self._invoke_gnupg(self.source.content)
+        return self._invoke_gnupg(file_bytes)
 
-    def _generate_source_content(self):
-        return self._invoke_gnupg(self.content, ["-e", "--symmetric"])
+    def backward_manipulation(self, file_bytes):
+        return self._invoke_gnupg(file_bytes, ["--symmetric"])
 
     def _create_gnupg_command(self, tmp_output, custom_args, censore_pwd=True):
         args = ["gpg", "-q", "--yes"] + custom_args
         if const.settings.decrypt_pwd:
-            args += ["--batch", "--passphrase", ]
+            args += ["--batch", "--passphrase"]
             if censore_pwd:
                 pwd = const.settings.decrypt_pwd
             else:
@@ -453,8 +473,12 @@ class EncryptedFile(DynamicFile):
         strargs = " ".join(self._create_gnupg_command(tmp_out, custom_args))
         log_debug("Invoking OpenPGP with '" + strargs + "'")
         # Use OpenPGP to decrypt the file
-        process = Popen(args, stdin=PIPE)
-        process.communicate(input=input_content)
+        # TODO this is missing a try block
+        process = Popen(args, stdin=PIPE, stderr=PIPE)
+        _, stderr = process.communicate(input=input_content)
+        if process.returncode:
+            msg = "Invoking OpenPGP failed. Error output was:\n" + stderr.decode()
+            raise utils.PreconditionError(msg)
         # Remove the decrypted file. It will be written by the update function
         # of the super class to its correct location.
         result = open(tmp_out, "rb").read()
@@ -481,7 +505,7 @@ class FilteredFile(DynamicFile):
         super().__init__(name, **kwargs)
         self.shell_command = shell_command
 
-    def _generate_content(self):
+    def forward_manipulation(self, file_bytes):
         """Pipes the content of the first file in
         :attr:`self.sources<dyanmicfile.sources>` into the specified
         shell comand.
@@ -489,13 +513,14 @@ class FilteredFile(DynamicFile):
         Returns:
             bytearray: The output of the shell command
         """
-        command = "cat " + self.source.getpath() + " | " + self.shell_command + ""
+        command = "cat | " + self.shell_command + ""
         log_debug("Piping file through shell command with '" + command + "'")
-        process = Popen(command, stdout=PIPE, shell=True)
-        result, _ = process.communicate()
+        process = Popen(command, stdin=PIPE, stdout=PIPE, shell=True)
+        # TODO error handling
+        result, _ = process.communicate(input=file_bytes)
         return result
 
-    def _generate_source_content(self):
+    def backward_manipulation(self, file_bytes):
         # TODO: More info about the file that needs to be fixed manually
         raise UnsupportedError("FilteredFiles can not reverse its modifications. Fix it yourself.")
 
@@ -508,11 +533,17 @@ class SplittedFile(MultipleSourceDynamicFile):
     SUBDIR = "merged"
     """Subdirectory used by SplittedFile"""
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, file_lengths=[], **kwargs):
         super().__init__(name, **kwargs)
-        self.file_lengths = []
+        self.file_lengths = file_lengths
 
-    def _generate_content(self):
+    @classmethod
+    def load(cls, buildupdata):
+        splittedfile = super(SplittedFile, cls).load(buildupdata)
+        splittedfile.file_lengths = buildupdata["file_lengths"]
+        return splittedfile
+
+    def forward_manipulation(self, file_bytes):
         """Merges all files from ``:class:`~interpreters.self`.sources``
         in order.
 
@@ -521,47 +552,65 @@ class SplittedFile(MultipleSourceDynamicFile):
         """
         result = bytearray()
         self.file_lengths = []
-        for file in self.source:
-            lines = open(file.getpath(), "rb").read().split(b"\n")
+        for fb in file_bytes:
+            lines = fb.split(b"\n")
             linecount = len(lines) if lines[-1] else len(lines)-1
             self.file_lengths.append(linecount)
-            result.extend(b"\n".join(lines))
+            result.extend(fb)
         return result
 
-    def _generate_source_content(self):
-        def increment_tmp_len(count):
-            if tmp_len + count > file_lengths[file_idx]:
-                tmp_len = tmp_len + count - file_lengths[file_idx]
+    def backward_manipulation(self, file_bytes):
+        def increment_cursor(count):
+            nonlocal cursor, file_idx
+            if cursor + count > file_lengths[file_idx]:
+                # Increment is bigger than current file size, so we need to go to the next file
+                # First calculate how much to increment after we reached the end of the current file
+                count = cursor + count - file_lengths[file_idx]
+                # Then reset cursor and go to the next file
+                cursor = 0
                 file_idx += 1
+                # Increment cursor for the next file with the remaining count
+                increment_cursor(count)
             else:
-                tmp_len += count
-        # Calculate diff to figure out where to split the new content
-        current = self.content.encode()
-        previous = "".join([open(file, "r").read() for file in self.source])
-        seqm = SequenceMatcher(None, previous.split(), current.split(), False)
+                cursor += count
+        # The backwards manipulation needs to figure out where to split
+        # the file, so that the content is propagated to the correct source
+
+        # current and previous will contain the current and previous content of the entire file
+        current = file_bytes.decode()
+        previous = "".join([open(file.getpath(), "r").read() for file in self.source])
+        # index that takes track of which source file we are currently looking at
         file_idx = 0
+        # index that takes track at which line in the current source file we are looking at
+        cursor = 0
+        # new file_lengths
         file_lengths = self.file_lengths[:]
-        tmp_len = 0
-        for tag, i1, i2, j1, j2 in seqm.get_optcode():
+        # Calculate diff betweeen previous and current. We will use the diff operations
+        # to figure out, which change belongs to which source file
+        seqm = SequenceMatcher(None, previous.split("\n"), current.split("\n"), False)
+        for tag, i1, i2, j1, j2 in seqm.get_opcodes():
+            # TODO: i can construct cases which will make this fail. eg if you delete
+            # a hunk containing an entire source file, file_idx won't be incremented and
+            # file_lengths will be wrong. Im sure there are more cases like this.
             linecount_old = i2-i1
             linecount_new = j2-j1
             if tag == "equal":
-                increment_tmp_len(linecount_old)
+                increment_cursor(linecount_old)
             elif tag == "delete":
                 file_lengths[file_idx] -= linecount_old
             elif tag == "insert":
                 file_lengths[file_idx] += linecount_new
-                increment_tmp_len(linecount_new)
+                increment_cursor(linecount_new)
             else:  # tag == "replace"
                 file_lengths[file_idx] -= linecount_old
                 file_lengths[file_idx] += linecount_new
-                increment_tmp_len(linecount_new)
+                increment_cursor(linecount_new)
         # Create result for sources depending on the current content and the
         # new file_lengths
         used_lines = 0
         result = []
-        for i, file in self.source:
-            result.append(current[used_lines:file_lengths[i]].decode())
+        for i, file in enumerate(self.source):
+            result.append(current[used_lines:file_lengths[i]].encode())
             used_lines += file_lengths[i]
         return result
 

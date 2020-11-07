@@ -211,7 +211,9 @@ class UDot:
         # Setup top level arguments
         parser.add_argument(
             "-c", "--config",
-            help="load an additional config"
+            help="load an additional config",
+            nargs="*",
+            action="extend"
         )
         parser.add_argument(
             "--skiproot",
@@ -706,7 +708,7 @@ class UDot:
 
     def _exec_remove(self):
         log_debug("Calculating operations to remove profiles.")
-        dfs = UninstallDiffSolver(self.get_profilenames(const.remove.include, const.remove.exclude))
+        dfs = UninstallDiffSolver(self.get_profilenames(const.remove.include, const.remove.exclude), const.remove.exclude)
         dfl = dfs.solve()
         if const.args.skiproot:
             dfl.run_interpreter(SkipRootInterpreter())
@@ -716,7 +718,7 @@ class UDot:
         profile_results = self.generate_profiles(
             const.update.include, const.update.exclude, const.defaults.as_dict()
         )
-        dfs = UpdateDiffSolver(profile_results, const.update.parent)
+        dfs = UpdateDiffSolver(profile_results, const.update.parent, const.update.exclude)
         dfl = dfs.solve()
         if const.update.dui:
             dfl.run_interpreter(DUIStrategyInterpreter())
@@ -725,14 +727,46 @@ class UDot:
         self.resolve_difflog(dfl, **const.update.as_dict())
 
     def _exec_sync(self):
+        difflog = DiffLog()
+        files = const.sync.files[:]
         for profile in self.state.values():
             for link in profile["links"]:
-                if not const.sync.files or link["path"] in const.sync.files:
+                if not files or link["path"] in files:
                     if link["buildup"]:
-                        with open(link["path"]) as file:
-                            load_file_from_buildup(link["buildup"]).content = file.read()
+                        dyn_file = load_file_from_buildup(link["buildup"])
+                        with open(link["path"], "rb") as file:
+                            # Load an old dynamic file and write the current content to it.
+                            # This will trigger the dynamic file to populate its new content
+                            # back to its source(s).
+                            dyn_file.content = file.read()
+                        if link["path"] in files:
+                            files.remove()
+                        # Now we check if the dynamic file changed and eventually create operations to update the link
+                        if dyn_file.getpath() != link["target"]:
+                            # old_link stays the same
+                            old_link = link.copy()
+                            # new_link is the same as old, but points to another dynamic file and has different buildup data
+                            new_link = link.copy()
+                            new_link["target"] = dyn_file.getpath()
+                            new_link["buildup"] = dyn_file.get_buildup_data().as_dict()
+                            difflog.update_link(profile["name"], old_link, new_link)
                     else:
                         log_warning("For '" + link["path"] + "' is no buildup information available. Skipping sync...")
+        if files:
+            for file in files:
+                log_warning("The file '" + file + "' is not an installed link and therefore won't be synchronized.")
+        # TODO needs error handling
+        log_success("All files successfully synchronized back.")
+        if difflog:
+            log("Updating links to point to recently generated files.")
+            # Execute operations from difflog
+            critical_handler(
+                "An unkown error occured during updating synchronised files. Some " +
+                "links or your state file may be corrupted. In most " +
+                "cases uberdot will fix all corruptions by itself the next " +
+                "time you use it. Everything that could not be updated due to this " +
+                "error will be updated the next time you update their corresponding profile.",
+            )(self._resolve_operations_unsafe)(difflog, force=True)
 
     def _exec_version(self):
         print(
@@ -882,7 +916,7 @@ class UDot:
             # Calculate difflog again depending on selection.
             if selection == "s":
                 return
-            diffsolver = StateFilesystemDiffSolver(action=selection)
+            diffsolver = StateFilesystemDiffSolver(const.mode.exclude, action=selection)
             difflog = diffsolver.solve()
             # Execute difflog. First some obligatory checks
             log_debug("Checking operations for errors and conflicts.")

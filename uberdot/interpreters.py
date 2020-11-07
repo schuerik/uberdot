@@ -468,11 +468,9 @@ class CheckDynamicFilesInterpreter(Interpreter):
         Args:
             target (str): The full path to the file that will be checked
         """
-        print(target)
         if not is_dynamic_file(target):
             # This is not a dynamic file
             return
-        print(target)
         # Calculate new hash and get old has of file
         md5_calc = md5(open(target, "rb").read())
         md5_old = os.path.basename(target)[-32:]
@@ -483,8 +481,8 @@ class CheckDynamicFilesInterpreter(Interpreter):
 
     def _op_fin(self, dop):
         if self.change_detected:
-            msg = "Changes to your files would be lost otherwise, so you"
-            msg += " need to run 'udot sync' to merge or discard changes "
+            msg = "Changes to your files could be lost if you proceed. Run"
+            msg += " 'udot sync' to merge or discard changes "
             msg += "before you proceed."
             raise PreconditionError(msg)
 
